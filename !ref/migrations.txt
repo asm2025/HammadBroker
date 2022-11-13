@@ -1,0 +1,29 @@
+1. Make sure the projects are rebuilded to reflect latest changes
+2. cd /d "[REPO_LOCATION]\HammedBroker.Model"
+3. dotnet-ef migrations add [Migration Name] --context HammedBroker.Data.Context.[DbContext] --project ../HammedBroker.Data --startup-project ../HammedBroker.Web
+
+To Remove the last migration:
+	dotnet-ef migrations remove --context HammedBroker.Data.Context.[DbContext] --project ../HammedBroker.Data --startup-project ../HammedBroker.Web --no-build
+
+To list migrations:
+	dotnet-ef migrations list --context HammedBroker.Data.Context.[DbContext] --project ../HammedBroker.Data --startup-project ../HammedBroker.Web --no-build
+
+Entity Framework tools commands:
+	Install:
+		dotnet tool install --global dotnet-ef
+	Update:
+		dotnet tool update --global dotnet-ef
+
+Examples:
+	cd /d "[REPO_LOCATION]\HammedBroker.Model"
+	dotnet-ef migrations add [Migration Name] --context HammedBroker.Data.Context.DataContext --project ../HammedBroker.Data --startup-project ../HammedBroker.Web --no-build
+
+Remove:
+	dotnet-ef migrations remove --context HammedBroker.Data.Context.DataContext --project ../HammedBroker.Data --startup-project ../HammedBroker.Web --no-build
+
+List:
+	dotnet-ef migrations list --context HammedBroker.Data.Context.DataContext --project ../HammedBroker.Data --startup-project ../HammedBroker.Web --no-build
+
+To update the database without running the website:
+	1. cd /d "[REPO_LOCATION]\HammedBroker.Model"
+	2. dotnet-ef database update --context HammedBroker.Data.Context.DataContext --project ../HammedBroker.Data --startup-project ../HammedBroker.Web --no-build

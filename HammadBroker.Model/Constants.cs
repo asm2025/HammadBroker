@@ -1,0 +1,35 @@
+﻿using System;
+
+namespace HammadBroker.Model;
+
+public static class Constants
+{
+	public const string ApplicationName = "HammadBroker";
+
+	public static readonly TimeSpan MigrationTimeout = TimeSpan.FromMinutes(2);
+
+	public static class Configuration
+	{
+		public const string CspTrustedDomainsKey = "CspTrustedDomains";
+		public const string CspTrustedConnectDomainsKey = "CspTrustedConnectDomains";
+	}
+
+	public static class Authorization
+	{
+		public const string SystemPolicy = "RequireSystemRole";
+		public const string AdministrationPolicy = "RequireAdministratorRole";
+
+#if DEBUG
+		public const string AdministratorId = "admin@localhost";
+#else
+		public const string AdministratorId = "admin@hammadBroker.com";
+#endif
+	}
+
+	public static class Images
+	{
+		public const string Extensions = ".emf,.jfif,.jpg,.jpeg,.png,.svg,.wmf";
+		public const int DimensionMax = 386;
+		public const string AssetImagesPath = "data/assets/";
+	}
+}
