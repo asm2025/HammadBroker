@@ -50,11 +50,6 @@ public class ApplicationUser : IdentityUser<string>, IEntity<string>
     public string ImageUrl { get; set; }
     public Genders Gender { get; set; }
     public DateTime? DateOfBirth { get; set; }
-    public int? CityId { get; set; }
-
-    [Required]
-    [StringLength(3, MinimumLength = 3)]
-    public string CountryCode { get; set; }
     public DateTime Created { get; set; }
     public DateTime Modified { get; set; }
 }

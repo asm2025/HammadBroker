@@ -1,8 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using essentialMix.Data.Model;
+using Microsoft.EntityFrameworkCore;
 
 namespace HammadBroker.Model.Entities;
 
+[Index(nameof(BuildingType))]
+[Index(nameof(FinishingType))]
+[Index(nameof(Floor))]
+[Index(nameof(CityId))]
+[Index(nameof(CountryCode))]
 public class Building : IEntity<long>
 {
     [Key]
@@ -13,24 +19,22 @@ public class Building : IEntity<long>
     public string Title { get; set; }
 
     [Required]
-    [StringLength(64)]
-    public string BuildingType { get; set; }
+    public BuildingType BuildingType { get; set; }
 
     [Required]
-    [StringLength(64)]
-    public string FinishingType { get; set; }
+    public FinishingType FinishingType { get; set; }
 
     [Required]
-    [StringLength(64)]
+    [StringLength(32)]
     public string Floor { get; set; }
 
     [StringLength(2048)]
     public string Location { get; set; }
 
-    [StringLength(1024)]
+    [StringLength(512)]
     public string Address { get; set; }
 
-    [StringLength(1024)]
+    [StringLength(512)]
     public string Address2 { get; set; }
 
     public int? CityId { get; set; }

@@ -18,7 +18,6 @@ public class RoleManager : RoleManager<ApplicationRole>
 	}
 
 	/// <inheritdoc />
-	[NotNull]
 	public override Task<IdentityResult> SetRoleNameAsync(ApplicationRole role, string name)
 	{
 		if ((IsSystemRole(role) && !IsSystemRole(name))
@@ -27,8 +26,7 @@ public class RoleManager : RoleManager<ApplicationRole>
 	}
 
 	/// <inheritdoc />
-	[ItemNotNull]
-	public override async Task<IdentityResult> UpdateAsync([NotNull] ApplicationRole role)
+	public override async Task<IdentityResult> UpdateAsync(ApplicationRole role)
 	{
 		ApplicationRole roleFromDb = await FindByIdAsync(role.Id);
 		if ((IsSystemRole(roleFromDb) && !IsSystemRole(ApplicationRole.System))
@@ -37,8 +35,7 @@ public class RoleManager : RoleManager<ApplicationRole>
 	}
 
 	/// <inheritdoc />
-	[ItemNotNull]
-	protected override async Task<IdentityResult> UpdateRoleAsync([NotNull] ApplicationRole role)
+	protected override async Task<IdentityResult> UpdateRoleAsync(ApplicationRole role)
 	{
 		ApplicationRole roleFromDb = await FindByIdAsync(role.Id);
 		if (roleFromDb != null
@@ -48,8 +45,7 @@ public class RoleManager : RoleManager<ApplicationRole>
 	}
 
 	/// <inheritdoc />
-	[NotNull]
-	public override Task<IdentityResult> DeleteAsync([NotNull] ApplicationRole role)
+	public override Task<IdentityResult> DeleteAsync(ApplicationRole role)
 	{
 		return ApplicationRole.Roles.ContainsKey(role.Name)
 					? Task.FromResult(FailedAdminRole())

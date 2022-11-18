@@ -6,6 +6,6 @@ namespace HammadBroker.Model.Entities;
 public class Floor : IEntity<string>
 {
 	[Key]
-	[StringLength(64)]
+	[StringLength(32)]
 	public string Id { get; set; }
 }

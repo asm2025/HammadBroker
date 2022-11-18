@@ -17,10 +17,10 @@ public interface ILookupService : IServiceBase<DataContext>
     Task<IList<CountryForList>> ListCountriesAsync(CancellationToken token = default(CancellationToken));
     [NotNull]
     [ItemNotNull]
-    Task<IList<string>> ListBuildingTypesAsync(CancellationToken token = default(CancellationToken));
+    IList<string> ListBuildingTypes(CancellationToken token = default(CancellationToken));
     [NotNull]
     [ItemNotNull]
-    Task<IList<string>> ListFinishingTypesAsync(CancellationToken token = default(CancellationToken));
+    IList<string> ListFinishingTypes(CancellationToken token = default(CancellationToken));
     [NotNull]
     [ItemNotNull]
     Task<IList<string>> ListFloorsAsync(CancellationToken token = default(CancellationToken));

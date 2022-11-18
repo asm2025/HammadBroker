@@ -11,7 +11,6 @@ public class CommonProfile : Profile
     public CommonProfile()
     {
         CreateMap<SortablePagination, ListSettings>()
-            .IncludeAllDerived()
             .ReverseMap();
         CreateMap<Country, CountryForList>();
         CreateMap<City, CityForList>();

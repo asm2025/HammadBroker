@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 namespace HammadBroker.Model.Entities;
 
 [Index(nameof(Date))]
-[Index(nameof(BuildingId))]
+[Index(nameof(Expires))]
+[Index(nameof(Price))]
 public class Ad : IEntity<long>
 {
     [Key]

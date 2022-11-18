@@ -27,27 +27,27 @@ if errorlevel 1 (
 )
 
 for /L %%i in (5000,1,5010) do (
-	echo Mapping http://web.local:%%i/
-	netsh http delete urlacl url=http://web.local:%%i/>nul
-	netsh http add urlacl url=http://web.local:%%i/ user=everyone
+	echo Mapping http://localhost:%%i/
+	netsh http delete urlacl url=http://localhost:%%i/>nul
+	netsh http add urlacl url=http://localhost:%%i/ user=everyone
 )
 
 for /L %%i in (44300,1,44310) do (
-	echo Mapping %scheme%://web.local:%%i/
-	netsh http delete urlacl url=https://web.local:%%i/>nul
-	netsh http delete urlacl url=http://web.local:%%i/>nul
-	netsh http add urlacl url=%scheme%://web.local:%%i/ user=everyone
+	echo Mapping %scheme%://localhost:%%i/
+	netsh http delete urlacl url=https://localhost:%%i/>nul
+	netsh http delete urlacl url=http://localhost:%%i/>nul
+	netsh http add urlacl url=%scheme%://localhost:%%i/ user=everyone
 )
 
 goto :EOF
 
 :Disable
 for /L %%i in (5000,1,5010) do (
-	echo Removing web.local:%%i/
-	netsh http delete urlacl url=http://web.local:%%i/>nul
+	echo Removing localhost:%%i/
+	netsh http delete urlacl url=http://localhost:%%i/>nul
 )
 for /L %%i in (44300,1,44310) do (
-	echo Removing web.local:%%i/
-	netsh http delete urlacl url=https://web.local:%%i/>nul
-	netsh http delete urlacl url=http://web.local:%%i/>nul
+	echo Removing localhost:%%i/
+	netsh http delete urlacl url=https://localhost:%%i/>nul
+	netsh http delete urlacl url=http://localhost:%%i/>nul
 )

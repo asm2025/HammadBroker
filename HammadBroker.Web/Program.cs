@@ -132,16 +132,26 @@ public class Program
 			if (applyMigrations)
 			{
 				logger.LogInformation("Checking database migrations...");
+
+				IServiceScope scope = null;
 				DataContext dataContext = null;
 
 				try
 				{
-					dataContext = app.Services.GetRequiredService<DataContext>();
-					migrationComplete = await dataContext.ApplyMigrationsAsync(app, applySeed, logger);
+					scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope();
+					dataContext = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+					bool isMigrated = await dataContext.IsMigratedAsync();
+
+					if (isMigrated)
+						logger.LogInformation("Database is migrated.");
+					else
+						migrationComplete = await dataContext.ApplyMigrationsAsync(app, applySeed, logger);
 				}
 				finally
 				{
 					ObjectHelper.Dispose(ref dataContext);
+					ObjectHelper.Dispose(ref scope);
 				}
 			}
 
@@ -246,8 +256,8 @@ public class Program
 			.AddCookie(options =>
 			{
 				options.SlidingExpiration = true;
-				options.LoginPath = "/users/login";
-				options.LogoutPath = "/users/logout";
+				options.LoginPath = "/account/login";
+				options.LogoutPath = "/account/logout";
 				options.ExpireTimeSpan = TimeSpan.FromMinutes(configuration.GetValue("OAuth:timeout", 20).NotBelow(5));
 			})
 			.AddJwtBearerOptions(options =>
@@ -272,11 +282,12 @@ public class Program
 								typeof(CommonProfile).Assembly
 							}, ServiceLifetime.Singleton)
 			// Data
-			.AddDbContext<DataContext>(options => DbContextHelper.Setup(options, typeof(DataContext).Assembly.GetName(), configuration, environment))
+			.AddDbContext<DataContext>(options => DbContextHelper.Setup(options, typeof(DataContext).Assembly.GetName(), configuration, environment), ServiceLifetime.Transient)
 			.AddDatabaseDeveloperPageExceptionFilter()
 			// Identity
 			.AddIdentity<ApplicationUser, ApplicationRole>(options => configuration.GetSection("IdentityOptions").Bind(options))
 			.AddEntityFrameworkStores<DataContext>()
+			.AddDefaultUI()
 			.AddUserManager<UserManager>()
 			.AddRoleManager<RoleManager>()
 			.AddSignInManager<SignInManager>()
@@ -288,9 +299,13 @@ public class Program
 			.AddScoped(typeof(SignInManager<ApplicationUser>), typeof(SignInManager))
 			// Repositories
 			.AddTransient<IIdentityRepository, IdentityRepository>()
+			.AddTransient<IBuildingRepository, BuildingRepository>()
+			.AddTransient<IAdRepository, AdRepository>()
 			// Services
 			.AddTransient<IUploaderService, UploaderService>()
 			.AddTransient<IIdentityService, IdentityService>()
+			.AddTransient<IBuildingService, BuildingService>()
+			.AddTransient<IAdService, AdService>()
 			.AddTransient<ILookupService, LookupService>()
 			// Authorization
 			.AddAuthorization(options =>
@@ -303,46 +318,47 @@ public class Program
 				options.AddPolicy(ApplicationRole.Members, policy =>
 				{
 					policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
-						.RequireAuthenticatedUser()
-						.RequireClaim(ClaimTypes.Role, ApplicationRole.Members)
-						.RequireRole(ApplicationRole.Members);
+						  .RequireAuthenticatedUser()
+						  .RequireClaim(ClaimTypes.Role, ApplicationRole.Members)
+						  .RequireRole(ApplicationRole.Members);
 				});
 
 				options.AddPolicy(ApplicationRole.Administrators, policy =>
 				{
 					policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
-						.RequireAuthenticatedUser()
-						.RequireClaim(ClaimTypes.Role, ApplicationRole.Administrators)
-						.RequireRole(ApplicationRole.Administrators);
+						  .RequireAuthenticatedUser()
+						  .RequireClaim(ClaimTypes.Role, ApplicationRole.Administrators)
+						  .RequireRole(ApplicationRole.Administrators);
 				});
 
 				options.AddPolicy(ApplicationRole.System, policy =>
 				{
 					policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
-						.RequireAuthenticatedUser()
-						.RequireClaim(ClaimTypes.Role, ApplicationRole.System)
-						.RequireRole(ApplicationRole.System);
+						  .RequireAuthenticatedUser()
+						  .RequireClaim(ClaimTypes.Role, ApplicationRole.System)
+						  .RequireRole(ApplicationRole.System);
 				});
 			});
 		// MVC
-		services.AddRazorPages();
 		services
-			.AddControllers()
+			.AddControllersWithViews();
+		services
+			.AddRazorPages()
 			.AddNewtonsoftJson(options =>
 			{
 				JsonHelper.SetDefaults(options.SerializerSettings, contractResolver: new CamelCasePropertyNamesContractResolver());
 				options.SerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
 
 				JsonSerializerSettingsConverters allConverters = EnumHelper<JsonSerializerSettingsConverters>.GetAllFlags() &
-																~(JsonSerializerSettingsConverters.IsoDateTime |
-																JsonSerializerSettingsConverters.JavaScriptDateTime |
-																JsonSerializerSettingsConverters.UnixDateTime);
+																 ~(JsonSerializerSettingsConverters.IsoDateTime |
+																   JsonSerializerSettingsConverters.JavaScriptDateTime |
+																   JsonSerializerSettingsConverters.UnixDateTime);
 				options.SerializerSettings.AddConverters(allConverters);
 			});
 
 		if (smtpConfiguration != null && !string.IsNullOrWhiteSpace(smtpConfiguration.Host))
 		{
-			// Add email senders which is currently setup for SendGrid and SMTP
+			// Add email senders which is currently setup for SMTP
 			services
 				.AddSingleton(smtpConfiguration)
 				.AddTransient<IEmailService, SmtpEmailService>()

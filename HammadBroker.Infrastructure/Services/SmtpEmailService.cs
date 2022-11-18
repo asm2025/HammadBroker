@@ -11,7 +11,7 @@ namespace HammadBroker.Infrastructure.Services;
 
 public class SmtpEmailService : Disposable, IEmailService
 {
-	private readonly ILogger<SmtpEmailService> _logger;
+	private readonly ILogger _logger;
 	private readonly string _defaultFrom;
 
 	private SmtpClient _client;
@@ -41,8 +41,7 @@ public class SmtpEmailService : Disposable, IEmailService
 		base.Dispose(disposing);
 	}
 
-	[NotNull]
-	public Task SendEmailAsync([NotNull] string email, [NotNull] string subject, [NotNull] string htmlMessage)
+	public Task SendEmailAsync(string email, string subject, string htmlMessage)
 	{
 		MailMessage mail = new MailMessage(_defaultFrom, email)
 		{
