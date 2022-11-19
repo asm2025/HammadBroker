@@ -7,17 +7,19 @@ using Microsoft.Extensions.Logging;
 
 namespace HammadBroker.Web.Controllers;
 
+[Route("")]
 public class HomeController : MvcController
 {
-    /// <inheritdoc />
-    public HomeController([NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, [NotNull] ILogger<HomeController> logger)
-        : base(configuration, environment, logger)
-    {
-    }
+	/// <inheritdoc />
+	public HomeController([NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, [NotNull] ILogger<HomeController> logger)
+		: base(configuration, environment, logger)
+	{
+	}
 
-    [NotNull]
-    public IActionResult Index()
-    {
-        return View();
-    }
+	[HttpGet]
+	[NotNull]
+	public IActionResult Index()
+	{
+		return View();
+	}
 }

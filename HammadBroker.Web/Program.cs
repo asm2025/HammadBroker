@@ -13,7 +13,6 @@ using HammadBroker.Data.Context;
 using HammadBroker.Data.Identity;
 using HammadBroker.Data.Repositories;
 using HammadBroker.Data.Services;
-using HammadBroker.Extensions;
 using HammadBroker.Helpers;
 using HammadBroker.Infrastructure.Services;
 using HammadBroker.Model.Configuration;
@@ -22,8 +21,7 @@ using HammadBroker.Model.Mail;
 using HammadBroker.Model.Mapper;
 using HammadBroker.Model.VirtualPath;
 using JetBrains.Annotations;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Hosting;
@@ -35,7 +33,6 @@ using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Serilog;
@@ -52,6 +49,7 @@ public class Program
 
 	static Program()
 	{
+		AppName = AppDomain.CurrentDomain.FriendlyName;
 		AppTitle = AppDomain.CurrentDomain.FriendlyName;
 		AppPath = PathHelper.AddDirectorySeparator(Directory.GetCurrentDirectory());
 		JsonConvert.DefaultSettings = () =>
@@ -72,6 +70,7 @@ public class Program
 	}
 
 	public static string AppTitle { get; private set; }
+	public static string AppName { get; private set; }
 	public static string AppPath { get; }
 
 	public static async Task Main(string[] args)
@@ -81,6 +80,7 @@ public class Program
 		// Configuration
 		WebApplicationBuilder builder = CreateHostBuilder(args);
 		IConfiguration configuration = builder.Configuration;
+		AppName = configuration.GetValue("name", AppName);
 		AppTitle = configuration.GetValue("title", AppTitle);
 
 		ConfigureServices(builder);
@@ -91,7 +91,7 @@ public class Program
 		if (configuration.GetValue("LoggingEnabled", true))
 		{
 			loggerConfiguration.ReadFrom.Configuration(configuration)
-								.Enrich.WithProperty("ApplicationName", AppTitle!);
+								.Enrich.WithProperty("ApplicationName", AppName!);
 		}
 
 		Log.Logger = loggerConfiguration.CreateLogger();
@@ -105,7 +105,7 @@ public class Program
 		try
 		{
 			// Start
-			logger.LogInformation($"{AppTitle} is starting...");
+			logger.LogInformation($"{AppName} is starting...");
 
 			(bool migrationComplete, bool migrateOnly) = await ApplyMigrationsAsync(app, configuration, args, logger);
 
@@ -126,7 +126,7 @@ public class Program
 		}
 		finally
 		{
-			logger.LogInformation($"{AppTitle} finished.");
+			logger.LogInformation($"{AppName} finished.");
 		}
 
 		await Log.CloseAndFlushAsync();
@@ -166,7 +166,6 @@ public class Program
 		IServiceCollection services = builder.Services;
 		IConfiguration configuration = builder.Configuration;
 		IWebHostEnvironment environment = builder.Environment;
-		bool isDevelopmentOrStaging = environment.IsDevelopment() || environment.IsStaging();
 		SmtpConfiguration smtpConfiguration = configuration.GetSection(nameof(SmtpConfiguration)).Get<SmtpConfiguration>();
 		services
 			// config
@@ -190,33 +189,29 @@ public class Program
 				options.MultipartBodyLengthLimit = int.MaxValue;
 				options.MemoryBufferThreshold = int.MaxValue;
 			})
+			.AddHttpContextAccessor()
+			.AddDefaultCorsPolicy(options => options.WithExposedHeaders("Set-Cookie"),
+								(configuration.GetValue<string>("AllowedHosts").ToNullIfEmpty() ?? "*").Split(',',
+																											StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+			.AddForwardedHeaders()
+			// Cookies
 			.Configure<CookiePolicyOptions>(options =>
 			{
 				options.MinimumSameSitePolicy = SameSiteMode.Lax;
+				options.HttpOnly = HttpOnlyPolicy.None;
 				options.Secure = CookieSecurePolicy.SameAsRequest;
-				options.OnAppendCookie = context => context.Context.CheckSameSite(context.CookieOptions);
-				options.OnDeleteCookie = context => context.Context.CheckSameSite(context.CookieOptions);
 			})
-			// OAuth
-			.AddJwtBearerAuthentication()
-			.AddCookie(options =>
+			// Authentication
+			.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+			.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
 			{
 				options.SlidingExpiration = true;
-				options.LoginPath = "/identity/account/login";
-				options.LogoutPath = "/identity/account/logout";
+				options.LoginPath = "/Identity/Account/Login";
+				options.LogoutPath = "/Identity/Account/Logout";
+				options.AccessDeniedPath = "/Identity/Account/AccessDenied";
 				options.ExpireTimeSpan = TimeSpan.FromMinutes(configuration.GetValue("OAuth:timeout", 20).NotBelow(5));
-			})
-			.AddJwtBearerOptions(options =>
-			{
-				SecurityKey signingKey = SecurityKeyHelper.CreateSymmetricKey(configuration.GetValue<string>("OAuth:signingKey"), 256);
-				//SecurityKey decryptionKey = SecurityKeyHelper.CreateSymmetricKey(configuration.GetValue<string>("OAuth:encryptionKey"), 256);
-				options.Setup(signingKey, /*decryptionKey, */configuration, isDevelopmentOrStaging);
 			});
 		services
-			// Helpers
-			.AddHttpContextAccessor()
-			.AddDefaultCorsPolicy(options => options.WithExposedHeaders("Set-Cookie"), (configuration.GetValue<string>("AllowedHosts").ToNullIfEmpty() ?? "*").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-			.AddForwardedHeaders()
 			// Mapper
 			.AddAutoMapper((_, options) =>
 							{
@@ -256,14 +251,9 @@ public class Program
 			// Authorization
 			.AddAuthorization(options =>
 			{
-				options.DefaultPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
-										.RequireAuthenticatedUser()
-										.RequireClaim(ClaimTypes.Role, ApplicationRole.Roles.Keys)
-										.Build();
-
 				options.AddPolicy(ApplicationRole.Members, policy =>
 				{
-					policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+					policy.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme)
 						  .RequireAuthenticatedUser()
 						  .RequireClaim(ClaimTypes.Role, ApplicationRole.Members)
 						  .RequireRole(ApplicationRole.Members);
@@ -271,7 +261,7 @@ public class Program
 
 				options.AddPolicy(ApplicationRole.Administrators, policy =>
 				{
-					policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+					policy.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme)
 						  .RequireAuthenticatedUser()
 						  .RequireClaim(ClaimTypes.Role, ApplicationRole.Administrators)
 						  .RequireRole(ApplicationRole.Administrators);
@@ -279,29 +269,27 @@ public class Program
 
 				options.AddPolicy(ApplicationRole.System, policy =>
 				{
-					policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+					policy.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme)
 						  .RequireAuthenticatedUser()
 						  .RequireClaim(ClaimTypes.Role, ApplicationRole.System)
 						  .RequireRole(ApplicationRole.System);
 				});
-			});
-		// MVC
-		services
+			})
+			// MVC
 			.AddControllersWithViews();
 		services
-			.AddRazorPages(options =>
-			{
-				//options.Conventions.AllowAnonymousToAreaPage("Identity", "/Account/Logout");
-			})
+			// Razor Pages
+			.AddRazorPages()
+			// JSON
 			.AddNewtonsoftJson(options =>
 			{
 				JsonHelper.SetDefaults(options.SerializerSettings, contractResolver: new CamelCasePropertyNamesContractResolver());
 				options.SerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
 
 				JsonSerializerSettingsConverters allConverters = EnumHelper<JsonSerializerSettingsConverters>.GetAllFlags() &
-																 ~(JsonSerializerSettingsConverters.IsoDateTime |
-																   JsonSerializerSettingsConverters.JavaScriptDateTime |
-																   JsonSerializerSettingsConverters.UnixDateTime);
+																~(JsonSerializerSettingsConverters.IsoDateTime |
+																JsonSerializerSettingsConverters.JavaScriptDateTime |
+																JsonSerializerSettingsConverters.UnixDateTime);
 				options.SerializerSettings.AddConverters(allConverters);
 			});
 
@@ -347,17 +335,9 @@ public class Program
 				FileProvider = environment.WebRootFileProvider
 			})
 			.UseVirtualPathSettings(environment.WebRootPath, environment.WebRootFileProvider)
-			.UseCookiePolicy(new CookiePolicyOptions
-			{
-				MinimumSameSitePolicy = SameSiteMode.Lax,
-				HttpOnly = HttpOnlyPolicy.None,
-				Secure = CookieSecurePolicy.SameAsRequest,
-				OnAppendCookie = cookieContext => AuthenticationHelper.CheckSameSite(cookieContext.Context, cookieContext.CookieOptions),
-				OnDeleteCookie = cookieContext => AuthenticationHelper.CheckSameSite(cookieContext.Context, cookieContext.CookieOptions)
-			})
 			.UseRouting()
 			// Add custom security headers
-			.UseSecurityHeaders(configuration)
+			//.UseSecurityHeaders(configuration)
 			.UseAuthentication()
 			.UseAuthorization()
 			// last

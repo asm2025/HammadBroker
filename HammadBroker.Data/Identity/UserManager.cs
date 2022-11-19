@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using essentialMix.Extensions;
 using HammadBroker.Model;
 using HammadBroker.Model.Entities;
-using IdentityModel;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -155,7 +154,7 @@ public class UserManager : UserManager<ApplicationUser>
 
     private async Task<ApplicationUser> GetUserAsync()
     {
-        string userId = _contextAccessor.HttpContext?.User.FindFirstValue(JwtClaimTypes.Subject);
+        string userId = _contextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
         return userId == null
                     ? null
                     : await FindByIdAsync(userId);
