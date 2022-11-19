@@ -95,8 +95,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Areas\Indentity\" />
-	  <Folder Include="Pages\Shared\" />
+	  <Folder Include="_logs\" />
 	</ItemGroup>
 
 	<PropertyGroup>

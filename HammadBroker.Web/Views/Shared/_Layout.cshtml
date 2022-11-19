@@ -23,7 +23,7 @@
 				<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
 					<ul class="navbar-nav flex-grow-1">
 						<li class="nav-item">
-							<a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
+							<a class="nav-link text-dark" asp-area="" asp-page=""></a>
 						</li>
 					</ul>
 					<partial name="_LoginPartial" />
@@ -39,7 +39,7 @@
 
 	<footer class="border-top footer text-muted">
 		<div class="container">
-			&copy; @DateTime.Today.Year - @CompanyInfo.Title
+			@CompanyInfo.Title &copy;@DateTime.Today.Year
 		</div>
 	</footer>
 
@@ -47,6 +47,6 @@
 	<script src="~/lib/bootstrap/js/bootstrap.js"></script>
 	<script src="~/js/site.js" asp-append-version="true"></script>
 
-	@await RenderSectionAsync("Scripts", required: false)
+	@await RenderSectionAsync("Scripts", false)
 </body>
 </html>

@@ -30,7 +30,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.DependencyInjection;
@@ -108,68 +107,15 @@ public class Program
 			// Start
 			logger.LogInformation($"{AppTitle} is starting...");
 
-			bool applyMigrations = configuration.GetValue("Migrations:ApplyMigrations", true);
-			bool applySeed = configuration.GetValue("Migrations:ApplySeed", true);
-			bool migrateOnly = false;
+			(bool migrationComplete, bool migrateOnly) = await ApplyMigrationsAsync(app, configuration, args, logger);
 
-			if (args is { Length: > 0 })
+			if (!migrationComplete)
 			{
-				StringComparer comparer = StringComparer.OrdinalIgnoreCase;
-
-				foreach (string arg in args)
-				{
-					if (comparer.Equals(arg, ARGS_MIGRATE_ONLY) || comparer.Equals(arg, ARGS_MIGRATE_ONLY_))
-						migrateOnly = true;
-					else if (comparer.Equals(arg, ARGS_SEED) || comparer.Equals(arg, ARGS_SEED_))
-						applySeed = true;
-				}
-
-				applyMigrations |= migrateOnly;
-			}
-
-			bool migrationComplete = true;
-
-			if (applyMigrations)
-			{
-				logger.LogInformation("Checking database migrations...");
-
-				IServiceScope scope = null;
-				DataContext dataContext = null;
-
-				try
-				{
-					scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope();
-					dataContext = scope.ServiceProvider.GetRequiredService<DataContext>();
-
-					bool isMigrated = await dataContext.IsMigratedAsync();
-
-					if (isMigrated)
-						logger.LogInformation("Database is migrated.");
-					else
-						migrationComplete = await dataContext.ApplyMigrationsAsync(app, applySeed, logger);
-				}
-				finally
-				{
-					ObjectHelper.Dispose(ref dataContext);
-					ObjectHelper.Dispose(ref scope);
-				}
-			}
-
-			if (migrateOnly)
-			{
-				if (!migrationComplete)
-				{
-					logger.LogError("Database migrations were not successful.");
-					Environment.ExitCode = -1;
-				}
-				else
-				{
-					logger.LogError("Database migrations completed successfully.");
-				}
-
+				Environment.ExitCode = -1;
 				return;
 			}
 
+			if (migrateOnly) return;
 			logger.LogInformation("Running the application...");
 			await app.RunAsync();
 		}
@@ -256,8 +202,8 @@ public class Program
 			.AddCookie(options =>
 			{
 				options.SlidingExpiration = true;
-				options.LoginPath = "/account/login";
-				options.LogoutPath = "/account/logout";
+				options.LoginPath = "/identity/account/login";
+				options.LogoutPath = "/identity/account/logout";
 				options.ExpireTimeSpan = TimeSpan.FromMinutes(configuration.GetValue("OAuth:timeout", 20).NotBelow(5));
 			})
 			.AddJwtBearerOptions(options =>
@@ -343,7 +289,10 @@ public class Program
 		services
 			.AddControllersWithViews();
 		services
-			.AddRazorPages()
+			.AddRazorPages(options =>
+			{
+				//options.Conventions.AllowAnonymousToAreaPage("Identity", "/Account/Logout");
+			})
 			.AddNewtonsoftJson(options =>
 			{
 				JsonHelper.SetDefaults(options.SerializerSettings, contractResolver: new CamelCasePropertyNamesContractResolver());
@@ -361,8 +310,7 @@ public class Program
 			// Add email senders which is currently setup for SMTP
 			services
 				.AddSingleton(smtpConfiguration)
-				.AddTransient<IEmailService, SmtpEmailService>()
-				.AddTransient(typeof(IEmailSender), typeof(IEmailService));
+				.AddTransient<IEmailService, SmtpEmailService>();
 		}
 	}
 
@@ -420,5 +368,61 @@ public class Program
 				endpoint.MapControllers();
 				endpoint.MapDefaultControllerRoute();
 			});
+	}
+
+	private static async Task<(bool, bool)> ApplyMigrationsAsync([NotNull] IHost host, [NotNull] IConfiguration configuration, string[] args, [NotNull] ILogger logger)
+	{
+		bool applyMigrations = configuration.GetValue("Migrations:ApplyMigrations", true);
+		bool applySeed = configuration.GetValue("Migrations:ApplySeed", true);
+		bool migrateOnly = false;
+
+		if (args is { Length: > 0 })
+		{
+			StringComparer comparer = StringComparer.OrdinalIgnoreCase;
+
+			foreach (string arg in args)
+			{
+				if (comparer.Equals(arg, ARGS_MIGRATE_ONLY) || comparer.Equals(arg, ARGS_MIGRATE_ONLY_))
+					migrateOnly = true;
+				else if (comparer.Equals(arg, ARGS_SEED) || comparer.Equals(arg, ARGS_SEED_))
+					applySeed = true;
+			}
+
+			applyMigrations |= migrateOnly;
+		}
+
+		if (!applyMigrations) return (true, false);
+		logger.LogInformation("Checking database migrations...");
+
+		IServiceScope scope = null;
+		DataContext dataContext = null;
+
+		try
+		{
+			scope = host.Services.GetRequiredService<IServiceScopeFactory>().CreateScope();
+			dataContext = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+			bool isMigrated = await dataContext.IsMigratedAsync();
+
+			if (isMigrated)
+			{
+				logger.LogInformation("Database is migrated.");
+				return (true, migrateOnly);
+			}
+
+			if (!await dataContext.ApplyMigrationsAsync(host, applySeed, logger))
+			{
+				logger.LogError("Database migrations were not successful.");
+				return (false, migrateOnly);
+			}
+
+			logger.LogInformation("Database migrations completed successfully.");
+			return (true, migrateOnly);
+		}
+		finally
+		{
+			ObjectHelper.Dispose(ref dataContext);
+			ObjectHelper.Dispose(ref scope);
+		}
 	}
 }
