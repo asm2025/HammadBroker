@@ -6,19 +6,19 @@ using Microsoft.AspNetCore.Identity;
 
 namespace HammadBroker.Model.Entities;
 
-public class ApplicationUser : IdentityUser<string>, IEntity<string>
+public class User : IdentityUser<string>, IEntity<string>
 {
     private string _firstName;
     private string _lastName;
     private string _nickName;
 
     /// <inheritdoc />
-    public ApplicationUser()
+    public User()
     {
     }
 
     /// <inheritdoc />
-    public ApplicationUser(string userName)
+    public User(string userName)
         : base(userName)
     {
     }

@@ -7,16 +7,14 @@ namespace HammadBroker.Model.Entities;
 [Index(nameof(BuildingType))]
 [Index(nameof(FinishingType))]
 [Index(nameof(Floor))]
-[Index(nameof(CityId))]
-[Index(nameof(CountryCode))]
-public class Building : IEntity<long>
+public class Building : IEntity<int>
 {
     [Key]
-    public long Id { get; set; }
+    public int Id { get; set; }
 
     [Required]
     [StringLength(256)]
-    public string Title { get; set; }
+    public string Name { get; set; }
 
     [Required]
     public BuildingType BuildingType { get; set; }

@@ -8,19 +8,27 @@ namespace HammadBroker.Model.Mapper;
 
 public class IdentityProfile : Profile
 {
-    public IdentityProfile()
-    {
-        CreateMap<UserList, ListSettings>()
-            .ReverseMap();
+	public IdentityProfile()
+	{
+		CreateMap<UserList, ListSettings>()
+			.ReverseMap();
 
-        CreateMap<UserToUpdate, ApplicationUser>()
-            .ReverseMap();
+		CreateMap<UserToUpdate, User>()
+			.ReverseMap();
 
-        CreateMap<ApplicationUser, UserForLoginDisplay>()
-            .ReverseMap();
-        CreateMap<ApplicationUser, UserForList>()
-            .ReverseMap();
-        CreateMap<ApplicationUser, UserForDetails>()
-            .ReverseMap();
-    }
+		CreateMap<UserData, UserToUpdate>()
+			.ReverseMap();
+		CreateMap<UserData, User>()
+			.IncludeBase<UserToUpdate, User>()
+			.ReverseMap();
+
+		CreateMap<User, UserForLogin>()
+			.ReverseMap();
+		CreateMap<User, UserForList>()
+			.IncludeBase<User, UserForLogin>()
+			.ReverseMap();
+		CreateMap<User, UserForDetails>()
+			.IncludeBase<User, UserForList>()
+			.ReverseMap();
+	}
 }

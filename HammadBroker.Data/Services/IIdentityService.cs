@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 
 namespace HammadBroker.Data.Services;
 
-public interface IIdentityService : IService<DataContext, IIdentityRepository, ApplicationUser, string>
+public interface IIdentityService : IService<DataContext, IIdentityRepository, User, string>
 {
     [NotNull]
     UserManager UserManager { get; }

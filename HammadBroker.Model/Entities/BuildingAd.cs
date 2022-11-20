@@ -8,10 +8,12 @@ namespace HammadBroker.Model.Entities;
 [Index(nameof(Date))]
 [Index(nameof(Expires))]
 [Index(nameof(Price))]
-public class Ad : IEntity<long>
+public class BuildingAd : IEntity<int>
 {
     [Key]
-    public long Id { get; set; }
+    public int Id { get; set; }
+    [Required]
+    public int BuildingId { get; set; }
     public DateTime Date { get; set; }
     public DateTime? Expires { get; set; }
     [Required]
@@ -19,8 +21,6 @@ public class Ad : IEntity<long>
     public string Phone { get; set; }
     [Phone]
     public string Mobile { get; set; }
-    [Required]
-    public long BuildingId { get; set; }
     [Required]
     public decimal Price { get; set; }
 }

@@ -52,7 +52,7 @@ public class ForgotPasswordModel : PageModel
 	{
 		if (ModelState.IsValid)
 		{
-			ApplicationUser user = await _userManager.FindByEmailAsync(Input.Email);
+			User user = await _userManager.FindByEmailAsync(Input.Email);
 			if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
 			{
 				// Don't reveal that the user does not exist or is not confirmed

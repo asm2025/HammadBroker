@@ -217,6 +217,7 @@ public class Program
 							{
 								options.AddProfile(new CommonProfile());
 								options.AddProfile(new IdentityProfile());
+								options.AddProfile(new BuildingProfile());
 							},
 							new[]
 							{
@@ -226,53 +227,53 @@ public class Program
 			.AddDbContext<DataContext>(options => DbContextHelper.Setup(options, typeof(DataContext).Assembly.GetName(), configuration, environment), ServiceLifetime.Transient)
 			.AddDatabaseDeveloperPageExceptionFilter()
 			// Identity
-			.AddIdentity<ApplicationUser, ApplicationRole>(options => configuration.GetSection("IdentityOptions").Bind(options))
+			.AddIdentity<User, Role>(options => configuration.GetSection("IdentityOptions").Bind(options))
 			.AddEntityFrameworkStores<DataContext>()
 			.AddDefaultUI()
 			.AddUserManager<UserManager>()
 			.AddRoleManager<RoleManager>()
 			.AddSignInManager<SignInManager>()
-			.AddRoleValidator<RoleValidator<ApplicationRole>>()
+			.AddRoleValidator<RoleValidator<Role>>()
 			.AddDefaultTokenProviders();
 		services
-			.AddScoped(typeof(UserManager<ApplicationUser>), typeof(UserManager))
-			.AddScoped(typeof(RoleManager<ApplicationRole>), typeof(RoleManager))
-			.AddScoped(typeof(SignInManager<ApplicationUser>), typeof(SignInManager))
+			.AddScoped(typeof(UserManager<User>), typeof(UserManager))
+			.AddScoped(typeof(RoleManager<Role>), typeof(RoleManager))
+			.AddScoped(typeof(SignInManager<User>), typeof(SignInManager))
 			// Repositories
 			.AddTransient<IIdentityRepository, IdentityRepository>()
 			.AddTransient<IBuildingRepository, BuildingRepository>()
-			.AddTransient<IAdRepository, AdRepository>()
+			.AddTransient<IBuildingAdRepository, BuildingAdRepository>()
 			// Services
 			.AddTransient<IUploaderService, UploaderService>()
 			.AddTransient<IIdentityService, IdentityService>()
 			.AddTransient<IBuildingService, BuildingService>()
-			.AddTransient<IAdService, AdService>()
+			.AddTransient<IBuildingAdService, BuildingAdService>()
 			.AddTransient<ILookupService, LookupService>()
 			// Authorization
 			.AddAuthorization(options =>
 			{
-				options.AddPolicy(ApplicationRole.Members, policy =>
+				options.AddPolicy(Role.Members, policy =>
 				{
 					policy.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme)
 						  .RequireAuthenticatedUser()
-						  .RequireClaim(ClaimTypes.Role, ApplicationRole.Members)
-						  .RequireRole(ApplicationRole.Members);
+						  .RequireClaim(ClaimTypes.Role, Role.Members)
+						  .RequireRole(Role.Members);
 				});
 
-				options.AddPolicy(ApplicationRole.Administrators, policy =>
+				options.AddPolicy(Role.Administrators, policy =>
 				{
 					policy.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme)
 						  .RequireAuthenticatedUser()
-						  .RequireClaim(ClaimTypes.Role, ApplicationRole.Administrators)
-						  .RequireRole(ApplicationRole.Administrators);
+						  .RequireClaim(ClaimTypes.Role, Role.Administrators)
+						  .RequireRole(Role.Administrators);
 				});
 
-				options.AddPolicy(ApplicationRole.System, policy =>
+				options.AddPolicy(Role.System, policy =>
 				{
 					policy.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme)
 						  .RequireAuthenticatedUser()
-						  .RequireClaim(ClaimTypes.Role, ApplicationRole.System)
-						  .RequireRole(ApplicationRole.System);
+						  .RequireClaim(ClaimTypes.Role, Role.System)
+						  .RequireRole(Role.System);
 				});
 			})
 			// MVC

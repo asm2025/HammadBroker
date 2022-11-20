@@ -5,48 +5,43 @@ namespace HammadBroker.Model.Parameters;
 
 public class UserToUpdate
 {
-    [Required]
-    [StringLength(256)]
-    public string FirstName { get; set; }
+	[Required]
+	[RegularExpression("^[a-zA-Z0-9_@\\-\\.\\+]+$")]
+	public string UserName { get; set; }
 
-    [StringLength(256)]
-    public string LastName { get; set; }
+	[Required]
+	[EmailAddress]
+	public string Email { get; set; }
 
-    [StringLength(256)]
-    public string NickName { get; set; }
+	public bool EmailConfirmed { get; set; }
 
-    [StringLength(320)]
-    public string ImageUrl { get; set; }
+	[Phone]
+	public string PhoneNumber { get; set; }
 
-    [Required]
-    public Genders Gender { get; set; }
-    public DateTime? DateOfBirth { get; set; }
-    public int? CityId { get; set; }
+	public bool PhoneNumberConfirmed { get; set; }
 
-    [Required]
-    [StringLength(3, MinimumLength = 3)]
-    public string CountryCode { get; set; }
+	public bool LockoutEnabled { get; set; }
 
-    [Required]
-    [RegularExpression("^[a-zA-Z0-9_@\\-\\.\\+]+$")]
-    public string UserName { get; set; }
+	public bool TwoFactorEnabled { get; set; }
 
-    [Required]
-    [EmailAddress]
-    public string Email { get; set; }
+	public int AccessFailedCount { get; set; }
 
-    public bool EmailConfirmed { get; set; }
+	public DateTimeOffset? LockoutEnd { get; set; }
 
-    [Phone]
-    public string PhoneNumber { get; set; }
+	[Required]
+	[StringLength(256)]
+	public string FirstName { get; set; }
 
-    public bool PhoneNumberConfirmed { get; set; }
+	[StringLength(256)]
+	public string LastName { get; set; }
 
-    public bool LockoutEnabled { get; set; }
+	[StringLength(256)]
+	public string NickName { get; set; }
 
-    public bool TwoFactorEnabled { get; set; }
+	[StringLength(320)]
+	public string ImageUrl { get; set; }
 
-    public int AccessFailedCount { get; set; }
-
-    public DateTimeOffset? LockoutEnd { get; set; }
+	[Required]
+	public Genders Gender { get; set; }
+	public DateTime? DateOfBirth { get; set; }
 }

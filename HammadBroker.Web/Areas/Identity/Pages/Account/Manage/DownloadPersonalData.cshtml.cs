@@ -38,7 +38,7 @@ public class DownloadPersonalDataModel : PageModel
 	[ItemNotNull]
 	public async Task<IActionResult> OnPostAsync()
 	{
-		ApplicationUser user = await _userManager.GetUserAsync(User);
+		User user = await _userManager.GetUserAsync(User);
 		if (user == null)
 		{
 			return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
@@ -48,7 +48,7 @@ public class DownloadPersonalDataModel : PageModel
 
 		// Only include personal data for download
 		Dictionary<string, string> personalData = new Dictionary<string, string>();
-		IEnumerable<PropertyInfo> personalDataProps = typeof(ApplicationUser).GetProperties().Where(
+		IEnumerable<PropertyInfo> personalDataProps = typeof(User).GetProperties().Where(
 																									prop => Attribute.IsDefined(prop, typeof(PersonalDataAttribute)));
 		foreach (PropertyInfo p in personalDataProps)
 		{

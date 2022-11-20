@@ -61,7 +61,7 @@ public class ResendEmailConfirmationModel : PageModel
 			return Page();
 		}
 
-		ApplicationUser user = await _userManager.FindByEmailAsync(Input.Email);
+		User user = await _userManager.FindByEmailAsync(Input.Email);
 		if (user == null)
 		{
 			ModelState.AddModelError(string.Empty, "Verification email sent. Please check your email.");

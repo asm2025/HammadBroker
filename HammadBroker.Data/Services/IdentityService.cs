@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace HammadBroker.Data.Services;
 
-public class IdentityService : Service<DataContext, IIdentityRepository, ApplicationUser, string>, IIdentityService
+public class IdentityService : Service<DataContext, IIdentityRepository, User, string>, IIdentityService
 {
     public IdentityService([NotNull] IIdentityRepository repository, [NotNull] IMapper mapper, [NotNull] ILogger<IdentityService> logger)
         : base(repository, mapper, logger)

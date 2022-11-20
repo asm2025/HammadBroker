@@ -1,6 +1,6 @@
 namespace HammadBroker.Model.DTO;
 
-public class UserForLoginDisplay
+public class UserForLogin
 {
 	public string Id { get; set; }
 	public string UserName { get; set; }

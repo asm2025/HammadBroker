@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace HammadBroker.Data.Repositories;
 
-public class BuildingRepository : Repository<DataContext, Building, long>, IBuildingRepository
+public class BuildingRepository : Repository<DataContext, Building, int>, IBuildingRepository
 {
 	/// <inheritdoc />
 	public BuildingRepository([NotNull] DataContext context, [NotNull] IConfiguration configuration, [NotNull] ILogger<BuildingRepository> logger)

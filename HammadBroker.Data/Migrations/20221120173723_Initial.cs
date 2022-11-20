@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
+#nullable disable
 
 namespace HammadBroker.Data.Migrations
 {
@@ -205,12 +206,12 @@ namespace HammadBroker.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Building",
+                name: "Buildings",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     BuildingType = table.Column<int>(type: "int", nullable: false),
                     FinishingType = table.Column<int>(type: "int", nullable: false),
                     Floor = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
@@ -223,14 +224,14 @@ namespace HammadBroker.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Building", x => x.Id);
+                    table.PrimaryKey("PK_Buildings", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Building_Cities_CityId",
+                        name: "FK_Buildings_Cities_CityId",
                         column: x => x.CityId,
                         principalTable: "Cities",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Building_Countries_CountryCode",
+                        name: "FK_Buildings_Countries_CountryCode",
                         column: x => x.CountryCode,
                         principalTable: "Countries",
                         principalColumn: "Id",
@@ -238,72 +239,99 @@ namespace HammadBroker.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Ad",
+                name: "BuildingAds",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    BuildingId = table.Column<int>(type: "int", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Expires = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Mobile = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    BuildingId = table.Column<long>(type: "bigint", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(10,8)", precision: 10, scale: 8, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Ad", x => x.Id);
+                    table.PrimaryKey("PK_BuildingAds", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Ad_Building_BuildingId",
+                        name: "FK_BuildingAds_Buildings_BuildingId",
                         column: x => x.BuildingId,
-                        principalTable: "Building",
+                        principalTable: "Buildings",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BuildingImages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BuildingId = table.Column<int>(type: "int", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(320)", maxLength: 320, nullable: false),
+                    IsDefault = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BuildingImages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BuildingImages_Buildings_BuildingId",
+                        column: x => x.BuildingId,
+                        principalTable: "Buildings",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Ad_BuildingId",
-                table: "Ad",
+                name: "IX_BuildingAds_BuildingId",
+                table: "BuildingAds",
                 column: "BuildingId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Ad_Date",
-                table: "Ad",
+                name: "IX_BuildingAds_Date",
+                table: "BuildingAds",
                 column: "Date");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Ad_Expires",
-                table: "Ad",
+                name: "IX_BuildingAds_Expires",
+                table: "BuildingAds",
                 column: "Expires");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Ad_Price",
-                table: "Ad",
+                name: "IX_BuildingAds_Price",
+                table: "BuildingAds",
                 column: "Price");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Building_BuildingType",
-                table: "Building",
+                name: "IX_BuildingImages_BuildingId_IsDefault",
+                table: "BuildingImages",
+                columns: new[] { "BuildingId", "IsDefault" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Buildings_BuildingType",
+                table: "Buildings",
                 column: "BuildingType");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Building_CityId",
-                table: "Building",
+                name: "IX_Buildings_CityId",
+                table: "Buildings",
                 column: "CityId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Building_CountryCode",
-                table: "Building",
+                name: "IX_Buildings_CountryCode",
+                table: "Buildings",
                 column: "CountryCode");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Building_FinishingType",
-                table: "Building",
+                name: "IX_Buildings_FinishingType",
+                table: "Buildings",
                 column: "FinishingType");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Building_Floor",
-                table: "Building",
+                name: "IX_Buildings_Floor",
+                table: "Buildings",
                 column: "Floor");
 
             migrationBuilder.CreateIndex(
@@ -354,7 +382,10 @@ namespace HammadBroker.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Ad");
+                name: "BuildingAds");
+
+            migrationBuilder.DropTable(
+                name: "BuildingImages");
 
             migrationBuilder.DropTable(
                 name: "Floors");
@@ -375,7 +406,7 @@ namespace HammadBroker.Data.Migrations
                 name: "UserTokens");
 
             migrationBuilder.DropTable(
-                name: "Building");
+                name: "Buildings");
 
             migrationBuilder.DropTable(
                 name: "Roles");

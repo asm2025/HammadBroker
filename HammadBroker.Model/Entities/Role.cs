@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace HammadBroker.Model.Entities;
 
-public class ApplicationRole : IdentityRole<string>
+public class Role : IdentityRole<string>
 {
     public const string System = "System";
     public const string Administrators = "Admin";
@@ -22,12 +22,12 @@ public class ApplicationRole : IdentityRole<string>
     });
 
     /// <inheritdoc />
-    public ApplicationRole()
+    public Role()
     {
     }
 
     /// <inheritdoc />
-    public ApplicationRole(string roleName)
+    public Role(string roleName)
         : base(roleName)
     {
     }

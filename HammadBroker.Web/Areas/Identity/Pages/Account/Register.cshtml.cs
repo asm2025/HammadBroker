@@ -10,6 +10,7 @@ using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
 using HammadBroker.Data.Identity;
+using HammadBroker.Model;
 using HammadBroker.Model.Entities;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authentication;
@@ -26,14 +27,14 @@ public class RegisterModel : PageModel
 {
 	private readonly SignInManager _signInManager;
 	private readonly UserManager _userManager;
-	private readonly IUserStore<ApplicationUser> _userStore;
-	private readonly IUserEmailStore<ApplicationUser> _emailStore;
+	private readonly IUserStore<User> _userStore;
+	private readonly IUserEmailStore<User> _emailStore;
 	private readonly ILogger _logger;
 	private readonly IEmailSender _emailSender;
 
 	public RegisterModel(
 		[NotNull] UserManager userManager,
-		[NotNull] IUserStore<ApplicationUser> userStore,
+		[NotNull] IUserStore<User> userStore,
 		[NotNull] SignInManager signInManager,
 		[NotNull] ILogger<RegisterModel> logger,
 		[NotNull] IEmailSender emailSender)
@@ -77,7 +78,7 @@ public class RegisterModel : PageModel
 		/// </summary>
 		[Required]
 		[EmailAddress]
-		[Display(Name = "Email")]
+		[Display(Name = "البريد الالكتروني")]
 		public string Email { get; set; }
 
 		/// <summary>
@@ -87,7 +88,7 @@ public class RegisterModel : PageModel
 		[Required]
 		[StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
 		[DataType(DataType.Password)]
-		[Display(Name = "Password")]
+		[Display(Name = "كلمة المرور")]
 		public string Password { get; set; }
 
 		/// <summary>
@@ -95,9 +96,30 @@ public class RegisterModel : PageModel
 		///     directly from your code. This API may change or be removed in future releases.
 		/// </summary>
 		[DataType(DataType.Password)]
-		[Display(Name = "Confirm password")]
+		[Display(Name = "تأكبد كلمة المرور")]
 		[Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
 		public string ConfirmPassword { get; set; }
+
+		[Required]
+		[StringLength(256)]
+		[Display(Name = "الاسم الأول")]
+		public string FirstName { get; set; }
+
+		[StringLength(256)]
+		[Display(Name = "الاسم الأخير")]
+		public string LastName { get; set; }
+
+		[StringLength(256)]
+		[Display(Name = "الكنية")]
+		public string NickName { get; set; }
+
+		[StringLength(320)]
+		[Display(Name = "الصورة")]
+		public string ImageUrl { get; set; }
+		[Display(Name = "النوع")]
+		public Genders Gender { get; set; }
+		[Display(Name = "تاريخ الميلاد")]
+		public DateTime? DateOfBirth { get; set; }
 	}
 
 
@@ -114,7 +136,7 @@ public class RegisterModel : PageModel
 		ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 		if (ModelState.IsValid)
 		{
-			ApplicationUser user = CreateUser();
+			User user = CreateUser();
 
 			await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
 			await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -164,26 +186,26 @@ public class RegisterModel : PageModel
 		return Page();
 	}
 
-	private ApplicationUser CreateUser()
+	private User CreateUser()
 	{
 		try
 		{
-			return Activator.CreateInstance<ApplicationUser>();
+			return Activator.CreateInstance<User>();
 		}
 		catch
 		{
-			throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
-												$"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
+			throw new InvalidOperationException($"Can't create an instance of '{nameof(Model.Entities.User)}'. " +
+												$"Ensure that '{nameof(Model.Entities.User)}' is not an abstract class and has a parameterless constructor, or alternatively " +
 												$"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
 		}
 	}
 
-	private IUserEmailStore<ApplicationUser> GetEmailStore()
+	private IUserEmailStore<User> GetEmailStore()
 	{
 		if (!_userManager.SupportsUserEmail)
 		{
 			throw new NotSupportedException("The default UI requires a user store with email support.");
 		}
-		return (IUserEmailStore<ApplicationUser>)_userStore;
+		return (IUserEmailStore<User>)_userStore;
 	}
 }

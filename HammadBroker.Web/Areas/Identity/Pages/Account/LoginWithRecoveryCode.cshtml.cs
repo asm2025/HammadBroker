@@ -60,7 +60,7 @@ public class LoginWithRecoveryCodeModel : PageModel
 	public async Task<IActionResult> OnGetAsync(string returnUrl = null)
 	{
 		// Ensure the user has gone through the username & password screen first
-		ApplicationUser user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
+		User user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
 		if (user == null)
 		{
 			throw new InvalidOperationException($"Unable to load two-factor authentication user.");
@@ -79,7 +79,7 @@ public class LoginWithRecoveryCodeModel : PageModel
 			return Page();
 		}
 
-		ApplicationUser user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
+		User user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
 		if (user == null)
 		{
 			throw new InvalidOperationException($"Unable to load two-factor authentication user.");

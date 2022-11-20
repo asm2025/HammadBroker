@@ -4,6 +4,6 @@ using HammadBroker.Model.Entities;
 
 namespace HammadBroker.Data.Services;
 
-public interface IBuildingService : IService<DataContext, IBuildingRepository, Building, long>
+public interface IBuildingService : IService<DataContext, IBuildingRepository, Building, int>
 {
 }

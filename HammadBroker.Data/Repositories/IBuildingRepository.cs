@@ -4,6 +4,6 @@ using HammadBroker.Model.Entities;
 
 namespace HammadBroker.Data.Repositories;
 
-public interface IBuildingRepository : IRepository<DataContext, Building, long>
+public interface IBuildingRepository : IRepository<DataContext, Building, int>
 {
 }

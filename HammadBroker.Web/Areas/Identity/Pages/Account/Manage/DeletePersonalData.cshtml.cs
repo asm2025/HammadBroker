@@ -61,7 +61,7 @@ public class DeletePersonalDataModel : PageModel
 	[ItemNotNull]
 	public async Task<IActionResult> OnGet()
 	{
-		ApplicationUser user = await _userManager.GetUserAsync(User);
+		User user = await _userManager.GetUserAsync(User);
 		if (user == null)
 		{
 			return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
@@ -74,7 +74,7 @@ public class DeletePersonalDataModel : PageModel
 	[ItemNotNull]
 	public async Task<IActionResult> OnPostAsync()
 	{
-		ApplicationUser user = await _userManager.GetUserAsync(User);
+		User user = await _userManager.GetUserAsync(User);
 		if (user == null)
 		{
 			return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");

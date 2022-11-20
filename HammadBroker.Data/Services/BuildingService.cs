@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace HammadBroker.Data.Services;
 
-public class BuildingService : Service<DataContext, IBuildingRepository, Building, long>, IBuildingService
+public class BuildingService : Service<DataContext, IBuildingRepository, Building, int>, IBuildingService
 {
 	public BuildingService([NotNull] IBuildingRepository repository, [NotNull] IMapper mapper, [NotNull] ILogger<BuildingService> logger)
 		: base(repository, mapper, logger)

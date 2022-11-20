@@ -85,7 +85,7 @@ public class EnableAuthenticatorModel : PageModel
 	[ItemNotNull]
 	public async Task<IActionResult> OnGetAsync()
 	{
-		ApplicationUser user = await _userManager.GetUserAsync(User);
+		User user = await _userManager.GetUserAsync(User);
 		if (user == null)
 		{
 			return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
@@ -99,7 +99,7 @@ public class EnableAuthenticatorModel : PageModel
 	[ItemNotNull]
 	public async Task<IActionResult> OnPostAsync()
 	{
-		ApplicationUser user = await _userManager.GetUserAsync(User);
+		User user = await _userManager.GetUserAsync(User);
 		if (user == null)
 		{
 			return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
@@ -140,7 +140,7 @@ public class EnableAuthenticatorModel : PageModel
 		return RedirectToPage("./TwoFactorAuthentication");
 	}
 
-	private async Task LoadSharedKeyAndQrCodeUriAsync(ApplicationUser user)
+	private async Task LoadSharedKeyAndQrCodeUriAsync(User user)
 	{
 		// Load the authenticator key & QR code URI to display on the form
 		string unformattedKey = await _userManager.GetAuthenticatorKeyAsync(user);

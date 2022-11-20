@@ -14,14 +14,14 @@ using Microsoft.Extensions.Options;
 
 namespace HammadBroker.Data.Identity;
 
-public class UserManager : UserManager<ApplicationUser>
+public class UserManager : UserManager<User>
 {
     private readonly IHttpContextAccessor _contextAccessor;
-    private ApplicationUser _systemUser;
+    private User _systemUser;
 
     /// <inheritdoc />
-    public UserManager([NotNull] IHttpContextAccessor contextAccessor, [NotNull] IUserStore<ApplicationUser> store, [NotNull] IOptions<IdentityOptions> optionsAccessor,
-        [NotNull] IPasswordHasher<ApplicationUser> passwordHasher, [NotNull] IEnumerable<IUserValidator<ApplicationUser>> userValidators, [NotNull] IEnumerable<IPasswordValidator<ApplicationUser>> passwordValidators,
+    public UserManager([NotNull] IHttpContextAccessor contextAccessor, [NotNull] IUserStore<User> store, [NotNull] IOptions<IdentityOptions> optionsAccessor,
+        [NotNull] IPasswordHasher<User> passwordHasher, [NotNull] IEnumerable<IUserValidator<User>> userValidators, [NotNull] IEnumerable<IPasswordValidator<User>> passwordValidators,
         [NotNull] ILookupNormalizer keyNormalizer, [NotNull] IdentityErrorDescriber errors, [NotNull] IServiceProvider services, [NotNull] ILogger<UserManager> logger)
         : base(store, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger)
     {
@@ -29,19 +29,19 @@ public class UserManager : UserManager<ApplicationUser>
     }
 
     /// <inheritdoc />
-    public override async Task<IdentityResult> CreateAsync(ApplicationUser user)
+    public override async Task<IdentityResult> CreateAsync(User user)
     {
         ArgumentNullException.ThrowIfNull(user, nameof(user));
         if (string.IsNullOrEmpty(user.Email)) throw new InvalidOperationException("User email is required.");
 
-        ApplicationUser userFromDb = await FindByEmailAsync(user.Email);
+        User userFromDb = await FindByEmailAsync(user.Email);
         IdentityResult result;
 
         if (userFromDb == null)
         {
             if (string.IsNullOrEmpty(user.Id)) user.Id = Guid.NewGuid().ToString("D");
             result = await base.CreateAsync(user);
-            if (result.Succeeded) await base.AddToRoleAsync(user, ApplicationRole.Members);
+            if (result.Succeeded) await base.AddToRoleAsync(user, Role.Members);
         }
         else
         {
@@ -53,7 +53,7 @@ public class UserManager : UserManager<ApplicationUser>
     }
 
     /// <inheritdoc />
-    protected override async Task<IdentityResult> UpdateUserAsync(ApplicationUser user)
+    protected override async Task<IdentityResult> UpdateUserAsync(User user)
     {
         ArgumentNullException.ThrowIfNull(user, nameof(user));
         if (!await CanEditUserAsync(user)
@@ -62,7 +62,7 @@ public class UserManager : UserManager<ApplicationUser>
     }
 
     /// <inheritdoc />
-    public override async Task<IdentityResult> SetEmailAsync(ApplicationUser user, string email)
+    public override async Task<IdentityResult> SetEmailAsync(User user, string email)
     {
         ArgumentNullException.ThrowIfNull(user, nameof(user));
         return !await CanEditUserAsync(user) || (await IsDefaultSuperUserAsync(user) && !email.IsSame(Constants.Authorization.AdministratorId))
@@ -71,7 +71,7 @@ public class UserManager : UserManager<ApplicationUser>
     }
 
     /// <inheritdoc />
-    public override async Task<IdentityResult> ChangeEmailAsync(ApplicationUser user, string newEmail, string token)
+    public override async Task<IdentityResult> ChangeEmailAsync(User user, string newEmail, string token)
     {
         ArgumentNullException.ThrowIfNull(user, nameof(user));
         return !await CanEditUserAsync(user) || (await IsDefaultSuperUserAsync(user) && !newEmail.IsSame(Constants.Authorization.AdministratorId))
@@ -80,7 +80,7 @@ public class UserManager : UserManager<ApplicationUser>
     }
 
     /// <inheritdoc />
-    public override async Task<IdentityResult> SetLockoutEnabledAsync(ApplicationUser user, bool enabled)
+    public override async Task<IdentityResult> SetLockoutEnabledAsync(User user, bool enabled)
     {
         ArgumentNullException.ThrowIfNull(user, nameof(user));
         return !await CanEditUserAsync(user) || await IsDefaultSuperUserAsync(user)
@@ -89,7 +89,7 @@ public class UserManager : UserManager<ApplicationUser>
     }
 
     /// <inheritdoc />
-    public override async Task<IdentityResult> DeleteAsync(ApplicationUser user)
+    public override async Task<IdentityResult> DeleteAsync(User user)
     {
         ArgumentNullException.ThrowIfNull(user, nameof(user));
         if (!await CanEditUserAsync(user) || await IsDefaultSuperUserAsync(user)) return EditFailedForUser(user.UserName);
@@ -97,62 +97,62 @@ public class UserManager : UserManager<ApplicationUser>
     }
 
     /// <inheritdoc />
-    public override async Task<IdentityResult> AddToRoleAsync(ApplicationUser user, string role)
+    public override async Task<IdentityResult> AddToRoleAsync(User user, string role)
     {
         ArgumentNullException.ThrowIfNull(user, nameof(user));
         if (_contextAccessor.HttpContext == null) return await base.AddToRoleAsync(user, role);
         int rank = await GetHighestRankAsync(await GetUserAsync());
-        return rank < ApplicationRole.AdministratorsRank
-                || rank < ApplicationRole.GetRank(role)
+        return rank < Role.AdministratorsRank
+                || rank < Role.GetRank(role)
                 || rank < await GetHighestRankAsync(user)
                     ? EditFailedForUser(user.UserName)
                     : await base.AddToRoleAsync(user, role);
     }
 
     /// <inheritdoc />
-    public override async Task<IdentityResult> AddToRolesAsync(ApplicationUser user, IEnumerable<string> roles)
+    public override async Task<IdentityResult> AddToRolesAsync(User user, IEnumerable<string> roles)
     {
         ArgumentNullException.ThrowIfNull(user, nameof(user));
         if (_contextAccessor.HttpContext == null) return await base.AddToRolesAsync(user, roles);
         int rank = await GetHighestRankAsync(await GetUserAsync());
-        if (rank < ApplicationRole.AdministratorsRank
-            || rank < ApplicationRole.GetHighestRank(roles)
+        if (rank < Role.AdministratorsRank
+            || rank < Role.GetHighestRank(roles)
             || rank < await GetHighestRankAsync(user)) return EditFailedForUser(user.UserName);
         return await base.AddToRolesAsync(user, roles);
     }
 
     /// <inheritdoc />
-    public override async Task<IdentityResult> RemoveFromRoleAsync(ApplicationUser user, string role)
+    public override async Task<IdentityResult> RemoveFromRoleAsync(User user, string role)
     {
         ArgumentNullException.ThrowIfNull(user, nameof(user));
         if (_contextAccessor.HttpContext == null) return await base.RemoveFromRoleAsync(user, role);
         int rank = await GetHighestRankAsync(await GetUserAsync());
-        if (rank < ApplicationRole.AdministratorsRank
+        if (rank < Role.AdministratorsRank
             || rank < await GetHighestRankAsync(user)
-            || (role.IsSame(ApplicationRole.System) && await IsDefaultSuperUserAsync(user))) return EditFailedForUser(user.UserName);
+            || (role.IsSame(Role.System) && await IsDefaultSuperUserAsync(user))) return EditFailedForUser(user.UserName);
         return await base.RemoveFromRoleAsync(user, role);
     }
 
     /// <inheritdoc />
-    public override async Task<IdentityResult> RemoveFromRolesAsync(ApplicationUser user, IEnumerable<string> roles)
+    public override async Task<IdentityResult> RemoveFromRolesAsync(User user, IEnumerable<string> roles)
     {
         ArgumentNullException.ThrowIfNull(user, nameof(user));
         if (_contextAccessor.HttpContext == null) return await base.RemoveFromRolesAsync(user, roles);
         int rank = await GetHighestRankAsync(await GetUserAsync());
-        if (rank < ApplicationRole.AdministratorsRank
-            || rank < ApplicationRole.GetHighestRank(roles)
+        if (rank < Role.AdministratorsRank
+            || rank < Role.GetHighestRank(roles)
             || rank < await GetHighestRankAsync(user)) return EditFailedForUser(user.UserName);
-        if (await IsDefaultSuperUserAsync(user)) roles = roles.Where(e => !e.IsSame(ApplicationRole.System));
+        if (await IsDefaultSuperUserAsync(user)) roles = roles.Where(e => !e.IsSame(Role.System));
         return await base.RemoveFromRolesAsync(user, roles);
     }
 
-    private async Task<ApplicationUser> GetSystemUserAsync()
+    private async Task<User> GetSystemUserAsync()
     {
         _systemUser ??= await FindByEmailAsync(Constants.Authorization.AdministratorId);
         return _systemUser;
     }
 
-    private async Task<ApplicationUser> GetUserAsync()
+    private async Task<User> GetUserAsync()
     {
         string userId = _contextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
         return userId == null
@@ -160,7 +160,7 @@ public class UserManager : UserManager<ApplicationUser>
                     : await FindByIdAsync(userId);
     }
 
-    private async Task<IList<string>> GetUserRolesAsync(ApplicationUser user)
+    private async Task<IList<string>> GetUserRolesAsync(User user)
     {
         return user == null
                     ? null
@@ -170,18 +170,18 @@ public class UserManager : UserManager<ApplicationUser>
     private async Task<bool> IsDefaultSuperUserAsync(string userId)
     {
         if (string.IsNullOrEmpty(userId) || _contextAccessor.HttpContext == null) return false;
-        ApplicationUser systemUser = await GetSystemUserAsync();
+        User systemUser = await GetSystemUserAsync();
         return systemUser != null && systemUser.Id.IsSame(userId);
     }
 
-    private async Task<bool> IsDefaultSuperUserAsync(ApplicationUser user)
+    private async Task<bool> IsDefaultSuperUserAsync(User user)
     {
-        if (user == null || _contextAccessor.HttpContext == null || !await IsInRoleAsync(user, ApplicationRole.System)) return false;
-        ApplicationUser systemUser = await GetSystemUserAsync();
+        if (user == null || _contextAccessor.HttpContext == null || !await IsInRoleAsync(user, Role.System)) return false;
+        User systemUser = await GetSystemUserAsync();
         return systemUser != null && (systemUser == user || systemUser.Email.IsSame(user.Email) || systemUser.UserName.IsSame(user.UserName));
     }
 
-    private async Task<int> GetHighestRankAsync(ApplicationUser user)
+    private async Task<int> GetHighestRankAsync(User user)
     {
         if (user == null) return -1;
 
@@ -189,7 +189,7 @@ public class UserManager : UserManager<ApplicationUser>
         {
             IList<string> roles = await GetUserRolesAsync(user);
             if (roles == null || roles.Count == 0) return -1;
-            return ApplicationRole.GetHighestRank(roles);
+            return Role.GetHighestRank(roles);
         }
         catch (Exception)
         {
@@ -197,20 +197,20 @@ public class UserManager : UserManager<ApplicationUser>
         }
     }
 
-    private async Task<bool> CanEditUserAsync(ApplicationUser user)
+    private async Task<bool> CanEditUserAsync(User user)
     {
         if (user == null) return false;
         if (_contextAccessor.HttpContext == null) return true;
-        ApplicationUser currentUser = await GetUserAsync();
+        User currentUser = await GetUserAsync();
         return currentUser == null || await CanEditUserAsync(currentUser, user);
     }
 
-    private async Task<bool> CanEditUserAsync(ApplicationUser x, ApplicationUser y)
+    private async Task<bool> CanEditUserAsync(User x, User y)
     {
         if (ReferenceEquals(y, null)) return false;
         if (ReferenceEquals(x, null) || ReferenceEquals(x, y)) return true;
         int rx = await GetHighestRankAsync(x);
-        return rx >= ApplicationRole.AdministratorsRank && rx > await GetHighestRankAsync(y);
+        return rx >= Role.AdministratorsRank && rx > await GetHighestRankAsync(y);
     }
 
     [NotNull]

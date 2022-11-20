@@ -93,7 +93,7 @@ public class ResetPasswordModel : PageModel
 			return Page();
 		}
 
-		ApplicationUser user = await _userManager.FindByEmailAsync(Input.Email);
+		User user = await _userManager.FindByEmailAsync(Input.Email);
 		if (user == null)
 		{
 			// Don't reveal that the user does not exist

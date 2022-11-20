@@ -65,7 +65,7 @@ public class SetPasswordModel : PageModel
 	[ItemNotNull]
 	public async Task<IActionResult> OnGetAsync()
 	{
-		ApplicationUser user = await _userManager.GetUserAsync(User);
+		User user = await _userManager.GetUserAsync(User);
 		if (user == null)
 		{
 			return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
@@ -89,7 +89,7 @@ public class SetPasswordModel : PageModel
 			return Page();
 		}
 
-		ApplicationUser user = await _userManager.GetUserAsync(User);
+		User user = await _userManager.GetUserAsync(User);
 		if (user == null)
 		{
 			return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");

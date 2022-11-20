@@ -19,12 +19,12 @@ public class ExternalLoginsModel : PageModel
 {
 	private readonly UserManager _userManager;
 	private readonly SignInManager _signInManager;
-	private readonly IUserStore<ApplicationUser> _userStore;
+	private readonly IUserStore<User> _userStore;
 
 	public ExternalLoginsModel(
 		[NotNull] UserManager userManager,
 		[NotNull] SignInManager signInManager,
-		[NotNull] IUserStore<ApplicationUser> userStore)
+		[NotNull] IUserStore<User> userStore)
 	{
 		_userManager = userManager;
 		_signInManager = signInManager;
@@ -59,7 +59,7 @@ public class ExternalLoginsModel : PageModel
 	[ItemNotNull]
 	public async Task<IActionResult> OnGetAsync()
 	{
-		ApplicationUser user = await _userManager.GetUserAsync(User);
+		User user = await _userManager.GetUserAsync(User);
 		if (user == null)
 		{
 			return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
@@ -71,7 +71,7 @@ public class ExternalLoginsModel : PageModel
 					.ToList();
 
 		string passwordHash = null;
-		if (_userStore is IUserPasswordStore<ApplicationUser> userPasswordStore)
+		if (_userStore is IUserPasswordStore<User> userPasswordStore)
 		{
 			passwordHash = await userPasswordStore.GetPasswordHashAsync(user, HttpContext.RequestAborted);
 		}
@@ -83,7 +83,7 @@ public class ExternalLoginsModel : PageModel
 	[ItemNotNull]
 	public async Task<IActionResult> OnPostRemoveLoginAsync(string loginProvider, string providerKey)
 	{
-		ApplicationUser user = await _userManager.GetUserAsync(User);
+		User user = await _userManager.GetUserAsync(User);
 		if (user == null)
 		{
 			return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
@@ -116,7 +116,7 @@ public class ExternalLoginsModel : PageModel
 	[ItemNotNull]
 	public async Task<IActionResult> OnGetLinkLoginCallbackAsync()
 	{
-		ApplicationUser user = await _userManager.GetUserAsync(User);
+		User user = await _userManager.GetUserAsync(User);
 		if (user == null)
 		{
 			return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");

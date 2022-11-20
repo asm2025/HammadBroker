@@ -67,7 +67,7 @@ public class LoginModel : PageModel
 		/// </summary>
 		[Required]
 		[EmailAddress]
-		[Display(Name = "البريد الالكتروني / اسم المستخدم")]
+		[Display(Name = "البريد الالكتروني")]
 		public string Email { get; set; }
 
 		/// <summary>
@@ -113,7 +113,7 @@ public class LoginModel : PageModel
 
 		if (!ModelState.IsValid) return Page();
 
-		ApplicationUser user = await _userManager.FindByEmailAsync(Input.Email)
+		User user = await _userManager.FindByEmailAsync(Input.Email)
 								?? await _userManager.FindByNameAsync(Input.Email);
 		if (user == null)
 		{

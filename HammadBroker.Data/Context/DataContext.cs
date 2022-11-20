@@ -24,7 +24,7 @@ using Microsoft.Extensions.Logging;
 
 namespace HammadBroker.Data.Context;
 
-public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, string,
+public class DataContext : IdentityDbContext<User, Role, string,
 	IdentityUserClaim<string>, IdentityUserRole<string>, IdentityUserLogin<string>,
 	IdentityRoleClaim<string>, IdentityUserToken<string>>
 {
@@ -42,6 +42,9 @@ public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, s
 	public DbSet<Country> Countries { get; set; }
 	public DbSet<City> Cities { get; set; }
 	public DbSet<Floor> Floors { get; set; }
+	public DbSet<Building> Buildings { get; set; }
+	public DbSet<BuildingImage> BuildingImages { get; set; }
+	public DbSet<BuildingAd> BuildingAds { get; set; }
 
 	/// <inheritdoc />
 	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -77,7 +80,7 @@ public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, s
 	protected override void OnModelCreating(ModelBuilder builder)
 	{
 		base.OnModelCreating(builder);
-		builder.Entity<ApplicationUser>(userIdentity =>
+		builder.Entity<User>(userIdentity =>
 		{
 			userIdentity.ToTable("Users");
 			userIdentity.Property(e => e.UserName)
@@ -89,7 +92,7 @@ public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, s
 			userIdentity.Property(e => e.NormalizedEmail)
 						.HasMaxLength(320);
 		});
-		builder.Entity<ApplicationRole>(role =>
+		builder.Entity<Role>(role =>
 		{
 			role.ToTable("Roles");
 			role.Property(e => e.Name)
@@ -145,7 +148,13 @@ public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, s
 					.WithMany()
 					.HasForeignKey(e => e.CountryCode);
 		});
-		builder.Entity<Ad>(ad =>
+		builder.Entity<BuildingImage>(image =>
+		{
+			image.HasOne<Building>()
+					.WithMany()
+					.HasForeignKey(e => e.BuildingId);
+		});
+		builder.Entity<BuildingAd>(ad =>
 		{
 			ad.HasOne<Building>()
 			  .WithMany()
@@ -252,13 +261,13 @@ public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, s
 			int rolesAdded = 0;
 			logger?.LogInformation("Adding roles data.");
 
-			RoleManager<ApplicationRole> roleManager = null;
+			RoleManager<Role> roleManager = null;
 
 			try
 			{
-				roleManager = services.GetRequiredService<RoleManager<ApplicationRole>>();
+				roleManager = services.GetRequiredService<RoleManager<Role>>();
 
-				ISet<string> roles = new HashSet<string>(ApplicationRole.Roles.Keys, StringComparer.OrdinalIgnoreCase);
+				ISet<string> roles = new HashSet<string>(Role.Roles.Keys, StringComparer.OrdinalIgnoreCase);
 
 				if (seedData.Roles is { Count: > 0 })
 				{
@@ -272,7 +281,7 @@ public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, s
 				{
 					if (await roleManager.RoleExistsAsync(roleName)) continue;
 
-					IdentityResult result = await roleManager.CreateAsync(new ApplicationRole
+					IdentityResult result = await roleManager.CreateAsync(new Role
 					{
 						Id = Guid.NewGuid().ToString(),
 						Name = roleName
@@ -302,20 +311,20 @@ public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, s
 			logger?.LogInformation("Adding users data.");
 
 			int usersAdded = 0;
-			UserManager<ApplicationUser> userManager = null;
+			UserManager<User> userManager = null;
 
 			try
 			{
-				userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+				userManager = services.GetRequiredService<UserManager<User>>();
 
 				foreach (UserData user in users)
 				{
-					ApplicationUser userInDb = await userManager.FindByEmailAsync(user.Email);
+					User userInDb = await userManager.FindByEmailAsync(user.Email);
 					IdentityResult result;
 
 					if (userInDb == null)
 					{
-						userInDb = mapper.Map<ApplicationUser>(user);
+						userInDb = mapper.Map<User>(user);
 						userInDb.Created = DateTime.UtcNow;
 						userInDb.Modified = DateTime.UtcNow;
 						logger?.LogInformation($"Adding '{userInDb.Email}' user data.");

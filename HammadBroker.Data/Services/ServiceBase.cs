@@ -51,7 +51,7 @@ public abstract class ServiceBase<TContext, TRepository, TEntity, TKey> : Dispos
 	}
 
 	/// <inheritdoc />
-	public Type EntityType { get; } = typeof(ApplicationUser);
+	public Type EntityType { get; } = typeof(User);
 
 	/// <inheritdoc />
 	public TRepository Repository { get; }

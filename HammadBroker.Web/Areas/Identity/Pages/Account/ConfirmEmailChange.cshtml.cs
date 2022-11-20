@@ -38,7 +38,7 @@ public class ConfirmEmailChangeModel : PageModel
 			return RedirectToPage("/Index");
 		}
 
-		ApplicationUser user = await _userManager.FindByIdAsync(userId);
+		User user = await _userManager.FindByIdAsync(userId);
 		if (user == null)
 		{
 			return NotFound($"Unable to load user with ID '{userId}'.");

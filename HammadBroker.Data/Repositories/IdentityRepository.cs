@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace HammadBroker.Data.Repositories;
 
-public class IdentityRepository : Repository<DataContext, ApplicationUser, string>, IIdentityRepository
+public class IdentityRepository : Repository<DataContext, User, string>, IIdentityRepository
 {
 	/// <inheritdoc />
 	public IdentityRepository([NotNull] DataContext context, [NotNull] UserManager userManager, [NotNull] RoleManager roleManager, [NotNull] IConfiguration configuration, [NotNull] ILogger<IdentityRepository> logger)

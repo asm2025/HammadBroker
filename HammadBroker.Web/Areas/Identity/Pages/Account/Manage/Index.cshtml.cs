@@ -59,7 +59,7 @@ public class IndexModel : PageModel
 		public string PhoneNumber { get; set; }
 	}
 
-	private async Task LoadAsync(ApplicationUser user)
+	private async Task LoadAsync(User user)
 	{
 		string userName = await _userManager.GetUserNameAsync(user);
 		string phoneNumber = await _userManager.GetPhoneNumberAsync(user);
@@ -75,7 +75,7 @@ public class IndexModel : PageModel
 	[ItemNotNull]
 	public async Task<IActionResult> OnGetAsync()
 	{
-		ApplicationUser user = await _userManager.GetUserAsync(User);
+		User user = await _userManager.GetUserAsync(User);
 		if (user == null)
 		{
 			return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
@@ -88,7 +88,7 @@ public class IndexModel : PageModel
 	[ItemNotNull]
 	public async Task<IActionResult> OnPostAsync()
 	{
-		ApplicationUser user = await _userManager.GetUserAsync(User);
+		User user = await _userManager.GetUserAsync(User);
 		if (user == null)
 		{
 			return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");

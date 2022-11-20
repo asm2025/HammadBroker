@@ -52,7 +52,7 @@ public class RegisterConfirmationModel : PageModel
 		}
 		returnUrl = returnUrl ?? Url.Content("~/");
 
-		ApplicationUser user = await _userManager.FindByEmailAsync(email);
+		User user = await _userManager.FindByEmailAsync(email);
 		if (user == null)
 		{
 			return NotFound($"Unable to load user with email '{email}'.");

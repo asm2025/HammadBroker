@@ -4,6 +4,6 @@ using HammadBroker.Model.Entities;
 
 namespace HammadBroker.Data.Services;
 
-public interface IAdService : IService<DataContext, IAdRepository, Ad, long>
+public interface IBuildingAdService : IService<DataContext, IBuildingAdRepository, BuildingAd, int>
 {
 }

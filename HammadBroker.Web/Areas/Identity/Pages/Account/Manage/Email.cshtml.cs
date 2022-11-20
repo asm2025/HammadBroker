@@ -73,7 +73,7 @@ public class EmailModel : PageModel
 		public string NewEmail { get; set; }
 	}
 
-	private async Task LoadAsync(ApplicationUser user)
+	private async Task LoadAsync(User user)
 	{
 		string email = await _userManager.GetEmailAsync(user);
 		Email = email;
@@ -89,7 +89,7 @@ public class EmailModel : PageModel
 	[ItemNotNull]
 	public async Task<IActionResult> OnGetAsync()
 	{
-		ApplicationUser user = await _userManager.GetUserAsync(User);
+		User user = await _userManager.GetUserAsync(User);
 		if (user == null)
 		{
 			return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
@@ -102,7 +102,7 @@ public class EmailModel : PageModel
 	[ItemNotNull]
 	public async Task<IActionResult> OnPostChangeEmailAsync()
 	{
-		ApplicationUser user = await _userManager.GetUserAsync(User);
+		User user = await _userManager.GetUserAsync(User);
 		if (user == null)
 		{
 			return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
@@ -147,7 +147,7 @@ public class EmailModel : PageModel
 	[ItemNotNull]
 	public async Task<IActionResult> OnPostSendVerificationEmailAsync()
 	{
-		ApplicationUser user = await _userManager.GetUserAsync(User);
+		User user = await _userManager.GetUserAsync(User);
 		if (user == null)
 		{
 			return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
