@@ -1,11 +1,11 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
-using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using AutoMapper;
 using HammadBroker.Data.Identity;
+using HammadBroker.Model.DTO;
 using HammadBroker.Model.Entities;
 using JetBrains.Annotations;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -15,13 +15,13 @@ public class IndexModel : PageModel
 {
 	private readonly UserManager _userManager;
 	private readonly SignInManager _signInManager;
+	private readonly IMapper _mapper;
 
-	public IndexModel(
-		[NotNull] UserManager userManager,
-		[NotNull] SignInManager signInManager)
+	public IndexModel([NotNull] UserManager userManager, [NotNull] SignInManager signInManager, [NotNull] IMapper mapper)
 	{
 		_userManager = userManager;
 		_signInManager = signInManager;
+		_mapper = mapper;
 	}
 
 	/// <summary>
@@ -29,6 +29,7 @@ public class IndexModel : PageModel
 	///     directly from your code. This API may change or be removed in future releases.
 	/// </summary>
 	public string Username { get; set; }
+	public string Email { get; set; }
 
 	/// <summary>
 	///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -42,46 +43,16 @@ public class IndexModel : PageModel
 	///     directly from your code. This API may change or be removed in future releases.
 	/// </summary>
 	[BindProperty]
-	public InputModel Input { get; set; }
-
-	/// <summary>
-	///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-	///     directly from your code. This API may change or be removed in future releases.
-	/// </summary>
-	public class InputModel
-	{
-		/// <summary>
-		///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-		///     directly from your code. This API may change or be removed in future releases.
-		/// </summary>
-		[Phone]
-		[Display(Name = "Phone number")]
-		public string PhoneNumber { get; set; }
-	}
-
-	private async Task LoadAsync(User user)
-	{
-		string userName = await _userManager.GetUserNameAsync(user);
-		string phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-
-		Username = userName;
-
-		Input = new InputModel
-		{
-			PhoneNumber = phoneNumber
-		};
-	}
+	public UserToUpdate Input { get; set; }
 
 	[ItemNotNull]
 	public async Task<IActionResult> OnGetAsync()
 	{
 		User user = await _userManager.GetUserAsync(User);
-		if (user == null)
-		{
-			return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
-		}
-
-		await LoadAsync(user);
+		if (user == null) return NotFound();
+		Username = user.UserName;
+		Email = user.Email;
+		Input = _mapper.Map<UserToUpdate>(user);
 		return Page();
 	}
 
@@ -89,28 +60,20 @@ public class IndexModel : PageModel
 	public async Task<IActionResult> OnPostAsync()
 	{
 		User user = await _userManager.GetUserAsync(User);
-		if (user == null)
-		{
-			return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
-		}
+		if (user == null) return NotFound();
+		Username = user.UserName;
+		Email = user.Email;
 
 		if (!ModelState.IsValid)
 		{
-			await LoadAsync(user);
+			Input = _mapper.Map<UserToUpdate>(user);
 			return Page();
 		}
 
 		string phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-		if (Input.PhoneNumber != phoneNumber)
-		{
-			IdentityResult setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
-			if (!setPhoneResult.Succeeded)
-			{
-				StatusMessage = "Unexpected error when trying to set phone number.";
-				return RedirectToPage();
-			}
-		}
-
+		_mapper.Map(Input, user);
+		if (phoneNumber != Input.PhoneNumber) Input.PhoneNumberConfirmed = false;
+		await _userManager.UpdateAsync(user);
 		await _signInManager.RefreshSignInAsync(user);
 		StatusMessage = "Your profile has been updated";
 		return RedirectToPage();

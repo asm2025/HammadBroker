@@ -126,7 +126,7 @@ public class ExternalLoginsModel : PageModel
 		ExternalLoginInfo info = await _signInManager.GetExternalLoginInfoAsync(userId);
 		if (info == null)
 		{
-			throw new InvalidOperationException($"Unexpected error occurred loading external login info.");
+			throw new InvalidOperationException("Unexpected error occurred loading external login info.");
 		}
 
 		IdentityResult result = await _userManager.AddLoginAsync(user, info);

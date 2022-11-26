@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace HammadBroker.Model.Parameters;
+namespace HammadBroker.Model.DTO;
 
 [Serializable]
 public struct UserLogin

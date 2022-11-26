@@ -1,5 +1,4 @@
-﻿@using HammadBroker.Data.Identity
-@inject SignInManager SignInManager
+﻿@inject SignInManager SignInManager
 
 <ul class="nav">
 	@if (SignInManager.IsSignedIn(User))
@@ -8,15 +7,17 @@
 			<a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">مرحبا @User.Identity?.Name</a>
 		</li>
 		<li class="nav-item">
-			<form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
-				<button type="submit" class="nav-link btn btn-link text-dark">تسجيل الخروج</button>
+			<form class="row row-cols-lg-auto g-3 align-items-center" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
+				<div class="col-12">
+					<button type="submit" class="nav-link btn btn-link text-dark">خروج</button>
+				</div>
 			</form>
 		</li>
 	}
 	else
 	{
 		<li class="nav-item">
-			<a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">تسجيل الدخول</a>
+			<a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">دخول</a>
 		</li>
 	}
 </ul>

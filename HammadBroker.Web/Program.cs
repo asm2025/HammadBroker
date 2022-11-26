@@ -230,6 +230,7 @@ public class Program
 			.AddIdentity<User, Role>(options => configuration.GetSection("IdentityOptions").Bind(options))
 			.AddEntityFrameworkStores<DataContext>()
 			.AddDefaultUI()
+			.AddClaimsPrincipalFactory<UserClaimsPrincipalFactory>()
 			.AddUserManager<UserManager>()
 			.AddRoleManager<RoleManager>()
 			.AddSignInManager<SignInManager>()

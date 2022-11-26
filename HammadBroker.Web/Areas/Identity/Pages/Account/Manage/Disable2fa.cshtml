@@ -1,25 +1,25 @@
 ﻿@page
 @model Disable2faModel
 @{
-    ViewData["Title"] = "Disable two-factor authentication (2FA)";
-    ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
+	ViewData["Title"] = "تعطيل المصادقة الثنائية (2FA)";
+	ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
 }
 
 <partial name="_StatusMessage" for="StatusMessage" />
 <h3>@ViewData["Title"]</h3>
 
 <div class="alert alert-warning" role="alert">
-    <p>
-        <strong>This action only disables 2FA.</strong>
-    </p>
-    <p>
-        Disabling 2FA does not change the keys used in authenticator apps. If you wish to change the key
-        used in an authenticator app you should <a asp-page="./ResetAuthenticator">reset your authenticator keys.</a>
-    </p>
+	<p>
+		<strong>هذا الإجراء يعطل 2FA فقط.</strong>
+	</p>
+	<p>
+		لا يؤدي تعطيل المصادقة الثنائية إلى تغيير المفاتيح المستخدمة في تطبيقات المصادقة. إذا كنت ترغب في تغيير المفتاح
+		المستخدمة في تطبيق المصادقة يجب عليك<a asp-page="./ResetAuthenticator"> إعادة تعيين مفاتيح المصادقة الخاصة بك.</a>
+	</p>
 </div>
 
 <div>
-    <form method="post">
-        <button class="btn btn-danger" type="submit">Disable 2FA</button>
-    </form>
+	<form method="post">
+		<button class="btn btn-danger" type="submit">تعطيل</button>
+	</form>
 </div>

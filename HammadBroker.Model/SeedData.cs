@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using HammadBroker.Model.Parameters;
+using HammadBroker.Model.DTO;
 
 namespace HammadBroker.Model;
 

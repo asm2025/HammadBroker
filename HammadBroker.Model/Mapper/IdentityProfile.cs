@@ -2,7 +2,6 @@ using AutoMapper;
 using essentialMix.Data.Patterns.Parameters;
 using HammadBroker.Model.DTO;
 using HammadBroker.Model.Entities;
-using HammadBroker.Model.Parameters;
 
 namespace HammadBroker.Model.Mapper;
 
@@ -13,13 +12,13 @@ public class IdentityProfile : Profile
 		CreateMap<UserList, ListSettings>()
 			.ReverseMap();
 
-		CreateMap<UserToUpdate, User>()
+		CreateMap<UserToUpdateCore, User>()
 			.ReverseMap();
-
-		CreateMap<UserData, UserToUpdate>()
+		CreateMap<UserToUpdate, User>()
+			.IncludeBase<UserToUpdateCore, User>()
 			.ReverseMap();
 		CreateMap<UserData, User>()
-			.IncludeBase<UserToUpdate, User>()
+			.IncludeBase<UserToUpdateCore, User>()
 			.ReverseMap();
 
 		CreateMap<User, UserForLogin>()

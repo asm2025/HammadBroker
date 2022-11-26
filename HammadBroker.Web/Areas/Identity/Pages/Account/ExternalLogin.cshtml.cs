@@ -219,7 +219,7 @@ public class ExternalLoginModel : PageModel
 		{
 			throw new InvalidOperationException($"Can't create an instance of '{nameof(Model.Entities.User)}'. " +
 												$"Ensure that '{nameof(Model.Entities.User)}' is not an abstract class and has a parameterless constructor, or alternatively " +
-												$"override the external login page in /Areas/Identity/Pages/Account/ExternalLogin.cshtml");
+												"override the external login page in /Areas/Identity/Pages/Account/ExternalLogin.cshtml");
 		}
 	}
 
