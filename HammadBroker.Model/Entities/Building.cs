@@ -19,6 +19,9 @@ public class Building : IEntity<int>
     [Required]
     public BuildingType BuildingType { get; set; }
 
+    [StringLength(320)]
+    public string ImageUrl { get; set; }
+
     [Required]
     public FinishingType FinishingType { get; set; }
 

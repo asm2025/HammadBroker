@@ -62,6 +62,10 @@ namespace HammadBroker.Data.Migrations
                         .HasMaxLength(32)
                         .HasColumnType("nvarchar(32)");
 
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
                     b.Property<string>("Location")
                         .HasMaxLength(2048)
                         .HasColumnType("nvarchar(2048)");
@@ -143,13 +147,9 @@ namespace HammadBroker.Data.Migrations
                         .HasMaxLength(320)
                         .HasColumnType("nvarchar(320)");
 
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("bit");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("BuildingId", "IsDefault")
-                        .IsUnique();
+                    b.HasIndex("BuildingId");
 
                     b.ToTable("BuildingImages");
                 });

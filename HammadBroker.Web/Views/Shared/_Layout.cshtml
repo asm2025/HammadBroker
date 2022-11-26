@@ -6,16 +6,28 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="icon" type="image/x-icon" href="@Url.Content("~/favicon.ico")" />
+	<link rel="shortcut icon" type="image/x-icon" href="@Url.Content("~/favicon.ico")" />
 	<title>@ViewData["Title"] - @CompanyInfo.Title</title>
 	<link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.css" />
 	<link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
 	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+	<script type="text/javascript" src="@Url.Content("~/lib/lodash.js/lodash.min.js")"></script>
+	@*Last*@
+	<link href="@Url.Content("~/css/site.css")" rel="stylesheet" asp-append-version="true" />
+	<script type="text/javascript" src="@Url.Content("~/js/site.js")" asp-append-version="true"></script>
+	@await RenderSectionAsync("styles", false)
 </head>
 <body>
 	<header>
+		<div class="container d-flex flex-row justify-content-end">
+			<partial name="_LoginPartial" />
+		</div>
 		<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-			<div class="container">
-				<a class="navbar-brand" asp-area="" asp-action="Index">@CompanyInfo.Title</a>
+			<div class="container d-flex align-items-end">
+				<a class="navbar-brand" asp-area="" asp-action="Index">
+					<img src="@Url.Content("~/images/logo.jpg")" alt="@CompanyInfo.Title" class="m-1"/>
+				</a>
 				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
 						aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
@@ -26,7 +38,6 @@
 							<a class="nav-link text-dark" asp-area="" asp-page=""></a>
 						</li>
 					</ul>
-					<partial name="_LoginPartial" />
 				</div>
 			</div>
 		</nav>

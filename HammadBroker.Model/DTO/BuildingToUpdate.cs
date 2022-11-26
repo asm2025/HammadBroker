@@ -8,6 +8,9 @@ public class BuildingToUpdate
 	[StringLength(256)]
 	public string Name { get; set; }
 
+	[StringLength(320)]
+	public string ImageUrl { get; set; }
+
 	[Required]
 	public BuildingType BuildingType { get; set; }
 

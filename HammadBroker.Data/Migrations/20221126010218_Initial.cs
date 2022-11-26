@@ -213,6 +213,7 @@ namespace HammadBroker.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     BuildingType = table.Column<int>(type: "int", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(320)", maxLength: 320, nullable: true),
                     FinishingType = table.Column<int>(type: "int", nullable: false),
                     Floor = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     Location = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: true),
@@ -269,8 +270,7 @@ namespace HammadBroker.Data.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     BuildingId = table.Column<int>(type: "int", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(320)", maxLength: 320, nullable: false),
-                    IsDefault = table.Column<bool>(type: "bit", nullable: false)
+                    ImageUrl = table.Column<string>(type: "nvarchar(320)", maxLength: 320, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -304,10 +304,9 @@ namespace HammadBroker.Data.Migrations
                 column: "Price");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BuildingImages_BuildingId_IsDefault",
+                name: "IX_BuildingImages_BuildingId",
                 table: "BuildingImages",
-                columns: new[] { "BuildingId", "IsDefault" },
-                unique: true);
+                column: "BuildingId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Buildings_BuildingType",
