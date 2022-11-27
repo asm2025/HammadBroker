@@ -1,6 +1,7 @@
 ﻿@page
+@using HammadBroker.Web.Areas.Identity.Pages.Account.Manage
+@using HammadBroker.Model.Entities
 @using HammadBroker.Model
-@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model IndexModel
 @{
 	ViewData["Title"] = "الملف الشخصي";
@@ -25,7 +26,7 @@
 					<span asp-validation-for="Input.Email" class="text-danger"></span>
 				</div>
 				<div class="form-floating">
-					<div class="form-control form-check form-switch">
+					<div class="form-control border-0 form-check form-switch">
 						<input asp-for="Input.EmailConfirmed" type="checkbox" role="switch" class="form-check-input"/>
 					</div>
 					<label asp-for="Input.EmailConfirmed"></label>
@@ -71,7 +72,7 @@
 			@if (isSystem)
 			{
 				<div class="form-floating">
-					<div class="form-control form-check form-switch">
+					<div class="form-control border-0 form-check form-switch">
 						<input asp-for="Input.PhoneNumberConfirmed" type="checkbox" role="switch" class="form-check-input"/>
 					</div>
 					<label asp-for="Input.PhoneNumberConfirmed"></label>
@@ -92,7 +93,7 @@
 			@if (isSystem)
 			{
 				<div class="form-floating">
-					<div class="form-control form-check form-switch">
+					<div class="form-control border-0 form-check form-switch">
 						<input asp-for="Input.LockoutEnabled" type="checkbox" role="switch" class="form-check-input"/>
 					</div>
 					<label asp-for="Input.LockoutEnabled"></label>
@@ -115,5 +116,5 @@
 </div>
 
 @section Scripts {
-	<partial name="_ValidationScriptsPartial" />
+	<partial name="~/Views/Shared/_ValidationScriptsPartial.cshtml" />
 }

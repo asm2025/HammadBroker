@@ -1,4 +1,6 @@
-﻿@inject SignInManager SignInManager
+﻿@using HammadBroker.Data.Identity
+@using HammadBroker.Web.Areas.Identity.Pages.Account.Manage
+@inject SignInManager SignInManager
 @{
     bool hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
 }

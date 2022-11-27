@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using essentialMix.Extensions;
 using HammadBroker.Model.Entities;
@@ -32,6 +33,14 @@ public class UserClaimsPrincipalFactory : UserClaimsPrincipalFactory<User>
 
 		if (!string.IsNullOrEmpty(user.FirstName)) claims.AddClaim(new Claim(ClaimTypes.GivenName, user.FirstName));
 		if (!string.IsNullOrEmpty(user.LastName)) claims.AddClaim(new Claim(ClaimTypes.Surname, user.LastName));
+
+		IList<string> roles = await UserManager.GetRolesAsync(user);
+
+		foreach (string role in roles)
+		{
+			claims.AddClaim(new Claim(ClaimTypes.Role, role));
+		}
+
 		return claims;
 	}
 }

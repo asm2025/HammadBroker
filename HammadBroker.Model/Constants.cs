@@ -18,6 +18,7 @@ public static class Constants
 	{
 		public const string SystemPolicy = "RequireSystemRole";
 		public const string AdministrationPolicy = "RequireAdministratorRole";
+		public const string MemberPolicy = "RequireMemberRole";
 
 #if DEBUG
 		public const string SystemId = "super@localhost";

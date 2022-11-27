@@ -51,7 +51,7 @@ public class ExternalLoginModel : PageModel
 	///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
 	///     directly from your code. This API may change or be removed in future releases.
 	/// </summary>
-	[BindProperty]
+	[BindProperty(Name = "")]
 	public InputModel Input { get; set; }
 
 	/// <summary>
@@ -103,7 +103,7 @@ public class ExternalLoginModel : PageModel
 	[ItemNotNull]
 	public async Task<IActionResult> OnGetCallbackAsync(string returnUrl = null, string remoteError = null)
 	{
-		returnUrl = returnUrl ?? Url.Content("~/");
+		returnUrl ??= Url.Content("~/");
 		if (remoteError != null)
 		{
 			ErrorMessage = $"Error from external provider: {remoteError}";
@@ -144,7 +144,7 @@ public class ExternalLoginModel : PageModel
 	[ItemNotNull]
 	public async Task<IActionResult> OnPostConfirmationAsync(string returnUrl = null)
 	{
-		returnUrl = returnUrl ?? Url.Content("~/");
+		returnUrl ??= Url.Content("~/");
 		// Get the information about the user from the external login provider
 		ExternalLoginInfo info = await _signInManager.GetExternalLoginInfoAsync();
 		if (info == null)
@@ -183,7 +183,7 @@ public class ExternalLoginModel : PageModel
 												Request.Scheme);
 
 					await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-													$"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+													$"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl!)}'>clicking here</a>.");
 
 					// If account confirmation is required, we need to show the link if we don't have a real email sender
 					if (_userManager.Options.SignIn.RequireConfirmedAccount)

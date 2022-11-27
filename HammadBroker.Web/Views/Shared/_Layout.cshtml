@@ -1,5 +1,5 @@
 ﻿@using HammadBroker.Model.Configuration
-@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using HammadBroker.Model
 @inject CompanyInfo CompanyInfo
 <html lang="en" dir="rtl">
 <head>
@@ -8,9 +8,12 @@
 	<link rel="icon" type="image/x-icon" href="@Url.Content("~/favicon.ico")" />
 	<link rel="shortcut icon" type="image/x-icon" href="@Url.Content("~/favicon.ico")" />
 	<title>@ViewData["Title"] - @CompanyInfo.Title</title>
-	<link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.css" />
+
+	<link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
 	<link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
 	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+	
+	<script type="text/javascript" src="@Url.Content("~/lib/popper.js/umd/popper.min.js")"></script>
 	<script type="text/javascript" src="@Url.Content("~/lib/lodash.js/lodash.min.js")"></script>
 	@*Last*@
 	<link href="@Url.Content("~/css/site.css")" rel="stylesheet" asp-append-version="true" />

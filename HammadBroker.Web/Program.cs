@@ -15,6 +15,7 @@ using HammadBroker.Data.Repositories;
 using HammadBroker.Data.Services;
 using HammadBroker.Helpers;
 using HammadBroker.Infrastructure.Services;
+using HammadBroker.Model;
 using HammadBroker.Model.Configuration;
 using HammadBroker.Model.Entities;
 using HammadBroker.Model.Mail;
@@ -237,6 +238,7 @@ public class Program
 			.AddRoleValidator<RoleValidator<Role>>()
 			.AddDefaultTokenProviders();
 		services
+			.AddScoped(typeof(IUserClaimsPrincipalFactory<User>), typeof(UserClaimsPrincipalFactory))
 			.AddScoped(typeof(UserManager<User>), typeof(UserManager))
 			.AddScoped(typeof(RoleManager<Role>), typeof(RoleManager))
 			.AddScoped(typeof(SignInManager<User>), typeof(SignInManager))
@@ -253,28 +255,28 @@ public class Program
 			// Authorization
 			.AddAuthorization(options =>
 			{
-				options.AddPolicy(Role.Members, policy =>
+				options.AddPolicy(Constants.Authorization.MemberPolicy, policy =>
 				{
 					policy.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme)
-						  .RequireAuthenticatedUser()
-						  .RequireClaim(ClaimTypes.Role, Role.Members)
-						  .RequireRole(Role.Members);
+						.RequireAuthenticatedUser()
+						.RequireClaim(ClaimTypes.Role, Role.System, Role.Administrators, Role.Members)
+						.RequireRole(Role.System, Role.Administrators, Role.Members);
 				});
 
-				options.AddPolicy(Role.Administrators, policy =>
+				options.AddPolicy(Constants.Authorization.AdministrationPolicy, policy =>
 				{
 					policy.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme)
-						  .RequireAuthenticatedUser()
-						  .RequireClaim(ClaimTypes.Role, Role.Administrators)
-						  .RequireRole(Role.Administrators);
+						.RequireAuthenticatedUser()
+						.RequireClaim(ClaimTypes.Role, Role.System, Role.Administrators)
+						.RequireRole(Role.System, Role.Administrators);
 				});
 
-				options.AddPolicy(Role.System, policy =>
+				options.AddPolicy(Constants.Authorization.SystemPolicy, policy =>
 				{
 					policy.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme)
-						  .RequireAuthenticatedUser()
-						  .RequireClaim(ClaimTypes.Role, Role.System)
-						  .RequireRole(Role.System);
+						.RequireAuthenticatedUser()
+						.RequireClaim(ClaimTypes.Role, Role.System)
+						.RequireRole(Role.System);
 				});
 			})
 			// MVC
@@ -346,9 +348,10 @@ public class Program
 			.UseVirtualPathEndpoints(environment.WebRootPath)
 			.UseEndpoints(endpoint =>
 			{
-				endpoint.MapRazorPages();
-				endpoint.MapControllerRoute("Admin", "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+				endpoint.MapAreaControllerRoute("Admin", "Admin", "Admin/{controller=Home}/{action=Index}/{id?}")
+						.RequireAuthorization(Constants.Authorization.AdministrationPolicy);
 				endpoint.MapControllers();
+				endpoint.MapRazorPages();
 				endpoint.MapDefaultControllerRoute();
 			});
 	}

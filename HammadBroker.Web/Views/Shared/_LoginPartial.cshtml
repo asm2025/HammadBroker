@@ -1,15 +1,23 @@
-﻿@inject SignInManager SignInManager
+﻿@using HammadBroker.Data.Identity
+@inject SignInManager SignInManager
 
-<ul class="navbar-nav p-0 d-sm-inline-flex justify-content-end align-items-center">
+<ul class="navbar-nav p-0 align-self-end">
 	@if (SignInManager.IsSignedIn(User))
 	{
-		<li class="nav-item">
-			<a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">@User.Identity?.Name</a>
-		</li>
-		<li class="nav-item">
-			<form class="m-0 p-0" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
-				<button type="submit" class="nav-link btn btn-link text-dark p-0">خروج</button>
-			</form>
+		<li class="nav-item dropdown">
+			<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+				<i class="fa-solid fa-user"></i>
+				الحساب
+			</a>
+			<ul class="dropdown-menu">
+				<li><a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index" title="ادارة الحساب">@User.Identity!.Name</a></li>
+				<li><hr class="dropdown-divider"></li>
+				<li>
+					<form class="m-0 p-0" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
+						<button type="submit" class="dropdown-item btn btn-link">خروج</button>
+					</form>
+				</li>
+			</ul>
 		</li>
 	}
 	else

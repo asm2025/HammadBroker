@@ -1,5 +1,5 @@
 ﻿@page
-@model LoginWith2faModel
+@model HammadBroker.Web.Areas.Identity.Pages.Account.LoginWith2faModel
 @{
 	ViewData["Title"] = "توثيق ذو عاملين";
 }
@@ -18,7 +18,7 @@
 				<span asp-validation-for="Input.TwoFactorCode" class="text-danger"></span>
 			</div>
 			<div class="form-floating">
-				<div class="form-control form-check form-switch">
+				<div class="form-control border-0 form-check form-switch">
 					<input asp-for="Input.RememberMachine" type="checkbox" role="switch" class="form-check-input" />
 				</div>
 				<label asp-for="Input.RememberMachine"></label>
@@ -35,5 +35,5 @@
 </p>
 
 @section Scripts {
-	<partial name="_ValidationScriptsPartial" />
+	<partial name="~/Views/Shared/_ValidationScriptsPartial.cshtml" />
 }

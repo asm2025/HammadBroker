@@ -1,6 +1,7 @@
 ﻿@page
 @using Microsoft.AspNetCore.Authentication
-@model RegisterModel
+@using HammadBroker.Model
+@model HammadBroker.Web.Areas.Identity.Pages.Account.RegisterModel
 @{
 	ViewData["Title"] = "تسجيل";
 }
@@ -17,48 +18,48 @@
 				<img-avatar email="@Model.Input.Email" class="img-thumbnail" size="150" />
 			</div>
 			<div class="form-floating">
-				<input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" />
+				<input asp-for="Input.Email" name="@nameof(Model.Input.Email)" class="form-control" autocomplete="username" aria-required="true" />
 				<label asp-for="Input.Email"></label>
 				<span asp-validation-for="Input.Email" class="text-danger"></span>
 			</div>
 			<div class="form-floating">
-				<input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" />
+				<input asp-for="Input.Password" name="@nameof(Model.Input.Password)" class="form-control" autocomplete="new-password" aria-required="true" />
 				<label asp-for="Input.Password"></label>
 				<span asp-validation-for="Input.Password" class="text-danger"></span>
 			</div>
 			<div class="form-floating">
-				<input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" />
+				<input asp-for="Input.ConfirmPassword" name="@nameof(Model.Input.ConfirmPassword)" class="form-control" autocomplete="new-password" aria-required="true" />
 				<label asp-for="Input.ConfirmPassword"></label>
 				<span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
 			</div>
 			<div class="form-floating">
-				<input asp-for="Input.FirstName" class="form-control" aria-required="true" />
+				<input asp-for="Input.FirstName" name="@nameof(Model.Input.FirstName)" class="form-control" aria-required="true" />
 				<label asp-for="Input.FirstName"></label>
 				<span asp-validation-for="Input.FirstName" class="text-danger"></span>
 			</div>
 			<div class="form-floating">
-				<input asp-for="Input.LastName" class="form-control" />
+				<input asp-for="Input.LastName" name="@nameof(Model.Input.LastName)" class="form-control" />
 				<label asp-for="Input.LastName"></label>
 				<span asp-validation-for="Input.LastName" class="text-danger"></span>
 			</div>
 			<div class="form-floating">
-				<input asp-for="Input.NickName" class="form-control" />
+				<input asp-for="Input.NickName" name="@nameof(Model.Input.NickName)" class="form-control" />
 				<label asp-for="Input.NickName"></label>
 				<span asp-validation-for="Input.NickName" class="text-danger"></span>
 			</div>
 			<div class="form-floating">
-				<input asp-for="Input.PhoneNumber" class="form-control" />
+				<input asp-for="Input.PhoneNumber" name="@nameof(Model.Input.PhoneNumber)" class="form-control" />
 				<label asp-for="Input.PhoneNumber"></label>
 				<span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
 			</div>
 			<div class="form-floating">
-				<select asp-for="Input.Gender" class="form-control" asp-items="Html.GetEnumSelectList<Genders>()">
+				<select asp-for="Input.Gender" name="@nameof(Model.Input.Gender)" class="form-control" asp-items="Html.GetEnumSelectList<Genders>()">
 				</select>
 				<label asp-for="Input.Gender"></label>
 				<span asp-validation-for="Input.Gender" class="text-danger"></span>
 			</div>
 			<div class="form-floating">
-				<input asp-for="Input.DateOfBirth" class="form-control" />
+				<input asp-for="Input.DateOfBirth" name="@nameof(Model.Input.DateOfBirth)" class="form-control" />
 				<label asp-for="Input.DateOfBirth"></label>
 				<span asp-validation-for="Input.DateOfBirth" class="text-danger"></span>
 			</div>
@@ -88,7 +89,7 @@
 							<p>
 								@foreach (AuthenticationScheme provider in Model.ExternalLogins)
 								{
-									<button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+									<button type="submit" class="btn btn-primary" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
 								}
 							</p>
 						</div>
@@ -100,5 +101,5 @@
 </div>
 
 @section Scripts {
-	<partial name="_ValidationScriptsPartial" />
+	<partial name="~/Views/Shared/_ValidationScriptsPartial.cshtml" />
 }

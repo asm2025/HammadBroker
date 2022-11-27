@@ -93,7 +93,7 @@ public class LoginWithRecoveryCodeModel : PageModel
 
         if (result.Succeeded)
         {
-            _logger.LogInformation("User with ID '{UserId}' logged in with a recovery code.", user.Id);
+            _logger.LogInformation("User with ID '{UserId}' logged in with a recovery code.", userId);
             return LocalRedirect(returnUrl ?? Url.Content("~/"));
         }
         if (result.IsLockedOut)
@@ -102,7 +102,7 @@ public class LoginWithRecoveryCodeModel : PageModel
             return RedirectToPage("./Lockout");
         }
 
-        _logger.LogWarning("Invalid recovery code entered for user with ID '{UserId}' ", user.Id);
+        _logger.LogWarning("Invalid recovery code entered for user with ID '{UserId}' ", userId);
         ModelState.AddModelError(string.Empty, "Invalid recovery code entered.");
         return Page();
     }

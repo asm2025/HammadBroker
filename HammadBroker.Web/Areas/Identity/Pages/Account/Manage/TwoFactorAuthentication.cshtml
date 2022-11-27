@@ -1,5 +1,6 @@
 ﻿@page
 @using Microsoft.AspNetCore.Http.Features
+@using HammadBroker.Web.Areas.Identity.Pages.Account.Manage
 @model TwoFactorAuthenticationModel
 @{
     ViewData["Title"] = "المصادقة الثنائية (2FA)";
@@ -67,5 +68,5 @@
 }
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    <partial name="~/Views/Shared/_ValidationScriptsPartial.cshtml" />
 }
