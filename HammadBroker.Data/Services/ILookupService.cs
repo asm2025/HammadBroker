@@ -21,7 +21,4 @@ public interface ILookupService : IServiceBase<DataContext>
     [NotNull]
     [ItemNotNull]
     IList<string> ListFinishingTypes(CancellationToken token = default(CancellationToken));
-    [NotNull]
-    [ItemNotNull]
-    Task<IList<string>> ListFloorsAsync(CancellationToken token = default(CancellationToken));
 }

@@ -20,8 +20,10 @@ public static class Constants
 		public const string AdministrationPolicy = "RequireAdministratorRole";
 
 #if DEBUG
+		public const string SystemId = "super@localhost";
 		public const string AdministratorId = "admin@localhost";
 #else
+		public const string SystemId = "super@hammadBroker.com";
 		public const string AdministratorId = "admin@hammadBroker.com";
 #endif
 	}

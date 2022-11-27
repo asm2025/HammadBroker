@@ -347,6 +347,7 @@ public class Program
 			.UseEndpoints(endpoint =>
 			{
 				endpoint.MapRazorPages();
+				endpoint.MapControllerRoute("Admin", "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 				endpoint.MapControllers();
 				endpoint.MapDefaultControllerRoute();
 			});

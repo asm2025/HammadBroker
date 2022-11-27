@@ -33,6 +33,7 @@ public class UserManager : UserManager<User>
     {
         ArgumentNullException.ThrowIfNull(user, nameof(user));
         if (string.IsNullOrEmpty(user.Email)) throw new InvalidOperationException("User email is required.");
+        if (string.IsNullOrEmpty(user.UserName)) user.UserName = user.Email;
 
         User userFromDb = await FindByEmailAsync(user.Email);
         IdentityResult result;

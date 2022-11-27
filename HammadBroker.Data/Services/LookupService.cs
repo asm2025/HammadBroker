@@ -63,17 +63,4 @@ public class LookupService : ServiceBase<DataContext>, ILookupService
         token.ThrowIfCancellationRequested();
         return EnumHelper<FinishingType>.GetDisplayNames().ToList();
     }
-
-    /// <inheritdoc />
-    public async Task<IList<string>> ListFloorsAsync(CancellationToken token = default(CancellationToken))
-    {
-        ThrowIfDisposed();
-        token.ThrowIfCancellationRequested();
-
-        List<string> result = await Context.Floors
-                                            .Select(e => e.Id)
-                                            .ToListAsync(token);
-        result.AddRange(Enumerable.Range(1, 30).Select(e => e.ToString()));
-        return result;
-    }
 }

@@ -28,5 +28,7 @@ public class BuildingProfile : Profile
 		CreateMap<Building, BuildingAdForDetails>()
 			.ForMember(e => e.Id, p => p.Ignore());
 		CreateMap<BuildingAd, BuildingAdForDetails>();
+		CreateMap<BuildingAdForList, BuildingAdForDetails>()
+			.ReverseMap();
 	}
 }

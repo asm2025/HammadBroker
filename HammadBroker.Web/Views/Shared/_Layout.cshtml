@@ -1,7 +1,6 @@
 ﻿@using HammadBroker.Model.Configuration
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @inject CompanyInfo CompanyInfo
-<!DOCTYPE html>
 <html lang="en" dir="rtl">
 <head>
 	<meta charset="utf-8" />
@@ -20,24 +19,26 @@
 </head>
 <body>
 	<header>
-		<div class="container d-flex flex-row justify-content-end fs-s1">
-			<partial name="_LoginPartial" />
-		</div>
 		<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-			<div class="container d-flex align-items-end">
-				<a class="navbar-brand" asp-area="" asp-action="Index">
-					<img src="@Url.Content("~/images/logo.jpg")" alt="@CompanyInfo.Title" class="m-1"/>
+			<div class="container">
+				<a class="navbar-brand py-0 m-0" asp-area="" asp-action="Index">
+					<img src="@Url.Content("~/images/logo.jpg")" alt="@CompanyInfo.Title" class="img-fluid" style="max-width: 4rem;" />
+					<span class="p-1">@CompanyInfo.Title</span>
 				</a>
 				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
 						aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
 				</button>
-				<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-					<ul class="navbar-nav flex-grow-1">
+				<div class="navbar-collapse collapse d-sm-inline-flex align-items-center">
+					<ul class="navbar-nav flex-grow-1 p-0">
+						<li class="nav-item" policy="@Constants.Authorization.SystemPolicy">
+							<a class="nav-link text-dark" asp-area="Admin" asp-controller="Home" asp-action="Index">المحتوى</a>
+						</li>
 						<li class="nav-item">
-							<a class="nav-link text-dark" asp-area="" asp-page=""></a>
+							<a class="nav-link text-dark" asp-area="" asp-page="/About">من نحن</a>
 						</li>
 					</ul>
+					<partial name="_LoginPartial" />
 				</div>
 			</div>
 		</nav>

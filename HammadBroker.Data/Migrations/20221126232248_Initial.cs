@@ -22,17 +22,6 @@ namespace HammadBroker.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Floors",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Floors", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Roles",
                 columns: table => new
                 {
@@ -215,7 +204,10 @@ namespace HammadBroker.Data.Migrations
                     BuildingType = table.Column<int>(type: "int", nullable: false),
                     ImageUrl = table.Column<string>(type: "nvarchar(320)", maxLength: 320, nullable: true),
                     FinishingType = table.Column<int>(type: "int", nullable: false),
-                    Floor = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
+                    Floor = table.Column<byte>(type: "tinyint", nullable: true),
+                    Rooms = table.Column<byte>(type: "tinyint", nullable: true),
+                    Bathrooms = table.Column<byte>(type: "tinyint", nullable: true),
+                    Area = table.Column<decimal>(type: "decimal(10,8)", precision: 10, scale: 8, nullable: true),
                     Location = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: true),
                     Address = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
                     Address2 = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
@@ -245,12 +237,17 @@ namespace HammadBroker.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    Priority = table.Column<byte>(type: "tinyint", nullable: false),
                     BuildingId = table.Column<int>(type: "int", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Expires = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Mobile = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Price = table.Column<decimal>(type: "decimal(10,8)", precision: 10, scale: 8, nullable: false)
+                    Price = table.Column<decimal>(type: "decimal(10,8)", precision: 10, scale: 8, nullable: false),
+                    Views = table.Column<long>(type: "bigint", nullable: false),
+                    PageViews = table.Column<long>(type: "bigint", nullable: false),
+                    Requests = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -304,9 +301,29 @@ namespace HammadBroker.Data.Migrations
                 column: "Price");
 
             migrationBuilder.CreateIndex(
+                name: "IX_BuildingAds_Priority",
+                table: "BuildingAds",
+                column: "Priority");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BuildingAds_Type",
+                table: "BuildingAds",
+                column: "Type");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_BuildingImages_BuildingId",
                 table: "BuildingImages",
                 column: "BuildingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Buildings_Area",
+                table: "Buildings",
+                column: "Area");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Buildings_Bathrooms",
+                table: "Buildings",
+                column: "Bathrooms");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Buildings_BuildingType",
@@ -332,6 +349,11 @@ namespace HammadBroker.Data.Migrations
                 name: "IX_Buildings_Floor",
                 table: "Buildings",
                 column: "Floor");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Buildings_Rooms",
+                table: "Buildings",
+                column: "Rooms");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Cities_CountryCode",
@@ -385,9 +407,6 @@ namespace HammadBroker.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "BuildingImages");
-
-            migrationBuilder.DropTable(
-                name: "Floors");
 
             migrationBuilder.DropTable(
                 name: "RoleClaims");

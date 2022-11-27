@@ -38,6 +38,13 @@ namespace HammadBroker.Data.Migrations
                         .HasMaxLength(512)
                         .HasColumnType("nvarchar(512)");
 
+                    b.Property<decimal?>("Area")
+                        .HasPrecision(10, 8)
+                        .HasColumnType("decimal(10,8)");
+
+                    b.Property<byte?>("Bathrooms")
+                        .HasColumnType("tinyint");
+
                     b.Property<int>("BuildingType")
                         .HasColumnType("int");
 
@@ -57,10 +64,8 @@ namespace HammadBroker.Data.Migrations
                     b.Property<int>("FinishingType")
                         .HasColumnType("int");
 
-                    b.Property<string>("Floor")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("nvarchar(32)");
+                    b.Property<byte?>("Floor")
+                        .HasColumnType("tinyint");
 
                     b.Property<string>("ImageUrl")
                         .HasMaxLength(320)
@@ -75,7 +80,14 @@ namespace HammadBroker.Data.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
+                    b.Property<byte?>("Rooms")
+                        .HasColumnType("tinyint");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("Area");
+
+                    b.HasIndex("Bathrooms");
 
                     b.HasIndex("BuildingType");
 
@@ -86,6 +98,8 @@ namespace HammadBroker.Data.Migrations
                     b.HasIndex("FinishingType");
 
                     b.HasIndex("Floor");
+
+                    b.HasIndex("Rooms");
 
                     b.ToTable("Buildings");
                 });
@@ -110,6 +124,9 @@ namespace HammadBroker.Data.Migrations
                     b.Property<string>("Mobile")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long>("PageViews")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -117,6 +134,18 @@ namespace HammadBroker.Data.Migrations
                     b.Property<decimal>("Price")
                         .HasPrecision(10, 8)
                         .HasColumnType("decimal(10,8)");
+
+                    b.Property<byte>("Priority")
+                        .HasColumnType("tinyint");
+
+                    b.Property<long>("Requests")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<long>("Views")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -127,6 +156,10 @@ namespace HammadBroker.Data.Migrations
                     b.HasIndex("Expires");
 
                     b.HasIndex("Price");
+
+                    b.HasIndex("Priority");
+
+                    b.HasIndex("Type");
 
                     b.ToTable("BuildingAds");
                 });
@@ -193,17 +226,6 @@ namespace HammadBroker.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Countries");
-                });
-
-            modelBuilder.Entity("HammadBroker.Model.Entities.Floor", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasMaxLength(32)
-                        .HasColumnType("nvarchar(32)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Floors");
                 });
 
             modelBuilder.Entity("HammadBroker.Model.Entities.Role", b =>

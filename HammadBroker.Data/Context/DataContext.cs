@@ -41,7 +41,6 @@ public class DataContext : IdentityDbContext<User, Role, string,
 
 	public DbSet<Country> Countries { get; set; }
 	public DbSet<City> Cities { get; set; }
-	public DbSet<Floor> Floors { get; set; }
 	public DbSet<Building> Buildings { get; set; }
 	public DbSet<BuildingImage> BuildingImages { get; set; }
 	public DbSet<BuildingAd> BuildingAds { get; set; }
@@ -137,6 +136,8 @@ public class DataContext : IdentityDbContext<User, Role, string,
 		{
 			building.Property(e => e.CountryCode)
 					.HasConversion(e => e, s => s.ToUpper());
+			building.Property(e => e.Area)
+					.HasPrecision(10, 8);
 
 			building.HasOne<City>()
 					.WithMany()
@@ -147,6 +148,12 @@ public class DataContext : IdentityDbContext<User, Role, string,
 			building.HasOne<Country>()
 					.WithMany()
 					.HasForeignKey(e => e.CountryCode);
+			building.HasIndex(e => e.BuildingType);
+			building.HasIndex(e => e.FinishingType);
+			building.HasIndex(e => e.Floor).HasFilter(null);
+			building.HasIndex(e => e.Rooms).HasFilter(null);
+			building.HasIndex(e => e.Bathrooms).HasFilter(null);
+			building.HasIndex(e => e.Area).HasFilter(null);
 		});
 		builder.Entity<BuildingImage>(image =>
 		{
@@ -161,6 +168,11 @@ public class DataContext : IdentityDbContext<User, Role, string,
 			  .HasForeignKey(e => e.BuildingId);
 			ad.Property(e => e.Price)
 			  .HasPrecision(10, 8);
+			ad.HasIndex(e => e.Type);
+			ad.HasIndex(e => e.Priority);
+			ad.HasIndex(e => e.Date);
+			ad.HasIndex(e => e.Expires).HasFilter(null);
+			ad.HasIndex(e => e.Price);
 		});
 	}
 
@@ -216,8 +228,6 @@ public class DataContext : IdentityDbContext<User, Role, string,
 		await SeedRoles(services, seedData, logger);
 
 		if (seedData.Users is { Count: > 0 }) await SeedUsers(services, seedData.Users, mapper, logger);
-
-		await SeedBuildingMetaData(services, seedData, logger);
 
 		static async Task SeedCountries([NotNull] IServiceProvider services, ILogger logger)
 		{
@@ -364,39 +374,6 @@ public class DataContext : IdentityDbContext<User, Role, string,
 			}
 
 			logger?.LogInformation($"Added {usersAdded} users.");
-		}
-
-		static async Task SeedBuildingMetaData([NotNull] IServiceProvider services, [NotNull] SeedData seedData, ILogger logger)
-		{
-			logger?.LogInformation("Adding building metadata.");
-
-			DataContext context = null;
-
-			try
-			{
-				context = services.GetRequiredService<DataContext>();
-
-				if (seedData.Floors is { Count: > 0 } && !await context.Floors.AnyAsync())
-				{
-					logger?.LogInformation("Adding floors.");
-
-					foreach (string type in seedData.Floors)
-					{
-						context.Floors.Add(new Floor
-						{
-							Id = type
-						});
-					}
-
-					await context.SaveChangesAsync();
-				}
-
-				logger?.LogInformation("Finished adding building metadata.");
-			}
-			finally
-			{
-				ObjectHelper.Dispose(ref context);
-			}
 		}
 	}
 }
