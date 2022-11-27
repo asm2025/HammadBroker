@@ -348,7 +348,7 @@ public class Program
 			.UseVirtualPathEndpoints(environment.WebRootPath)
 			.UseEndpoints(endpoint =>
 			{
-				endpoint.MapAreaControllerRoute("Admin", "Admin", "Admin/{controller=Home}/{action=Index}/{id?}")
+				endpoint.MapAreaControllerRoute(nameof(Areas.Admin), nameof(Areas.Admin), $"{nameof(Areas.Admin)}/{{controller=Home}}/{{action=Index}}/{{id?}}")
 						.RequireAuthorization(Constants.Authorization.AdministrationPolicy);
 				endpoint.MapControllers();
 				endpoint.MapRazorPages();

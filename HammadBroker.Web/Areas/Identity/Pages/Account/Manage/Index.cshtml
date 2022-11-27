@@ -5,7 +5,6 @@
 @model IndexModel
 @{
 	ViewData["Title"] = "الملف الشخصي";
-	ViewData["ActivePage"] = ManageNavPages.Index;
 	bool isSystem = User.IsInRole(Role.System);
 }
 

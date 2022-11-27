@@ -1,4 +1,6 @@
-﻿@{
+﻿@using HammadBroker.Data.Identity
+@inject SignInManager SignInManager
+@{
 	if (ViewData.TryGetValue("ParentLayout", out object parentLayout))
 	{
 		Layout = (string)parentLayout;
@@ -7,6 +9,8 @@
 	{
 		Layout = "~/Views/Shared/_Layout.cshtml";
 	}
+
+	bool hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
 }
 
 <h1>إدارة حسابك</h1>
@@ -15,7 +19,17 @@
 <hr />
 <div class="row">
 	<div class="col-md-3">
-		<partial name="_ManageNav" />
+		<ul class="nav nav-pills flex-column p-0">
+			<li class="nav-item"><a class="nav-link" menu-route id="profile" asp-page="./Index">الملف الشخصي</a></li>
+			<li class="nav-item"><a class="nav-link" menu-route id="email" asp-page="./Email">البريد الالكتروني</a></li>
+			<li class="nav-item"><a class="nav-link" menu-route id="change-password" asp-page="./ChangePassword">كلمة المرور</a></li>
+			@if (hasExternalLogins)
+			{
+				<li id="external-logins" class="nav-item"><a id="external-login" class="nav-link" menu-route asp-page="./ExternalLogins">تسجيلات الدخول الخارجية</a></li>
+			}
+			<li class="nav-item"><a class="nav-link" menu-route id="two-factor" asp-page="./TwoFactorAuthentication">توثيق ذو عاملين</a></li>
+			<li class="nav-item"><a class="nav-link" menu-route id="personal-data" asp-page="./PersonalData">بيانات شخصية</a></li>
+		</ul>
 	</div>
 	<div class="col-md-9">
 		@RenderBody()

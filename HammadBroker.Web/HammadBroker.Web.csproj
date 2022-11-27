@@ -93,6 +93,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="Areas\Admin\Views\Ads\" />
+	  <Folder Include="Areas\Admin\Views\Buildings\" />
+	  <Folder Include="Helpers\" />
 	  <Folder Include="_logs\" />
 	</ItemGroup>
 

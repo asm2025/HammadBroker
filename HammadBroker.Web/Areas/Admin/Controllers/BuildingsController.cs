@@ -8,11 +8,11 @@ using Microsoft.Extensions.Logging;
 namespace HammadBroker.Web.Areas.Admin.Controllers;
 
 [Area(nameof(Admin))]
-[Route(nameof(Admin))]
-public class HomeController : MvcController
+[Route($"{nameof(Admin)}/[controller]")]
+public class BuildingsController : MvcController
 {
     /// <inheritdoc />
-    public HomeController([NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, [NotNull] ILogger<HomeController> logger)
+    public BuildingsController([NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, [NotNull] ILogger<BuildingsController> logger)
         : base(configuration, environment, logger)
     {
     }
