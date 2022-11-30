@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.Configuration;
 
-namespace HammadBroker.Web.TagHelpers;
+namespace HammadBroker.Web.Helpers.TagHelpers;
 
 [HtmlTargetElement("img-avatar")]
 public class AvatarTagHelper : TagHelper

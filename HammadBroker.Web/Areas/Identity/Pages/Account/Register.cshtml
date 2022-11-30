@@ -15,7 +15,7 @@
 			<hr />
 			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 			<div class="col-lg-2 mb-1">
-				<img-avatar email="@Model.Input.Email" class="img-thumbnail" size="150" />
+				<AvatarTagHelper email="@Model.Input.Email" class="img-thumbnail" size="150" />
 			</div>
 			<div class="form-floating">
 				<input asp-for="Input.Email" name="@nameof(Model.Input.Email)" class="form-control" autocomplete="username" aria-required="true" />

@@ -261,3 +261,12 @@ span.oi {
 .overflow-y-visible {
 	overflow-y: visible !important;
 }
+
+.form-floating > .form-control-plaintext ~ label,
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label,
+.form-floating > .form-select ~ label {
+	-ms-transform: translateY(-1rem) translateX(0);
+	-webkit-transform: translateY(-1rem) translateX(0);
+	transform: translateY(-1rem) translateX(0);
+}

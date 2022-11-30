@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.Configuration;
 
-namespace HammadBroker.Web.TagHelpers;
+namespace HammadBroker.Web.Helpers.TagHelpers;
 
 [HtmlTargetElement("img-asset")]
 public class AssetImageTagHelper : TagHelper

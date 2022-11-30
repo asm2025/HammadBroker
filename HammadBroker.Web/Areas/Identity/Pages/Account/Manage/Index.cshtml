@@ -15,7 +15,7 @@
 		<form id="profile-form" method="post">
 			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 			<div class="col-lg-2 mb-1">
-				<img-avatar email="@Model.Input.Email" class="img-thumbnail" size="150" />
+				<AvatarTagHelper email="@Model.Input.Email" class="img-thumbnail" size="150" />
 			</div>
 			@if (isSystem)
 			{

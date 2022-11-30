@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
-namespace HammadBroker.Web.TagHelpers;
+namespace HammadBroker.Web.Helpers.TagHelpers;
 
 [HtmlTargetElement(Attributes = "policy")]
 public class PolicyTagHelper : TagHelper
