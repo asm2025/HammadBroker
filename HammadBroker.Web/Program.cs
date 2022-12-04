@@ -243,15 +243,17 @@ public class Program
 			.AddScoped(typeof(RoleManager<Role>), typeof(RoleManager))
 			.AddScoped(typeof(SignInManager<User>), typeof(SignInManager))
 			// Repositories
+			.AddTransient<ICityRepository, CityRepository>()
 			.AddTransient<IIdentityRepository, IdentityRepository>()
 			.AddTransient<IBuildingRepository, BuildingRepository>()
 			.AddTransient<IBuildingAdRepository, BuildingAdRepository>()
 			// Services
 			.AddTransient<IUploaderService, UploaderService>()
+			.AddTransient<ILookupService, LookupService>()
+			.AddTransient<ICityService, CityService>()
 			.AddTransient<IIdentityService, IdentityService>()
 			.AddTransient<IBuildingService, BuildingService>()
 			.AddTransient<IBuildingAdService, BuildingAdService>()
-			.AddTransient<ILookupService, LookupService>()
 			// Authorization
 			.AddAuthorization(options =>
 			{

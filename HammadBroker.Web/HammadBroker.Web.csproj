@@ -92,6 +92,10 @@
 		<ProjectReference Include="..\HammadBroker.Model\HammadBroker.Model.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Areas\Admin\Views\Cities\" />
+	</ItemGroup>
+
 	<PropertyGroup>
 		<ResolveStaticWebAssetsInputsDependsOn>RemoveIdentityAssets</ResolveStaticWebAssetsInputsDependsOn>
 	</PropertyGroup>

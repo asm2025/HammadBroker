@@ -11,9 +11,6 @@ public interface ILookupService : IServiceBase<DataContext>
 {
     [NotNull]
     [ItemNotNull]
-    Task<IList<CityForList>> ListCitiesAsync([NotNull] string countryCode, CancellationToken token = default(CancellationToken));
-    [NotNull]
-    [ItemNotNull]
     Task<IList<CountryForList>> ListCountriesAsync(CancellationToken token = default(CancellationToken));
     [NotNull]
     [ItemNotNull]

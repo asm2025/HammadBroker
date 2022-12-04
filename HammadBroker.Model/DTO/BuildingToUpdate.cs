@@ -13,9 +13,15 @@ public class BuildingToUpdate
 	[Display(Name = "نوع المبنى")]
 	public BuildingType BuildingType { get; set; }
 
+	[Url]
 	[StringLength(320)]
 	[Display(Name = "الصورة الرئيسية")]
 	public string ImageUrl { get; set; }
+
+	[Url]
+	[StringLength(320)]
+	[Display(Name = "الفيديو")]
+	public string VideoUrl { get; set; }
 
 	[Required]
 	[Display(Name = "نوع التشطيب")]
