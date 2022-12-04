@@ -67,40 +67,54 @@ public abstract class ServiceBase<TContext, TRepository, TEntity, TKey> : Dispos
 
 	/// <inheritdoc />
 	[NotNull]
-	public virtual IPaginated<T> List<T>(IPagination settings = null)
+	public IPaginated<T> List<T>(IPagination settings = null)
+	{
+		ThrowIfDisposed();
+		return List<T>(Repository.DbSet, settings);
+	}
+
+	/// <inheritdoc />
+	[NotNull]
+	public virtual IPaginated<T> List<T>(IQueryable<TEntity> queryable, IPagination settings = null)
 	{
 		ThrowIfDisposed();
 
-		IQueryable<TEntity> entities = Repository.List(settings);
-
 		if (settings is { PageSize: > 0 })
 		{
-			entities = entities.Paginate(settings);
+			queryable = queryable.Paginate(settings);
 			settings.Count = Repository.Count(settings);
 		}
 
-		IList<T> result = entities.ProjectTo<T>(Mapper.ConfigurationProvider)
-								.ToList();
+		IList<T> result = queryable.ProjectTo<T>(Mapper.ConfigurationProvider)
+									.ToList();
 		return new Paginated<T>(result, settings);
 	}
 
 	/// <inheritdoc />
+	[NotNull]
 	[ItemNotNull]
-	public virtual async Task<IPaginated<T>> ListAsync<T>(IPagination settings = null, CancellationToken token = default(CancellationToken))
+	public Task<IPaginated<T>> ListAsync<T>(IPagination settings = null, CancellationToken token = default(CancellationToken))
+	{
+		ThrowIfDisposed();
+		token.ThrowIfCancellationRequested();
+		return ListAsync<T>(Repository.DbSet, settings, token);
+	}
+
+	/// <inheritdoc />
+	[ItemNotNull]
+	public virtual async Task<IPaginated<T>> ListAsync<T>(IQueryable<TEntity> queryable, IPagination settings = null, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
 
-		IQueryable<TEntity> entities = Repository.List(settings);
-
 		if (settings is { PageSize: > 0 })
 		{
-			entities = entities.Paginate(settings);
+			queryable = queryable.Paginate(settings);
 			settings.Count = await Repository.CountAsync(settings, token);
 			token.ThrowIfCancellationRequested();
 		}
 
-		IList<T> result = await entities.ProjectTo<T>(Mapper.ConfigurationProvider)
+		IList<T> result = await queryable.ProjectTo<T>(Mapper.ConfigurationProvider)
 								.ToListAsync(token)
 								.ConfigureAwait();
 		token.ThrowIfCancellationRequested();
@@ -118,6 +132,16 @@ public abstract class ServiceBase<TContext, TRepository, TEntity, TKey> : Dispos
 	}
 
 	/// <inheritdoc />
+	public virtual T Get<T>(TKey key, IGetSettings settings)
+	{
+		ThrowIfDisposed();
+		TEntity entity = Repository.Get(key, settings);
+		return entity == null
+					? default(T)
+					: Mapper.Map<T>(entity);
+	}
+
+	/// <inheritdoc />
 	public virtual async Task<T> GetAsync<T>(TKey key, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
@@ -125,16 +149,6 @@ public abstract class ServiceBase<TContext, TRepository, TEntity, TKey> : Dispos
 		TEntity entity = await Repository.GetAsync(key, token)
 										.ConfigureAwait();
 		token.ThrowIfCancellationRequested();
-		return entity == null
-					? default(T)
-					: Mapper.Map<T>(entity);
-	}
-
-	/// <inheritdoc />
-	public virtual T Get<T>(TKey key, IGetSettings settings)
-	{
-		ThrowIfDisposed();
-		TEntity entity = Repository.Get(key, settings);
 		return entity == null
 					? default(T)
 					: Mapper.Map<T>(entity);

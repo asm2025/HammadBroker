@@ -48,13 +48,8 @@ namespace HammadBroker.Data.Migrations
                     b.Property<int>("BuildingType")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CityId")
+                    b.Property<int>("CityId")
                         .HasColumnType("int");
-
-                    b.Property<string>("CountryCode")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -83,6 +78,10 @@ namespace HammadBroker.Data.Migrations
                     b.Property<byte?>("Rooms")
                         .HasColumnType("tinyint");
 
+                    b.Property<string>("VideoUrl")
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Area");
@@ -92,8 +91,6 @@ namespace HammadBroker.Data.Migrations
                     b.HasIndex("BuildingType");
 
                     b.HasIndex("CityId");
-
-                    b.HasIndex("CountryCode");
 
                     b.HasIndex("FinishingType");
 
@@ -459,11 +456,7 @@ namespace HammadBroker.Data.Migrations
                 {
                     b.HasOne("HammadBroker.Model.Entities.City", null)
                         .WithMany()
-                        .HasForeignKey("CityId");
-
-                    b.HasOne("HammadBroker.Model.Entities.Country", null)
-                        .WithMany()
-                        .HasForeignKey("CountryCode")
+                        .HasForeignKey("CityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

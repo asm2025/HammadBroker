@@ -13,7 +13,7 @@ public interface IBuildingAdService : IService<DataContext, IBuildingAdRepositor
 {
 	[NotNull]
 	[ItemNotNull]
-	Task<IPaginated<BuildingAdForList>> ListBuildingsAsync(IPagination settings = null, CancellationToken token = default(CancellationToken));
+	Task<IPaginated<BuildingAdForList>> ListWithBuildingsAsync(IPagination settings = null, CancellationToken token = default(CancellationToken));
 	[NotNull]
 	Task<BuildingAdForDetails> GetBuildingAsync(int id, CancellationToken token = default(CancellationToken));
 }

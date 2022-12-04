@@ -134,8 +134,6 @@ public class DataContext : IdentityDbContext<User, Role, string,
 		});
 		builder.Entity<Building>(building =>
 		{
-			building.Property(e => e.CountryCode)
-					.HasConversion(e => e, s => s.ToUpper());
 			building.Property(e => e.Area)
 					.HasPrecision(10, 8);
 
@@ -143,11 +141,6 @@ public class DataContext : IdentityDbContext<User, Role, string,
 					.WithMany()
 					.HasForeignKey(e => e.CityId);
 
-			building.Property(e => e.CountryCode)
-					.HasConversion(e => e, s => s.ToUpper());
-			building.HasOne<Country>()
-					.WithMany()
-					.HasForeignKey(e => e.CountryCode);
 			building.HasIndex(e => e.BuildingType);
 			building.HasIndex(e => e.FinishingType);
 			building.HasIndex(e => e.Floor).HasFilter(null);

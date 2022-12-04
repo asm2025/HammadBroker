@@ -1,7 +1,11 @@
-﻿using AutoMapper;
+﻿using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using AutoMapper;
 using essentialMix.Core.Data.Entity.Patterns.Repository;
 using essentialMix.Data.Model;
 using essentialMix.Data.Patterns.Service;
+using essentialMix.Patterns.Pagination;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -32,4 +36,7 @@ public interface IServiceBase<TContext, TRepository, TEntity, TKey> : IServiceBa
 	IMapper Mapper { get; }
 	[NotNull]
 	ILogger Logger { get; }
+	IPaginated<T> List<T>([NotNull] IQueryable<TEntity> queryable, IPagination settings = null);
+	[NotNull]
+	Task<IPaginated<T>> ListAsync<T>([NotNull] IQueryable<TEntity> queryable, IPagination settings = null, CancellationToken token = default(CancellationToken));
 }

@@ -116,6 +116,15 @@ code {
 	float: none !important;
 }
 
+.form-floating > .form-control-plaintext ~ label,
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label,
+.form-floating > .form-select ~ label {
+	-ms-transform: translateY(-1rem) translateX(0);
+	-webkit-transform: translateY(-1rem) translateX(0);
+	transform: translateY(-1rem) translateX(0);
+}
+
 span.oi {
 	font-size: 16px;
 }
@@ -146,6 +155,14 @@ span.oi {
 .card-image-bottom {
 	width: 100%;
 	height: 15vw;
+	-webkit-object-fit: contain;
+	object-fit: contain;
+}
+
+.card-image-left,
+.card-image-right {
+	width: 15vw;
+	height: 100%;
 	-webkit-object-fit: contain;
 	object-fit: contain;
 }
@@ -217,6 +234,14 @@ span.oi {
 		background-color: #bbb;
 	}
 
+.cc-btn.cc-dismiss {
+	color: #ffffff;
+}
+
+.overflow-y-visible {
+	overflow-y: visible !important;
+}
+
 .multiselect-tags .tag {
 	padding: 4px;
 	margin: 2px;
@@ -241,32 +266,6 @@ span.oi {
 	padding: 4px;
 }
 
-.simple-typeahead > input {
-	width: 100% !important;
-	height: 100% !important;
-	padding: 0 !important;
-	margin: 0 !important;
-	border: none !important;
-	outline: 0 !important;
-}
-
 .avatar-image {
-	min-width: 32px;
-}
-
-.cc-btn.cc-dismiss {
-	color: #ffffff;
-}
-
-.overflow-y-visible {
-	overflow-y: visible !important;
-}
-
-.form-floating > .form-control-plaintext ~ label,
-.form-floating > .form-control:focus ~ label,
-.form-floating > .form-control:not(:placeholder-shown) ~ label,
-.form-floating > .form-select ~ label {
-	-ms-transform: translateY(-1rem) translateX(0);
-	-webkit-transform: translateY(-1rem) translateX(0);
-	transform: translateY(-1rem) translateX(0);
+	min-width: 16px;
 }

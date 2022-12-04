@@ -9,6 +9,7 @@ using essentialMix.Patterns.Pagination;
 using HammadBroker.Data.Context;
 using HammadBroker.Data.Repositories;
 using HammadBroker.Model.Entities;
+using HammadBroker.Model.Parameters;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -20,6 +21,21 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	public BuildingService([NotNull] IBuildingRepository repository, [NotNull] IMapper mapper, [NotNull] ILogger<BuildingService> logger)
 		: base(repository, mapper, logger)
 	{
+	}
+
+	/// <inheritdoc />
+	public override IPaginated<T> List<T>(IQueryable<Building> queryable, IPagination settings = null)
+	{
+		ThrowIfDisposed();
+		return base.List<T>(PrepareList(queryable, settings), settings);
+	}
+
+	/// <inheritdoc />
+	public override Task<IPaginated<T>> ListAsync<T>(IQueryable<Building> queryable, IPagination settings = null, CancellationToken token = default(CancellationToken))
+	{
+		ThrowIfDisposed();
+		token.ThrowIfCancellationRequested();
+		return base.ListAsync<T>(PrepareList(queryable, settings), settings, token);
 	}
 
 	/// <inheritdoc />
@@ -222,5 +238,56 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 		await Context.SaveChangesAsync(token)
 					.ConfigureAwait();
 		return Mapper.Map<T>(image);
+	}
+
+	[NotNull]
+	private static IQueryable<Building> PrepareList([NotNull] IQueryable<Building> queryable, IPagination settings)
+	{
+		if (settings is not BuildingList buildingList) return queryable;
+		if (buildingList.CityId.HasValue) queryable = queryable.Where(e => e.CityId == buildingList.CityId.Value);
+		queryable = PrepareNumbers(queryable, buildingList);
+		return PrepareSearch(queryable, buildingList);
+
+		[NotNull]
+		static IQueryable<Building> PrepareNumbers([NotNull] IQueryable<Building> queryable, BuildingList buildingList)
+		{
+			if (buildingList.BuildingType.HasValue) queryable = queryable.Where(e => e.BuildingType == buildingList.BuildingType.Value);
+			if (buildingList.FinishingType.HasValue) queryable = queryable.Where(e => e.FinishingType == buildingList.FinishingType.Value);
+			if (buildingList.Floor.HasValue) queryable = queryable.Where(e => e.Floor == buildingList.Floor.Value);
+
+			if (buildingList.Rooms.HasValue)
+			{
+				if (buildingList.MaxRooms.HasValue && buildingList.MaxRooms > buildingList.Rooms)
+					queryable = queryable.Where(e => e.Rooms >= buildingList.Rooms.Value && e.Rooms <= buildingList.MaxRooms.Value);
+				else
+					queryable = queryable.Where(e => e.Rooms == buildingList.Rooms.Value);
+			}
+
+			if (buildingList.Bathrooms.HasValue)
+			{
+				if (buildingList.MaxBathrooms.HasValue && buildingList.MaxBathrooms > buildingList.Bathrooms)
+					queryable = queryable.Where(e => e.Bathrooms >= buildingList.Bathrooms.Value && e.Bathrooms <= buildingList.MaxBathrooms.Value);
+				else
+					queryable = queryable.Where(e => e.Bathrooms == buildingList.Bathrooms.Value);
+			}
+
+			if (buildingList.Area.HasValue)
+			{
+				if (buildingList.MaxArea.HasValue && buildingList.MaxArea > buildingList.Area)
+					queryable = queryable.Where(e => e.Area >= buildingList.Area.Value && e.Area <= buildingList.MaxArea.Value);
+				else
+					queryable = queryable.Where(e => e.Area == buildingList.Area.Value);
+			}
+
+			return queryable;
+		}
+
+		[NotNull]
+		static IQueryable<Building> PrepareSearch([NotNull] IQueryable<Building> queryable, BuildingList buildingList)
+		{
+			if (!string.IsNullOrEmpty(buildingList.Search)) queryable = queryable.Where(e => e.Name.Contains(buildingList.Search));
+			if (!string.IsNullOrEmpty(buildingList.Address)) queryable = queryable.Where(e => e.Address.Contains(buildingList.Address) || e.Address2.Contains(buildingList.Address));
+			return queryable;
+		}
 	}
 }

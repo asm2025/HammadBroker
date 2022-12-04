@@ -9,5 +9,6 @@ public class BuildingForDetails : BuildingForList
 	public string Location { get; set; }
 	public string Address { get; set; }
 	public string Address2 { get; set; }
+	public string VideoUrl { get; set; }
 	public string Description { get; set; }
 }

@@ -92,12 +92,6 @@
 		<ProjectReference Include="..\HammadBroker.Model\HammadBroker.Model.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Areas\Admin\Views\Ads\" />
-	  <Folder Include="Areas\Admin\Views\Buildings\" />
-	  <Folder Include="_logs\" />
-	</ItemGroup>
-
 	<PropertyGroup>
 		<ResolveStaticWebAssetsInputsDependsOn>RemoveIdentityAssets</ResolveStaticWebAssetsInputsDependsOn>
 	</PropertyGroup>

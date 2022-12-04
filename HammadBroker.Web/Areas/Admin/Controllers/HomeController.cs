@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 namespace HammadBroker.Web.Areas.Admin.Controllers;
 
 [Area(nameof(Admin))]
-[Route(nameof(Admin))]
+[Route("[area]")]
 public class HomeController : MvcController
 {
     /// <inheritdoc />

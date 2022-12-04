@@ -46,12 +46,7 @@ public class BuildingToUpdate
 	public string Address2 { get; set; }
 
 	[Display(Name = "المدينة")]
-	public int? CityId { get; set; }
-
-	[Required]
-	[StringLength(3, MinimumLength = 3)]
-	[Display(Name = "الدولة")]
-	public string CountryCode { get; set; }
+	public int CityId { get; set; }
 
 	[Required]
 	[StringLength(2048)]

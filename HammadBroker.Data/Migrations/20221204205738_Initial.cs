@@ -203,6 +203,7 @@ namespace HammadBroker.Data.Migrations
                     Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     BuildingType = table.Column<int>(type: "int", nullable: false),
                     ImageUrl = table.Column<string>(type: "nvarchar(320)", maxLength: 320, nullable: true),
+                    VideoUrl = table.Column<string>(type: "nvarchar(320)", maxLength: 320, nullable: true),
                     FinishingType = table.Column<int>(type: "int", nullable: false),
                     Floor = table.Column<byte>(type: "tinyint", nullable: true),
                     Rooms = table.Column<byte>(type: "tinyint", nullable: true),
@@ -211,8 +212,7 @@ namespace HammadBroker.Data.Migrations
                     Location = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: true),
                     Address = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
                     Address2 = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
-                    CityId = table.Column<int>(type: "int", nullable: true),
-                    CountryCode = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
+                    CityId = table.Column<int>(type: "int", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: false)
                 },
                 constraints: table =>
@@ -222,11 +222,6 @@ namespace HammadBroker.Data.Migrations
                         name: "FK_Buildings_Cities_CityId",
                         column: x => x.CityId,
                         principalTable: "Cities",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Buildings_Countries_CountryCode",
-                        column: x => x.CountryCode,
-                        principalTable: "Countries",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -334,11 +329,6 @@ namespace HammadBroker.Data.Migrations
                 name: "IX_Buildings_CityId",
                 table: "Buildings",
                 column: "CityId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Buildings_CountryCode",
-                table: "Buildings",
-                column: "CountryCode");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Buildings_FinishingType",

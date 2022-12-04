@@ -15,8 +15,13 @@ public class Building : IEntity<int>
 	[Required]
 	public BuildingType BuildingType { get; set; }
 
+	[Url]
 	[StringLength(320)]
 	public string ImageUrl { get; set; }
+
+	[Url]
+	[StringLength(320)]
+	public string VideoUrl { get; set; }
 
 	[Required]
 	public FinishingType FinishingType { get; set; }
@@ -38,11 +43,7 @@ public class Building : IEntity<int>
 	[StringLength(512)]
 	public string Address2 { get; set; }
 
-	public int? CityId { get; set; }
-
-	[Required]
-	[StringLength(3, MinimumLength = 3)]
-	public string CountryCode { get; set; }
+	public int CityId { get; set; }
 
 	[Required]
 	[StringLength(2048)]
