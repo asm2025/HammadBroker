@@ -169,7 +169,7 @@ public class DataContext : IdentityDbContext<User, Role, string,
 		});
 	}
 
-	public async Task<bool> ApplyMigrationsAsync([NotNull] IHost host, bool applySeed = false, ILogger logger = null)
+	public async Task<bool> ApplyMigrationsAsync([NotNull] IHost host, [NotNull] IConfiguration configuration, bool applySeed = false, ILogger logger = null)
 	{
 		IServiceScope scope = null;
 
@@ -178,7 +178,6 @@ public class DataContext : IdentityDbContext<User, Role, string,
 			scope = host.Services.GetRequiredService<IServiceScopeFactory>().CreateScope();
 			IServiceProvider serviceProvider = scope.ServiceProvider;
 			logger ??= serviceProvider.GetService<ILogger<DataContext>>();
-			IConfiguration configuration = serviceProvider.GetRequiredService<IConfiguration>();
 			logger?.LogInformation("Applying data migrations.");
 			await Database.MigrateAsync();
 			if (!applySeed) return await IsMigratedAsync();
@@ -240,7 +239,7 @@ public class DataContext : IdentityDbContext<User, Role, string,
 																	.Select(e => new Country
 																	{
 																		Id = e.ThreeLetterISORegionName,
-																		Name = e.EnglishName
+																		Name = e.NativeName
 																	});
 				int init = countries.Count;
 

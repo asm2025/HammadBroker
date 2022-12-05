@@ -108,7 +108,7 @@ public class Program
 			// Start
 			logger.LogInformation($"{AppName} is starting...");
 
-			(bool migrationComplete, bool migrateOnly) = await ApplyMigrationsAsync(app, configuration, args, logger);
+			(bool migrationComplete, bool migrateOnly) = await ApplyMigrationsAsync(app, configuration, app.Environment, args, logger);
 
 			if (!migrationComplete)
 			{
@@ -358,7 +358,7 @@ public class Program
 			});
 	}
 
-	private static async Task<(bool, bool)> ApplyMigrationsAsync([NotNull] IHost host, [NotNull] IConfiguration configuration, string[] args, [NotNull] ILogger logger)
+	private static async Task<(bool, bool)> ApplyMigrationsAsync([NotNull] IHost host, [NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, string[] args, [NotNull] ILogger logger)
 	{
 		bool applyMigrations = configuration.GetValue("Migrations:ApplyMigrations", true);
 		bool applySeed = configuration.GetValue("Migrations:ApplySeed", true);
@@ -398,7 +398,12 @@ public class Program
 				return (true, migrateOnly);
 			}
 
-			if (!await dataContext.ApplyMigrationsAsync(host, applySeed, logger))
+			IConfiguration seedConfiguration = new ConfigurationBuilder()
+												.SetBasePath(AppPath)
+												.AddConfigurationFile(AppPath, "seed.json", false, environment.EnvironmentName)
+												.Build();
+
+			if (!await dataContext.ApplyMigrationsAsync(host, seedConfiguration, applySeed, logger))
 			{
 				logger.LogError("Database migrations were not successful.");
 				return (false, migrateOnly);

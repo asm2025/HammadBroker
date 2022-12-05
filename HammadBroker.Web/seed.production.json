@@ -1,0 +1,12 @@
+{
+	"SeedData": {
+		"Users": [
+			{
+				"Email": "super@hammadbroker.com"
+			},
+			{
+				"Email": "admin@hammadbroker.com"
+			}
+		]
+	}
+}

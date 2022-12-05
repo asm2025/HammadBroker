@@ -107,8 +107,14 @@ code {
 	white-space: nowrap !important;
 }
 
-.form-control[readonly] {
-	background-color: #fff;
+.form-control {
+	-ms-border-radius: 0 !important;
+	border-radius: 0 !important;
+}
+
+.form-control[readonly],
+.form-control disabled {
+	background-color: transparent;
 }
 
 .form-check-input {
