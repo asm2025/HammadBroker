@@ -1,14 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using essentialMix.Core.Data.Entity.Patterns.Repository;
-using essentialMix.Extensions;
 using essentialMix.Patterns.Pagination;
 using HammadBroker.Data.Context;
 using HammadBroker.Model.Entities;
+using HammadBroker.Model.Parameters;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -23,20 +19,11 @@ public class CityRepository : Repository<DataContext, City, int>, ICityRepositor
 	}
 
 	/// <inheritdoc />
-	public IQueryable<City> List(string countryCode, IPagination settings = null)
+	protected override IQueryable<City> PrepareListQuery(IQueryable<City> query, IPagination settings)
 	{
-		ThrowIfDisposed();
-		IQueryable<City> queryable = DbSet.Where(e => e.CountryCode == countryCode);
-		return PrepareListQuery(queryable, settings);
-	}
-
-	/// <inheritdoc />
-	public Task<IList<City>> ListAsync(string countryCode, IPagination settings = null, CancellationToken token = default(CancellationToken))
-	{
-		ThrowIfDisposed();
-		token.ThrowIfCancellationRequested();
-		settings ??= new Pagination();
-		IQueryable<City> queryable = DbSet.Where(e => e.CountryCode == countryCode);
-		return PrepareListQuery(queryable, settings).Paginate(settings).ToListAsync(token).As<List<City>, IList<City>>(token);
+		if (settings is not CitiesList citiesList) return base.PrepareListQuery(query, settings);
+		if (!string.IsNullOrEmpty(citiesList.Countrycode)) query = query.Where(e => e.CountryCode == citiesList.Countrycode);
+		if (!string.IsNullOrEmpty(citiesList.Search)) query = query.Where(e => e.Name.Contains(citiesList.Search));
+		return base.PrepareListQuery(query, settings);
 	}
 }

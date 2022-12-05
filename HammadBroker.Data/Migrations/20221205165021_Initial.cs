@@ -346,9 +346,10 @@ namespace HammadBroker.Data.Migrations
                 column: "Rooms");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Cities_CountryCode",
+                name: "IX_Cities_CountryCode_Name",
                 table: "Cities",
-                column: "CountryCode");
+                columns: new[] { "CountryCode", "Name" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoleClaims_RoleId",

@@ -1,5 +1,10 @@
-﻿using essentialMix.Core.Web.Controllers;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using essentialMix.Core.Web.Controllers;
+using essentialMix.Patterns.Pagination;
 using HammadBroker.Data.Services;
+using HammadBroker.Model.DTO;
+using HammadBroker.Model.Parameters;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -22,8 +27,12 @@ public class CitiesController : MvcController
 	}
 
 	[NotNull]
-	public IActionResult Index()
+	[ItemNotNull]
+	[HttpGet]
+	public async Task<IActionResult> Index(CitiesList pagination, CancellationToken token)
 	{
-		return View();
+		pagination ??= new CitiesList();
+		IPaginated<CityForList> result = await _cityService.ListAsync<CityForList>(pagination, token);
+		return View(result);
 	}
 }

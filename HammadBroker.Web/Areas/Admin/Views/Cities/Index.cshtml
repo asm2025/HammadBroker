@@ -1,3 +1,19 @@
-﻿@{
+﻿@using HammadBroker.Model.DTO
+@model essentialMix.Patterns.Pagination.IPaginated<CityForList>
+@{
 	ViewData["Title"] = "المدن";
 }
+
+<div class="row">
+
+</div>
+<div class="row table-responsive">
+	<table class="table table-borderless">
+		@foreach (CityForList city in Model.Result)
+		{
+			<tr>
+				<td>@city.Name</td>
+			</tr>
+		}
+	</table>
+</div>

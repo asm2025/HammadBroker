@@ -204,7 +204,8 @@ namespace HammadBroker.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CountryCode");
+                    b.HasIndex("CountryCode", "Name")
+                        .IsUnique();
 
                     b.ToTable("Cities");
                 });

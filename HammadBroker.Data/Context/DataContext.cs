@@ -8,7 +8,6 @@ using AutoMapper;
 using essentialMix.Extensions;
 using essentialMix.Helpers;
 using HammadBroker.Helpers;
-using HammadBroker.Model;
 using HammadBroker.Model.DTO;
 using HammadBroker.Model.Entities;
 using JetBrains.Annotations;
@@ -131,6 +130,12 @@ public class DataContext : IdentityDbContext<User, Role, string,
 			city.HasOne<Country>()
 				.WithMany()
 				.HasForeignKey(e => e.CountryCode);
+			city.HasIndex(e => new
+			{
+				e.CountryCode,
+				e.Name
+			})
+			.IsUnique();
 		});
 		builder.Entity<Building>(building =>
 		{
@@ -215,22 +220,26 @@ public class DataContext : IdentityDbContext<User, Role, string,
 
 		IMapper mapper = services.GetRequiredService<IMapper>();
 
-		await SeedCountries(services, logger);
+		ISet<string> countries = await SeedCountries(services, logger);
+
+		if (seedData.Cities is { Count: > 0 }) await SeedCities(services, seedData.Cities, countries, logger);
 
 		await SeedRoles(services, seedData, logger);
 
 		if (seedData.Users is { Count: > 0 }) await SeedUsers(services, seedData.Users, mapper, logger);
 
-		static async Task SeedCountries([NotNull] IServiceProvider services, ILogger logger)
+		[ItemNotNull]
+		static async Task<ISet<string>> SeedCountries([NotNull] IServiceProvider services, ILogger logger)
 		{
 			logger?.LogInformation("Adding countries data.");
 
 			DataContext context = null;
+			ISet<string> countries;
 
 			try
 			{
 				context = services.GetRequiredService<DataContext>();
-				ISet<string> countries = context.Countries
+				countries = context.Countries
 												.Select(e => e.Id)
 												.ToHashSet(StringComparer.OrdinalIgnoreCase);
 				IEnumerable<Country> newCountries = RegionInfoHelper.Regions.Values
@@ -251,6 +260,54 @@ public class DataContext : IdentityDbContext<User, Role, string,
 
 				await context.SaveChangesAsync();
 				logger?.LogInformation($"Added {countries.Count - init} countries.");
+			}
+			finally
+			{
+				ObjectHelper.Dispose(ref context);
+			}
+
+			return countries;
+		}
+
+		static async Task SeedCities([NotNull] IServiceProvider services, [NotNull] ICollection<CitiesData> citiesData, ISet<string> countries, ILogger logger)
+		{
+			logger?.LogInformation("Adding cities data.");
+
+			DataContext context = null;
+
+			try
+			{
+				context = services.GetRequiredService<DataContext>();
+
+				int addedCountries = 0;
+
+				foreach (CitiesData data in citiesData)
+				{
+					if (!countries.Contains(data.CountryCode))
+					{
+						logger?.LogWarning($"Country '{data.CountryCode}' was not found while seeding cities.");
+						continue;
+					}
+
+					int addedCities = 0;
+
+					foreach (string city in data.Cities)
+					{
+						if (context.Cities.FirstOrDefault(e => e.Name == city) != null) continue;
+						context.Cities.Add(new City
+						{
+							CountryCode = data.CountryCode,
+							Name = city
+						});
+						addedCities++;
+					}
+
+					await context.SaveChangesAsync();
+					addedCountries++;
+					logger?.LogInformation($"Added {addedCities} of {citiesData.Count} cities to {data.CountryCode} country.");
+				}
+
+				logger?.LogInformation($"Added cities to {addedCountries} of {citiesData.Count} countries.");
 			}
 			finally
 			{
