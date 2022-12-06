@@ -12,7 +12,8 @@ public class CommonProfile : Profile
     {
         CreateMap<SortablePagination, ListSettings>()
             .ReverseMap();
-        CreateMap<Country, CountryForList>();
+        CreateMap<Country, CountryForList>()
+            .ReverseMap();
         CreateMap<City, CityForList>()
             .ReverseMap();
         CreateMap<City, CityToUpdate>()

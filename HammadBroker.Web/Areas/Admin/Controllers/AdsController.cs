@@ -34,9 +34,9 @@ public class AdsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpGet]
-	public async Task<IActionResult> Index(BuildingList pagination, CancellationToken token)
+	public async Task<IActionResult> Index([FromQuery(Name = "")] BuildingAdList pagination, CancellationToken token)
 	{
-		pagination ??= new BuildingList();
+		pagination ??= new BuildingAdList();
 		IPaginated<BuildingAdForList> result = await _buildingAdService.ListAsync<BuildingAdForList>(pagination, token);
 		return View(result);
 	}

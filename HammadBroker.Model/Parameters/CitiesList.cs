@@ -1,9 +1,12 @@
-﻿using essentialMix.Patterns.Pagination;
+﻿using System.ComponentModel.DataAnnotations;
+using essentialMix.Patterns.Pagination;
 
 namespace HammadBroker.Model.Parameters;
 
 public class CitiesList : SortablePagination
 {
+	[Display(Name = "البحث")]
 	public string Search { get; set; }
-	public string Countrycode { get; set; }
+	[Display(Name = "البلد")]
+	public string CountryCode { get; set; }
 }

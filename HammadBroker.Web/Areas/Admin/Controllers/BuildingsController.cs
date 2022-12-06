@@ -34,7 +34,7 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpGet]
-	public async Task<IActionResult> Index(BuildingList pagination, CancellationToken token)
+	public async Task<IActionResult> Index([FromQuery(Name = "")] BuildingList pagination, CancellationToken token)
 	{
 		pagination ??= new BuildingList();
 		IPaginated<BuildingForList> result = await _buildingService.ListAsync<BuildingForList>(pagination, token);

@@ -1,19 +1,52 @@
 ﻿@using HammadBroker.Model.DTO
-@model essentialMix.Patterns.Pagination.IPaginated<CityForList>
+@model CitiesPaginated
 @{
 	ViewData["Title"] = "المدن";
 }
 
 <div class="row">
-
+	<form method="get" asp-action="Index" asp-controller="Cities" asp-area="Admin">
+		<div class="mb-3">
+			<label class="form-label" asp-for="CountryCode"></label>
+			@Html.DropDownListFor(e => e.CountryCode, Model.Countries.Select(e => new SelectListItem(e.Name, e.Id, e.Id == Model.CountryCode)), "[اختر]", new { @class = "form-select" })
+		</div>
+		<div class="mb-3">
+			<label class="form-label" asp-for="Search"></label>
+			<input class="form-control" asp-for="Search"/>
+		</div>
+		<button type="submit" class="w-100 btn btn-lg btn-primary">بحث</button>
+	</form>
 </div>
 <div class="row table-responsive">
 	<table class="table table-borderless">
-		@foreach (CityForList city in Model.Result)
+		@if (string.IsNullOrEmpty(Model.CountryCode))
 		{
+			<thead>
+			<tr>
+				<th>البلد</th>
+				<th>المدينة</th>
+			</tr>
+			</thead>
+			<tbody>
+			@foreach (CityForList city in Model.Result)
+			{
+				<tr>
+					<td>@city.CountryCode</td>
+					<td>@city.Name</td>
+				</tr>
+			}
+			</tbody>
+		}
+		else
+		{
+			<tbody>
+			@foreach (CityForList city in Model.Result)
+			{
 			<tr>
 				<td>@city.Name</td>
 			</tr>
+			}
+			</tbody>
 		}
 	</table>
 </div>

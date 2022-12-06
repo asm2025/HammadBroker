@@ -53,7 +53,7 @@
 				<span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
 			</div>
 			<div class="form-floating">
-				<select asp-for="Input.Gender" name="@nameof(Model.Input.Gender)" class="form-control" asp-items="Html.GetEnumSelectList<Genders>()">
+				<select asp-for="Input.Gender" name="@nameof(Model.Input.Gender)" class="form-select" asp-items="Html.GetEnumSelectList<Genders>()">
 				</select>
 				<label asp-for="Input.Gender"></label>
 				<span asp-validation-for="Input.Gender" class="text-danger"></span>

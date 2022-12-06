@@ -22,7 +22,7 @@ public class CityRepository : Repository<DataContext, City, int>, ICityRepositor
 	protected override IQueryable<City> PrepareListQuery(IQueryable<City> query, IPagination settings)
 	{
 		if (settings is not CitiesList citiesList) return base.PrepareListQuery(query, settings);
-		if (!string.IsNullOrEmpty(citiesList.Countrycode)) query = query.Where(e => e.CountryCode == citiesList.Countrycode);
+		if (!string.IsNullOrEmpty(citiesList.CountryCode)) query = query.Where(e => e.CountryCode == citiesList.CountryCode);
 		if (!string.IsNullOrEmpty(citiesList.Search)) query = query.Where(e => e.Name.Contains(citiesList.Search));
 		return base.PrepareListQuery(query, settings);
 	}

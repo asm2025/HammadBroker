@@ -240,8 +240,8 @@ public class DataContext : IdentityDbContext<User, Role, string,
 			{
 				context = services.GetRequiredService<DataContext>();
 				countries = context.Countries
-												.Select(e => e.Id)
-												.ToHashSet(StringComparer.OrdinalIgnoreCase);
+									.Select(e => e.Id)
+									.ToHashSet(StringComparer.OrdinalIgnoreCase);
 				IEnumerable<Country> newCountries = RegionInfoHelper.Regions.Values
 																	.OrderBy(e => e.EnglishName)
 																	.Where(e => !string.IsNullOrEmpty(e.ThreeLetterISORegionName))
@@ -293,7 +293,7 @@ public class DataContext : IdentityDbContext<User, Role, string,
 
 					foreach (string city in data.Cities)
 					{
-						if (context.Cities.FirstOrDefault(e => e.Name == city) != null) continue;
+						if (context.Cities.FirstOrDefault(e => e.CountryCode == data.CountryCode && e.Name == city) != null) continue;
 						context.Cities.Add(new City
 						{
 							CountryCode = data.CountryCode,

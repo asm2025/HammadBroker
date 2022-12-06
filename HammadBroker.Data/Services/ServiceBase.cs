@@ -78,13 +78,7 @@ public abstract class ServiceBase<TContext, TRepository, TEntity, TKey> : Dispos
 	public virtual IPaginated<T> List<T>(IQueryable<TEntity> queryable, IPagination settings = null)
 	{
 		ThrowIfDisposed();
-
-		if (settings is { PageSize: > 0 })
-		{
-			queryable = queryable.Paginate(settings);
-			settings.Count = Repository.Count(settings);
-		}
-
+		queryable = PrepareList(queryable, settings);
 		IList<T> result = queryable.ProjectTo<T>(Mapper.ConfigurationProvider)
 									.ToList();
 		return new Paginated<T>(result, settings);
@@ -106,17 +100,10 @@ public abstract class ServiceBase<TContext, TRepository, TEntity, TKey> : Dispos
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
-
-		if (settings is { PageSize: > 0 })
-		{
-			queryable = queryable.Paginate(settings);
-			settings.Count = await Repository.CountAsync(settings, token);
-			token.ThrowIfCancellationRequested();
-		}
-
+		queryable = PrepareList(queryable, settings);
 		IList<T> result = await queryable.ProjectTo<T>(Mapper.ConfigurationProvider)
-								.ToListAsync(token)
-								.ConfigureAwait();
+										.ToListAsync(token)
+										.ConfigureAwait();
 		token.ThrowIfCancellationRequested();
 		return new Paginated<T>(result, settings);
 	}
@@ -165,5 +152,16 @@ public abstract class ServiceBase<TContext, TRepository, TEntity, TKey> : Dispos
 		return entity == null
 					? default(T)
 					: Mapper.Map<T>(entity);
+	}
+
+	protected virtual IQueryable<TEntity> PrepareList(IQueryable<TEntity> queryable, IPagination settings = null)
+	{
+		if (settings is { PageSize: > 0 })
+		{
+			queryable = queryable.Paginate(settings);
+			settings.Count = Repository.Count(settings);
+		}
+
+		return queryable;
 	}
 }
