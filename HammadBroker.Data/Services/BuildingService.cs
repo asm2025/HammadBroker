@@ -24,21 +24,6 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	}
 
 	/// <inheritdoc />
-	public override IPaginated<T> List<T>(IQueryable<Building> queryable, IPagination settings = null)
-	{
-		ThrowIfDisposed();
-		return base.List<T>(PrepareList(queryable, settings), settings);
-	}
-
-	/// <inheritdoc />
-	public override Task<IPaginated<T>> ListAsync<T>(IQueryable<Building> queryable, IPagination settings = null, CancellationToken token = default(CancellationToken))
-	{
-		ThrowIfDisposed();
-		token.ThrowIfCancellationRequested();
-		return base.ListAsync<T>(PrepareList(queryable, settings), settings, token);
-	}
-
-	/// <inheritdoc />
 	public IPaginated<string> ListImages(int buildingId, IPagination settings = null)
 	{
 		ThrowIfDisposed();
@@ -240,54 +225,72 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 		return Mapper.Map<T>(image);
 	}
 
-	[NotNull]
-	private static IQueryable<Building> PrepareList([NotNull] IQueryable<Building> queryable, IPagination settings)
+	protected override IQueryable<Building> PrepareList(IQueryable<Building> queryable, IPagination settings)
 	{
-		if (settings is not BuildingList buildingList) return queryable;
-		if (buildingList.CityId.HasValue) queryable = queryable.Where(e => e.CityId == buildingList.CityId.Value);
+		if (settings is not BuildingList buildingList) return base.PrepareList(queryable, settings);
 		queryable = PrepareNumbers(queryable, buildingList);
-		return PrepareSearch(queryable, buildingList);
+		queryable = PrepareSearch(queryable, buildingList);
+		return base.PrepareList(queryable, settings);
+	}
 
-		[NotNull]
-		static IQueryable<Building> PrepareNumbers([NotNull] IQueryable<Building> queryable, BuildingList buildingList)
+	/// <inheritdoc />
+	protected override IQueryable<Building> PrepareCount(IQueryable<Building> queryable, IPagination settings)
+	{
+		if (settings is not BuildingList buildingList) return base.PrepareCount(queryable, settings);
+		queryable = PrepareNumbers(queryable, buildingList);
+		queryable = PrepareSearch(queryable, buildingList);
+		return base.PrepareCount(queryable, settings);
+	}
+
+	[NotNull]
+	private static IQueryable<Building> PrepareNumbers([NotNull] IQueryable<Building> queryable, [NotNull] BuildingList buildingList)
+	{
+		if (buildingList.CityId.HasValue) queryable = queryable.Where(e => e.CityId == buildingList.CityId.Value);
+		if (buildingList.BuildingType.HasValue) queryable = queryable.Where(e => e.BuildingType == buildingList.BuildingType.Value);
+		if (buildingList.FinishingType.HasValue) queryable = queryable.Where(e => e.FinishingType == buildingList.FinishingType.Value);
+		if (buildingList.Floor.HasValue) queryable = queryable.Where(e => e.Floor == buildingList.Floor.Value);
+
+		if (buildingList.Rooms.HasValue)
 		{
-			if (buildingList.BuildingType.HasValue) queryable = queryable.Where(e => e.BuildingType == buildingList.BuildingType.Value);
-			if (buildingList.FinishingType.HasValue) queryable = queryable.Where(e => e.FinishingType == buildingList.FinishingType.Value);
-			if (buildingList.Floor.HasValue) queryable = queryable.Where(e => e.Floor == buildingList.Floor.Value);
-
-			if (buildingList.Rooms.HasValue)
-			{
-				if (buildingList.MaxRooms.HasValue && buildingList.MaxRooms > buildingList.Rooms)
-					queryable = queryable.Where(e => e.Rooms >= buildingList.Rooms.Value && e.Rooms <= buildingList.MaxRooms.Value);
-				else
-					queryable = queryable.Where(e => e.Rooms == buildingList.Rooms.Value);
-			}
-
-			if (buildingList.Bathrooms.HasValue)
-			{
-				if (buildingList.MaxBathrooms.HasValue && buildingList.MaxBathrooms > buildingList.Bathrooms)
-					queryable = queryable.Where(e => e.Bathrooms >= buildingList.Bathrooms.Value && e.Bathrooms <= buildingList.MaxBathrooms.Value);
-				else
-					queryable = queryable.Where(e => e.Bathrooms == buildingList.Bathrooms.Value);
-			}
-
-			if (buildingList.Area.HasValue)
-			{
-				if (buildingList.MaxArea.HasValue && buildingList.MaxArea > buildingList.Area)
-					queryable = queryable.Where(e => e.Area >= buildingList.Area.Value && e.Area <= buildingList.MaxArea.Value);
-				else
-					queryable = queryable.Where(e => e.Area == buildingList.Area.Value);
-			}
-
-			return queryable;
+			queryable = buildingList.MaxRooms.HasValue
+							? queryable.Where(e => e.Rooms >= buildingList.Rooms.Value && e.Rooms <= buildingList.MaxRooms.Value)
+							: queryable.Where(e => e.Rooms == buildingList.Rooms.Value);
+		}
+		else if (buildingList.MaxRooms.HasValue)
+		{
+			queryable = queryable.Where(e => e.Rooms <= buildingList.MaxRooms.Value);
 		}
 
-		[NotNull]
-		static IQueryable<Building> PrepareSearch([NotNull] IQueryable<Building> queryable, BuildingList buildingList)
+		if (buildingList.Bathrooms.HasValue)
 		{
-			if (!string.IsNullOrEmpty(buildingList.Search)) queryable = queryable.Where(e => e.Name.Contains(buildingList.Search));
-			if (!string.IsNullOrEmpty(buildingList.Address)) queryable = queryable.Where(e => e.Address.Contains(buildingList.Address) || e.Address2.Contains(buildingList.Address));
-			return queryable;
+			queryable = buildingList.MaxBathrooms.HasValue
+							? queryable.Where(e => e.Bathrooms >= buildingList.Bathrooms.Value && e.Bathrooms <= buildingList.MaxBathrooms.Value)
+							: queryable.Where(e => e.Bathrooms == buildingList.Bathrooms.Value);
 		}
+		else if (buildingList.MaxBathrooms.HasValue)
+		{
+			queryable = queryable.Where(e => e.Bathrooms <= buildingList.MaxBathrooms.Value);
+		}
+
+		if (buildingList.Area.HasValue)
+		{
+			queryable = buildingList.MaxArea.HasValue
+							? queryable.Where(e => e.Area >= buildingList.Area.Value && e.Area <= buildingList.MaxArea.Value)
+							: queryable.Where(e => e.Area == buildingList.Area.Value);
+		}
+		else if (buildingList.MaxArea.HasValue)
+		{
+			queryable = queryable.Where(e => e.Area <= buildingList.MaxArea.Value);
+		}
+
+		return queryable;
+	}
+
+	[NotNull]
+	private static IQueryable<Building> PrepareSearch([NotNull] IQueryable<Building> queryable, [NotNull] BuildingList buildingList)
+	{
+		if (!string.IsNullOrEmpty(buildingList.Search)) queryable = queryable.Where(e => e.Name.Contains(buildingList.Search));
+		if (!string.IsNullOrEmpty(buildingList.Address)) queryable = queryable.Where(e => e.Address.Contains(buildingList.Address) || e.Address2.Contains(buildingList.Address));
+		return queryable;
 	}
 }

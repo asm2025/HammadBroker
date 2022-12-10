@@ -36,7 +36,7 @@ public class BuildingAdService : Service<DataContext, IBuildingAdRepository, Bui
 			Building = b
 		});
 
-		queryable = PrepareBuildingFilters(q, buildingList)
+		queryable = PrepareList(q, buildingList)
 			.Select(e => e.Ad);
 		return base.List<T>(queryable, settings);
 	}
@@ -54,7 +54,7 @@ public class BuildingAdService : Service<DataContext, IBuildingAdRepository, Bui
 			Building = b
 		});
 
-		queryable = PrepareBuildingFilters(q, buildingList)
+		queryable = PrepareList(q, buildingList)
 			.Select(e => e.Ad);
 		return base.ListAsync<T>(queryable, settings, token);
 	}
@@ -112,7 +112,7 @@ public class BuildingAdService : Service<DataContext, IBuildingAdRepository, Bui
 														Ad = ba,
 														Building = b
 													});
-			return PrepareBuildingFilters(q, buildingList)
+			return PrepareList(q, buildingList)
 				.Select(e => new BuildingAdForList
 				{
 					Id = e.Ad.Id,
@@ -165,17 +165,94 @@ public class BuildingAdService : Service<DataContext, IBuildingAdRepository, Bui
 		return entity;
 	}
 
-	[NotNull]
-	private static IQueryable<BuildingAdBuilding> PrepareBuildingFilters([NotNull] IQueryable<BuildingAdBuilding> queryable, [NotNull] BuildingList buildingList)
+	/// <inheritdoc />
+	protected override IQueryable<BuildingAd> PrepareList(IQueryable<BuildingAd> queryable, IPagination settings)
 	{
-		if (buildingList.CityId.HasValue) queryable = queryable.Where(e => e.Building.CityId == buildingList.CityId.Value);
-		queryable = PrepareMetaData(queryable, buildingList);
+		if (settings is not BuildingAdList buildingAdList) return base.PrepareList(queryable, settings);
+		queryable = PrepareQuery(queryable, buildingAdList);
+		return base.PrepareList(queryable, settings);
+	}
+
+	/// <inheritdoc />
+	protected override IQueryable<BuildingAd> PrepareCount(IQueryable<BuildingAd> queryable, IPagination settings)
+	{
+		if (settings is not BuildingAdList buildingAdList) return base.PrepareCount(queryable, settings);
+		queryable = PrepareQuery(queryable, buildingAdList);
+		return base.PrepareCount(queryable, settings);
+	}
+
+	[NotNull]
+	private static IQueryable<BuildingAd> PrepareQuery([NotNull] IQueryable<BuildingAd> queryable, [NotNull] BuildingAdList buildingAdList)
+	{
+		if (buildingAdList.Type.HasValue) queryable = queryable.Where(e => e.Type == buildingAdList.Type.Value);
+
+		if (buildingAdList.Date.HasValue)
+		{
+			queryable = buildingAdList.MaxDate.HasValue
+							? queryable.Where(e => e.Date >= buildingAdList.Date.Value && e.Date <= buildingAdList.MaxDate.Value)
+							: queryable.Where(e => e.Date == buildingAdList.Date.Value);
+		}
+		else if (buildingAdList.MaxDate.HasValue)
+		{
+			queryable = queryable.Where(e => e.Date <= buildingAdList.MaxDate.Value);
+		}
+
+		if (buildingAdList.Price.HasValue)
+		{
+			queryable = buildingAdList.MaxPrice.HasValue
+							? queryable.Where(e => e.Price >= buildingAdList.Price.Value && e.Price <= buildingAdList.MaxPrice.Value)
+							: queryable.Where(e => e.Price == buildingAdList.Price.Value);
+		}
+		else if (buildingAdList.Price.HasValue)
+		{
+			queryable = queryable.Where(e => e.Price <= buildingAdList.MaxPrice.Value);
+		}
+
+		return queryable;
+	}
+
+	[NotNull]
+	private static IQueryable<BuildingAdBuilding> PrepareList([NotNull] IQueryable<BuildingAdBuilding> queryable, [NotNull] BuildingList buildingList)
+	{
+		if (buildingList is BuildingAdList buildingAdList) queryable = PrepareAd(queryable, buildingAdList);
+		queryable = PrepareNumbers(queryable, buildingList);
 		queryable = PrepareSearch(queryable, buildingList);
 		return queryable;
 
 		[NotNull]
-		static IQueryable<BuildingAdBuilding> PrepareMetaData([NotNull] IQueryable<BuildingAdBuilding> queryable, [NotNull] BuildingList buildingList)
+		static IQueryable<BuildingAdBuilding> PrepareAd([NotNull] IQueryable<BuildingAdBuilding> queryable, [NotNull] BuildingAdList buildingAdList)
 		{
+			if (buildingAdList.Type.HasValue) queryable = queryable.Where(e => e.Ad.Type == buildingAdList.Type.Value);
+
+			if (buildingAdList.Date.HasValue)
+			{
+				queryable = buildingAdList.MaxDate.HasValue
+								? queryable.Where(e => e.Ad.Date >= buildingAdList.Date.Value && e.Ad.Date <= buildingAdList.MaxDate.Value)
+								: queryable.Where(e => e.Ad.Date == buildingAdList.Date.Value);
+			}
+			else if (buildingAdList.MaxDate.HasValue)
+			{
+				queryable = queryable.Where(e => e.Ad.Date <= buildingAdList.MaxDate.Value);
+			}
+
+			if (buildingAdList.Price.HasValue)
+			{
+				queryable = buildingAdList.MaxPrice.HasValue
+								? queryable.Where(e => e.Ad.Price >= buildingAdList.Price.Value && e.Ad.Price <= buildingAdList.MaxPrice.Value)
+								: queryable.Where(e => e.Ad.Price == buildingAdList.Price.Value);
+			}
+			else if (buildingAdList.Price.HasValue)
+			{
+				queryable = queryable.Where(e => e.Ad.Price <= buildingAdList.MaxPrice.Value);
+			}
+
+			return queryable;
+		}
+
+		[NotNull]
+		static IQueryable<BuildingAdBuilding> PrepareNumbers([NotNull] IQueryable<BuildingAdBuilding> queryable, [NotNull] BuildingList buildingList)
+		{
+			if (buildingList.CityId.HasValue) queryable = queryable.Where(e => e.Building.CityId == buildingList.CityId.Value);
 			if (buildingList.BuildingType.HasValue) queryable = queryable.Where(e => e.Building.BuildingType == buildingList.BuildingType.Value);
 			if (buildingList.FinishingType.HasValue) queryable = queryable.Where(e => e.Building.FinishingType == buildingList.FinishingType.Value);
 			if (buildingList.Floor.HasValue) queryable = queryable.Where(e => e.Building.Floor == buildingList.Floor.Value);

@@ -67,17 +67,14 @@ public abstract class ServiceBase<TContext, TRepository, TEntity, TKey> : Dispos
 
 	/// <inheritdoc />
 	[NotNull]
-	public IPaginated<T> List<T>(IPagination settings = null)
-	{
-		ThrowIfDisposed();
-		return List<T>(Repository.DbSet, settings);
-	}
+	public IPaginated<T> List<T>(IPagination settings = null) { return List<T>(Repository.DbSet, settings); }
 
 	/// <inheritdoc />
 	[NotNull]
 	public virtual IPaginated<T> List<T>(IQueryable<TEntity> queryable, IPagination settings = null)
 	{
 		ThrowIfDisposed();
+		if (settings is { PageSize: > 0 }) { settings.Count = PrepareCount(queryable, settings).Count(); }
 		queryable = PrepareList(queryable, settings);
 		IList<T> result = queryable.ProjectTo<T>(Mapper.ConfigurationProvider)
 									.ToList();
@@ -87,12 +84,7 @@ public abstract class ServiceBase<TContext, TRepository, TEntity, TKey> : Dispos
 	/// <inheritdoc />
 	[NotNull]
 	[ItemNotNull]
-	public Task<IPaginated<T>> ListAsync<T>(IPagination settings = null, CancellationToken token = default(CancellationToken))
-	{
-		ThrowIfDisposed();
-		token.ThrowIfCancellationRequested();
-		return ListAsync<T>(Repository.DbSet, settings, token);
-	}
+	public Task<IPaginated<T>> ListAsync<T>(IPagination settings = null, CancellationToken token = default(CancellationToken)) { return ListAsync<T>(Repository.DbSet, settings, token); }
 
 	/// <inheritdoc />
 	[ItemNotNull]
@@ -100,6 +92,15 @@ public abstract class ServiceBase<TContext, TRepository, TEntity, TKey> : Dispos
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
+
+		if (settings is { PageSize: > 0 })
+		{
+			settings.Count = await PrepareCount(queryable, settings)
+								.CountAsync(token)
+								.ConfigureAwait();
+			token.ThrowIfCancellationRequested();
+		}
+
 		queryable = PrepareList(queryable, settings);
 		IList<T> result = await queryable.ProjectTo<T>(Mapper.ConfigurationProvider)
 										.ToListAsync(token)
@@ -154,14 +155,17 @@ public abstract class ServiceBase<TContext, TRepository, TEntity, TKey> : Dispos
 					: Mapper.Map<T>(entity);
 	}
 
-	protected virtual IQueryable<TEntity> PrepareList(IQueryable<TEntity> queryable, IPagination settings = null)
+	[NotNull]
+	protected virtual IQueryable<TEntity> PrepareList([NotNull] IQueryable<TEntity> queryable, IPagination settings)
 	{
-		if (settings is { PageSize: > 0 })
-		{
-			queryable = queryable.Paginate(settings);
-			settings.Count = Repository.Count(settings);
-		}
+		if (settings is not { PageSize: > 0 }) return queryable;
+		queryable = queryable.Paginate(settings);
+		return queryable;
+	}
 
+	[NotNull]
+	protected virtual IQueryable<TEntity> PrepareCount([NotNull] IQueryable<TEntity> queryable, IPagination settings)
+	{
 		return queryable;
 	}
 }
