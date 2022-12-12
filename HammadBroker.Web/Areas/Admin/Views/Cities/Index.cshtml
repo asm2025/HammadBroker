@@ -6,16 +6,17 @@
 }
 
 <form class="row row-cols-lg-auto g-3 align-items-center" method="get" asp-area="Admin" asp-controller="Cities" asp-action="Index">
-	<div class="col mb-3">
+	<div class="col form-floating mb-3">
+		@Html.DropDownListFor(e => e.CountryCode, Model.Countries.Select(e => new SelectListItem(e.Name, e.Id, e.Id == Model.CountryCode)),  string.Empty , new { @class = "form-select" })
 		<label class="form-label" asp-for="CountryCode"></label>
-		@Html.DropDownListFor(e => e.CountryCode, Model.Countries.Select(e => new SelectListItem(e.Name, e.Id, e.Id == Model.CountryCode)), "[اختر]", new { @class = "form-select" })
 	</div>
-	<div class="col mb-3">
+	<div class="col form-floating mb-3">
+		<input class="form-control" asp-for="Search" placeholder="@Html.DisplayNameFor(E => Model.Search)" />
 		<label class="form-label" asp-for="Search"></label>
-		<input class="form-control" asp-for="Search" />
 	</div>
 	<div class="col mb-3">
-		<button type="submit" class="w-100 btn btn-primary">بحث</button>
+		<button type="submit" class="btn btn-outline-primary"><span class="fa fa-magnifying-glass"></span></button>
+		<a asp-area="Admin" asp-controller="Cities" asp-action="Add" class="btn btn-outline-primary"><span class="fa fa-plus"></span></a>
 	</div>
 </form>
 <div class="row table-responsive">
@@ -36,7 +37,9 @@
 		@foreach (CityForList city in Model.Result)
 		{
 			<tr>
-				<td></td>
+				<td>
+
+				</td>
 				@if (showCountry)
 				{
 				<td>@city.CountryCode</td>

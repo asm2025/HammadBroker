@@ -39,22 +39,22 @@
             if (Model.IsMachineRemembered)
             {
                 <form method="post" style="display: inline-block">
-                    <button type="submit" class="btn btn-primary">إنسى هذا المتصفح</button>
+                    <button type="submit" class="btn btn-outline-primary">إنسى هذا المتصفح</button>
                 </form>
             }
-            <a asp-page="./Disable2fa" class="btn btn-primary">تعطيل</a>
-            <a asp-page="./GenerateRecoveryCodes" class="btn btn-primary">إعادة تعيين</a>
+            <a asp-page="./Disable2fa" class="btn btn-outline-danger">تعطيل</a>
+            <a asp-page="./GenerateRecoveryCodes" class="btn btn-outline-primary">إعادة تعيين</a>
         }
 
         <h4>تطبيق المصادقة</h4>
         @if (!Model.HasAuthenticator)
         {
-            <a id="enable-authenticator" asp-page="./EnableAuthenticator" class="btn btn-primary">أضف تطبيق مصادقة</a>
+            <a id="enable-authenticator" asp-page="./EnableAuthenticator" class="btn btn-outline-primary">أضف تطبيق مصادقة</a>
         }
         else
         {
-            <a id="enable-authenticator" asp-page="./EnableAuthenticator" class="btn btn-primary">إعداد تطبيق المصادقة</a>
-            <a id="reset-authenticator" asp-page="./ResetAuthenticator" class="btn btn-primary">إعادة تعيين</a>
+            <a id="enable-authenticator" asp-page="./EnableAuthenticator" class="btn btn-outline-primary">إعداد تطبيق المصادقة</a>
+            <a id="reset-authenticator" asp-page="./ResetAuthenticator" class="btn btn-outline-primary">إعادة تعيين</a>
         }
     }
     else

@@ -92,10 +92,6 @@
 		<ProjectReference Include="..\HammadBroker.Model\HammadBroker.Model.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Areas\Admin\Views\Cities\" />
-	</ItemGroup>
-
 	<PropertyGroup>
 		<ResolveStaticWebAssetsInputsDependsOn>RemoveIdentityAssets</ResolveStaticWebAssetsInputsDependsOn>
 	</PropertyGroup>
@@ -110,5 +106,13 @@
 			if exist "$(TargetPath)" if not exist "$(TargetPath).locked" move "$(TargetPath)" "$(TargetPath).locked"
 		</PreBuildEvent>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <UpToDateCheckInput Remove="Areas\Admin\Views\Cities\Add.cshtml" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <_ContentIncludedByDefault Remove="Areas\Admin\Views\Cities\Add.cshtml" />
+	</ItemGroup>
 
 </Project>

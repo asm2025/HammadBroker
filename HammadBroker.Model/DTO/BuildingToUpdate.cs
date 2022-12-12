@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using essentialMix.Core.Web.Annotations;
+using Microsoft.AspNetCore.Http;
 
 namespace HammadBroker.Model.DTO;
 
@@ -12,6 +14,10 @@ public class BuildingToUpdate
 	[Required]
 	[Display(Name = "نوع المبنى")]
 	public BuildingType BuildingType { get; set; }
+
+	[MaxFileSize(0xA00000)]
+	[DataType(DataType.Upload)]
+	public IFormFile ImageFile { get; set; }
 
 	[Url]
 	[StringLength(320)]

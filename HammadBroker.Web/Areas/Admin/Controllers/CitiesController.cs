@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
 using essentialMix.Core.Web.Controllers;
 using essentialMix.Patterns.Pagination;
 using essentialMix.Patterns.Sorting;
@@ -22,13 +23,15 @@ public class CitiesController : MvcController
 {
 	private readonly ICityService _cityService;
 	private readonly ILookupService _lookupService;
+	private readonly IMapper _mapper;
 
 	/// <inheritdoc />
-	public CitiesController([NotNull] ICityService cityService, [NotNull] ILookupService lookupService, [NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, [NotNull] ILogger<CitiesController> logger)
+	public CitiesController([NotNull] ICityService cityService, [NotNull] ILookupService lookupService, [NotNull] IMapper mapper, [NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, [NotNull] ILogger<CitiesController> logger)
 		: base(configuration, environment, logger)
 	{
 		_cityService = cityService;
 		_lookupService = lookupService;
+		_mapper = mapper;
 	}
 
 	[NotNull]
@@ -62,6 +65,7 @@ public class CitiesController : MvcController
 	[HttpGet("[action]")]
 	public async Task<IActionResult> Add(string countryCode, CancellationToken token)
 	{
+		token.ThrowIfCancellationRequested();
 		return View(new CityToUpdate
 		{
 			CountryCode = countryCode,
@@ -72,11 +76,16 @@ public class CitiesController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	public async Task<IActionResult> Add(CityToUpdate entity, CancellationToken token)
+	[ValidateAntiForgeryToken]
+	public async Task<IActionResult> Add(CityToUpdate cityToAdd, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
-		if (!ModelState.IsValid) return View();
-
-		return View();
+		if (!ModelState.IsValid) return View(cityToAdd);
+		await _cityService.AddAsync<CityForList>(_mapper.Map<City>(cityToAdd), token);
+		token.ThrowIfCancellationRequested();
+		return RedirectToAction(nameof(Index), new CitiesList
+		{
+			CountryCode = cityToAdd.CountryCode
+		});
 	}
 }
