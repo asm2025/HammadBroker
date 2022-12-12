@@ -225,21 +225,21 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 		return Mapper.Map<T>(image);
 	}
 
-	protected override IQueryable<Building> PrepareList(IQueryable<Building> queryable, IPagination settings)
+	protected override IQueryable<Building> PrepareListQuery(IQueryable<Building> queryable, IPagination settings)
 	{
-		if (settings is not BuildingList buildingList) return base.PrepareList(queryable, settings);
+		if (settings is not BuildingList buildingList) return base.PrepareListQuery(queryable, settings);
 		queryable = PrepareNumbers(queryable, buildingList);
 		queryable = PrepareSearch(queryable, buildingList);
-		return base.PrepareList(queryable, settings);
+		return base.PrepareListQuery(queryable, settings);
 	}
 
 	/// <inheritdoc />
-	protected override IQueryable<Building> PrepareCount(IQueryable<Building> queryable, IPagination settings)
+	protected override IQueryable<Building> PrepareCountQuery(IQueryable<Building> queryable, IPagination settings)
 	{
-		if (settings is not BuildingList buildingList) return base.PrepareCount(queryable, settings);
+		if (settings is not BuildingList buildingList) return base.PrepareCountQuery(queryable, settings);
 		queryable = PrepareNumbers(queryable, buildingList);
 		queryable = PrepareSearch(queryable, buildingList);
-		return base.PrepareCount(queryable, settings);
+		return base.PrepareCountQuery(queryable, settings);
 	}
 
 	[NotNull]

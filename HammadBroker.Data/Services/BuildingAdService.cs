@@ -36,7 +36,7 @@ public class BuildingAdService : Service<DataContext, IBuildingAdRepository, Bui
 			Building = b
 		});
 
-		queryable = PrepareList(q, buildingList)
+		queryable = PrepareListQuery(q, buildingList)
 			.Select(e => e.Ad);
 		return base.List<T>(queryable, settings);
 	}
@@ -54,7 +54,7 @@ public class BuildingAdService : Service<DataContext, IBuildingAdRepository, Bui
 			Building = b
 		});
 
-		queryable = PrepareList(q, buildingList)
+		queryable = PrepareListQuery(q, buildingList)
 			.Select(e => e.Ad);
 		return base.ListAsync<T>(queryable, settings, token);
 	}
@@ -112,7 +112,7 @@ public class BuildingAdService : Service<DataContext, IBuildingAdRepository, Bui
 														Ad = ba,
 														Building = b
 													});
-			return PrepareList(q, buildingList)
+			return PrepareListQuery(q, buildingList)
 				.Select(e => new BuildingAdForList
 				{
 					Id = e.Ad.Id,
@@ -166,19 +166,19 @@ public class BuildingAdService : Service<DataContext, IBuildingAdRepository, Bui
 	}
 
 	/// <inheritdoc />
-	protected override IQueryable<BuildingAd> PrepareList(IQueryable<BuildingAd> queryable, IPagination settings)
+	protected override IQueryable<BuildingAd> PrepareListQuery(IQueryable<BuildingAd> queryable, IPagination settings)
 	{
-		if (settings is not BuildingAdList buildingAdList) return base.PrepareList(queryable, settings);
+		if (settings is not BuildingAdList buildingAdList) return base.PrepareListQuery(queryable, settings);
 		queryable = PrepareQuery(queryable, buildingAdList);
-		return base.PrepareList(queryable, settings);
+		return base.PrepareListQuery(queryable, settings);
 	}
 
 	/// <inheritdoc />
-	protected override IQueryable<BuildingAd> PrepareCount(IQueryable<BuildingAd> queryable, IPagination settings)
+	protected override IQueryable<BuildingAd> PrepareCountQuery(IQueryable<BuildingAd> queryable, IPagination settings)
 	{
-		if (settings is not BuildingAdList buildingAdList) return base.PrepareCount(queryable, settings);
+		if (settings is not BuildingAdList buildingAdList) return base.PrepareCountQuery(queryable, settings);
 		queryable = PrepareQuery(queryable, buildingAdList);
-		return base.PrepareCount(queryable, settings);
+		return base.PrepareCountQuery(queryable, settings);
 	}
 
 	[NotNull]
@@ -212,7 +212,7 @@ public class BuildingAdService : Service<DataContext, IBuildingAdRepository, Bui
 	}
 
 	[NotNull]
-	private static IQueryable<BuildingAdBuilding> PrepareList([NotNull] IQueryable<BuildingAdBuilding> queryable, [NotNull] BuildingList buildingList)
+	private static IQueryable<BuildingAdBuilding> PrepareListQuery([NotNull] IQueryable<BuildingAdBuilding> queryable, [NotNull] BuildingList buildingList)
 	{
 		if (buildingList is BuildingAdList buildingAdList) queryable = PrepareAd(queryable, buildingAdList);
 		queryable = PrepareNumbers(queryable, buildingList);

@@ -18,19 +18,19 @@ public class CityService : Service<DataContext, ICityRepository, City, int>, ICi
 	}
 
 	/// <inheritdoc />
-	protected override IQueryable<City> PrepareList(IQueryable<City> queryable, IPagination settings)
+	protected override IQueryable<City> PrepareListQuery(IQueryable<City> queryable, IPagination settings)
 	{
-		if (settings is not CitiesList citiesList) return base.PrepareList(queryable, settings);
+		if (settings is not CitiesList citiesList) return base.PrepareListQuery(queryable, settings);
 		queryable = PrepareQuery(queryable, citiesList);
-		return base.PrepareList(queryable, settings);
+		return base.PrepareListQuery(queryable, settings);
 	}
 
 	/// <inheritdoc />
-	protected override IQueryable<City> PrepareCount(IQueryable<City> queryable, IPagination settings)
+	protected override IQueryable<City> PrepareCountQuery(IQueryable<City> queryable, IPagination settings)
 	{
-		if (settings is not CitiesList citiesList) return base.PrepareCount(queryable, settings);
+		if (settings is not CitiesList citiesList) return base.PrepareCountQuery(queryable, settings);
 		queryable = PrepareQuery(queryable, citiesList);
-		return base.PrepareCount(queryable, settings);
+		return base.PrepareCountQuery(queryable, settings);
 	}
 
 	[NotNull]

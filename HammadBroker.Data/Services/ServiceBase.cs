@@ -74,8 +74,8 @@ public abstract class ServiceBase<TContext, TRepository, TEntity, TKey> : Dispos
 	public virtual IPaginated<T> List<T>(IQueryable<TEntity> queryable, IPagination settings = null)
 	{
 		ThrowIfDisposed();
-		if (settings is { PageSize: > 0 }) { settings.Count = PrepareCount(queryable, settings).Count(); }
-		queryable = PrepareList(queryable, settings);
+		if (settings is { PageSize: > 0 }) { settings.Count = PrepareCountQuery(queryable, settings).Count(); }
+		queryable = PrepareListQuery(queryable, settings);
 		IList<T> result = queryable.ProjectTo<T>(Mapper.ConfigurationProvider)
 									.ToList();
 		return new Paginated<T>(result, settings);
@@ -95,13 +95,13 @@ public abstract class ServiceBase<TContext, TRepository, TEntity, TKey> : Dispos
 
 		if (settings is { PageSize: > 0 })
 		{
-			settings.Count = await PrepareCount(queryable, settings)
+			settings.Count = await PrepareCountQuery(queryable, settings)
 								.CountAsync(token)
 								.ConfigureAwait();
 			token.ThrowIfCancellationRequested();
 		}
 
-		queryable = PrepareList(queryable, settings);
+		queryable = PrepareListQuery(queryable, settings);
 		IList<T> result = await queryable.ProjectTo<T>(Mapper.ConfigurationProvider)
 										.ToListAsync(token)
 										.ConfigureAwait();
@@ -156,7 +156,7 @@ public abstract class ServiceBase<TContext, TRepository, TEntity, TKey> : Dispos
 	}
 
 	[NotNull]
-	protected virtual IQueryable<TEntity> PrepareList([NotNull] IQueryable<TEntity> queryable, IPagination settings)
+	protected virtual IQueryable<TEntity> PrepareListQuery([NotNull] IQueryable<TEntity> queryable, IPagination settings)
 	{
 		if (settings is not { PageSize: > 0 }) return queryable;
 		queryable = queryable.Paginate(settings);
@@ -164,7 +164,7 @@ public abstract class ServiceBase<TContext, TRepository, TEntity, TKey> : Dispos
 	}
 
 	[NotNull]
-	protected virtual IQueryable<TEntity> PrepareCount([NotNull] IQueryable<TEntity> queryable, IPagination settings)
+	protected virtual IQueryable<TEntity> PrepareCountQuery([NotNull] IQueryable<TEntity> queryable, IPagination settings)
 	{
 		return queryable;
 	}

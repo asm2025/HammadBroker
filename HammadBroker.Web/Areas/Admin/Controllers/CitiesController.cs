@@ -39,9 +39,10 @@ public class CitiesController : MvcController
 		token.ThrowIfCancellationRequested();
 		pagination ??= new CitiesList();
 
+		// There is a fucking bug in order by. it produces "ORDER BY (SELECT 1)"
 		if (pagination.OrderBy == null || pagination.OrderBy.Count == 0)
 		{
-			pagination.OrderBy ??= new List<SortField>();
+			pagination.OrderBy ??= new List<SortField>(2);
 			if (string.IsNullOrEmpty(pagination.CountryCode)) pagination.OrderBy.Add(new SortField(nameof(City.CountryCode)));
 			pagination.OrderBy.Add(new SortField(nameof(City.Name)));
 		}
@@ -54,5 +55,28 @@ public class CitiesController : MvcController
 		};
 		token.ThrowIfCancellationRequested();
 		return View(paginated);
+	}
+
+	[NotNull]
+	[ItemNotNull]
+	[HttpGet("[action]")]
+	public async Task<IActionResult> Add(string countryCode, CancellationToken token)
+	{
+		return View(new CityToUpdate
+		{
+			CountryCode = countryCode,
+			Countries = await _lookupService.ListCountriesAsync(token)
+		});
+	}
+
+	[NotNull]
+	[ItemNotNull]
+	[HttpPost("[action]")]
+	public async Task<IActionResult> Add(CityToUpdate entity, CancellationToken token)
+	{
+		token.ThrowIfCancellationRequested();
+		if (!ModelState.IsValid) return View();
+
+		return View();
 	}
 }
