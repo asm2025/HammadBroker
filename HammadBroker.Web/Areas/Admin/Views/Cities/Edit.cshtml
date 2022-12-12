@@ -1,0 +1,19 @@
+﻿@model HammadBroker.Model.DTO.CityToUpdate
+
+@{
+	ViewData["Title"] = "تعديل مدينة";
+}
+
+<form asp-area="Admin" asp-controller="Cities" asp-action="Edit" Method="post" enctype="multipart/form-data">
+	<div asp-validation-summary="ModelOnly"></div>
+	<input type="hidden" asp-route-id="@Context.Request.Query["id"]" />
+	<input type="hidden" asp-for="CountryCode" />
+	<div class="form-floating mb-3">
+		<input class="form-control" asp-for="Name" placeholder="@Html.DisplayNameFor(E => Model.Name)" />
+		<label class="form-label" asp-for="Name"></label>
+		<span asp-validation-for="Name" class="text-danger"></span>
+	</div>
+	<div class="mb-3">
+		<button type="submit" class="btn btn-primary">تعديل</button>
+	</div>
+</form>

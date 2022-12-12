@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -77,15 +78,73 @@ public class CitiesController : MvcController
 	[ItemNotNull]
 	[HttpPost("[action]")]
 	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Add(CityToUpdate cityToAdd, CancellationToken token)
+	public async Task<IActionResult> Add([NotNull] CityToUpdate cityToAdd, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
-		if (!ModelState.IsValid) return View(cityToAdd);
+
+		if (!ModelState.IsValid)
+		{
+			if (cityToAdd.Countries == null)
+			{
+				cityToAdd.Countries = await _lookupService.ListCountriesAsync(token);
+				token.ThrowIfCancellationRequested();
+			}
+
+			return View(cityToAdd);
+		}
+
 		await _cityService.AddAsync<CityForList>(_mapper.Map<City>(cityToAdd), token);
 		token.ThrowIfCancellationRequested();
 		return RedirectToAction(nameof(Index), new CitiesList
 		{
 			CountryCode = cityToAdd.CountryCode
 		});
+	}
+
+	[NotNull]
+	[ItemNotNull]
+	[HttpGet("[action]/{id:int}")]
+	public async Task<IActionResult> Edit([Required] int id, CancellationToken token)
+	{
+		token.ThrowIfCancellationRequested();
+		CityToUpdate cityToUpdate = await _cityService.GetAsync<CityToUpdate>(id, token);
+		token.ThrowIfCancellationRequested();
+		if (cityToUpdate == null) return NotFound();
+		return View(cityToUpdate);
+	}
+
+	[NotNull]
+	[ItemNotNull]
+	[HttpPost("[action]/{id:int}")]
+	[ValidateAntiForgeryToken]
+	public async Task<IActionResult> Edit([Required] int id, [NotNull] CityToUpdate cityToUpdate, CancellationToken token)
+	{
+		token.ThrowIfCancellationRequested();
+		if (!ModelState.IsValid) return View(cityToUpdate);
+		City city = await _cityService.Repository.GetAsync(id, token);
+		token.ThrowIfCancellationRequested();
+		if (city == null) return NotFound();
+		_mapper.Map(cityToUpdate, city);
+		await _cityService.Repository.UpdateAsync(city, token);
+		token.ThrowIfCancellationRequested();
+		await _cityService.Context.SaveChangesAsync(token);
+		token.ThrowIfCancellationRequested();
+		return RedirectToAction(nameof(Edit), new
+		{
+			id
+		});
+	}
+
+	[NotNull]
+	[ItemNotNull]
+	[HttpDelete("[action]")]
+	public async Task<IActionResult> Delete([Required] int id, CancellationToken token)
+	{
+		token.ThrowIfCancellationRequested();
+		City city = await _cityService.Repository.DeleteAsync(id, token);
+		token.ThrowIfCancellationRequested();
+		if (city == null) return NotFound();
+		await _cityService.Context.SaveChangesAsync(token);
+		return Ok();
 	}
 }
