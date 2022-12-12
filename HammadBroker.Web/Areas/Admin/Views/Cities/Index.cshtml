@@ -42,11 +42,12 @@
 			<tbody>
 			@foreach (CityForList city in Model.Result)
 			{
-			<tr>
-				<td>@city.Name</td>
-			</tr>
+				<tr>
+					<td>@city.Name</td>
+				</tr>
 			}
 			</tbody>
 		}
 	</table>
 </div>
+<partial name="_PaginationPartial" model="Model.Pagination" />

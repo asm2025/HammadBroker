@@ -1,1 +1,134 @@
-﻿@model essentialMix.Patterns.Pagination.IPagination
+﻿@using System.Text.RegularExpressions
+@model essentialMix.Patterns.Pagination.IPagination
+
+@{
+	bool showPages = Model.PageSize > 0 && Model.Count > Model.PageSize;
+	int pages = showPages
+					? (int)Math.Ceiling((double)Model.Count / Model.PageSize)
+					: 1;
+	string routUrl = Url.RouteUrl(ViewContext.RouteData.Values);
+	string queryString = ViewContext.HttpContext.Request.QueryString.Value == null
+							? string.Empty
+							: Regex.Replace(ViewContext.HttpContext.Request.QueryString.Value, "[?&]page=\\d+", string.Empty);
+	char suffix = queryString.IndexOf('?') > -1
+					? '&'
+					: '?';
+	string currentUrl = $"{routUrl}{queryString}";
+}
+
+@if (pages > 1)
+{
+	<nav>
+		<ul class="pagination">
+			@if (Model.Page == 1)
+			{
+				<li class="page-item disabled">
+					<a class="page-link" aria-label="First">
+						<span aria-hidden="true">&laquo;</span>
+					</a>
+				</li>
+				<li class="page-item disabled">
+					<a class="page-link" aria-label="Previous">
+						<span aria-hidden="true">&lsaquo;</span>
+					</a>
+				</li>
+				<li class="page-item active">
+					<a class="page-link">1</a>
+				</li>
+			}
+			else
+			{
+				<li class="page-item">
+					<a class="page-link" href="@($"{currentUrl}{suffix}page=1")" aria-label="First">
+						<span aria-hidden="true">&laquo;</span>
+					</a>
+				</li>
+				<li class="page-item">
+					<a class="page-link" href="@($"{currentUrl}{suffix}page={Model.Page - 1}")" aria-label="Previous">
+						<span aria-hidden="true">&lsaquo;</span>
+					</a>
+				</li>
+				<li class="page-item">
+					<a class="page-link" href="@($"{currentUrl}{suffix}page=1")">1</a>
+				</li>
+			}
+			@if (pages < 7)
+			{
+				for (int i = 2; i < pages; i++)
+				{
+					<li class="page-item @(Model.Page == i ? "active" : null)">
+						<a class="page-link" href="@(Model.Page == i ? null : $"{currentUrl}{suffix}page={i}")">@i</a>
+					</li>
+				}
+			}
+			else
+			{
+				int start = (Model.Page - 1).Within(3, pages - 4);
+				int end = (Model.Page + 1).Within(start + 3, pages - 1);
+
+				if (start > 3)
+				{
+					<li class="page-item">
+						<a class="page-link" href="@($"{currentUrl}{suffix}page={start - 1}")">&mldr;</a>
+					</li>
+				}
+				else
+				{
+					<li class="page-item @(Model.Page == 2 ? "active" : null)">
+						<a class="page-link" href="@(Model.Page == 2 ? null : $"{currentUrl}{suffix}page=2")">2</a>
+					</li>
+				}
+				for (int i = start; i < end; i++)
+				{
+					<li class="page-item @(Model.Page == i ? "active" : null)">
+						<a class="page-link" href="@(Model.Page == i ? null : $"{currentUrl}{suffix}page={i}")">@i</a>
+					</li>
+				}
+				if (end < pages - 1)
+				{
+					<li class="page-item">
+						<a class="page-link" href="@($"{currentUrl}{suffix}page={end + 1}")">&mldr;</a>
+					</li>
+				}
+				else
+				{
+					<li class="page-item @(Model.Page == end ? "active" : null)">
+						<a class="page-link" href="@(Model.Page == end ? null : $"{currentUrl}{suffix}page={end}")">@end</a>
+					</li>
+				}
+			}
+			@if (Model.Page < pages)
+			{
+				<li class="page-item">
+					<a class="page-link" href="@($"{currentUrl}{suffix}page={pages}")">@pages</a>
+				</li>
+				<li class="page-item">
+					<a class="page-link" href="@($"{currentUrl}{suffix}page={Model.Page + 1}")" aria-label="Next">
+						<span aria-hidden="true">&rsaquo;</span>
+					</a>
+				</li>
+				<li class="page-item">
+					<a class="page-link" href="@($"{currentUrl}{suffix}page={pages}")" aria-label="Last">
+						<span aria-hidden="true">&raquo;</span>
+					</a>
+				</li>
+			}
+			else
+			{
+				<li class="page-item active">
+					<a class="page-link">@pages</a>
+				</li>
+				<li class="page-item disabled">
+					<a class="page-link" aria-label="Next">
+						<span aria-hidden="true">&rsaquo;</span>
+					</a>
+				</li>
+				<li class="page-item disabled">
+					<a class="page-link" aria-label="Last">
+						<span aria-hidden="true">&raquo;</span>
+					</a>
+				</li>
+			}
+		</ul>
+	</nav>
+}
