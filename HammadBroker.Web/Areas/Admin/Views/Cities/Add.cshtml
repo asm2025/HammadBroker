@@ -12,10 +12,6 @@
 			<select class="form-select" asp-for="CountryCode" asp-items="Model.Countries.Select(e => new SelectListItem(e.Name, e.Id, e.Id == Model.CountryCode))">
 				<option value=""></option>
 			</select>
-			@Html.DropDownListFor(e => e.CountryCode, Model.Countries.Select(e => new SelectListItem(e.Name, e.Id, e.Id == Model.CountryCode)), string.Empty, new
-			{
-				@class = "form-select"
-			})
 			<label class="form-label" asp-for="CountryCode"></label>
 			<span asp-validation-for="CountryCode" class="text-danger"></span>
 		</div>

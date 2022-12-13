@@ -12,10 +12,6 @@ public class BuildingToUpdate
 	[Display(Name = "اسم المبنى")]
 	public string Name { get; set; }
 
-	[Required]
-	[Display(Name = "نوع المبنى")]
-	public BuildingType BuildingType { get; set; }
-
 	[MaxFileSize(0xA00000)]
 	[DataType(DataType.Upload)]
 	[Display(Name = "الصورة الرئيسية")]
@@ -32,8 +28,12 @@ public class BuildingToUpdate
 	public string VideoUrl { get; set; }
 
 	[Required]
+	[Display(Name = "نوع العقار")]
+	public BuildingType BuildingType { get; set; }
+
+	[Required]
 	[Display(Name = "نوع التشطيب")]
-	public FinishingType FinishingType { get; set; }
+	public FinishingType? FinishingType { get; set; }
 
 	[Display(Name = "الدور")]
 	public byte? Floor { get; set; }

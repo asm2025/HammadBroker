@@ -147,7 +147,7 @@ public class DataContext : IdentityDbContext<User, Role, string,
 					.HasForeignKey(e => e.CityId);
 
 			building.HasIndex(e => e.BuildingType);
-			building.HasIndex(e => e.FinishingType);
+			building.HasIndex(e => e.FinishingType).HasFilter(null);
 			building.HasIndex(e => e.Floor).HasFilter(null);
 			building.HasIndex(e => e.Rooms).HasFilter(null);
 			building.HasIndex(e => e.Bathrooms).HasFilter(null);

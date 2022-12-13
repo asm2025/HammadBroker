@@ -70,6 +70,10 @@
 	  <ProjectReference Include="..\HammadBroker.Model\HammadBroker.Model.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Seed\" />
+	</ItemGroup>
+
 	<PropertyGroup>
 		<PreBuildEvent>if exist "$(TargetPath).locked" del "$(TargetPath).locked"
 			if exist "$(TargetPath)" if not exist "$(TargetPath).locked" move "$(TargetPath)" "$(TargetPath).locked"
