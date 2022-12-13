@@ -24,7 +24,7 @@ public class AvatarTagHelper : TagHelper
 	{
 		_contextAccessor = contextAccessor;
 		PathContent assetsPath = virtualPathSettings.PathContents?.FirstOrDefault(e => e.Alias.IsSame("UserImages")) ?? throw new ConfigurationErrorsException($"{nameof(VirtualPathSettings)} does not contain a definition for UserImages.");
-		_basePath = assetsPath.RequestPath;
+		_basePath = assetsPath.RequestPath.Trim('/');
 		_placeholderImage = configuration.GetValue("Images:UserPlaceholder", string.Empty);
 	}
 

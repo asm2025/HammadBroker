@@ -5,18 +5,27 @@
 }
 
 <form asp-area="Admin" asp-controller="Cities" asp-action="Add" Method="post" enctype="multipart/form-data">
-	<div asp-validation-summary="ModelOnly"></div>
-	<div class="form-floating mb-3">
-		@Html.DropDownListFor(e => e.CountryCode, Model.Countries.Select(e => new SelectListItem(e.Name, e.Id, e.Id == Model.CountryCode)), string.Empty, new {@class = "form-select"})
-		<label class="form-label" asp-for="CountryCode"></label>
-		<span asp-validation-for="CountryCode" class="text-danger"></span>
-	</div>
-	<div class="form-floating mb-3">
-		<input class="form-control" asp-for="Name" placeholder="@Html.DisplayNameFor(E => Model.Name)"/>
-		<label class="form-label" asp-for="Name"></label>
-		<span asp-validation-for="Name" class="text-danger"></span>
-	</div>
-	<div class="mb-3">
-		<button type="submit" class="btn btn-primary">إضافة</button>
+	<div class="card card-body mt-3">
+		<div asp-validation-summary="ModelOnly"></div>
+
+		<div class="form-floating mb-1">
+			<select class="form-select" asp-for="CountryCode" asp-items="Model.Countries.Select(e => new SelectListItem(e.Name, e.Id, e.Id == Model.CountryCode))">
+				<option value=""></option>
+			</select>
+			@Html.DropDownListFor(e => e.CountryCode, Model.Countries.Select(e => new SelectListItem(e.Name, e.Id, e.Id == Model.CountryCode)), string.Empty, new
+			{
+				@class = "form-select"
+			})
+			<label class="form-label" asp-for="CountryCode"></label>
+			<span asp-validation-for="CountryCode" class="text-danger"></span>
+		</div>
+		<div class="form-floating mb-1">
+			<input class="form-control" asp-for="Name" placeholder="@Html.DisplayNameFor(E => Model.Name)"/>
+			<label class="form-label" asp-for="Name"></label>
+			<span asp-validation-for="Name" class="text-danger"></span>
+		</div>
+		<div class="mb-1">
+			<button type="submit" class="btn btn-primary">إضافة</button>
+		</div>
 	</div>
 </form>

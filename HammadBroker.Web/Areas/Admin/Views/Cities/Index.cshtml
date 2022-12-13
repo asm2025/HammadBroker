@@ -5,20 +5,32 @@
 	bool showCountry = string.IsNullOrEmpty(Model.CountryCode);
 }
 
-<form class="row row-cols-lg-auto g-3 align-items-center" method="get" asp-area="Admin" asp-controller="Cities" asp-action="Index">
-	<div class="col form-floating mb-3">
-		@Html.DropDownListFor(e => e.CountryCode, Model.Countries.Select(e => new SelectListItem(e.Name, e.Id, e.Id == Model.CountryCode)),  string.Empty , new { @class = "form-select" })
-		<label class="form-label" asp-for="CountryCode"></label>
+<div class="card mb-1">
+	<h5 class="card-header collapsed" data-bs-toggle="collapse" data-bs-target="#searchForm" aria-expanded="false" aria-controls="searchForm">البحث</h5>
+	<div id="searchForm" class="card-body collapse">
+		<form method="get" asp-area="Admin" asp-controller="Cities" asp-action="Index">
+			<div class="form-floating mb-1">
+				@Html.DropDownListFor(e => e.CountryCode, Model.Countries.Select(e => new SelectListItem(e.Name, e.Id, e.Id == Model.CountryCode)), string.Empty, new
+				{
+					@class = "form-select"
+				})
+				<label class="form-label" asp-for="CountryCode"></label>
+			</div>
+			<div class="form-floating mb-1">
+				<input class="form-control" asp-for="Search" placeholder="@Html.DisplayNameFor(e => Model.Search)"/>
+				<label class="form-label" asp-for="Search"></label>
+			</div>
+			<div class="mb-1">
+				<button type="submit" class="btn btn-outline-primary"><span class="fa fa-magnifying-glass"></span></button>
+			</div>
+		</form>
 	</div>
-	<div class="col form-floating mb-3">
-		<input class="form-control" asp-for="Search" placeholder="@Html.DisplayNameFor(E => Model.Search)" />
-		<label class="form-label" asp-for="Search"></label>
-	</div>
-	<div class="col mb-3">
-		<button type="submit" class="btn btn-outline-primary"><span class="fa fa-magnifying-glass"></span></button>
+</div>
+<div class="row mb-1">
+	<div class="col-12">
 		<a href="#" onclick="JavaScript:addCity();" class="btn btn-outline-primary"><i class="fa fa-plus"></i></a>
 	</div>
-</form>
+</div>
 <div class="row table-responsive">
 	<table class="table table-borderless">
 		<thead>
@@ -26,9 +38,9 @@
 			<th scope="col"></th>
 			@if (showCountry)
 			{
-			<th scope="col">البلد</th>
+			<th scope="col">@Html.DisplayNameForInnerType((CityForList e) => e.CountryCode)</th>
 			}
-			<th scope="col">المدينة</th>
+			<th scope="col">@Html.DisplayNameForInnerType((CityForList e) => e.Name)</th>
 		</tr>
 		</thead>
 		<tbody>
@@ -36,12 +48,8 @@
 		{
 			<tr>
 				<th scope="row">
-					<a class="btn btn-outline-primary mb-1" asp-area="Admin" asp-action="Edit" asp-route-id="@city.Id">
-						<i class="fa fa-pen"></i>
-					</a>
-					<a class="btn btn-outline-danger mb-1" onclick="JavaScript:deleteCity(@city.Id, '@city.Name');">
-						<i class="fa fa-trash"></i>
-					</a>
+					<a class="btn btn-outline-primary mb-1" asp-area="Admin" asp-action="Edit" asp-route-id="@city.Id"><i class="fa fa-pen"></i></a>
+					<a class="btn btn-outline-danger mb-1" onclick="JavaScript:deleteCity(@city.Id, '@city.Name');"><i class="fa fa-trash"></i></a>
 				</th>
 				@if (showCountry)
 				{

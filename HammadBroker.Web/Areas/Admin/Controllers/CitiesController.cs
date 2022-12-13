@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using essentialMix.Core.Web.Controllers;
+using essentialMix.Extensions;
 using essentialMix.Patterns.Pagination;
 using essentialMix.Patterns.Sorting;
 using HammadBroker.Data.Services;
@@ -51,14 +52,14 @@ public class CitiesController : MvcController
 			pagination.OrderBy.Add(new SortField(nameof(City.Name)));
 		}
 
-		IPaginated<CityForList> result = await _cityService.ListAsync<CityForList>(pagination, token);
+		IPaginated<CityForList> paginated = await _cityService.ListAsync<CityForList>(pagination, token);
 		token.ThrowIfCancellationRequested();
-		CitiesPaginated paginated = new CitiesPaginated(result)
+		CitiesPaginated result = new CitiesPaginated(paginated.Result, paginated.Pagination)
 		{
 			Countries = await _lookupService.ListCountriesAsync(token)
 		};
 		token.ThrowIfCancellationRequested();
-		return View(paginated);
+		return View(result);
 	}
 
 	[NotNull]
@@ -67,6 +68,7 @@ public class CitiesController : MvcController
 	public async Task<IActionResult> Add(string countryCode, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
+		if (string.IsNullOrEmpty(countryCode)) countryCode = UICulture.Region()?.ThreeLetterISORegionName;
 		return View(new CityToUpdate
 		{
 			CountryCode = countryCode,
@@ -84,20 +86,17 @@ public class CitiesController : MvcController
 
 		if (!ModelState.IsValid)
 		{
-			if (cityToAdd.Countries == null)
-			{
-				cityToAdd.Countries = await _lookupService.ListCountriesAsync(token);
-				token.ThrowIfCancellationRequested();
-			}
-
+			cityToAdd.Countries = await _lookupService.ListCountriesAsync(token);
+			token.ThrowIfCancellationRequested();
 			return View(cityToAdd);
 		}
 
-		await _cityService.AddAsync<CityForList>(_mapper.Map<City>(cityToAdd), token);
+		CityForList cityForList = await _cityService.AddAsync<CityForList>(_mapper.Map<City>(cityToAdd), token);
 		token.ThrowIfCancellationRequested();
-		return RedirectToAction(nameof(Index), new CitiesList
+		if (cityForList == null) return BadRequest();
+		return RedirectToAction(nameof(Edit), new
 		{
-			CountryCode = cityToAdd.CountryCode
+			id = cityForList.Id,
 		});
 	}
 
@@ -125,10 +124,9 @@ public class CitiesController : MvcController
 		token.ThrowIfCancellationRequested();
 		if (city == null) return NotFound();
 		_mapper.Map(cityToUpdate, city);
-		await _cityService.Repository.UpdateAsync(city, token);
+		CityForList cityForList = await _cityService.UpdateAsync<CityForList>(city, token);
 		token.ThrowIfCancellationRequested();
-		await _cityService.Context.SaveChangesAsync(token);
-		token.ThrowIfCancellationRequested();
+		if (cityForList == null) return BadRequest();
 		return RedirectToAction(nameof(Edit), new
 		{
 			id

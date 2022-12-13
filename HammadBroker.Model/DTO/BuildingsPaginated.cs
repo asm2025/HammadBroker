@@ -5,16 +5,13 @@ using JetBrains.Annotations;
 
 namespace HammadBroker.Model.DTO;
 
-public class CitiesPaginated : Paginated<CityForList>
+public class BuildingsPaginated : Paginated<BuildingForList>
 {
-	public CitiesPaginated([NotNull] IEnumerable<CityForList> result, [NotNull] IPagination pagination)
+	public BuildingsPaginated([NotNull] IEnumerable<BuildingForList> result, [NotNull] IPagination pagination)
 		: base(result, pagination)
 	{
 	}
 
 	[Display(Name = "البحث")]
 	public string Search { get; set; }
-	[Display(Name = "البلد")]
-	public string CountryCode { get; set; }
-	public IList<CountryForList> Countries { get; set; }
 }

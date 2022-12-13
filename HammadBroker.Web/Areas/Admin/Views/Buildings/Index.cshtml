@@ -1,3 +1,79 @@
-﻿@{
+﻿@using HammadBroker.Model.DTO
+@model BuildingsPaginated
+@{
 	ViewData["Title"] = "العقارات";
+}
+
+<div class="card mb-1">
+	<h5 class="card-header collapsed" data-bs-toggle="collapse" data-bs-target="#searchForm" aria-expanded="false" aria-controls="searchForm">البحث</h5>
+	<div id="searchForm" class="card-body collapse">
+		<form method="get" asp-area="Admin" asp-controller="Buildings" asp-action="Index">
+			<div class="form-floating mb-3">
+				<input class="form-control" asp-for="Search" placeholder="@Html.DisplayNameFor(e => Model.Search)" />
+				<label class="form-label" asp-for="Search"></label>
+			</div>
+			<div class="mb-3">
+				<button type="submit" class="btn btn-outline-primary"><span class="fa fa-magnifying-glass"></span></button>
+			</div>
+		</form>
+	</div>
+</div>
+<div class="row mb-1">
+	<div class="col-12">
+		<a asp-area="Admin" asp-controller="Buildings" asp-action="Add" class="btn btn-outline-primary"><i class="fa fa-plus"></i></a>
+	</div>
+</div>
+<div class="row table-responsive">
+	<table class="table table-borderless">
+		<thead>
+			<tr>
+				<th scope="col"></th>
+				<th scope="col"></th>
+				<th scope="col">@Html.DisplayNameForInnerType((BuildingForList e) => e.Name)</th>
+				<th scope="col">@Html.DisplayNameForInnerType((BuildingForList e) => e.BuildingType)</th>
+				<th scope="col">@Html.DisplayNameForInnerType((BuildingForList e) => e.FinishingType)</th>
+			</tr>
+		</thead>
+		<tbody>
+		@foreach (BuildingForList building in Model.Result)
+		{
+			<tr>
+				<th scope="row">
+					<a class="btn btn-outline-primary mb-1" asp-area="Admin" asp-action="Edit" asp-route-id="@building.Id"><i class="fa fa-pen"></i></a>
+					<a class="btn btn-outline-danger mb-1" onclick="JavaScript:deleteBuilding(@building.Id, '@building.Name');"><i class="fa fa-trash"></i></a>
+				</th>
+				<td class="align-middle">
+					<img-asset src="@building.ImageUrl" readonly imageclass="img-fluid img-list rounded mx-auto d-block" />
+				</td>
+				<td>@building.Name</td>
+				<td>@building.BuildingType.GetDisplayName()</td>
+				<td>@building.FinishingType.GetDisplayName()</td>
+			</tr>
+		}
+		</tbody>
+	</table>
+</div>
+<partial name="_PaginationPartial" model="Model.Pagination" />
+
+@section scripts
+	{
+	<script type="text/javascript">
+		function deleteBuilding(id, name) {
+			if (!confirm(`هل تريد حذف المبنى '${name}'?`)) return;
+			const url = '@Url.Action("Delete", "Buildings", null, Context.Request.Scheme)';
+			const params = new URLSearchParams({
+				id
+			});
+			fetch(url + '?' + params.toString(), { method: "DELETE" })
+				.then(async response => {
+					if (!response.ok) {
+						const isJson = response.headers.get('content-type')?.includes('application/json');
+						const data = isJson && await response.json();
+						const error = (data && data.message) || response.status;
+						alert(error);
+					}
+					location.reload();
+				});
+		}
+	</script>
 }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using essentialMix.Core.Web.Annotations;
 using Microsoft.AspNetCore.Http;
 
@@ -17,6 +18,7 @@ public class BuildingToUpdate
 
 	[MaxFileSize(0xA00000)]
 	[DataType(DataType.Upload)]
+	[Display(Name = "الصورة الرئيسية")]
 	public IFormFile ImageFile { get; set; }
 
 	[Url]
@@ -59,9 +61,14 @@ public class BuildingToUpdate
 
 	[Display(Name = "المدينة")]
 	public int CityId { get; set; }
+	public IList<CityForList> Cities { get; set; }
 
 	[Required]
 	[StringLength(2048)]
 	[Display(Name = "الوصف")]
 	public string Description { get; set; }
+
+	[Display(Name = "البلد")]
+	public string CountryCode { get; set; }
+	public IList<CountryForList> Countries { get; set; }
 }

@@ -1,0 +1,34 @@
+﻿@model HammadBroker.Model.DTO.BuildingToUpdate
+
+@{
+	ViewData["Title"] = "إضافة مبنى";
+}
+
+<form asp-area="Admin" asp-controller="Buildings" asp-action="Add" Method="post" enctype="multipart/form-data">
+	<div class="card card-body mt-3">
+		<div asp-validation-summary="ModelOnly"></div>
+
+		<img-asset name="ImageFile" src="@Model.ImageUrl" class="img-placeholder" imageclass="img-fluid rounded mx-auto d-block" />
+		<input type="hidden" asp-for="ImageUrl" />
+
+		<div class="form-floating mb-1">
+			<input class="form-control" asp-for="Name" placeholder="@Html.DisplayNameFor(E => Model.Name)" />
+			<label class="form-label" asp-for="Name"></label>
+			<span asp-validation-for="Name" class="text-danger"></span>
+		</div>
+
+		<div class="form-floating mb-1">
+			@Html.DropDownListFor(e => e.CountryCode, Model.Countries.Select(e => new SelectListItem(e.Name, e.Id, e.Id == Model.CountryCode)), string.Empty, new {@class = "form-select"})
+			<label class="form-label" asp-for="CountryCode"></label>
+		</div>
+		<div class="form-floating mb-1">
+			@Html.DropDownListFor(e => e.CityId, Model.Cities.Select(e => new SelectListItem(e.Name, e.Id.ToString(), e.Id == Model.CityId)), string.Empty, new {@class = "form-select"})
+			<label class="form-label" asp-for="CityId"></label>
+			<span asp-validation-for="CityId" class="text-danger"></span>
+		</div>
+
+		<div class="mb-1">
+			<button type="submit" class="btn btn-primary">إضافة</button>
+		</div>
+	</div>
+</form>

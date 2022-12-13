@@ -107,7 +107,8 @@ code {
 	white-space: nowrap !important;
 }
 
-.form-control {
+.form-control,
+.form-select {
 	-ms-border-radius: 0 !important;
 	border-radius: 0 !important;
 }

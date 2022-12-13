@@ -41,7 +41,7 @@ public class AssetImageTagHelper : TagHelper
 	{
 		_contextAccessor = contextAccessor;
 		PathContent assetsPath = virtualPathSettings.PathContents?.FirstOrDefault(e => e.Alias.IsSame("AssetImages")) ?? throw new ConfigurationErrorsException($"{nameof(VirtualPathSettings)} does not contain a definition for AssetImages.");
-		_basePath = assetsPath.RequestPath;
+		_basePath = assetsPath.RequestPath.Trim('/');
 		_placeholderImage = configuration.GetValue("Images:AssetPlaceholder", string.Empty);
 	}
 
