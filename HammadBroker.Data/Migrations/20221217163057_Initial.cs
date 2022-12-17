@@ -209,9 +209,8 @@ namespace HammadBroker.Data.Migrations
                     Rooms = table.Column<byte>(type: "tinyint", nullable: true),
                     Bathrooms = table.Column<byte>(type: "tinyint", nullable: true),
                     Area = table.Column<decimal>(type: "decimal(10,8)", precision: 10, scale: 8, nullable: true),
-                    Location = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: true),
-                    Address = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
-                    Address2 = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    Address2 = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     CityId = table.Column<int>(type: "int", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: false)
                 },

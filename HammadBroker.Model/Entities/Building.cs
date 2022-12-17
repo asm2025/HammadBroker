@@ -24,7 +24,7 @@ public class Building : IEntity<int>
 	public string VideoUrl { get; set; }
 
 	[Required]
-	public FinishingType FinishingType { get; set; }
+	public FinishingType? FinishingType { get; set; }
 
 	public byte? Floor { get; set; }
 
@@ -34,13 +34,10 @@ public class Building : IEntity<int>
 
 	public decimal? Area { get; set; }
 
-	[StringLength(2048)]
-	public string Location { get; set; }
-
-	[StringLength(512)]
+	[StringLength(256)]
 	public string Address { get; set; }
 
-	[StringLength(512)]
+	[StringLength(256)]
 	public string Address2 { get; set; }
 
 	public int CityId { get; set; }

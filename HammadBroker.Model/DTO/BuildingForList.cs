@@ -10,7 +10,7 @@ public class BuildingForList
 	[Display(Name = "نوع المبنى")]
 	public BuildingType BuildingType { get; set; }
 	[Display(Name = "نوع التشطيب")]
-	public FinishingType FinishingType { get; set; }
+	public FinishingType? FinishingType { get; set; }
 	[Display(Name = "المدينة")]
 	public int CityId { get; set; }
 	[Display(Name = "الصورة")]

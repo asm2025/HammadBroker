@@ -154,7 +154,6 @@ public class BuildingAdService : Service<DataContext, IBuildingAdRepository, Bui
 														FinishingType = b.FinishingType,
 														CityId = b.CityId,
 														Floor = b.Floor,
-														Location = b.Location,
 														Address = b.Address,
 														Address2 = b.Address2,
 														Description = b.Description

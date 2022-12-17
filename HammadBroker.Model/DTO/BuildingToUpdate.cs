@@ -47,15 +47,11 @@ public class BuildingToUpdate
 	[Display(Name = "المساحة")]
 	public decimal? Area { get; set; }
 
-	[StringLength(2048)]
-	[Display(Name = "الموقع")]
-	public string Location { get; set; }
-
-	[StringLength(512)]
+	[StringLength(256)]
 	[Display(Name = "العنوان")]
 	public string Address { get; set; }
 
-	[StringLength(128)]
+	[StringLength(256)]
 	[Display(Name = "العنوان 2")]
 	public string Address2 { get; set; }
 

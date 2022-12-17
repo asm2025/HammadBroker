@@ -86,12 +86,10 @@
 				{
 					<form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
 						<div>
-							<p>
-								@foreach (AuthenticationScheme provider in Model.ExternalLogins)
-								{
-									<button type="submit" class="btn btn-outline-primary" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-								}
-							</p>
+							@foreach (AuthenticationScheme provider in Model.ExternalLogins)
+							{
+								<button type="submit" class="btn btn-outline-primary" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+							}
 						</div>
 					</form>
 				}
