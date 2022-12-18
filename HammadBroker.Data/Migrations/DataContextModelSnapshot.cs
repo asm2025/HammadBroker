@@ -50,6 +50,11 @@ namespace HammadBroker.Data.Migrations
                     b.Property<int>("CityId")
                         .HasColumnType("int");
 
+                    b.Property<string>("CountryCode")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(2048)
@@ -86,6 +91,8 @@ namespace HammadBroker.Data.Migrations
                     b.HasIndex("BuildingType");
 
                     b.HasIndex("CityId");
+
+                    b.HasIndex("CountryCode");
 
                     b.HasIndex("FinishingType");
 

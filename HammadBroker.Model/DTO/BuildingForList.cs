@@ -11,6 +11,8 @@ public class BuildingForList
 	public BuildingType BuildingType { get; set; }
 	[Display(Name = "نوع التشطيب")]
 	public FinishingType? FinishingType { get; set; }
+	[Display(Name = "البلد")]
+	public string CountryCode { get; set; }
 	[Display(Name = "المدينة")]
 	public int CityId { get; set; }
 	[Display(Name = "الصورة")]

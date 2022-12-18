@@ -63,7 +63,7 @@
 				<label asp-for="Input.DateOfBirth"></label>
 				<span asp-validation-for="Input.DateOfBirth" class="text-danger"></span>
 			</div>
-			<button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">تسجيل</button>
+			<button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-outline-primary border-0">تسجيل</button>
 		</form>
 	</div>
 </div>
@@ -88,7 +88,7 @@
 						<div>
 							@foreach (AuthenticationScheme provider in Model.ExternalLogins)
 							{
-								<button type="submit" class="btn btn-outline-primary" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+								<button type="submit" class="btn btn-outline-primary border-0" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
 							}
 						</div>
 					</form>

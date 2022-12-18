@@ -139,10 +139,14 @@ public class DataContext : IdentityDbContext<User, Role, string,
 		});
 		builder.Entity<Building>(building =>
 		{
+			building.Property(e => e.CountryCode)
+					.HasConversion(e => e, s => s.ToUpper());
+
 			building.HasOne<City>()
 					.WithMany()
 					.HasForeignKey(e => e.CityId);
 
+			building.HasIndex(e => e.CountryCode).HasFilter(null);
 			building.HasIndex(e => e.BuildingType);
 			building.HasIndex(e => e.FinishingType).HasFilter(null);
 			building.HasIndex(e => e.Floor).HasFilter(null);

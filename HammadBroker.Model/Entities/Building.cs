@@ -40,6 +40,11 @@ public class Building : IEntity<int>
 	[StringLength(256)]
 	public string Address2 { get; set; }
 
+	[Required]
+	[StringLength(3, MinimumLength = 3)]
+	public string CountryCode { get; set; }
+
+	[Required]
 	public int CityId { get; set; }
 
 	[Required]

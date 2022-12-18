@@ -1,8 +1,10 @@
 ﻿@using HammadBroker.Model.DTO
+@using HammadBroker.Model.Entities
 @model CitiesPaginated
 @{
 	ViewData["Title"] = "المدن";
-	bool showCountry = string.IsNullOrEmpty(Model.CountryCode);
+	bool isSystem = User.IsInRole(Role.System);
+	bool showCountry = string.IsNullOrEmpty(Model.PaginationModel.CountryCode);
 }
 
 <div class="card mb-1">
@@ -10,60 +12,66 @@
 	<div id="searchForm" class="card-body collapse">
 		<form method="get" asp-area="Admin" asp-controller="Cities" asp-action="Index">
 			<div class="form-floating mb-1">
-				<select class="form-select" asp-for="CountryCode" asp-items="Model.Countries.Select(e => new SelectListItem(e.Name, e.Id, e.Id == Model.CountryCode))">
+				<select class="form-select" name="@nameof(CitiesPaginated.PaginationModel.CountryCode)" asp-for="PaginationModel.CountryCode" asp-items="Model.Countries.Select(e => new SelectListItem(e.Name, e.Id, e.Id == Model.PaginationModel.CountryCode))">
 					<option value=""></option>
 				</select>
-				<label class="form-label" asp-for="CountryCode"></label>
+				<label class="form-label" asp-for="PaginationModel.CountryCode"></label>
 			</div>
 			<div class="form-floating mb-1">
-				<input class="form-control" asp-for="Search" placeholder="@Html.DisplayNameFor(e => Model.Search)"/>
-				<label class="form-label" asp-for="Search"></label>
+				<input class="form-control" name="@nameof(CitiesPaginated.PaginationModel.Search)" asp-for="PaginationModel.Search" placeholder="@Html.DisplayNameFor(e => Model.PaginationModel.Search)" />
+				<label class="form-label" asp-for="PaginationModel.Search"></label>
 			</div>
 			<div class="mb-1">
-				<button type="submit" class="btn btn-outline-primary"><span class="fa fa-magnifying-glass"></span></button>
+				<button type="submit" class="btn btn-outline-primary border-0"><span class="fa fa-magnifying-glass"></span></button>
 			</div>
 		</form>
 	</div>
 </div>
 <div class="row mb-1">
 	<div class="col-12">
-		<a href="#" onclick="JavaScript:addCity();" class="btn btn-outline-primary"><i class="fa fa-plus"></i></a>
+		<a href="#" onclick="JavaScript:addCity();" class="btn btn-outline-primary border-0"><i class="fa fa-plus"></i></a>
 	</div>
 </div>
 <div class="row table-responsive">
 	<table class="table table-borderless">
 		<thead>
-		<tr>
-			<th scope="col"></th>
-			@if (showCountry)
-			{
-			<th scope="col">@Html.DisplayNameForInnerType((CityForList e) => e.CountryCode)</th>
-			}
-			<th scope="col">@Html.DisplayNameForInnerType((CityForList e) => e.Name)</th>
-		</tr>
-		</thead>
-		<tbody>
-		@foreach (CityForList city in Model.Result)
-		{
 			<tr>
-				<th scope="row">
-					<a class="btn btn-outline-primary mb-1" asp-area="Admin" asp-action="Edit" asp-route-id="@city.Id"><i class="fa fa-pen"></i></a>
-					<a class="btn btn-outline-danger mb-1" onclick="JavaScript:deleteCity(@city.Id, '@city.Name');"><i class="fa fa-trash"></i></a>
-				</th>
+				@if (isSystem)
+				{
+					<th scope="col"></th>
+				}
 				@if (showCountry)
 				{
-				<td>@city.CountryCode</td>
+					<th scope="col">@Html.DisplayNameForInnerType((CityForList e) => e.CountryCode)</th>
 				}
-				<td>@city.Name</td>
+				<th scope="col">@Html.DisplayNameForInnerType((CityForList e) => e.Name)</th>
 			</tr>
-		}
+		</thead>
+		<tbody>
+			@foreach (CityForList city in Model.Result)
+			{
+				<tr>
+					@if (isSystem)
+					{
+						<th scope="row">
+							<a class="btn btn-outline-primary border-0 mb-1" asp-area="Admin" asp-action="Edit" asp-route-id="@city.Id"><i class="fa fa-pen"></i></a>
+							<a class="btn btn-outline-danger border-0 mb-1" onclick="JavaScript:deleteCity(@city.Id, '@city.Name');"><i class="fa fa-xmark"></i></a>
+						</th>
+					}
+					@if (showCountry)
+					{
+						<td>@city.CountryCode</td>
+					}
+					<td>@city.Name</td>
+				</tr>
+			}
 		</tbody>
 	</table>
 </div>
 <partial name="_PaginationPartial" model="Model.Pagination" />
 
 @section scripts
-{
+	{
 	<script type="text/javascript">
 		function addCity() {
 			const url = '@Url.Action("Add", "Cities", null, Context.Request.Scheme)';

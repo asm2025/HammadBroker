@@ -22,7 +22,7 @@
 </head>
 <body>
 	<header>
-		<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+		<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-1">
 			<div class="container">
 				<a class="navbar-brand py-0 m-0" menu-route asp-area="" asp-action="Index">
 					<img src="@Url.Content("~/images/logo.jpg")" alt="@CompanyInfo.Title" class="img-fluid" style="max-width: 4rem;" />
@@ -37,11 +37,18 @@
 						<li class="nav-item" policy="@Constants.Authorization.AdministrationPolicy">
 							<a class="nav-link" menu-route asp-area="Admin" asp-controller="Ads" asp-action="Index">الاعلانات</a>
 						</li>
-						<li class="nav-item" policy="@Constants.Authorization.SystemPolicy">
-							<a class="nav-link" menu-route asp-area="Admin" asp-controller="Buildings" asp-action="Index">العقارات</a>
-						</li>
-						<li class="nav-item" policy="@Constants.Authorization.SystemPolicy">
-							<a class="nav-link" menu-route asp-area="Admin" asp-controller="Cities" asp-action="Index">تعريفات المدن</a>
+						<li class="nav-item dropdown" policy="@Constants.Authorization.AdministrationPolicy">
+							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+								التعريفات
+							</a>
+							<ul class="dropdown-menu">
+								<li policy="@Constants.Authorization.AdministrationPolicy">
+									<a class="dropdown-item" menu-route asp-area="Admin" asp-controller="Buildings" asp-action="Index">العقارات</a>
+								</li>
+								<li policy="@Constants.Authorization.AdministrationPolicy">
+									<a class="dropdown-item" menu-route asp-area="Admin" asp-controller="Cities" asp-action="Index">المدن</a>
+								</li>
+							</ul>
 						</li>
 						<li class="nav-item">
 							<a class="nav-link" menu-route asp-area="" asp-page="/About">من نحن</a>

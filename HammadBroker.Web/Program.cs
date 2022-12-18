@@ -258,20 +258,17 @@ public class Program
 			{
 				options.AddPolicy(Constants.Authorization.MemberPolicy, policy =>
 				{
-					policy.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme)
-						.RequireAuthenticatedUser();
+					policy.RequireRole(Role.System, Role.Administrators, Role.Members);
 				});
 
 				options.AddPolicy(Constants.Authorization.AdministrationPolicy, policy =>
 				{
-					policy.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme)
-						.RequireRole(Role.System, Role.Administrators);
+					policy.RequireRole(Role.System, Role.Administrators);
 				});
 
 				options.AddPolicy(Constants.Authorization.SystemPolicy, policy =>
 				{
-					policy.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme)
-						.RequireRole(Role.System);
+					policy.RequireRole(Role.System);
 				});
 			})
 			// MVC

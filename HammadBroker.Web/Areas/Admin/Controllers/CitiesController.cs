@@ -44,6 +44,7 @@ public class CitiesController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpGet]
+	[Authorize(Policy = Constants.Authorization.AdministrationPolicy)]
 	public async Task<IActionResult> Index([FromQuery(Name = "")] CitiesList pagination, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
@@ -59,7 +60,7 @@ public class CitiesController : MvcController
 
 		IPaginated<CityForList> paginated = await _cityService.ListAsync<CityForList>(pagination, token);
 		token.ThrowIfCancellationRequested();
-		CitiesPaginated result = new CitiesPaginated(paginated.Result, paginated.Pagination)
+		CitiesPaginated result = new CitiesPaginated(paginated.Result, (CitiesList)paginated.Pagination)
 		{
 			Countries = await _lookupService.ListCountriesAsync(token)
 		};

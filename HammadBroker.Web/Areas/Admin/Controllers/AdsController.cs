@@ -4,9 +4,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using essentialMix.Core.Web.Controllers;
 using essentialMix.Patterns.Pagination;
+using essentialMix.Patterns.Sorting;
 using HammadBroker.Data.Services;
 using HammadBroker.Model;
 using HammadBroker.Model.DTO;
+using HammadBroker.Model.Entities;
 using HammadBroker.Model.Parameters;
 using HammadBroker.Model.VirtualPath;
 using JetBrains.Annotations;
@@ -39,8 +41,20 @@ public class AdsController : MvcController
 	[HttpGet]
 	public async Task<IActionResult> Index([FromQuery(Name = "")] BuildingAdList pagination, CancellationToken token)
 	{
+		token.ThrowIfCancellationRequested();
 		pagination ??= new BuildingAdList();
-		IPaginated<BuildingAdForList> result = await _buildingAdService.ListAsync<BuildingAdForList>(pagination, token);
+
+		// There is a fucking bug in order by. it produces "ORDER BY (SELECT 1)"
+		if (pagination.OrderBy == null || pagination.OrderBy.Count == 0)
+		{
+			pagination.OrderBy ??= new List<SortField>(3);
+			pagination.OrderBy.Add(new SortField(nameof(BuildingAd.Date), SortType.Descending));
+			pagination.OrderBy.Add(new SortField(nameof(BuildingAd.Type)));
+		}
+
+		IPaginated<BuildingAdForList> paginated = await _buildingAdService.ListAsync<BuildingAdForList>(pagination, token);
+		token.ThrowIfCancellationRequested();
+		BuildingAdsPaginated result = new BuildingAdsPaginated(paginated.Result, (BuildingAdList)paginated.Pagination);
 		return View(result);
 	}
 }

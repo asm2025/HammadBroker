@@ -1,20 +1,15 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using essentialMix.Patterns.Pagination;
+using HammadBroker.Model.Parameters;
 using JetBrains.Annotations;
 
 namespace HammadBroker.Model.DTO;
 
-public class CitiesPaginated : Paginated<CityForList>
+public class CitiesPaginated : Paginated<CityForList, CitiesList>
 {
-	public CitiesPaginated([NotNull] IEnumerable<CityForList> result, [NotNull] IPagination pagination)
+	public CitiesPaginated([NotNull] IEnumerable<CityForList> result, [NotNull] CitiesList pagination)
 		: base(result, pagination)
 	{
 	}
 
-	[Display(Name = "البحث")]
-	public string Search { get; set; }
-	[Display(Name = "البلد")]
-	public string CountryCode { get; set; }
 	public IList<CountryForList> Countries { get; set; }
 }

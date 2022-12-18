@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace HammadBroker.Model.DTO;
 
-public class BuildingToUpdate
+public class BuildingToUpdate : IBuildingLookup
 {
 	[Display(Name = "اسم المبنى")]
 	[Required]
@@ -58,17 +58,18 @@ public class BuildingToUpdate
 	[StringLength(256)]
 	public string Address2 { get; set; }
 
+	[Display(Name = "البلد")]
+	[Required]
+	[StringLength(3, MinimumLength = 3)]
+	public string CountryCode { get; set; }
+	public IList<CountryForList> Countries { get; set; }
+
 	[Display(Name = "المدينة")]
+	[Required]
 	public int CityId { get; set; }
 	public IList<CityForList> Cities { get; set; }
 
-	[Display(Name = "الوصف")]
-	[Required]
 	[StringLength(2048)]
 	[DataType(DataType.MultilineText)]
 	public string Description { get; set; }
-
-	[Display(Name = "البلد")]
-	public string CountryCode { get; set; }
-	public IList<CountryForList> Countries { get; set; }
 }

@@ -47,7 +47,7 @@
             <p>
                 @foreach (AuthenticationScheme provider in Model.OtherLogins)
                 {
-                    <button id="@($"link-login-button-{provider.Name}")" type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="تسجيل الدخول باستخدام حساب @provider.DisplayName">@provider.DisplayName</button>
+                    <button id="@($"link-login-button-{provider.Name}")" type="submit" class="btn btn-outline-primary border-0" name="provider" value="@provider.Name" title="تسجيل الدخول باستخدام حساب @provider.DisplayName">@provider.DisplayName</button>
                 }
             </p>
         </div>

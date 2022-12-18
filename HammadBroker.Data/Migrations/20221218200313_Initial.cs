@@ -211,6 +211,7 @@ namespace HammadBroker.Data.Migrations
                     Area = table.Column<long>(type: "bigint", nullable: true),
                     Address = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Address2 = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    CountryCode = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
                     CityId = table.Column<int>(type: "int", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: false)
                 },
@@ -328,6 +329,11 @@ namespace HammadBroker.Data.Migrations
                 name: "IX_Buildings_CityId",
                 table: "Buildings",
                 column: "CityId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Buildings_CountryCode",
+                table: "Buildings",
+                column: "CountryCode");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Buildings_FinishingType",

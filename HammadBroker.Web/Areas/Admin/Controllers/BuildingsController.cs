@@ -57,6 +57,7 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpGet]
+	[Authorize(Policy = Constants.Authorization.AdministrationPolicy)]
 	public async Task<IActionResult> Index([FromQuery(Name = "")] BuildingList pagination, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
@@ -73,7 +74,9 @@ public class BuildingsController : MvcController
 
 		IPaginated<BuildingForList> paginated = await _buildingService.ListAsync<BuildingForList>(pagination, token);
 		token.ThrowIfCancellationRequested();
-		BuildingsPaginated result = new BuildingsPaginated(paginated.Result, paginated.Pagination);
+		BuildingsPaginated result = new BuildingsPaginated(paginated.Result, (BuildingList)paginated.Pagination);
+		await FillLookups(result.PaginationModel, token);
+		token.ThrowIfCancellationRequested();
 		return View(result);
 	}
 
@@ -249,15 +252,15 @@ public class BuildingsController : MvcController
 		return Ok();
 	}
 
-	private async Task FillLookups([NotNull] BuildingToUpdate buildingToUpdate, CancellationToken token)
+	private async Task FillLookups([NotNull] IBuildingLookup buildingLookup, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
-		buildingToUpdate.Countries = await _lookupService.ListCountriesAsync(token);
+		buildingLookup.Countries = await _lookupService.ListCountriesAsync(token);
 		token.ThrowIfCancellationRequested();
-		buildingToUpdate.Cities = string.IsNullOrEmpty(buildingToUpdate.CountryCode)
+		buildingLookup.Cities = string.IsNullOrEmpty(buildingLookup.CountryCode)
 									? Array.Empty<CityForList>()
 									: await _cityRepository.List()
-															.Where(e => e.CountryCode == buildingToUpdate.CountryCode)
+															.Where(e => e.CountryCode == buildingLookup.CountryCode)
 															.ProjectTo<CityForList>(_mapper.ConfigurationProvider)
 															.ToListAsync(token);
 	}

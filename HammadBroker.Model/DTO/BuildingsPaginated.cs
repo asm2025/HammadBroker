@@ -1,17 +1,13 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using essentialMix.Patterns.Pagination;
+using HammadBroker.Model.Parameters;
 using JetBrains.Annotations;
 
 namespace HammadBroker.Model.DTO;
 
-public class BuildingsPaginated : Paginated<BuildingForList>
+public class BuildingsPaginated : Paginated<BuildingForList, BuildingList>
 {
-	public BuildingsPaginated([NotNull] IEnumerable<BuildingForList> result, [NotNull] IPagination pagination)
+	public BuildingsPaginated([NotNull] IEnumerable<BuildingForList> result, [NotNull] BuildingList pagination)
 		: base(result, pagination)
 	{
 	}
-
-	[Display(Name = "البحث")]
-	public string Search { get; set; }
 }

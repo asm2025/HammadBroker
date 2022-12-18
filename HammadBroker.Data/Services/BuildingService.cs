@@ -228,6 +228,7 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	protected override IQueryable<Building> PrepareListQuery(IQueryable<Building> queryable, IPagination settings)
 	{
 		if (settings is not BuildingList buildingList) return base.PrepareListQuery(queryable, settings);
+		queryable = PrepareLocation(queryable, buildingList);
 		queryable = PrepareNumbers(queryable, buildingList);
 		queryable = PrepareSearch(queryable, buildingList);
 		return base.PrepareListQuery(queryable, settings);
@@ -237,18 +238,36 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	protected override IQueryable<Building> PrepareCountQuery(IQueryable<Building> queryable, IPagination settings)
 	{
 		if (settings is not BuildingList buildingList) return base.PrepareCountQuery(queryable, settings);
+		queryable = PrepareLocation(queryable, buildingList);
 		queryable = PrepareNumbers(queryable, buildingList);
 		queryable = PrepareSearch(queryable, buildingList);
 		return base.PrepareCountQuery(queryable, settings);
 	}
 
 	[NotNull]
+	private static IQueryable<Building> PrepareLocation([NotNull] IQueryable<Building> queryable, [NotNull] BuildingList buildingList)
+	{
+		if (!string.IsNullOrEmpty(buildingList.CountryCode)) queryable = queryable.Where(e => e.CountryCode == buildingList.CountryCode);
+		if (buildingList.CityId > 0) queryable = queryable.Where(e => e.CityId == buildingList.CityId);
+		return queryable;
+	}
+
+	[NotNull]
 	private static IQueryable<Building> PrepareNumbers([NotNull] IQueryable<Building> queryable, [NotNull] BuildingList buildingList)
 	{
-		if (buildingList.CityId.HasValue) queryable = queryable.Where(e => e.CityId == buildingList.CityId.Value);
 		if (buildingList.BuildingType.HasValue) queryable = queryable.Where(e => e.BuildingType == buildingList.BuildingType.Value);
 		if (buildingList.FinishingType.HasValue) queryable = queryable.Where(e => e.FinishingType == buildingList.FinishingType.Value);
-		if (buildingList.Floor.HasValue) queryable = queryable.Where(e => e.Floor == buildingList.Floor.Value);
+
+		if (buildingList.Floor.HasValue)
+		{
+			queryable = buildingList.MaxFloor.HasValue
+							? queryable.Where(e => e.Floor >= buildingList.Floor.Value && e.Floor <= buildingList.MaxFloor.Value)
+							: queryable.Where(e => e.Floor == buildingList.Floor.Value);
+		}
+		else if (buildingList.MaxFloor.HasValue)
+		{
+			queryable = queryable.Where(e => e.Floor <= buildingList.MaxFloor.Value);
+		}
 
 		if (buildingList.Rooms.HasValue)
 		{

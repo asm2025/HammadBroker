@@ -45,6 +45,11 @@
 			<span asp-validation-for="Rooms" class="text-danger"></span>
 		</div>
 		<div class="form-floating mb-1">
+			<input class="form-control" asp-for="Bathrooms" placeholder="@Html.DisplayNameFor(e => Model.Bathrooms)" />
+			<label class="form-label" asp-for="Bathrooms"></label>
+			<span asp-validation-for="Bathrooms" class="text-danger"></span>
+		</div>
+		<div class="form-floating mb-1">
 			<input class="form-control" asp-for="Area" placeholder="@Html.DisplayNameFor(e => Model.Area)" />
 			<label class="form-label" asp-for="Area"></label>
 			<span asp-validation-for="Area" class="text-danger"></span>
@@ -65,6 +70,7 @@
 				<option value=""></option>
 			</select>
 			<label class="form-label" asp-for="CountryCode"></label>
+			<span asp-validation-for="CountryCode" class="text-danger"></span>
 		</div>
 		<div class="form-floating mb-1">
 			<select class="form-select" asp-for="CityId" asp-items="Model.Cities.Select(e => new SelectListItem(e.Name, e.Id.ToString(), e.Id == Model.CityId))">
@@ -80,7 +86,7 @@
 			<span asp-validation-for="Description" class="text-danger"></span>
 		</div>
 		<div class="mb-1">
-			<button type="submit" class="btn btn-primary">إضافة</button>
+			<button type="submit" class="btn btn-outline-primary border-0">إضافة</button>
 		</div>
 	</div>
 </form>
@@ -101,8 +107,10 @@
 				const response = await fetch(url);
 
 				if (!response.ok) {
-					alert(response.message || response.status);
-					return;
+					const isJson = response.headers.get('content-type')?.includes('application/json');
+					const data = isJson && await response.json();
+					const error = (data && data.message) || response.status;
+					throw error;
 				}
 
 				const cities = await response.json();
