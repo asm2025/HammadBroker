@@ -32,7 +32,7 @@ public class Building : IEntity<int>
 
 	public byte? Bathrooms { get; set; }
 
-	public decimal? Area { get; set; }
+	public long? Area { get; set; }
 
 	[StringLength(256)]
 	public string Address { get; set; }

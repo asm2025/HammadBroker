@@ -18,7 +18,7 @@ public class BuildingAdForDetails : BuildingForDetails
 	[Display(Name = "محمول")]
 	public string Mobile { get; set; }
 	[Display(Name = "السعر")]
-	public decimal Price { get; set; }
+	public long Price { get; set; }
 	[Display(Name = "المشاهدات")]
 	public long Views { get; set; }
 	[Display(Name = "مشاهدات الصفحة")]

@@ -38,9 +38,8 @@ namespace HammadBroker.Data.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<decimal?>("Area")
-                        .HasPrecision(10, 8)
-                        .HasColumnType("decimal(10,8)");
+                    b.Property<long?>("Area")
+                        .HasColumnType("bigint");
 
                     b.Property<byte?>("Bathrooms")
                         .HasColumnType("tinyint");
@@ -124,9 +123,8 @@ namespace HammadBroker.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("Price")
-                        .HasPrecision(10, 8)
-                        .HasColumnType("decimal(10,8)");
+                    b.Property<long>("Price")
+                        .HasColumnType("bigint");
 
                     b.Property<byte>("Priority")
                         .HasColumnType("tinyint");

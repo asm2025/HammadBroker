@@ -20,7 +20,7 @@ public class BuildingAd : IEntity<int>
 	[Phone]
 	public string Mobile { get; set; }
 	[Required]
-	public decimal Price { get; set; }
+	public long Price { get; set; }
 	public long Views { get; set; }
 	public long PageViews { get; set; }
 	public long Requests { get; set; }

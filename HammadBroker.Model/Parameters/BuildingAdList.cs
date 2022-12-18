@@ -12,7 +12,7 @@ public class BuildingAdList : BuildingList
 	[Display(Name = "بحد أقصى")]
 	public DateTime? MaxDate { get; set; }
 	[Display(Name = "السعر")]
-	public decimal? Price { get; set; }
+	public long? Price { get; set; }
 	[Display(Name = "بحد أقصى")]
-	public decimal? MaxPrice { get; set; }
+	public long? MaxPrice { get; set; }
 }

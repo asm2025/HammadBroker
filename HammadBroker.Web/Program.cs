@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using essentialMix.Core.Web.Services;
@@ -260,24 +259,18 @@ public class Program
 				options.AddPolicy(Constants.Authorization.MemberPolicy, policy =>
 				{
 					policy.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme)
-						.RequireAuthenticatedUser()
-						.RequireClaim(ClaimTypes.Role, Role.System, Role.Administrators, Role.Members)
-						.RequireRole(Role.System, Role.Administrators, Role.Members);
+						.RequireAuthenticatedUser();
 				});
 
 				options.AddPolicy(Constants.Authorization.AdministrationPolicy, policy =>
 				{
 					policy.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme)
-						.RequireAuthenticatedUser()
-						.RequireClaim(ClaimTypes.Role, Role.System, Role.Administrators)
 						.RequireRole(Role.System, Role.Administrators);
 				});
 
 				options.AddPolicy(Constants.Authorization.SystemPolicy, policy =>
 				{
 					policy.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme)
-						.RequireAuthenticatedUser()
-						.RequireClaim(ClaimTypes.Role, Role.System)
 						.RequireRole(Role.System);
 				});
 			})

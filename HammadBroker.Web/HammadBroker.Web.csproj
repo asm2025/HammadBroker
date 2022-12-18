@@ -122,6 +122,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="Areas\Admin\Views\Shared\" />
 	  <Folder Include="_logs\" />
 	</ItemGroup>
 

@@ -208,7 +208,7 @@ namespace HammadBroker.Data.Migrations
                     Floor = table.Column<byte>(type: "tinyint", nullable: true),
                     Rooms = table.Column<byte>(type: "tinyint", nullable: true),
                     Bathrooms = table.Column<byte>(type: "tinyint", nullable: true),
-                    Area = table.Column<decimal>(type: "decimal(10,8)", precision: 10, scale: 8, nullable: true),
+                    Area = table.Column<long>(type: "bigint", nullable: true),
                     Address = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Address2 = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     CityId = table.Column<int>(type: "int", nullable: false),
@@ -238,7 +238,7 @@ namespace HammadBroker.Data.Migrations
                     Expires = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Mobile = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Price = table.Column<decimal>(type: "decimal(10,8)", precision: 10, scale: 8, nullable: false),
+                    Price = table.Column<long>(type: "bigint", nullable: false),
                     Views = table.Column<long>(type: "bigint", nullable: false),
                     PageViews = table.Column<long>(type: "bigint", nullable: false),
                     Requests = table.Column<long>(type: "bigint", nullable: false)

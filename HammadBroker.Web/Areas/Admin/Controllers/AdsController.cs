@@ -5,10 +5,12 @@ using System.Threading.Tasks;
 using essentialMix.Core.Web.Controllers;
 using essentialMix.Patterns.Pagination;
 using HammadBroker.Data.Services;
+using HammadBroker.Model;
 using HammadBroker.Model.DTO;
 using HammadBroker.Model.Parameters;
 using HammadBroker.Model.VirtualPath;
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -18,6 +20,7 @@ namespace HammadBroker.Web.Areas.Admin.Controllers;
 
 [Area(nameof(Admin))]
 [Route("[area]/[controller]")]
+[Authorize(Policy = Constants.Authorization.AdministrationPolicy)]
 public class AdsController : MvcController
 {
 	private readonly IBuildingAdService _buildingAdService;

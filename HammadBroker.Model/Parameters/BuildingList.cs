@@ -22,9 +22,9 @@ public class BuildingList : SortablePagination
 	[Display(Name = "بحد أقصى")]
 	public byte? MaxBathrooms { get; set; }
 	[Display(Name = "المساحة")]
-	public decimal? Area { get; set; }
+	public long? Area { get; set; }
 	[Display(Name = "بحد أقصى")]
-	public decimal? MaxArea { get; set; }
+	public long? MaxArea { get; set; }
 	[Display(Name = "العنوان")]
 	public string Address { get; set; }
 	[Display(Name = "المدينة")]

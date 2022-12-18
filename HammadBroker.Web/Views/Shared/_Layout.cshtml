@@ -7,12 +7,12 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<link rel="icon" type="image/x-icon" href="@Url.Content("~/favicon.ico")" />
 	<link rel="shortcut icon" type="image/x-icon" href="@Url.Content("~/favicon.ico")" />
-	<title>@ViewData["Title"] - @CompanyInfo.Title</title>
+	<title>@string.Join(" - ", ViewData["Title"], CompanyInfo.Title).Trim(' ', '-')</title>
 
 	<link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
 	<link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
 	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-	
+
 	<script type="text/javascript" src="@Url.Content("~/lib/popper.js/umd/popper.min.js")"></script>
 	<script type="text/javascript" src="@Url.Content("~/lib/lodash.js/lodash.min.js")"></script>
 	@*Last*@
@@ -34,11 +34,17 @@
 				</button>
 				<div class="navbar-collapse collapse d-sm-inline-flex align-items-center">
 					<ul class="navbar-nav flex-grow-1 p-0">
+						<li class="nav-item" policy="@Constants.Authorization.AdministrationPolicy">
+							<a class="nav-link" menu-route asp-area="Admin" asp-controller="Ads" asp-action="Index">الاعلانات</a>
+						</li>
 						<li class="nav-item" policy="@Constants.Authorization.SystemPolicy">
-							<a class="nav-link text-dark" menu-route asp-area="Admin" asp-controller="Home" asp-action="Index">المحتوى</a>
+							<a class="nav-link" menu-route asp-area="Admin" asp-controller="Buildings" asp-action="Index">العقارات</a>
+						</li>
+						<li class="nav-item" policy="@Constants.Authorization.SystemPolicy">
+							<a class="nav-link" menu-route asp-area="Admin" asp-controller="Cities" asp-action="Index">تعريفات المدن</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link text-dark" menu-route asp-area="" asp-page="/About">من نحن</a>
+							<a class="nav-link" menu-route asp-area="" asp-page="/About">من نحن</a>
 						</li>
 					</ul>
 					<partial name="_LoginPartial" />

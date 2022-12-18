@@ -37,5 +37,9 @@ public enum BuildingType
 	[Display(Name = "بانجلو")]
 	Bungalow,
 	[Display(Name = "شقق فندقية")]
-	HotelCompartments
+	HotelCompartments,
+	[Display(Name = "مخزن")]
+	Storehouse,
+	[Display(Name = "مصنع")]
+	Factory
 }

@@ -139,9 +139,6 @@ public class DataContext : IdentityDbContext<User, Role, string,
 		});
 		builder.Entity<Building>(building =>
 		{
-			building.Property(e => e.Area)
-					.HasPrecision(10, 8);
-
 			building.HasOne<City>()
 					.WithMany()
 					.HasForeignKey(e => e.CityId);
@@ -164,8 +161,6 @@ public class DataContext : IdentityDbContext<User, Role, string,
 			ad.HasOne<Building>()
 			  .WithMany()
 			  .HasForeignKey(e => e.BuildingId);
-			ad.Property(e => e.Price)
-			  .HasPrecision(10, 8);
 			ad.HasIndex(e => e.Type);
 			ad.HasIndex(e => e.Priority);
 			ad.HasIndex(e => e.Date);

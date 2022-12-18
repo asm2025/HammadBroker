@@ -9,23 +9,26 @@ public class BuildingAdToUpdate
 	public BuildingAdType Type { get; set; }
 	[Display(Name = "الاولوية")]
 	public byte Priority { get; set; }
-	[Required]
 	[Display(Name = "المبنى")]
+	[Required]
 	public int BuildingId { get; set; }
 	[Display(Name = "التاريخ")]
 	public DateTime Date { get; set; }
 	[Display(Name = "تاريخ الانتهاء")]
 	public DateTime? Expires { get; set; }
-	[Required]
-	[Phone]
 	[Display(Name = "التليفون")]
-	public string Phone { get; set; }
-	[Phone]
-	[Display(Name = "المحمول")]
-	public string Mobile { get; set; }
 	[Required]
+	[Phone]
+	[DataType(DataType.PhoneNumber)]
+	public string Phone { get; set; }
+	[Display(Name = "المحمول")]
+	[Phone]
+	[DataType(DataType.PhoneNumber)]
+	public string Mobile { get; set; }
 	[Display(Name = "السعر")]
-	public decimal Price { get; set; }
+	[Required]
+	[Range(0, 1000000000)]
+	public long Price { get; set; }
 	[Display(Name = "المشاهدات")]
 	public long Views { get; set; }
 	[Display(Name = "مشاهدات الصفحة")]

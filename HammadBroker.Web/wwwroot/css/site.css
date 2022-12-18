@@ -1,7 +1,6 @@
 html {
 	font-size: 14px;
-	position: relative;
-	min-height: 100%;
+	height: 100%
 }
 
 @media (min-width: 768px) {
@@ -11,8 +10,7 @@ html {
 }
 
 body {
-	margin-bottom: 60px;
-	min-height: 100vh;
+	height: 100vh;
 }
 
 .h6, h6 {
@@ -105,12 +103,6 @@ code {
 
 .menu-item {
 	white-space: nowrap !important;
-}
-
-.form-control,
-.form-select {
-	-ms-border-radius: 0 !important;
-	border-radius: 0 !important;
 }
 
 .form-control[readonly],

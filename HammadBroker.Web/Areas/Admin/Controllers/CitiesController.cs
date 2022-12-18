@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -8,10 +10,12 @@ using essentialMix.Extensions;
 using essentialMix.Patterns.Pagination;
 using essentialMix.Patterns.Sorting;
 using HammadBroker.Data.Services;
+using HammadBroker.Model;
 using HammadBroker.Model.DTO;
 using HammadBroker.Model.Entities;
 using HammadBroker.Model.Parameters;
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -21,6 +25,7 @@ namespace HammadBroker.Web.Areas.Admin.Controllers;
 
 [Area(nameof(Admin))]
 [Route("[area]/[controller]")]
+[Authorize(Policy = Constants.Authorization.SystemPolicy)]
 public class CitiesController : MvcController
 {
 	private readonly ICityService _cityService;
@@ -60,6 +65,19 @@ public class CitiesController : MvcController
 		};
 		token.ThrowIfCancellationRequested();
 		return View(result);
+	}
+
+	[Authorize(Policy = Constants.Authorization.AdministrationPolicy)]
+	[NotNull]
+	[ItemNotNull]
+	[HttpGet("[action]")]
+	public async Task<IActionResult> List(string countryCode, CancellationToken token)
+	{
+		token.ThrowIfCancellationRequested();
+		if (string.IsNullOrEmpty(countryCode)) return Ok(Array.Empty<CityForList>());
+		IPaginated<CityForList> result = await _cityService.ListAsync<CityForList>(_cityService.Context.Cities.Where(e => e.CountryCode == countryCode), null, token);
+		token.ThrowIfCancellationRequested();
+		return Ok(result.Result);
 	}
 
 	[NotNull]

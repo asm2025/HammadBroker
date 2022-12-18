@@ -22,6 +22,7 @@ using HammadBroker.Model.Entities;
 using HammadBroker.Model.Parameters;
 using HammadBroker.Model.VirtualPath;
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -33,6 +34,7 @@ namespace HammadBroker.Web.Areas.Admin.Controllers;
 
 [Area(nameof(Admin))]
 [Route("[area]/[controller]")]
+[Authorize(Policy = Constants.Authorization.SystemPolicy)]
 public class BuildingsController : MvcController
 {
 	private readonly IBuildingService _buildingService;
@@ -81,17 +83,10 @@ public class BuildingsController : MvcController
 	public async Task<IActionResult> Add(string countryCode, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
-		return View(new BuildingToUpdate
-		{
-			CountryCode = countryCode,
-			Countries = await _lookupService.ListCountriesAsync(token),
-			Cities = string.IsNullOrEmpty(countryCode)
-						? Array.Empty<CityForList>()
-						: await _cityRepository.List()
-												.Where(e => e.CountryCode == countryCode)
-												.ProjectTo<CityForList>(_mapper.ConfigurationProvider)
-												.ToListAsync(token)
-		});
+		BuildingToUpdate buildingToUpdate = new BuildingToUpdate();
+		await FillLookups(buildingToUpdate, token);
+		token.ThrowIfCancellationRequested();
+		return View(buildingToUpdate);
 	}
 
 	[NotNull]
@@ -104,21 +99,8 @@ public class BuildingsController : MvcController
 
 		if (!ModelState.IsValid)
 		{
-			buildingToUpdate.Countries = await _lookupService.ListCountriesAsync(token);
+			await FillLookups(buildingToUpdate, token);
 			token.ThrowIfCancellationRequested();
-
-			if (!string.IsNullOrEmpty(buildingToUpdate.CountryCode))
-			{
-				buildingToUpdate.Cities = await _cityRepository.List()
-																.Where(e => e.CountryCode == buildingToUpdate.CountryCode)
-																.ProjectTo<CityForList>(_mapper.ConfigurationProvider)
-																.ToListAsync(token);
-			}
-			else
-			{
-				buildingToUpdate.Cities = Array.Empty<CityForList>();
-			}
-
 			return View(buildingToUpdate);
 		}
 
@@ -181,6 +163,8 @@ public class BuildingsController : MvcController
 		BuildingToUpdate buildingToUpdate = await _buildingService.GetAsync<BuildingToUpdate>(id, token);
 		token.ThrowIfCancellationRequested();
 		if (buildingToUpdate == null) return NotFound();
+		await FillLookups(buildingToUpdate, token);
+		token.ThrowIfCancellationRequested();
 		return View(buildingToUpdate);
 	}
 
@@ -191,7 +175,14 @@ public class BuildingsController : MvcController
 	public async Task<IActionResult> Edit([Required] int id, [NotNull] BuildingToUpdate buildingToUpdate, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
-		if (!ModelState.IsValid) return View(buildingToUpdate);
+
+		if (!ModelState.IsValid)
+		{
+			await FillLookups(buildingToUpdate, token);
+			token.ThrowIfCancellationRequested();
+			return View(buildingToUpdate);
+		}
+
 		Building building = await _buildingService.Repository.GetAsync(id, token);
 		token.ThrowIfCancellationRequested();
 		if (building == null) return NotFound();
@@ -256,5 +247,18 @@ public class BuildingsController : MvcController
 		await _buildingService.Context.SaveChangesAsync(token);
 		if (!string.IsNullOrEmpty(building.ImageUrl)) FileHelper.Delete(Path.Combine(_assetImagesPath, building.ImageUrl));
 		return Ok();
+	}
+
+	private async Task FillLookups([NotNull] BuildingToUpdate buildingToUpdate, CancellationToken token)
+	{
+		token.ThrowIfCancellationRequested();
+		buildingToUpdate.Countries = await _lookupService.ListCountriesAsync(token);
+		token.ThrowIfCancellationRequested();
+		buildingToUpdate.Cities = string.IsNullOrEmpty(buildingToUpdate.CountryCode)
+									? Array.Empty<CityForList>()
+									: await _cityRepository.List()
+															.Where(e => e.CountryCode == buildingToUpdate.CountryCode)
+															.ProjectTo<CityForList>(_mapper.ConfigurationProvider)
+															.ToListAsync(token);
 	}
 }

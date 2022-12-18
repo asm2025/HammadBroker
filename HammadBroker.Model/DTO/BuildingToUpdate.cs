@@ -7,32 +7,34 @@ namespace HammadBroker.Model.DTO;
 
 public class BuildingToUpdate
 {
+	[Display(Name = "اسم المبنى")]
 	[Required]
 	[StringLength(256)]
-	[Display(Name = "اسم المبنى")]
 	public string Name { get; set; }
 
+	[Display(Name = "الصورة الرئيسية")]
 	[MaxFileSize(0xA00000)]
 	[DataType(DataType.Upload)]
-	[Display(Name = "الصورة الرئيسية")]
 	public IFormFile ImageFile { get; set; }
 
+	[Display(Name = "الصورة الرئيسية")]
 	[Url]
 	[StringLength(320)]
-	[Display(Name = "الصورة الرئيسية")]
+	[DataType(DataType.ImageUrl)]
 	public string ImageUrl { get; set; }
 
+	[Display(Name = "الفيديو")]
 	[Url]
 	[StringLength(320)]
-	[Display(Name = "الفيديو")]
+	[DataType(DataType.Url)]
 	public string VideoUrl { get; set; }
 
-	[Required]
 	[Display(Name = "نوع العقار")]
+	[Required]
 	public BuildingType BuildingType { get; set; }
 
-	[Required]
 	[Display(Name = "نوع التشطيب")]
+	[Required]
 	public FinishingType? FinishingType { get; set; }
 
 	[Display(Name = "الدور")]
@@ -45,23 +47,25 @@ public class BuildingToUpdate
 	public byte? Bathrooms { get; set; }
 
 	[Display(Name = "المساحة")]
-	public decimal? Area { get; set; }
+	[Range(1, 1000000000)]
+	public long? Area { get; set; }
 
-	[StringLength(256)]
 	[Display(Name = "العنوان")]
+	[StringLength(256)]
 	public string Address { get; set; }
 
-	[StringLength(256)]
 	[Display(Name = "العنوان 2")]
+	[StringLength(256)]
 	public string Address2 { get; set; }
 
 	[Display(Name = "المدينة")]
 	public int CityId { get; set; }
 	public IList<CityForList> Cities { get; set; }
 
+	[Display(Name = "الوصف")]
 	[Required]
 	[StringLength(2048)]
-	[Display(Name = "الوصف")]
+	[DataType(DataType.MultilineText)]
 	public string Description { get; set; }
 
 	[Display(Name = "البلد")]

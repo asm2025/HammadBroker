@@ -11,7 +11,7 @@ public class BuildingForDetails : BuildingForList
 	[Display(Name = "الحمامات")]
 	public byte? Bathrooms { get; set; }
 	[Display(Name = "المساحة")]
-	public decimal? Area { get; set; }
+	public long? Area { get; set; }
 	[Display(Name = "العنوان")]
 	public string Address { get; set; }
 	[Display(Name = "الحي")]
