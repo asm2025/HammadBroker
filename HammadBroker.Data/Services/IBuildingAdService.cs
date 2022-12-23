@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using essentialMix.Core.Data.Entity.AutoMapper.Patterns.Services;
 using essentialMix.Patterns.Pagination;
 using HammadBroker.Data.Context;
 using HammadBroker.Data.Repositories;

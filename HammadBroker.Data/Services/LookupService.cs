@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using essentialMix.Core.Data.Entity.AutoMapper.Patterns.Services;
 using essentialMix.Extensions;
 using essentialMix.Helpers;
 using HammadBroker.Data.Context;

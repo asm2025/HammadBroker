@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using essentialMix.Core.Data.Entity.AutoMapper.Patterns.Services;
 using essentialMix.Extensions;
 using essentialMix.Patterns.Pagination;
 using HammadBroker.Data.Context;
@@ -22,6 +23,23 @@ public class BuildingAdService : Service<DataContext, IBuildingAdRepository, Bui
 	public BuildingAdService([NotNull] IBuildingAdRepository repository, [NotNull] IMapper mapper, [NotNull] ILogger<BuildingAdService> logger)
 		: base(repository, mapper, logger)
 	{
+	}
+
+	/// <inheritdoc />
+	public override IPaginated<BuildingAd> List(IQueryable<BuildingAd> queryable, IPagination settings = null)
+	{
+		ThrowIfDisposed();
+		if (settings is not BuildingList buildingList) return base.List(queryable, settings);
+
+		IQueryable<BuildingAdBuilding> q = queryable.Join(Context.Buildings, ba => ba.BuildingId, b => b.Id, (ba, b) => new BuildingAdBuilding
+		{
+			Ad = ba,
+			Building = b
+		});
+
+		queryable = PrepareListQuery(q, buildingList)
+			.Select(e => e.Ad);
+		return base.List(queryable, settings);
 	}
 
 	/// <inheritdoc />

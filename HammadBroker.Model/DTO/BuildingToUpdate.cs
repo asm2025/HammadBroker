@@ -18,7 +18,6 @@ public class BuildingToUpdate : IBuildingLookup
 	public IFormFile ImageFile { get; set; }
 
 	[Display(Name = "الصورة الرئيسية")]
-	[Url]
 	[StringLength(320)]
 	[DataType(DataType.ImageUrl)]
 	public string ImageUrl { get; set; }

@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using essentialMix.Core.Web.Controllers;
-using essentialMix.Extensions;
 using essentialMix.Patterns.Pagination;
 using essentialMix.Patterns.Sorting;
 using HammadBroker.Data.Services;
@@ -50,7 +49,6 @@ public class CitiesController : MvcController
 		token.ThrowIfCancellationRequested();
 		pagination ??= new CitiesList();
 
-		// There is a fucking bug in order by. it produces "ORDER BY (SELECT 1)"
 		if (pagination.OrderBy == null || pagination.OrderBy.Count == 0)
 		{
 			pagination.OrderBy ??= new List<SortField>(2);
@@ -87,7 +85,6 @@ public class CitiesController : MvcController
 	public async Task<IActionResult> Add(string countryCode, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
-		if (string.IsNullOrEmpty(countryCode)) countryCode = UICulture.Region()?.ThreeLetterISORegionName;
 		return View(new CityToUpdate
 		{
 			CountryCode = countryCode,
@@ -143,9 +140,9 @@ public class CitiesController : MvcController
 		token.ThrowIfCancellationRequested();
 		if (city == null) return NotFound();
 		_mapper.Map(cityToUpdate, city);
-		CityForList cityForList = await _cityService.UpdateAsync<CityForList>(city, token);
+		city = await _cityService.UpdateAsync(city, token);
 		token.ThrowIfCancellationRequested();
-		if (cityForList == null) return BadRequest();
+		if (city == null) return BadRequest();
 		return RedirectToAction(nameof(Edit), new
 		{
 			id
@@ -158,10 +155,10 @@ public class CitiesController : MvcController
 	public async Task<IActionResult> Delete([Required] int id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
-		City city = await _cityService.Repository.DeleteAsync(id, token);
+		City city = await _cityService.DeleteAsync(id, token);
 		token.ThrowIfCancellationRequested();
-		if (city == null) return NotFound();
-		await _cityService.Context.SaveChangesAsync(token);
-		return Ok();
+		return city == null
+					? NotFound()
+					: Ok();
 	}
 }

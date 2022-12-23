@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -63,7 +64,6 @@ public class BuildingsController : MvcController
 		token.ThrowIfCancellationRequested();
 		pagination ??= new BuildingList();
 
-		// There is a fucking bug in order by. it produces "ORDER BY (SELECT 1)"
 		if (pagination.OrderBy == null || pagination.OrderBy.Count == 0)
 		{
 			pagination.OrderBy ??= new List<SortField>(3);
@@ -75,7 +75,7 @@ public class BuildingsController : MvcController
 		IPaginated<BuildingForList> paginated = await _buildingService.ListAsync<BuildingForList>(pagination, token);
 		token.ThrowIfCancellationRequested();
 		BuildingsPaginated result = new BuildingsPaginated(paginated.Result, (BuildingList)paginated.Pagination);
-		await FillLookups(result.PaginationModel, token);
+		await FillLookups(result.Pagination, token);
 		token.ThrowIfCancellationRequested();
 		return View(result);
 	}
@@ -86,7 +86,10 @@ public class BuildingsController : MvcController
 	public async Task<IActionResult> Add(string countryCode, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
-		BuildingToUpdate buildingToUpdate = new BuildingToUpdate();
+		BuildingToUpdate buildingToUpdate = new BuildingToUpdate
+		{
+			CountryCode = countryCode
+		};
 		await FillLookups(buildingToUpdate, token);
 		token.ThrowIfCancellationRequested();
 		return View(buildingToUpdate);
@@ -107,11 +110,9 @@ public class BuildingsController : MvcController
 			return View(buildingToUpdate);
 		}
 
-		Building building = _mapper.Map<Building>(buildingToUpdate);
-		BuildingForList buildingForList = await _buildingService.AddAsync<BuildingForList>(building, token);
+		Building building = await _buildingService.AddAsync(_mapper.Map<Building>(buildingToUpdate), token);
 		token.ThrowIfCancellationRequested();
-		if (buildingForList == null) return BadRequest();
-		building.Id = buildingForList.Id;
+		if (building == null) return BadRequest();
 
 		bool update = false;
 		IFormFile formFile = buildingToUpdate.ImageFile;
@@ -150,7 +151,7 @@ public class BuildingsController : MvcController
 			building.ImageUrl = Path.GetFileName(fileName);
 		}
 
-		if (update) await _buildingService.UpdateAsync<BuildingForList>(building, token);
+		if (update && await _buildingService.UpdateAsync(building, token) == null) return Problem("تعذر حفظ الصورة بعد حفظ المبنى");
 		return RedirectToAction(nameof(Edit), new
 		{
 			id = building.Id,
@@ -186,13 +187,13 @@ public class BuildingsController : MvcController
 			return View(buildingToUpdate);
 		}
 
-		Building building = await _buildingService.Repository.GetAsync(id, token);
+		Building building = await _buildingService.GetAsync(id, token);
 		token.ThrowIfCancellationRequested();
 		if (building == null) return NotFound();
 		_mapper.Map(buildingToUpdate, building);
-		BuildingForList buildingForList = await _buildingService.UpdateAsync<BuildingForList>(building, token);
+		building = await _buildingService.UpdateAsync(building, token);
 		token.ThrowIfCancellationRequested();
-		if (buildingForList == null) return BadRequest();
+		if (building == null) return BadRequest();
 
 		bool update = false;
 		IFormFile formFile = buildingToUpdate.ImageFile;
@@ -231,7 +232,7 @@ public class BuildingsController : MvcController
 			building.ImageUrl = Path.GetFileName(fileName);
 		}
 
-		if (update) await _buildingService.UpdateAsync<BuildingForList>(building, token);
+		if (update && await _buildingService.UpdateAsync<BuildingForList>(building, token) == null) return Problem("تعذر حفظ الصورة بعد حفظ المبنى"); ;
 		return RedirectToAction(nameof(Edit), new
 		{
 			id
@@ -241,15 +242,21 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpDelete("[action]")]
-	public async Task<IActionResult> Delete([Required] int id, CancellationToken token)
+	public async Task<IActionResult> Delete([Required] int id, string returnUrl, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
-		Building building = await _buildingService.Repository.DeleteAsync(id, token);
+		Building building = await _buildingService.DeleteAsync(id, token);
 		token.ThrowIfCancellationRequested();
 		if (building == null) return NotFound();
-		await _buildingService.Context.SaveChangesAsync(token);
 		if (!string.IsNullOrEmpty(building.ImageUrl)) FileHelper.Delete(Path.Combine(_assetImagesPath, building.ImageUrl));
-		return Ok();
+
+		if (!string.IsNullOrEmpty(returnUrl))
+		{
+			returnUrl = WebUtility.UrlDecode(returnUrl);
+			if (Url.IsLocalUrl(returnUrl)) return Redirect(returnUrl);
+		}
+
+		return RedirectToAction(nameof(Index));
 	}
 
 	private async Task FillLookups([NotNull] IBuildingLookup buildingLookup, CancellationToken token)

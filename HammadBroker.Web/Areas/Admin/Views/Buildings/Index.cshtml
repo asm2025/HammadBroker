@@ -1,6 +1,7 @@
 ﻿@using HammadBroker.Model.DTO
 @using HammadBroker.Model.Entities
 @using HammadBroker.Model
+@using Microsoft.AspNetCore.Http.Extensions
 @model BuildingsPaginated
 @{
 	ViewData["Title"] = "العقارات";
@@ -12,57 +13,57 @@
 	<div id="searchForm" class="card-body collapse">
 		<form method="get" asp-area="Admin" asp-controller="Buildings" asp-action="Index">
 			<div class="form-floating mb-1">
-				<input class="form-control" name="@nameof(BuildingsPaginated.PaginationModel.Search)" asp-for="PaginationModel.Search" placeholder="@Html.DisplayNameFor(e => Model.PaginationModel.Search)" />
-				<label class="form-label" asp-for="PaginationModel.Search"></label>
+				<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Search)" asp-for="Pagination.Search" placeholder="@Html.DisplayNameFor(e => Model.Pagination.Search)" />
+				<label class="form-label" asp-for="Pagination.Search"></label>
 			</div>
 			<div class="form-floating mb-1">
-				<select class="form-select" name="@nameof(BuildingsPaginated.PaginationModel.BuildingType)" asp-for="PaginationModel.BuildingType" asp-items="Html.GetEnumSelectList<BuildingType>()" placeholder="@Html.DisplayNameFor(e => Model.PaginationModel.BuildingType)">
+				<select class="form-select" name="@nameof(BuildingsPaginated.Pagination.BuildingType)" asp-for="Pagination.BuildingType" asp-items="Html.GetEnumSelectList<BuildingType>()" placeholder="@Html.DisplayNameFor(e => Model.Pagination.BuildingType)">
 					<option value=""></option>
 				</select>
-				<label class="form-label" asp-for="PaginationModel.BuildingType"></label>
+				<label class="form-label" asp-for="Pagination.BuildingType"></label>
 			</div>
 			<div class="form-floating mb-1">
-				<select class="form-select" name="@nameof(BuildingsPaginated.PaginationModel.FinishingType)" asp-for="PaginationModel.FinishingType" asp-items="Html.GetEnumSelectList<FinishingType>()" placeholder="@Html.DisplayNameFor(e => Model.PaginationModel.FinishingType)">
+				<select class="form-select" name="@nameof(BuildingsPaginated.Pagination.FinishingType)" asp-for="Pagination.FinishingType" asp-items="Html.GetEnumSelectList<FinishingType>()" placeholder="@Html.DisplayNameFor(e => Model.Pagination.FinishingType)">
 					<option value=""></option>
 				</select>
-				<label class="form-label" asp-for="PaginationModel.FinishingType"></label>
+				<label class="form-label" asp-for="Pagination.FinishingType"></label>
 			</div>
 			<div class="input-group form-floating mb-1">
-				<input class="form-control" name="@nameof(BuildingsPaginated.PaginationModel.Floor)" asp-for="PaginationModel.Floor" placeholder="@Html.DisplayNameFor(e => Model.PaginationModel.Floor)" />
-				<label class="form-label" asp-for="PaginationModel.Floor"></label>
-				<span class="input-group-text">@Html.DisplayNameFor(e => Model.PaginationModel.MaxFloor)</span>
-				<input class="form-control" name="@nameof(BuildingsPaginated.PaginationModel.MaxFloor)" asp-for="PaginationModel.MaxFloor" />
+				<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Floor)" asp-for="Pagination.Floor" placeholder="@Html.DisplayNameFor(e => Model.Pagination.Floor)" />
+				<label class="form-label" asp-for="Pagination.Floor"></label>
+				<span class="input-group-text">@Html.DisplayNameFor(e => Model.Pagination.MaxFloor)</span>
+				<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.MaxFloor)" asp-for="Pagination.MaxFloor" />
 			</div>
 			<div class="input-group form-floating mb-1">
-				<input class="form-control" name="@nameof(BuildingsPaginated.PaginationModel.Rooms)" asp-for="PaginationModel.Rooms" placeholder="@Html.DisplayNameFor(e => Model.PaginationModel.Rooms)" />
-				<label class="form-label" asp-for="PaginationModel.Rooms"></label>
-				<span class="input-group-text">@Html.DisplayNameFor(e => Model.PaginationModel.MaxRooms)</span>
-				<input class="form-control" name="@nameof(BuildingsPaginated.PaginationModel.MaxRooms)" asp-for="PaginationModel.MaxRooms" />
+				<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Rooms)" asp-for="Pagination.Rooms" placeholder="@Html.DisplayNameFor(e => Model.Pagination.Rooms)" />
+				<label class="form-label" asp-for="Pagination.Rooms"></label>
+				<span class="input-group-text">@Html.DisplayNameFor(e => Model.Pagination.MaxRooms)</span>
+				<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.MaxRooms)" asp-for="Pagination.MaxRooms" />
 			</div>
 			<div class="input-group form-floating mb-1">
-				<input class="form-control" name="@nameof(BuildingsPaginated.PaginationModel.Bathrooms)" asp-for="PaginationModel.Bathrooms" placeholder="@Html.DisplayNameFor(e => Model.PaginationModel.Bathrooms)" />
-				<label class="form-label" asp-for="PaginationModel.Bathrooms"></label>
-				<span class="input-group-text">@Html.DisplayNameFor(e => Model.PaginationModel.MaxBathrooms)</span>
-				<input class="form-control" name="@nameof(BuildingsPaginated.PaginationModel.MaxBathrooms)" asp-for="PaginationModel.MaxBathrooms" />
+				<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Bathrooms)" asp-for="Pagination.Bathrooms" placeholder="@Html.DisplayNameFor(e => Model.Pagination.Bathrooms)" />
+				<label class="form-label" asp-for="Pagination.Bathrooms"></label>
+				<span class="input-group-text">@Html.DisplayNameFor(e => Model.Pagination.MaxBathrooms)</span>
+				<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.MaxBathrooms)" asp-for="Pagination.MaxBathrooms" />
 			</div>
 			<div class="input-group form-floating mb-1">
-				<input class="form-control" name="@nameof(BuildingsPaginated.PaginationModel.Area)" asp-for="PaginationModel.Area" placeholder="@Html.DisplayNameFor(e => Model.PaginationModel.Area)" />
-				<label class="form-label" asp-for="PaginationModel.Area"></label>
-				<span class="input-group-text">@Html.DisplayNameFor(e => Model.PaginationModel.MaxArea)</span>
-				<input class="form-control" name="@nameof(BuildingsPaginated.PaginationModel.MaxArea)" asp-for="PaginationModel.MaxArea" />
+				<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Area)" asp-for="Pagination.Area" placeholder="@Html.DisplayNameFor(e => Model.Pagination.Area)" />
+				<label class="form-label" asp-for="Pagination.Area"></label>
+				<span class="input-group-text">@Html.DisplayNameFor(e => Model.Pagination.MaxArea)</span>
+				<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.MaxArea)" asp-for="Pagination.MaxArea" />
 			</div>
 			<div class="form-floating mb-1">
-				<select class="form-select" name="@nameof(BuildingsPaginated.PaginationModel.CountryCode)" asp-for="PaginationModel.CountryCode" asp-items="Model.PaginationModel.Countries.Select(e => new SelectListItem(e.Name, e.Id, e.Id == Model.PaginationModel.CountryCode))"
+				<select class="form-select" name="@nameof(BuildingsPaginated.Pagination.CountryCode)" asp-for="Pagination.CountryCode" asp-items="Model.Pagination.Countries.Select(e => new SelectListItem(e.Name, e.Id, e.Id == Model.Pagination.CountryCode))"
 						onchange="populateCities(event.target.value)">
 					<option value=""></option>
 				</select>
-				<label class="form-label" asp-for="PaginationModel.CountryCode"></label>
+				<label class="form-label" asp-for="Pagination.CountryCode"></label>
 			</div>
 			<div class="form-floating mb-1">
-				<select class="form-select" name="@nameof(BuildingsPaginated.PaginationModel.CityId)" asp-for="PaginationModel.CityId" asp-items="Model.PaginationModel.Cities.Select(e => new SelectListItem(e.Name, e.Id.ToString(), e.Id == Model.PaginationModel.CityId))">
+				<select class="form-select" name="@nameof(BuildingsPaginated.Pagination.CityId)" asp-for="Pagination.CityId" asp-items="Model.Pagination.Cities.Select(e => new SelectListItem(e.Name, e.Id.ToString(), e.Id == Model.Pagination.CityId))">
 					<option value=""></option>
 				</select>
-				<label class="form-label" asp-for="PaginationModel.CityId"></label>
+				<label class="form-label" asp-for="Pagination.CityId"></label>
 			</div>
 			<div class="mb-1">
 				<button type="submit" class="btn btn-outline-primary border-0"><span class="fa fa-magnifying-glass"></span></button>
@@ -115,15 +116,15 @@
 {
 	<script type="text/javascript">
 		async function populateCities(countryCode) {
-			const citiesDropDown = $("#@nameof(Model.PaginationModel)_@nameof(Model.PaginationModel.CityId)");
+			const citiesDropDown = $("#@nameof(Model.Pagination)_@nameof(Model.Pagination.CityId)");
 			citiesDropDown.empty();
 			if (!countryCode) return;
 
 			try {
 				const url = `@Url.Action("List", "Cities", new
-									 {
-										 area = "Admin"
-									 }, Context.Request.Scheme)?countryCode=${encodeURIComponent(countryCode)}`;
+				             {
+					             area = "Admin"
+				             }, Context.Request.Scheme)?countryCode=${encodeURIComponent(countryCode)}`;
 				const response = await fetch(url);
 
 				if (!response.ok) {
@@ -148,7 +149,7 @@
 			if (!confirm(`هل تريد حذف المبنى '${name}'?`)) return;
 
 			try {
-				const response = await fetch(`@Url.Action("Delete", "Buildings", null, Context.Request.Scheme)?id=${id}`, { method: "DELETE" });
+				const response = await fetch(`@Url.Action("Delete", "Buildings", null, Context.Request.Scheme)?id=${id}&returnUrl=@Context.Request.GetEncodedPathAndQuery()`, { method: "DELETE" });
 
 				if (!response.ok) {
 					const isJson = response.headers.get('content-type')?.includes('application/json');
@@ -156,7 +157,7 @@
 					const error = (data && data.message) || response.status;
 					throw error;
 				}
-				
+
 				location.reload();
 			} catch (e) {
 				alert(e.message || e);

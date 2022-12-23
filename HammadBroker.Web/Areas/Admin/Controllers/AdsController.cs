@@ -44,7 +44,6 @@ public class AdsController : MvcController
 		token.ThrowIfCancellationRequested();
 		pagination ??= new BuildingAdList();
 
-		// There is a fucking bug in order by. it produces "ORDER BY (SELECT 1)"
 		if (pagination.OrderBy == null || pagination.OrderBy.Count == 0)
 		{
 			pagination.OrderBy ??= new List<SortField>(3);

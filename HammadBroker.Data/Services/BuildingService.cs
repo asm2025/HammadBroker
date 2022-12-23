@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using essentialMix.Core.Data.Entity.AutoMapper.Patterns.Services;
 using essentialMix.Data.Patterns.Parameters;
 using essentialMix.Extensions;
 using essentialMix.Patterns.Pagination;

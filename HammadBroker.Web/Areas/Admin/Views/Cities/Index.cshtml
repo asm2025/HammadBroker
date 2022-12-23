@@ -4,7 +4,7 @@
 @{
 	ViewData["Title"] = "المدن";
 	bool isSystem = User.IsInRole(Role.System);
-	bool showCountry = string.IsNullOrEmpty(Model.PaginationModel.CountryCode);
+	bool showCountry = string.IsNullOrEmpty(Model.Pagination.CountryCode);
 }
 
 <div class="card mb-1">
@@ -12,14 +12,14 @@
 	<div id="searchForm" class="card-body collapse">
 		<form method="get" asp-area="Admin" asp-controller="Cities" asp-action="Index">
 			<div class="form-floating mb-1">
-				<select class="form-select" name="@nameof(CitiesPaginated.PaginationModel.CountryCode)" asp-for="PaginationModel.CountryCode" asp-items="Model.Countries.Select(e => new SelectListItem(e.Name, e.Id, e.Id == Model.PaginationModel.CountryCode))">
+				<select class="form-select" name="@nameof(CitiesPaginated.Pagination.CountryCode)" asp-for="Pagination.CountryCode" asp-items="Model.Countries.Select(e => new SelectListItem(e.Name, e.Id, e.Id == Model.Pagination.CountryCode))">
 					<option value=""></option>
 				</select>
-				<label class="form-label" asp-for="PaginationModel.CountryCode"></label>
+				<label class="form-label" asp-for="Pagination.CountryCode"></label>
 			</div>
 			<div class="form-floating mb-1">
-				<input class="form-control" name="@nameof(CitiesPaginated.PaginationModel.Search)" asp-for="PaginationModel.Search" placeholder="@Html.DisplayNameFor(e => Model.PaginationModel.Search)" />
-				<label class="form-label" asp-for="PaginationModel.Search"></label>
+				<input class="form-control" name="@nameof(CitiesPaginated.Pagination.Search)" asp-for="Pagination.Search" placeholder="@Html.DisplayNameFor(e => Model.Pagination.Search)" />
+				<label class="form-label" asp-for="Pagination.Search"></label>
 			</div>
 			<div class="mb-1">
 				<button type="submit" class="btn btn-outline-primary border-0"><span class="fa fa-magnifying-glass"></span></button>

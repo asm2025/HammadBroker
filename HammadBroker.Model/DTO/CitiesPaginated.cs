@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using essentialMix.Patterns.Pagination;
 using HammadBroker.Model.Parameters;
 using JetBrains.Annotations;
 
