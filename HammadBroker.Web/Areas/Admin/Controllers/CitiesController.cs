@@ -10,6 +10,7 @@ using essentialMix.Patterns.Pagination;
 using essentialMix.Patterns.Sorting;
 using HammadBroker.Data.Services;
 using HammadBroker.Model;
+using HammadBroker.Model.Configuration;
 using HammadBroker.Model.DTO;
 using HammadBroker.Model.Entities;
 using HammadBroker.Model.Parameters;
@@ -29,14 +30,16 @@ public class CitiesController : MvcController
 {
 	private readonly ICityService _cityService;
 	private readonly ILookupService _lookupService;
+	private readonly CompanyInfo _companyInfo;
 	private readonly IMapper _mapper;
 
 	/// <inheritdoc />
-	public CitiesController([NotNull] ICityService cityService, [NotNull] ILookupService lookupService, [NotNull] IMapper mapper, [NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, [NotNull] ILogger<CitiesController> logger)
+	public CitiesController([NotNull] ICityService cityService, [NotNull] ILookupService lookupService, [NotNull] CompanyInfo companyInfo, [NotNull] IMapper mapper, [NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, [NotNull] ILogger<CitiesController> logger)
 		: base(configuration, environment, logger)
 	{
 		_cityService = cityService;
 		_lookupService = lookupService;
+		_companyInfo = companyInfo;
 		_mapper = mapper;
 	}
 
@@ -73,8 +76,9 @@ public class CitiesController : MvcController
 	public async Task<IActionResult> List(string countryCode, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
+		if (string.IsNullOrEmpty(countryCode)) countryCode = _companyInfo.CountryCode;
 		if (string.IsNullOrEmpty(countryCode)) return Ok(Array.Empty<CityForList>());
-		IPaginated<CityForList> result = await _cityService.ListAsync<CityForList>(_cityService.Context.Cities.Where(e => e.CountryCode == countryCode), null, token);
+		IPaginated<CityForList> result = await _cityService.ListAsync<CityForList>(_cityService.Repository.DbSet.Where(e => e.CountryCode == countryCode), null, token);
 		token.ThrowIfCancellationRequested();
 		return Ok(result.Result);
 	}
@@ -85,11 +89,13 @@ public class CitiesController : MvcController
 	public async Task<IActionResult> Add(string countryCode, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
-		return View(new CityToUpdate
+		if (string.IsNullOrEmpty(countryCode)) countryCode = _companyInfo.CountryCode;
+		CityToUpdate cityToUpdate = new CityToUpdate
 		{
-			CountryCode = countryCode,
-			Countries = await _lookupService.ListCountriesAsync(token)
-		});
+			CountryCode = countryCode
+		};
+		await _lookupService.FillCountriesAsync(cityToUpdate, token);
+		return View(cityToUpdate);
 	}
 
 	[NotNull]
@@ -102,17 +108,17 @@ public class CitiesController : MvcController
 
 		if (!ModelState.IsValid)
 		{
-			cityToAdd.Countries = await _lookupService.ListCountriesAsync(token);
+			await _lookupService.FillCountriesAsync(cityToAdd, token);
 			token.ThrowIfCancellationRequested();
 			return View(cityToAdd);
 		}
 
-		CityForList cityForList = await _cityService.AddAsync<CityForList>(_mapper.Map<City>(cityToAdd), token);
+		City city = await _cityService.AddAsync(_mapper.Map<City>(cityToAdd), token);
 		token.ThrowIfCancellationRequested();
-		if (cityForList == null) return BadRequest();
+		if (city == null) return BadRequest();
 		return RedirectToAction(nameof(Edit), new
 		{
-			id = cityForList.Id,
+			id = city.Id,
 		});
 	}
 
@@ -136,7 +142,7 @@ public class CitiesController : MvcController
 	{
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return View(cityToUpdate);
-		City city = await _cityService.Repository.GetAsync(id, token);
+		City city = await _cityService.GetAsync(id, token);
 		token.ThrowIfCancellationRequested();
 		if (city == null) return NotFound();
 		_mapper.Map(cityToUpdate, city);

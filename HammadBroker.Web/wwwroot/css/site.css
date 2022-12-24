@@ -101,6 +101,43 @@ code {
 	}
 }
 
+.card-deck .tile {
+	display: block !important;
+	-ms-flex-basis: 50%;
+	-o-flex-basis: 50%;
+	-webkit-flex-basis: 50%;
+	flex-basis: 50%;
+	margin: 0.125rem !important;
+	padding: 0 !important;
+}
+
+@media (min-width: 576px) {
+	.card-deck .tile {
+		-ms-flex-basis: calc(100% - 30px);
+		-o-flex-basis: calc(100% - 30px);
+		-webkit-flex-basis: calc(100% - 30px);
+		flex-basis: calc(100% - 30px);
+	}
+}
+
+@media (min-width: 768px) {
+	.card-deck .tile {
+		-ms-flex-basis: calc(50% - 30px);
+		-o-flex-basis: calc(50% - 30px);
+		-webkit-flex-basis: calc(50% - 30px);
+		flex-basis: calc(50% - 30px);
+	}
+}
+
+@media (min-width: 992px) {
+	.card-deck .tile {
+		-ms-flex-basis: calc(20% - 30px);
+		-o-flex-basis: calc(20% - 30px);
+		-webkit-flex-basis: calc(20% - 30px);
+		flex-basis: calc(20% - 30px);
+	}
+}
+
 .menu-item {
 	white-space: nowrap !important;
 }

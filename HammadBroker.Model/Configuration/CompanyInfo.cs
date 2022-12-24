@@ -18,6 +18,8 @@ public class CompanyInfo
     public string Address { get; set; }
     [Display(Name = "العنوان 2")]
     public string Address2 { get; set; }
+    [Display(Name = "البلد")]
+    public string CountryCode { get; set; }
     [Display(Name = "الموقع الالكتروني")]
     public string Website { get; set; }
 }

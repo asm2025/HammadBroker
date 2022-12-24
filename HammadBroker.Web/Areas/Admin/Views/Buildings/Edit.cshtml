@@ -2,9 +2,14 @@
 @model HammadBroker.Model.DTO.BuildingToUpdate
 
 @{
-	ViewData["Title"] = "تعديل مبنى";
+	ViewData["Title"] = "تعديل عقار";
 }
 
+<div class="row mb-1">
+	<div class="col-12">
+		<a asp-area="Admin" asp-controller="Buildings" asp-action="Add" class="btn btn-outline-primary border-0"><i class="fa fa-plus"></i></a>
+	</div>
+</div>
 <form asp-area="Admin" asp-controller="Buildings" asp-action="Edit" Method="post" enctype="multipart/form-data">
 	<input type="hidden" asp-route-id="@Context.Request.Query["id"]" />
 	<div class="card card-body mt-3">
@@ -18,9 +23,9 @@
 			<span asp-validation-for="Name" class="text-danger"></span>
 		</div>
 		<div class="form-floating mb-1">
-			<input class="form-control" asp-for="VideoUrl" placeholder="@Html.DisplayNameFor(e => Model.VideoUrl)"/>
-			<label class="form-label" asp-for="VideoUrl"></label>
-			<span asp-validation-for="VideoUrl" class="text-danger"></span>
+			<input class="form-control" asp-for="VideoId" placeholder="@Html.DisplayNameFor(e => Model.VideoId)"/>
+			<label class="form-label" asp-for="VideoId"></label>
+			<span asp-validation-for="VideoId" class="text-danger"></span>
 		</div>
 		<div class="form-floating mb-1">
 			<select asp-for="BuildingType" class="form-select" asp-items="Html.GetEnumSelectList<BuildingType>()">
@@ -86,7 +91,7 @@
 			<label class="form-label" asp-for="Description"></label>
 			<span asp-validation-for="Description" class="text-danger"></span>
 		</div>
-		<div class="mb-1">
+		<div class="my-2">
 			<button type="submit" class="btn btn-outline-primary border-0">تعديل</button>
 		</div>
 	</div>

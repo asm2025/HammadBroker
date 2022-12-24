@@ -9,7 +9,7 @@ public class BuildingAdToUpdate
 	public BuildingAdType Type { get; set; }
 	[Display(Name = "الاولوية")]
 	public byte Priority { get; set; }
-	[Display(Name = "المبنى")]
+	[Display(Name = "العقار")]
 	[Required]
 	public int BuildingId { get; set; }
 	[Display(Name = "التاريخ")]

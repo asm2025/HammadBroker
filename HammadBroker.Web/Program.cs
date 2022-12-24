@@ -167,11 +167,13 @@ public class Program
 		IConfiguration configuration = builder.Configuration;
 		IWebHostEnvironment environment = builder.Environment;
 		SmtpConfiguration smtpConfiguration = configuration.GetSection(nameof(SmtpConfiguration)).Get<SmtpConfiguration>();
+		CompanyInfo companyInfo = configuration.Get<CompanyInfo>() ?? new CompanyInfo();
+		if (companyInfo.CountryCode != null) companyInfo.CountryCode = companyInfo.CountryCode.ToUpperInvariant();
 		services
 			// config
 			.AddSingleton(configuration)
 			.AddSingleton(environment)
-			.AddSingleton(configuration.Get<CompanyInfo>() ?? new CompanyInfo())
+			.AddSingleton(companyInfo)
 			.AddVirtualPathSettings(environment.WebRootPath, opt => configuration.GetSection(nameof(VirtualPathSettings)).Bind(opt))
 			// logging
 			.AddLogging(config =>

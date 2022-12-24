@@ -76,8 +76,12 @@
 		<a asp-area="Admin" asp-controller="Buildings" asp-action="Add" class="btn btn-outline-primary border-0"><i class="fa fa-plus"></i></a>
 	</div>
 </div>
+<form id="deleteBuildingForm" class="d-none" asp-area="Admin" asp-controller="Buildings" asp-action="Delete" method="post">
+	<input type="hidden" name="id" value="" />
+	<input type="hidden" name="returnUrl" value="@Context.Request.GetEncodedPathAndQuery()" />
+</form>
 <div class="row table-responsive">
-	<table class="table table-borderless">
+	<table class="table table-borderless table-hover">
 		<thead>
 		<tr>
 			@if (isSystem)
@@ -101,8 +105,16 @@
 						<a class="btn btn-outline-danger border-0 mb-1" onclick="JavaScript:deleteBuilding(@building.Id, '@building.Name');"><i class="fa fa-xmark"></i></a>
 					</th>
 				}
-				<td><img-asset src="@building.ImageUrl" readonly imageclass="img-fluid img-list rounded mx-auto d-block"/></td>
-				<td>@building.Name</td>
+				<td>
+					<a asp-area="Admin" asp-controller="Buildings" asp-action="Get" asp-route-id="@building.Id" class="text-decoration-none">
+						<img-asset src="@building.ImageUrl" readonly imageclass="img-fluid img-list rounded mx-auto d-block"/>
+					</a>
+				</td>
+				<td>
+					<a asp-area="Admin" asp-controller="Buildings" asp-action="Get" asp-route-id="@building.Id" class="text-decoration-none">
+						@building.Name
+					</a>
+				</td>
 				<td>@building.BuildingType.GetDisplayName()</td>
 				<td>@building.FinishingType?.GetDisplayName()</td>
 			</tr>
@@ -146,22 +158,11 @@
 		}
 
 		async function deleteBuilding(id, name) {
-			if (!confirm(`هل تريد حذف المبنى '${name}'?`)) return;
+			if (!confirm(`هل تريد حذف العقار '${name}'?`)) return;
 
-			try {
-				const response = await fetch(`@Url.Action("Delete", "Buildings", null, Context.Request.Scheme)?id=${id}&returnUrl=@Context.Request.GetEncodedPathAndQuery()`, { method: "DELETE" });
-
-				if (!response.ok) {
-					const isJson = response.headers.get('content-type')?.includes('application/json');
-					const data = isJson && await response.json();
-					const error = (data && data.message) || response.status;
-					throw error;
-				}
-
-				location.reload();
-			} catch (e) {
-				alert(e.message || e);
-			}
+			const form = $("$deleteBuildingForm");
+			form.find("input[name='id']").val(id);
+			form.submit();
 		}
 	</script>
 }

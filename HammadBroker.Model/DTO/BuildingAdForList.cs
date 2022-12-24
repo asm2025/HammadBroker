@@ -5,10 +5,10 @@ namespace HammadBroker.Model.DTO;
 
 public class BuildingAdForList : BuildingForList
 {
+	[Display(Name = "العقار")]
+	public int BuildingId { get; set; }
 	[Display(Name = "نوع الاعلان")]
 	public BuildingAdType Type { get; set; }
-	[Display(Name = "المبنى")]
-	public int BuildingId { get; set; }
 	[Display(Name = "التاريخ")]
 	public DateTime Date { get; set; }
 	[Display(Name = "ينتهي في")]

@@ -2,10 +2,9 @@
 
 namespace HammadBroker.Model.DTO;
 
-public interface IBuildingLookup
+public interface ICityLookup
 {
 	string CountryCode { get; set; }
-	IList<CountryForList> Countries { get; set; }
 	int CityId { get; set; }
-	IList<CityForList> Cities { get; set; }
+	ICollection<CityForList> Cities { get; set; }
 }

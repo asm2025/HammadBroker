@@ -49,13 +49,13 @@
 
 	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="12.0.0" />
-		<PackageReference Include="essentialMix" Version="14.0.2" />
-		<PackageReference Include="essentialMix.Core.Data.Entity" Version="14.0.2" />
-		<PackageReference Include="essentialMix.Core.Web" Version="14.0.2" />
-		<PackageReference Include="essentialMix.Logging" Version="14.0.2" />
+		<PackageReference Include="essentialMix" Version="14.0.3" />
+		<PackageReference Include="essentialMix.Core.Data.Entity" Version="14.0.3" />
+		<PackageReference Include="essentialMix.Core.Web" Version="14.0.3" />
+		<PackageReference Include="essentialMix.Logging" Version="14.0.3" />
 		<PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.11" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.11" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.12" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.12" />
 	</ItemGroup>
 
 	<PropertyGroup>

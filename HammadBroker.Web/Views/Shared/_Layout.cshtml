@@ -34,6 +34,9 @@
 				</button>
 				<div class="navbar-collapse collapse d-sm-inline-flex align-items-center">
 					<ul class="navbar-nav flex-grow-1 p-0">
+						<li class="nav-item">
+							<a class="nav-link" menu-route asp-area="" asp-page="/About">من نحن</a>
+						</li>
 						<li class="nav-item" policy="@Constants.Authorization.AdministrationPolicy">
 							<a class="nav-link" menu-route asp-area="Admin" asp-controller="Ads" asp-action="Index">الاعلانات</a>
 						</li>
@@ -42,9 +45,6 @@
 						</li>
 						<li class="nav-item" policy="@Constants.Authorization.AdministrationPolicy">
 							<a class="nav-link" menu-route asp-area="Admin" asp-controller="Cities" asp-action="Index">المدن</a>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link" menu-route asp-area="" asp-page="/About">من نحن</a>
 						</li>
 					</ul>
 					<partial name="_LoginPartial" />

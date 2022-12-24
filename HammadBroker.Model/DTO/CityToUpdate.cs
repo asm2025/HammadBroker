@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HammadBroker.Model.DTO;
 
-public class CityToUpdate
+public class CityToUpdate : ICountryLookup
 {
 	[Display(Name = "المدينة")]
 	[Required]
@@ -13,5 +13,5 @@ public class CityToUpdate
 	[Required]
 	[StringLength(3, MinimumLength = 3)]
 	public string CountryCode { get; set; }
-	public IList<CountryForList> Countries { get; set; }
+	public ICollection<CountryForList> Countries { get; set; }
 }

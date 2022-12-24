@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Http;
 
 namespace HammadBroker.Model.DTO;
 
-public class BuildingToUpdate : IBuildingLookup
+public class BuildingToUpdate : ICountryLookup, ICityLookup
 {
-	[Display(Name = "اسم المبنى")]
+	[Display(Name = "اسم العقار")]
 	[Required]
 	[StringLength(256)]
 	public string Name { get; set; }
@@ -23,10 +23,8 @@ public class BuildingToUpdate : IBuildingLookup
 	public string ImageUrl { get; set; }
 
 	[Display(Name = "الفيديو")]
-	[Url]
-	[StringLength(320)]
-	[DataType(DataType.Url)]
-	public string VideoUrl { get; set; }
+	[StringLength(128)]
+	public string VideoId { get; set; }
 
 	[Display(Name = "نوع العقار")]
 	[Required]
@@ -61,13 +59,14 @@ public class BuildingToUpdate : IBuildingLookup
 	[Required]
 	[StringLength(3, MinimumLength = 3)]
 	public string CountryCode { get; set; }
-	public IList<CountryForList> Countries { get; set; }
+	public ICollection<CountryForList> Countries { get; set; }
 
 	[Display(Name = "المدينة")]
 	[Required]
 	public int CityId { get; set; }
-	public IList<CityForList> Cities { get; set; }
+	public ICollection<CityForList> Cities { get; set; }
 
+	[Display(Name = "الوصف")]
 	[StringLength(2048)]
 	[DataType(DataType.MultilineText)]
 	public string Description { get; set; }

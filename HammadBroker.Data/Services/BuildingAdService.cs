@@ -91,8 +91,10 @@ public class BuildingAdService : Service<DataContext, IBuildingAdRepository, Bui
 		if (settings is { PageSize: > 0 })
 		{
 			settings.Count = await queryable.CountAsync(token);
-			queryable = queryable.Paginate(settings);
 			token.ThrowIfCancellationRequested();
+			int maxPages = (int)Math.Ceiling(settings.Count / (double)settings.PageSize);
+			if (settings.Page > maxPages) settings.Page = maxPages;
+			queryable = queryable.Paginate(settings);
 		}
 
 		IList<BuildingAdForList> result = await queryable.ToListAsync(token)
@@ -108,16 +110,21 @@ public class BuildingAdService : Service<DataContext, IBuildingAdRepository, Bui
 						{
 							Id = ba.Id,
 							BuildingId = ba.BuildingId,
+							Type = ba.Type,
 							Date = ba.Date,
 							Expires = ba.Expires,
 							Phone = ba.Phone,
 							Mobile = ba.Mobile,
 							Price = ba.Price,
+							Views = ba.Views,
+							PageViews = ba.PageViews,
+							Requests = ba.Requests,
 							Name = b.Name,
 							BuildingType = b.BuildingType,
-							ImageUrl = b.ImageUrl,
 							FinishingType = b.FinishingType,
-							CityId = b.CityId
+							CountryCode = b.CountryCode,
+							CityId = b.CityId,
+							ImageUrl = b.ImageUrl
 						});
 		}
 
@@ -135,16 +142,21 @@ public class BuildingAdService : Service<DataContext, IBuildingAdRepository, Bui
 				{
 					Id = e.Ad.Id,
 					BuildingId = e.Ad.BuildingId,
+					Type = e.Ad.Type,
 					Date = e.Ad.Date,
 					Expires = e.Ad.Expires,
 					Phone = e.Ad.Phone,
 					Mobile = e.Ad.Mobile,
 					Price = e.Ad.Price,
+					Views = e.Ad.Views,
+					PageViews = e.Ad.PageViews,
+					Requests = e.Ad.Requests,
 					Name = e.Building.Name,
 					BuildingType = e.Building.BuildingType,
-					ImageUrl = e.Building.ImageUrl,
 					FinishingType = e.Building.FinishingType,
-					CityId = e.Building.CityId
+					CountryCode = e.Building.CountryCode,
+					CityId = e.Building.CityId,
+					ImageUrl = e.Building.ImageUrl
 				});
 		}
 	}
@@ -160,18 +172,26 @@ public class BuildingAdService : Service<DataContext, IBuildingAdRepository, Bui
 													{
 														Id = ba.Id,
 														BuildingId = ba.BuildingId,
+														Type = ba.Type,
 														Date = ba.Date,
 														Expires = ba.Expires,
 														Phone = ba.Phone,
 														Mobile = ba.Mobile,
 														Price = ba.Price,
+														Views = ba.Views,
+														PageViews = ba.PageViews,
+														Requests = ba.Requests,
 														Name = b.Name,
 														BuildingType = b.BuildingType,
-														ImageUrl = b.ImageUrl,
-														VideoUrl = b.VideoUrl,
 														FinishingType = b.FinishingType,
+														CountryCode = b.CountryCode,
 														CityId = b.CityId,
+														ImageUrl = b.ImageUrl,
+														VideoId = b.VideoId,
 														Floor = b.Floor,
+														Rooms = b.Rooms,
+														Bathrooms = b.Bathrooms,
+														Area = b.Area,
 														Address = b.Address,
 														Address2 = b.Address2,
 														Description = b.Description

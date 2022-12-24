@@ -5,11 +5,11 @@ using HammadBroker.Model.DTO;
 
 namespace HammadBroker.Model.Parameters;
 
-public class BuildingList : SortablePagination, IBuildingLookup
+public class BuildingList : SortablePagination, ICountryLookup, ICityLookup
 {
 	[Display(Name = "البحث")]
 	public string Search { get; set; }
-	[Display(Name = "نوع المبنى")]
+	[Display(Name = "نوع العقار")]
 	public BuildingType? BuildingType { get; set; }
 	[Display(Name = "نوع التشطيب")]
 	public FinishingType? FinishingType { get; set; }
@@ -33,8 +33,8 @@ public class BuildingList : SortablePagination, IBuildingLookup
 	public string Address { get; set; }
 	[Display(Name = "البلد")]
 	public string CountryCode { get; set; }
-	public IList<CountryForList> Countries { get; set; }
+	public ICollection<CountryForList> Countries { get; set; }
 	[Display(Name = "المدينة")]
 	public int CityId { get; set; }
-	public IList<CityForList> Cities { get; set; }
+	public ICollection<CityForList> Cities { get; set; }
 }

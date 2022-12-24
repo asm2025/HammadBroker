@@ -19,9 +19,8 @@ public class Building : IEntity<int>
 	[StringLength(320)]
 	public string ImageUrl { get; set; }
 
-	[Url]
-	[StringLength(320)]
-	public string VideoUrl { get; set; }
+	[StringLength(128)]
+	public string VideoId { get; set; }
 
 	[Required]
 	public FinishingType? FinishingType { get; set; }

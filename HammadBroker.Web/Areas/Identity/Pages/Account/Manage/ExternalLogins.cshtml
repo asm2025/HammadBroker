@@ -11,7 +11,7 @@
 @if (Model.CurrentLogins?.Count > 0)
 {
     <h3>Registered Logins</h3>
-    <table class="table">
+    <table class="table table-borderless table-hover">
         <tbody>
             @foreach (UserLoginInfo login in Model.CurrentLogins)
             {

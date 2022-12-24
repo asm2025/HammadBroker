@@ -203,7 +203,7 @@ namespace HammadBroker.Data.Migrations
                     Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     BuildingType = table.Column<int>(type: "int", nullable: false),
                     ImageUrl = table.Column<string>(type: "nvarchar(320)", maxLength: 320, nullable: true),
-                    VideoUrl = table.Column<string>(type: "nvarchar(320)", maxLength: 320, nullable: true),
+                    VideoId = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: true),
                     FinishingType = table.Column<int>(type: "int", nullable: false),
                     Floor = table.Column<byte>(type: "tinyint", nullable: true),
                     Rooms = table.Column<byte>(type: "tinyint", nullable: true),

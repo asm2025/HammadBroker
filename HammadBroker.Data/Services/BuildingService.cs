@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,8 +34,10 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 
 		if (settings is { PageSize: > 0 })
 		{
-			entities = entities.Paginate(settings);
 			settings.Count = Repository.Count(settings);
+			int maxPages = (int)Math.Ceiling(settings.Count / (double)settings.PageSize);
+			if (settings.Page > maxPages) settings.Page = maxPages;
+			entities = entities.Paginate(settings);
 		}
 
 		IList<string> result = entities.Select(e => e.ImageUrl)
@@ -52,9 +55,11 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 
 		if (settings is { PageSize: > 0 })
 		{
-			entities = entities.Paginate(settings);
 			settings.Count = await Repository.CountAsync(settings, token);
 			token.ThrowIfCancellationRequested();
+			int maxPages = (int)Math.Ceiling(settings.Count / (double)settings.PageSize);
+			if (settings.Page > maxPages) settings.Page = maxPages;
+			entities = entities.Paginate(settings);
 		}
 
 		IList<string> result = await entities.Select(e => e.ImageUrl)

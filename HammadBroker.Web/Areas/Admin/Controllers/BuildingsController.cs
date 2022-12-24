@@ -8,16 +8,15 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using essentialMix.Core.Web.Controllers;
 using essentialMix.Drawing.Helpers;
 using essentialMix.Extensions;
 using essentialMix.Helpers;
 using essentialMix.Patterns.Pagination;
 using essentialMix.Patterns.Sorting;
-using HammadBroker.Data.Repositories;
 using HammadBroker.Data.Services;
 using HammadBroker.Model;
+using HammadBroker.Model.Configuration;
 using HammadBroker.Model.DTO;
 using HammadBroker.Model.Entities;
 using HammadBroker.Model.Parameters;
@@ -27,7 +26,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -40,17 +38,17 @@ public class BuildingsController : MvcController
 {
 	private readonly IBuildingService _buildingService;
 	private readonly ILookupService _lookupService;
-	private readonly ICityRepository _cityRepository;
+	private readonly CompanyInfo _companyInfo;
 	private readonly IMapper _mapper;
 	private readonly string _assetImagesPath;
 
 	/// <inheritdoc />
-	public BuildingsController([NotNull] IBuildingService buildingService, [NotNull] ILookupService lookupService, [NotNull] ICityRepository cityRepository, [NotNull] IMapper mapper, [NotNull] IEnumerable<IFileProvider> fileProviders, [NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, [NotNull] ILogger<BuildingsController> logger)
+	public BuildingsController([NotNull] IBuildingService buildingService, [NotNull] ILookupService lookupService, [NotNull] CompanyInfo companyInfo, [NotNull] IMapper mapper, [NotNull] IEnumerable<IFileProvider> fileProviders, [NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, [NotNull] ILogger<BuildingsController> logger)
 		: base(configuration, environment, logger)
 	{
 		_buildingService = buildingService;
 		_lookupService = lookupService;
-		_cityRepository = cityRepository;
+		_companyInfo = companyInfo;
 		_mapper = mapper;
 		_assetImagesPath = fileProviders.First(e => e.Alias == "AssetImages").Root;
 	}
@@ -75,9 +73,26 @@ public class BuildingsController : MvcController
 		IPaginated<BuildingForList> paginated = await _buildingService.ListAsync<BuildingForList>(pagination, token);
 		token.ThrowIfCancellationRequested();
 		BuildingsPaginated result = new BuildingsPaginated(paginated.Result, (BuildingList)paginated.Pagination);
-		await FillLookups(result.Pagination, token);
+		await _lookupService.FillCountriesAsync(result.Pagination, token);
+		await _lookupService.FillCitiesAsync(result.Pagination, token);
 		token.ThrowIfCancellationRequested();
 		return View(result);
+	}
+
+	[NotNull]
+	[ItemNotNull]
+	[HttpGet("[action]")]
+	public async Task<IActionResult> Get(int id, CancellationToken token)
+	{
+		token.ThrowIfCancellationRequested();
+		BuildingForDetails building = await _buildingService.GetAsync<BuildingForDetails>(id, token);
+		token.ThrowIfCancellationRequested();
+		if (building == null) return NotFound();
+		await _lookupService.FillCountryNameAsync(building, token);
+		await _lookupService.FillCityNameAsync(building, token);
+		await _lookupService.FillBuildingImagesAsync(id, building, 0, token);
+		token.ThrowIfCancellationRequested();
+		return View(building);
 	}
 
 	[NotNull]
@@ -86,11 +101,13 @@ public class BuildingsController : MvcController
 	public async Task<IActionResult> Add(string countryCode, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
+		if (string.IsNullOrEmpty(countryCode)) countryCode = _companyInfo.CountryCode;
 		BuildingToUpdate buildingToUpdate = new BuildingToUpdate
 		{
 			CountryCode = countryCode
 		};
-		await FillLookups(buildingToUpdate, token);
+		await _lookupService.FillCountriesAsync(buildingToUpdate, token);
+		await _lookupService.FillCitiesAsync(buildingToUpdate, token);
 		token.ThrowIfCancellationRequested();
 		return View(buildingToUpdate);
 	}
@@ -105,7 +122,8 @@ public class BuildingsController : MvcController
 
 		if (!ModelState.IsValid)
 		{
-			await FillLookups(buildingToUpdate, token);
+			await _lookupService.FillCountriesAsync(buildingToUpdate, token);
+			await _lookupService.FillCitiesAsync(buildingToUpdate, token);
 			token.ThrowIfCancellationRequested();
 			return View(buildingToUpdate);
 		}
@@ -151,8 +169,8 @@ public class BuildingsController : MvcController
 			building.ImageUrl = Path.GetFileName(fileName);
 		}
 
-		if (update && await _buildingService.UpdateAsync(building, token) == null) return Problem("تعذر حفظ الصورة بعد حفظ المبنى");
-		return RedirectToAction(nameof(Edit), new
+		if (update && await _buildingService.UpdateAsync(building, token) == null) return Problem("تعذر حفظ الصورة بعد حفظ العقار");
+		return RedirectToAction(nameof(Get), new
 		{
 			id = building.Id,
 		});
@@ -167,7 +185,8 @@ public class BuildingsController : MvcController
 		BuildingToUpdate buildingToUpdate = await _buildingService.GetAsync<BuildingToUpdate>(id, token);
 		token.ThrowIfCancellationRequested();
 		if (buildingToUpdate == null) return NotFound();
-		await FillLookups(buildingToUpdate, token);
+		await _lookupService.FillCountriesAsync(buildingToUpdate, token);
+		await _lookupService.FillCitiesAsync(buildingToUpdate, token);
 		token.ThrowIfCancellationRequested();
 		return View(buildingToUpdate);
 	}
@@ -182,7 +201,8 @@ public class BuildingsController : MvcController
 
 		if (!ModelState.IsValid)
 		{
-			await FillLookups(buildingToUpdate, token);
+			await _lookupService.FillCountriesAsync(buildingToUpdate, token);
+			await _lookupService.FillCitiesAsync(buildingToUpdate, token);
 			token.ThrowIfCancellationRequested();
 			return View(buildingToUpdate);
 		}
@@ -232,8 +252,8 @@ public class BuildingsController : MvcController
 			building.ImageUrl = Path.GetFileName(fileName);
 		}
 
-		if (update && await _buildingService.UpdateAsync<BuildingForList>(building, token) == null) return Problem("تعذر حفظ الصورة بعد حفظ المبنى"); ;
-		return RedirectToAction(nameof(Edit), new
+		if (update && await _buildingService.UpdateAsync(building, token) == null) return Problem("تعذر حفظ الصورة بعد حفظ العقار");
+		return RedirectToAction(nameof(Get), new
 		{
 			id
 		});
@@ -241,7 +261,8 @@ public class BuildingsController : MvcController
 
 	[NotNull]
 	[ItemNotNull]
-	[HttpDelete("[action]")]
+	[HttpPost("[action]")]
+	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> Delete([Required] int id, string returnUrl, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
@@ -257,18 +278,5 @@ public class BuildingsController : MvcController
 		}
 
 		return RedirectToAction(nameof(Index));
-	}
-
-	private async Task FillLookups([NotNull] IBuildingLookup buildingLookup, CancellationToken token)
-	{
-		token.ThrowIfCancellationRequested();
-		buildingLookup.Countries = await _lookupService.ListCountriesAsync(token);
-		token.ThrowIfCancellationRequested();
-		buildingLookup.Cities = string.IsNullOrEmpty(buildingLookup.CountryCode)
-									? Array.Empty<CityForList>()
-									: await _cityRepository.List()
-															.Where(e => e.CountryCode == buildingLookup.CountryCode)
-															.ProjectTo<CityForList>(_mapper.ConfigurationProvider)
-															.ToListAsync(token);
 	}
 }

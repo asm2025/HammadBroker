@@ -5,9 +5,9 @@ namespace HammadBroker.Model.DTO;
 public class BuildingForList
 {
 	public int Id { get; set; }
-	[Display(Name = "المبنى")]
+	[Display(Name = "العقار")]
 	public string Name { get; set; }
-	[Display(Name = "نوع المبنى")]
+	[Display(Name = "نوع العقار")]
 	public BuildingType BuildingType { get; set; }
 	[Display(Name = "نوع التشطيب")]
 	public FinishingType? FinishingType { get; set; }
