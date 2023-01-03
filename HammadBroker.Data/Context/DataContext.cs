@@ -247,7 +247,7 @@ public class DataContext : IdentityDbContext<User, Role, string,
 																	.Select(e => new Country
 																	{
 																		Id = e.ThreeLetterISORegionName,
-																		Name = e.EnglishName
+																		Name = e.NativeName
 																	});
 				int init = countries.Count;
 

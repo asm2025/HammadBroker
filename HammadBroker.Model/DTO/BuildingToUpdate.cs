@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using essentialMix.Core.Web.Annotations;
 using Microsoft.AspNetCore.Http;
 
 namespace HammadBroker.Model.DTO;
 
-public class BuildingToUpdate : ICountryLookup, ICityLookup
+public class BuildingToUpdate
 {
 	[Display(Name = "اسم العقار")]
 	[Required]
@@ -13,7 +12,7 @@ public class BuildingToUpdate : ICountryLookup, ICityLookup
 	public string Name { get; set; }
 
 	[Display(Name = "الصورة الرئيسية")]
-	[MaxFileSize(0xA00000)]
+	[MaxFileSize(Constants.Images.FileSizeMax)]
 	[DataType(DataType.Upload)]
 	public IFormFile ImageFile { get; set; }
 
@@ -59,12 +58,10 @@ public class BuildingToUpdate : ICountryLookup, ICityLookup
 	[Required]
 	[StringLength(3, MinimumLength = 3)]
 	public string CountryCode { get; set; }
-	public ICollection<CountryForList> Countries { get; set; }
 
 	[Display(Name = "المدينة")]
 	[Required]
 	public int CityId { get; set; }
-	public ICollection<CityForList> Cities { get; set; }
 
 	[Display(Name = "الوصف")]
 	[StringLength(2048)]

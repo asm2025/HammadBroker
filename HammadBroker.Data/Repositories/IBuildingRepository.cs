@@ -31,16 +31,11 @@ public interface IBuildingRepository : IRepository<DataContext, Building, int>
 	ValueTask AddImageAsync([NotNull] Building building, [NotNull] string imageUrl, CancellationToken token = default(CancellationToken));
 	void UpdateImage(int buildingId, [NotNull] string imageUrl);
 	ValueTask UpdateImageAsync(int buildingId, [NotNull] string imageUrl, CancellationToken token = default(CancellationToken));
-	[NotNull]
 	BuildingImage UpdateBuildingImage(int id, [NotNull] string imageUrl);
-	[ItemNotNull]
 	ValueTask<BuildingImage> UpdateBuildingImageAsync(int id, [NotNull] string imageUrl, CancellationToken token = default(CancellationToken));
-	[NotNull]
 	BuildingImage DeleteImage(int id);
-	[ItemNotNull]
 	ValueTask<BuildingImage> DeleteImageAsync(int id, CancellationToken token = default(CancellationToken));
 	[NotNull]
 	BuildingImage DeleteImage([NotNull] BuildingImage image);
-	[ItemNotNull]
 	ValueTask<BuildingImage> DeleteImageAsync([NotNull] BuildingImage image, CancellationToken token = default(CancellationToken));
 }

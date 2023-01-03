@@ -8,7 +8,7 @@ public class BuildingImageToAdd
 {
 
 	[Display(Name = "الصورة")]
-	[MaxFileSize(0xA00000)]
+	[MaxFileSize(Constants.Images.FileSizeMax)]
 	[DataType(DataType.Upload)]
 	public IFormFile ImageFile { get; set; }
 }

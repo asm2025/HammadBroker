@@ -6,10 +6,13 @@
 }
 
 <form asp-area="Admin" asp-controller="Buildings" asp-action="Add" Method="post" enctype="multipart/form-data">
-	<div class="card card-body mt-3">
+	<div id="buildingForm" v-scope class="card card-body mt-3">
 		<div asp-validation-summary="ModelOnly"></div>
+		<div class="text-danger" v-if="errors.length">
+			<div v-for="error in errors">{{ error }}</div>
+		</div>
 
-		<img-asset name="ImageFile" src="@Model.ImageUrl" class="img-placeholder" imageclass="img-fluid rounded mx-auto d-block" />
+		<img-asset name="ImageFile" src="@Model.ImageUrl" class="img-placeholder mx-auto" imageclass="img-fluid mx-auto d-block" />
 		<input type="hidden" asp-for="ImageUrl" />
 		<div class="form-floating mb-1">
 			<input class="form-control" asp-for="Name" placeholder="@Html.DisplayNameFor(e => Model.Name)" />
@@ -65,18 +68,18 @@
 			<span asp-validation-for="Address2" class="text-danger"></span>
 		</div>
 		<div class="form-floating mb-1">
-			<select class="form-select" asp-for="CountryCode" asp-items="Model.Countries.Select(e => new SelectListItem(e.Name, e.Id, e.Id == Model.CountryCode))"
-					onchange="populateCities(event.target.value)">
-				<option value=""></option>
-			</select>
-			<label class="form-label" asp-for="CountryCode"></label>
+			<input type="hidden" asp-for="CountryCode" :value="countryCode" />
+			<autocomplete class="w-100" input-class="w-100" :suggestions="countries"
+						option-label="name" placeholder="البلد" :min-length="0" v-model="selectedCountry" data-key="id" force-selection
+						v-on:complete="fetchCountries($event.query)" v-on:change="fetchCities($event.value)">
+			</autocomplete>
 			<span asp-validation-for="CountryCode" class="text-danger"></span>
 		</div>
 		<div class="form-floating mb-1">
-			<select class="form-select" asp-for="CityId" asp-items="Model.Cities.Select(e => new SelectListItem(e.Name, e.Id.ToString(), e.Id == Model.CityId))">
-				<option value=""></option>
-			</select>
-			<label class="form-label" asp-for="CityId"></label>
+			<input type="hidden" asp-for="CityId" :value="cityId" />
+			<autocomplete name="@nameof(Model.CityId)" class="w-100" input-class="w-100" :suggestions="cities" option-label="name" placeholder="المدينة"
+						:min-length="0" v-model="selectedCity" data-key="id" force-selection v-on:complete="fetchCities(countryCode, $event.query)">
+			</autocomplete>
 			<span asp-validation-for="CityId" class="text-danger"></span>
 		</div>
 		<div class="form-floating mb-1">
@@ -85,26 +88,34 @@
 			<label class="form-label" asp-for="Description"></label>
 			<span asp-validation-for="Description" class="text-danger"></span>
 		</div>
-		<div class="my-2">
-			<button type="submit" class="btn btn-outline-primary border-0">إضافة</button>
+		<div class="my-1">
+			<button type="submit" class="btn btn-primary">إضافة</button>
 		</div>
 	</div>
 </form>
 
 @section scripts
 {
-	<script type="text/javascript">
-		async function populateCities(countryCode) {
-			const citiesDropDown = $("#@nameof(Model.CityId)");
-			citiesDropDown.empty();
-			if (!countryCode) return;
+	<script type="text/javascript" defer>
+		const { createApp, nextTick } = Vue;
 
+		const DELAY = 300;
+
+		const _fetchCountries = _.debounce(async (self, search) => {
+			self.errors.length = 0;
+			self.loading = true;
+			search = search && search.trim();
+			
 			try {
-				const url = `@Url.Action("List", "Cities", new
-									 {
-										 area = "Admin"
-									 }, Context.Request.Scheme)?countryCode=${encodeURIComponent(countryCode)}`;
-				const response = await fetch(url);
+				const url = `@Url.Action("Countries", "Cities", new
+							 {
+								 area = "Admin"
+							 }, Context.Request.Scheme)`;
+				const params = new URLSearchParams({
+					countryCode: self.countryCode,
+					search: search ? encodeURIComponent(search) : ""
+				});
+				const response = await window.fetch(url + "?" + params);
 
 				if (!response.ok) {
 					const isJson = response.headers.get('content-type')?.includes('application/json');
@@ -113,15 +124,99 @@
 					throw error;
 				}
 
-				const cities = await response.json();
-				citiesDropDown.append("<option value=''></option>");
-
-				for (const city of cities) {
-					citiesDropDown.append(`<option value='${city.id}'>${city.name}</option>`);
-				}
+				self.countries = await response.json();
 			} catch (e) {
+				self.selectedCountry = null;
+				self.countries = [];
 				alert(e.message || e);
+			} finally {
+				self.loading = false;
 			}
-		}
+		}, DELAY, { leading: true });
+		const _fetchCities = _.debounce(async (self, countryCode, search) => {
+			if (!countryCode) {
+				self.selectedCity = null;
+				self.cities = [];
+				return;
+			}
+
+			self.loading = true;
+			search = search && search.trim();
+
+			try {
+				const url = `@Url.Action("List", "Cities", new
+							             {
+								             area = "Admin"
+							             }, Context.Request.Scheme)`;
+				const params = new URLSearchParams({
+					countryCode: self.countryCode,
+					search: search ? encodeURIComponent(search) : ""
+				});
+				const response = await window.fetch(url + "?" + params);
+
+				if (!response.ok) {
+					const isJson = response.headers.get('content-type')?.includes('application/json');
+					const data = isJson && await response.json();
+					const error = (data && data.message) || response.status;
+					throw error;
+				}
+
+				self.cities = await response.json();
+			} catch (e) {
+				self.selectedCity = null;
+				self.cities = [];
+				alert(e.message || e);
+			} finally {
+				self.loading = false;
+			}
+		}, DELAY, { leading: true });
+
+		createApp({
+				data() {
+					return {
+						loading: false,
+						selectedCountry: null,
+						countryCode: "@Model.CountryCode",
+						countries: [],
+						selectedCity: null,
+						cityId: @Model.CityId,
+						cities: [],
+						errors: []
+					}
+				},
+				watch: {
+					selectedCountry(newValue) {
+						if (newValue && newValue.id)
+							this.countryCode = newValue.id;
+						else
+							this.countryCode = "";
+					},
+					selectedCity(newValue) {
+						if (newValue && newValue.id)
+							this.cityId = newValue.id;
+						else
+							this.cityId = 0;
+					}
+				},
+				methods: {
+					fetchData() {
+						this.errors.length = 0;
+						this.fetchCountries();
+						this.fetchCities(this.countryCode);
+					},
+					fetchCountries(search) {
+						_fetchCountries(this, search);
+					},
+					fetchCities(countryCode, search) {
+						_fetchCities(this, countryCode, search);
+					}
+				},
+				mounted() {
+					this.fetchData();
+				}
+			})
+			.use(primevue.config.default)
+			.component("autocomplete", primevue.autocomplete)
+			.mount("#buildingForm");
 	</script>
 }

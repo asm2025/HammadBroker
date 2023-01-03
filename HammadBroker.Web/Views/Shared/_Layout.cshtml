@@ -1,24 +1,61 @@
 ﻿@using HammadBroker.Model.Configuration
 @using HammadBroker.Model
 @inject CompanyInfo CompanyInfo
-<html lang="en" dir="rtl">
+@{
+	bool hideMenu = Convert.ToBoolean(ViewBag.HideMenu ?? false);
+}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
 	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 	<link rel="icon" type="image/x-icon" href="@Url.Content("~/favicon.ico")" />
 	<link rel="shortcut icon" type="image/x-icon" href="@Url.Content("~/favicon.ico")" />
 	<title>@string.Join(" - ", ViewData["Title"], CompanyInfo.Title).Trim(' ', '-')</title>
 
-	<link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.rtl.min.css" />
 	<link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
 	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
 	<script type="text/javascript" src="@Url.Content("~/lib/popper.js/umd/popper.min.js")"></script>
 	<script type="text/javascript" src="@Url.Content("~/lib/lodash.js/lodash.min.js")"></script>
+
+	<!--VueJs and components-->
+	<environment include="Development">
+		<script type="text/javascript" src="@Url.Content("~/lib/vue/vue.global.min.js")"></script>
+	</environment>
+	<environment exclude="Development">
+		<script type="text/javascript" src="@Url.Content("~/lib/vue/vue.global.prod.js")"></script>
+	</environment>
+
+	<!--multiselect-->
+	<script type="text/javascript" src="@Url.Content("~/lib/vueform/multiselect/dist/multiselect.global.js")">
+	</script>
+	<link href="~/lib/vueform/multiselect/themes/default.css" asp-append-version="true" rel="stylesheet" />
+
+	<!--primeVue-->
+	<link href="~/lib/primevue/resources/themes/bootstrap4-light-blue/theme.css" asp-append-version="true" rel="stylesheet" />
+	<link href="~/lib/primevue/resources/primevue.min.css" asp-append-version="true" rel="stylesheet" />
+	<link href="~/lib/primeflex/primeflex.min.css" asp-append-version="true" rel="stylesheet" />
+	<link href="~/lib/primeicons/primeicons.css" asp-append-version="true" rel="stylesheet" />
+	<script type="text/javascript" src="@Url.Content("~/lib/primevue/core/core.min.js")"></script>
+	<script type="text/javascript" src="@Url.Content("~/lib/primevue/autocomplete/autocomplete.min.js")"></script>
+	<script type="text/javascript" src="@Url.Content("~/lib/primevue/calendar/calendar.min.js")"></script>
+	<script type="text/javascript" src="@Url.Content("~/lib/primevue/sidebar/sidebar.min.js")"></script>
+	<script type="text/javascript" src="@Url.Content("~/lib/primevue/listbox/listbox.min.js")"></script>
+	<script type="text/javascript" src="@Url.Content("~/lib/primevue/galleria/galleria.min.js")"></script>
+	<script type="text/javascript" src="@Url.Content("~/lib/primevue/carousel/carousel.min.js")"></script>
+	<script type="text/javascript" src="@Url.Content("~/lib/primevue/fileupload/fileupload.min.js")"></script>
+	<script type="text/javascript" src="@Url.Content("~/lib/primevue/badge/badge.min.js")"></script>
+	<script type="text/javascript" src="@Url.Content("~/lib/primevue/toast/toast.min.js")"></script>
+	<script type="text/javascript" src="@Url.Content("~/lib/primevue/toastservice/toastservice.min.js")"></script>
+
 	@*Last*@
 	<link href="@Url.Content("~/css/site.css")" rel="stylesheet" asp-append-version="true" />
 	<script type="text/javascript" src="@Url.Content("~/js/site.js")" asp-append-version="true"></script>
 	@await RenderSectionAsync("styles", false)
+	@await RenderSectionAsync("header", false)
 </head>
 <body>
 	<header>
@@ -28,27 +65,48 @@
 					<img src="@Url.Content("~/images/logo.jpg")" alt="@CompanyInfo.Title" class="img-fluid" style="max-width: 4rem;" />
 					<span class="p-1">@CompanyInfo.Title</span>
 				</a>
-				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-						aria-expanded="false" aria-label="Toggle navigation">
-					<span class="navbar-toggler-icon"></span>
-				</button>
-				<div class="navbar-collapse collapse d-sm-inline-flex align-items-center">
-					<ul class="navbar-nav flex-grow-1 p-0">
-						<li class="nav-item">
-							<a class="nav-link" menu-route asp-area="" asp-page="/About">من نحن</a>
-						</li>
-						<li class="nav-item" policy="@Constants.Authorization.AdministrationPolicy">
-							<a class="nav-link" menu-route asp-area="Admin" asp-controller="Ads" asp-action="Index">الاعلانات</a>
-						</li>
-						<li class="nav-item" policy="@Constants.Authorization.AdministrationPolicy">
-							<a class="nav-link" menu-route asp-area="Admin" asp-controller="Buildings" asp-action="Index">العقارات</a>
-						</li>
-						<li class="nav-item" policy="@Constants.Authorization.AdministrationPolicy">
-							<a class="nav-link" menu-route asp-area="Admin" asp-controller="Cities" asp-action="Index">المدن</a>
-						</li>
-					</ul>
-					<partial name="_LoginPartial" />
-				</div>
+				@if (!hideMenu)
+				{
+					<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+							aria-expanded="false" aria-label="Toggle navigation">
+						<span class="navbar-toggler-icon"></span>
+					</button>
+					<div class="navbar-collapse collapse d-sm-inline-flex align-items-center">
+						<ul class="navbar-nav flex-grow-1 p-0">
+							<li class="nav-item">
+								<a class="nav-link btn border-0 rounded-0" menu-route asp-area="" asp-page="/About">من نحن</a>
+							</li>
+							<li class="nav-item btn-group" policy="@Constants.Authorization.AdministrationPolicy">
+								<a class="nav-link btn border-0 rounded-0" menu-route asp-area="Admin" asp-controller="Ads" asp-action="Index">الاعلانات</a>
+								<a class="nav-link btn border-0 rounded-0 dropdown-toggle dropdown-toggle-split" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+									<span class="visually-hidden">Toggle Dropdown</span>
+								</a>
+								<ul class="dropdown-menu">
+									<li><a class="dropdown-item" asp-area="Admin" asp-controller="Ads" asp-action="Add">اضافة اعلان</a></li>
+								</ul>
+							</li>
+							<li class="nav-item btn-group" policy="@Constants.Authorization.AdministrationPolicy">
+								<a class="nav-link btn border-0 rounded-0" asp-area="Admin" asp-controller="Buildings" asp-action="Index">العقارات</a>
+								<a class="nav-link btn border-0 rounded-0 dropdown-toggle dropdown-toggle-split" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+									<span class="visually-hidden">Toggle Dropdown</span>
+								</a>
+								<ul class="dropdown-menu">
+									<li><a class="dropdown-item" asp-area="Admin" asp-controller="Buildings" asp-action="Add">اضافة عقار</a></li>
+								</ul>
+							</li>
+							<li class="nav-item btn-group" policy="@Constants.Authorization.AdministrationPolicy">
+								<a class="nav-link btn border-0 rounded-0" asp-area="Admin" asp-controller="Cities" asp-action="Index">المدن</a>
+								<a class="nav-link btn border-0 rounded-0 dropdown-toggle dropdown-toggle-split" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+									<span class="visually-hidden">Toggle Dropdown</span>
+								</a>
+								<ul class="dropdown-menu">
+									<li><a class="dropdown-item" asp-area="Admin" asp-controller="Cities" asp-action="Add">اضافة مدينة</a></li>
+								</ul>
+							</li>
+						</ul>
+						<partial name="_LoginPartial"/>
+					</div>
+				}
 			</div>
 		</nav>
 	</header>
@@ -58,10 +116,8 @@
 		</main>
 	</div>
 
-	<footer class="border-top footer text-muted">
-		<div class="container">
-			@CompanyInfo.Title &copy;@DateTime.Today.Year
-		</div>
+	<footer class="container py-3 mt-2 border-top footer text-muted">
+		<small class="d-inline-block mb-1 text-muted">@CompanyInfo.Title &copy;@DateTime.Today.Year</small>
 	</footer>
 
 	<script src="~/lib/jquery/jquery.min.js"></script>
@@ -69,5 +125,6 @@
 	<script src="~/js/site.js" asp-append-version="true"></script>
 
 	@await RenderSectionAsync("Scripts", false)
+	@Html.PageScripts()
 </body>
 </html>

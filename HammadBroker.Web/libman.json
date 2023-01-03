@@ -31,6 +31,29 @@
 		{
 			"library": "lodash.js@4.17.21",
 			"destination": "wwwroot/lib/lodash.js/"
+		},
+		{
+		  "library": "moment.js@2.29.4",
+		  "destination": "wwwroot/lib/moment.js/"
+		},
+		{
+		  "library": "vue@3.2.36",
+		  "destination": "wwwroot/lib/vue/"
+		},
+		{
+		  "provider": "unpkg",
+		  "library": "@vueform/multiselect@2.3.4",
+		  "destination": "wwwroot/lib/vueform/multiselect/"
+		},
+		{
+		  "provider": "unpkg",
+		  "library": "primeflex@3.3.0",
+		  "destination": "wwwroot/lib/primeflex/"
+		},
+		{
+		  "provider": "unpkg",
+		  "library": "primeicons@6.0.1",
+		  "destination": "wwwroot/lib/primeicons/"
 		}
 	]
 }

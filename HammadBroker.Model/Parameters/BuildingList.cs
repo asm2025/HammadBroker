@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using essentialMix.Patterns.Pagination;
-using HammadBroker.Model.DTO;
 
 namespace HammadBroker.Model.Parameters;
 
-public class BuildingList : SortablePagination, ICountryLookup, ICityLookup
+public class BuildingList : SortablePagination
 {
 	[Display(Name = "البحث")]
 	public string Search { get; set; }
@@ -33,8 +31,6 @@ public class BuildingList : SortablePagination, ICountryLookup, ICityLookup
 	public string Address { get; set; }
 	[Display(Name = "البلد")]
 	public string CountryCode { get; set; }
-	public ICollection<CountryForList> Countries { get; set; }
 	[Display(Name = "المدينة")]
 	public int CityId { get; set; }
-	public ICollection<CityForList> Cities { get; set; }
 }

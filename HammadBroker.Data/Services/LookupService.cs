@@ -9,6 +9,7 @@ using essentialMix.Extensions;
 using essentialMix.Helpers;
 using HammadBroker.Data.Context;
 using HammadBroker.Data.Repositories;
+using HammadBroker.Extensions;
 using HammadBroker.Model;
 using HammadBroker.Model.DTO;
 using HammadBroker.Model.Entities;
@@ -29,16 +30,41 @@ public class LookupService : ServiceBase<DataContext>, ILookupService
 	}
 
 	/// <inheritdoc />
-	public Task<IList<CountryForList>> ListCountriesAsync(CancellationToken token = default(CancellationToken))
+	public Task<IList<string>> ListBuildingImagesAsync(int id, int count, CancellationToken token = default(CancellationToken))
+	{
+		ThrowIfDisposed();
+		token.ThrowIfCancellationRequested();
+		IQueryable<string> queryable = Context.BuildingImages
+											.Where(e => e.BuildingId == id)
+											.Select(e => e.ImageUrl);
+		if (count > 0) queryable = queryable.Take(count);
+		return queryable.ToListAsync(token)
+						.As<List<string>, IList<string>>(token);
+	}
+
+	/// <inheritdoc />
+	public Task<IList<CountryForList>> ListCountriesAsync(string search, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
 		return Context.Countries
 					.AsNoTracking()
+					.WhereIf(!string.IsNullOrEmpty(search), e => e.Name.Contains(search))
 					.OrderBy(e => e.Name)
 					.ProjectTo<CountryForList>(Mapper.ConfigurationProvider)
 					.ToListAsync(token)
 					.As<List<CountryForList>, IList<CountryForList>>(token);
+	}
+
+	/// <inheritdoc />
+	public Task<IList<CityForList>> ListCitiesAsync(string countryCode, string search, CancellationToken token = default(CancellationToken))
+	{
+		ThrowIfDisposed();
+		token.ThrowIfCancellationRequested();
+		return _cityRepository.List(countryCode, search)
+											.ProjectTo<CityForList>(Mapper.ConfigurationProvider)
+											.ToListAsync(token)
+											.As<List<CityForList>, IList<CityForList>>(token);
 	}
 
 	/// <inheritdoc />
@@ -57,25 +83,6 @@ public class LookupService : ServiceBase<DataContext>, ILookupService
 		return EnumHelper<FinishingType>
 				.GetDisplayNames()
 				.ToList();
-	}
-
-	/// <inheritdoc />
-	public async Task FillCountriesAsync(ICountryLookup lookup, CancellationToken token = default(CancellationToken))
-	{
-		ThrowIfDisposed();
-		token.ThrowIfCancellationRequested();
-		lookup.Countries = await ListCountriesAsync(token).ConfigureAwait();
-	}
-
-	/// <inheritdoc />
-	public async Task FillCitiesAsync(ICityLookup lookup, CancellationToken token = default(CancellationToken))
-	{
-		ThrowIfDisposed();
-		token.ThrowIfCancellationRequested();
-		lookup.Cities = await _cityRepository.List(lookup.CountryCode)
-											.ProjectTo<CityForList>(Mapper.ConfigurationProvider)
-											.ToListAsync(token)
-											.ConfigureAwait();
 	}
 
 	/// <inheritdoc />
@@ -106,18 +113,5 @@ public class LookupService : ServiceBase<DataContext>, ILookupService
 		token.ThrowIfCancellationRequested();
 		if (city == null) return;
 		lookup.CityName = city.Name;
-	}
-
-	/// <inheritdoc />
-	public async Task FillBuildingImagesAsync(int id, IBuildingImagesLookup lookup, int count, CancellationToken token = default(CancellationToken))
-	{
-		ThrowIfDisposed();
-		token.ThrowIfCancellationRequested();
-		IQueryable<string> queryable = Context.BuildingImages
-												.Where(e => e.BuildingId == id)
-												.Select(e => e.ImageUrl);
-		if (count > 0) queryable = queryable.Take(count);
-		lookup.Images = await queryable.ToListAsync(token)
-										.ConfigureAwait();
 	}
 }

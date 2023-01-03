@@ -14,7 +14,7 @@ public interface ICityService : IService<DataContext, ICityRepository, City, int
 	IPaginated<City> List(string countryCode, IPagination settings = null);
 	IPaginated<T> List<T>(string countryCode, IPagination settings = null);
 	[NotNull]
-	Task<IPaginated<City>> ListAsync(string countryCode, IPagination settings = null, CancellationToken token = default(CancellationToken));
+	Task<IPaginated<City>> ListAsync(string countryCode, string search = null, IPagination settings = null, CancellationToken token = default(CancellationToken));
 	[NotNull]
-	Task<IPaginated<T>> ListAsync<T>(string countryCode, IPagination settings = null, CancellationToken token = default(CancellationToken));
+	Task<IPaginated<T>> ListAsync<T>(string countryCode, string search = null, IPagination settings = null, CancellationToken token = default(CancellationToken));
 }

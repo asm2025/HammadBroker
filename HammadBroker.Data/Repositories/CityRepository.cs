@@ -6,6 +6,7 @@ using essentialMix.Core.Data.Entity.Patterns.Repository;
 using essentialMix.Extensions;
 using essentialMix.Patterns.Pagination;
 using HammadBroker.Data.Context;
+using HammadBroker.Extensions;
 using HammadBroker.Model.Entities;
 using HammadBroker.Model.Parameters;
 using JetBrains.Annotations;
@@ -24,22 +25,26 @@ public class CityRepository : Repository<DataContext, City, int>, ICityRepositor
 	}
 
 	/// <inheritdoc />
-	public IQueryable<City> List(string countryCode, IPagination settings = null)
+	public IQueryable<City> List(string countryCode, string search = null, IPagination settings = null)
 	{
-		if (string.IsNullOrEmpty(countryCode)) return List(settings);
+		if (string.IsNullOrEmpty(countryCode) && string.IsNullOrEmpty(search)) return List(settings);
 		ThrowIfDisposed();
-		IQueryable<City> queryable = DbSet.Where(e => e.CountryCode == countryCode);
+		IQueryable<City> queryable = DbSet
+			.Where(e => e.CountryCode == countryCode)
+			.WhereIf(!string.IsNullOrEmpty(search), e => e.Name.Contains(search));
 		return PrepareListQuery(queryable, settings);
 	}
 
 	/// <inheritdoc />
-	public Task<IList<City>> ListAsync(string countryCode, IPagination settings = null, CancellationToken token = default(CancellationToken))
+	public Task<IList<City>> ListAsync(string countryCode, string search = null, IPagination settings = null, CancellationToken token = default(CancellationToken))
 	{
-		if (string.IsNullOrEmpty(countryCode)) return ListAsync(settings, token);
+		if (string.IsNullOrEmpty(countryCode) && string.IsNullOrEmpty(search)) return ListAsync(settings, token);
 
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
-		IQueryable<City> queryable = DbSet.Where(e => e.CountryCode == countryCode);
+		IQueryable<City> queryable = DbSet
+			.Where(e => e.CountryCode == countryCode)
+			.WhereIf(!string.IsNullOrEmpty(search), e => e.Name.Contains(search));
 		return PrepareListQuery(queryable, settings)
 				.ToListAsync(token)
 				.ConfigureAwait()

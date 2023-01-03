@@ -32,11 +32,23 @@ public interface IBuildingService : IService<DataContext, IBuildingRepository, B
 	void UpdateImage(int buildingId, [NotNull] string imageUrl);
 	[NotNull]
 	Task UpdateImageAsync(int buildingId, [NotNull] string imageUrl, CancellationToken token = default(CancellationToken));
+	BuildingImage UpdateBuildingImage(int id, [NotNull] string imageUrl);
 	T UpdateBuildingImage<T>(int id, [NotNull] string imageUrl);
+	[NotNull]
+	Task<BuildingImage> UpdateBuildingImageAsync(int id, [NotNull] string imageUrl, CancellationToken token = default(CancellationToken));
 	Task<T> UpdateBuildingImageAsync<T>(int id, [NotNull] string imageUrl, CancellationToken token = default(CancellationToken));
+	BuildingImage DeleteBuildingImage(int id);
 	T DeleteBuildingImage<T>(int id);
+	[NotNull]
+	Task<BuildingImage> DeleteBuildingImageAsync(int id, CancellationToken token = default(CancellationToken));
+	[NotNull]
 	Task<T> DeleteBuildingImageAsync<T>(int id, CancellationToken token = default(CancellationToken));
+	[NotNull]
+	BuildingImage DeleteBuildingImage([NotNull] BuildingImage image);
 	T DeleteBuildingImage<T>([NotNull] BuildingImage image);
+	[NotNull]
+	[ItemNotNull]
+	Task<BuildingImage> DeleteBuildingImageAsync([NotNull] BuildingImage image, CancellationToken token = default(CancellationToken));
 	[NotNull]
 	Task<T> DeleteBuildingImageAsync<T>([NotNull] BuildingImage image, CancellationToken token = default(CancellationToken));
 }

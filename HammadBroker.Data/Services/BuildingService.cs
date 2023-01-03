@@ -170,64 +170,117 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	}
 
 	/// <inheritdoc />
-	public T UpdateBuildingImage<T>(int id, string imageUrl)
+	public BuildingImage UpdateBuildingImage(int id, string imageUrl)
 	{
 		ThrowIfDisposed();
 		BuildingImage entity = Repository.UpdateBuildingImage(id, imageUrl);
+		if (entity == null) return null;
 		Context.SaveChanges();
-		return Mapper.Map<T>(entity);
+		return entity;
 	}
 
 	/// <inheritdoc />
-	public async Task<T> UpdateBuildingImageAsync<T>(int id, string imageUrl, CancellationToken token = default(CancellationToken))
+	public T UpdateBuildingImage<T>(int id, string imageUrl)
+	{
+		BuildingImage entity = UpdateBuildingImage(id, imageUrl);
+		return entity == null
+					? default(T)
+					: Mapper.Map<T>(entity);
+	}
+
+	/// <inheritdoc />
+	public async Task<BuildingImage> UpdateBuildingImageAsync(int id, string imageUrl, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
 		BuildingImage entity = await Repository.UpdateBuildingImageAsync(id, imageUrl, token);
 		token.ThrowIfCancellationRequested();
+		if (entity == null) return null;
 		await Context.SaveChangesAsync(token);
-		return Mapper.Map<T>(entity);
+		return entity;
+	}
+
+	/// <inheritdoc />
+	public async Task<T> UpdateBuildingImageAsync<T>(int id, string imageUrl, CancellationToken token = default(CancellationToken))
+	{
+		BuildingImage entity = await UpdateBuildingImageAsync(id, imageUrl, token);
+		token.ThrowIfCancellationRequested();
+		return entity == null
+					? default(T)
+					: Mapper.Map<T>(entity);
+	}
+
+	/// <inheritdoc />
+	public BuildingImage DeleteBuildingImage(int id)
+	{
+		ThrowIfDisposed();
+		BuildingImage entity = Repository.DeleteImage(id);
+		if (entity == null) return null;
+		Context.SaveChanges();
+		return entity;
 	}
 
 	/// <inheritdoc />
 	public T DeleteBuildingImage<T>(int id)
 	{
-		ThrowIfDisposed();
-		BuildingImage entity = Repository.DeleteImage(id);
-		Context.SaveChanges();
-		return Mapper.Map<T>(entity);
+		BuildingImage entity = DeleteBuildingImage(id);
+		return entity == null
+					? default(T)
+					: Mapper.Map<T>(entity);
 	}
 
 	/// <inheritdoc />
-	public async Task<T> DeleteBuildingImageAsync<T>(int id, CancellationToken token = default(CancellationToken))
+	public async Task<BuildingImage> DeleteBuildingImageAsync(int id, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
 		BuildingImage entity = await Repository.DeleteImageAsync(id, token);
 		token.ThrowIfCancellationRequested();
-		await Context.SaveChangesAsync(token)
-					.ConfigureAwait();
-		return Mapper.Map<T>(entity);
+		if (entity == null) return null;
+		await Context.SaveChangesAsync(token);
+		return entity;
+	}
+
+	/// <inheritdoc />
+	public async Task<T> DeleteBuildingImageAsync<T>(int id, CancellationToken token = default(CancellationToken))
+	{
+		BuildingImage entity = await DeleteBuildingImageAsync(id, token);
+		return entity == null
+					? default(T)
+					: Mapper.Map<T>(entity);
+	}
+
+	/// <inheritdoc />
+	public BuildingImage DeleteBuildingImage(BuildingImage image)
+	{
+		ThrowIfDisposed();
+		image = Repository.DeleteImage(image);
+		Context.SaveChanges();
+		return image;
 	}
 
 	/// <inheritdoc />
 	public T DeleteBuildingImage<T>(BuildingImage image)
 	{
-		ThrowIfDisposed();
-		image = Repository.DeleteImage(image);
-		Context.SaveChanges();
+		image = DeleteBuildingImage(image);
 		return Mapper.Map<T>(image);
 	}
 
 	/// <inheritdoc />
-	public async Task<T> DeleteBuildingImageAsync<T>(BuildingImage image, CancellationToken token = default(CancellationToken))
+	public async Task<BuildingImage> DeleteBuildingImageAsync(BuildingImage image, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
 		image = await Repository.DeleteImageAsync(image, token);
 		token.ThrowIfCancellationRequested();
-		await Context.SaveChangesAsync(token)
-					.ConfigureAwait();
+		await Context.SaveChangesAsync(token);
+		return image;
+	}
+
+	/// <inheritdoc />
+	public async Task<T> DeleteBuildingImageAsync<T>(BuildingImage image, CancellationToken token = default(CancellationToken))
+	{
+		image = await DeleteBuildingImageAsync(image, token);
 		return Mapper.Map<T>(image);
 	}
 

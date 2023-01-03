@@ -1,7 +1,9 @@
 ﻿@using HammadBroker.Model.DTO
 @using HammadBroker.Model.Entities
 @using HammadBroker.Model
+@using Microsoft.AspNetCore.Antiforgery
 @using Microsoft.AspNetCore.Http.Extensions
+@inject IAntiforgery Antiforgery
 @model BuildingsPaginated
 @{
 	ViewData["Title"] = "العقارات";
@@ -10,115 +12,124 @@
 
 <div class="card mb-1">
 	<h5 class="card-header collapsed" data-bs-toggle="collapse" data-bs-target="#searchForm" aria-expanded="false" aria-controls="searchForm">البحث</h5>
-	<div id="searchForm" class="card-body collapse">
+	<div id="searchForm" v-scope class="card-body collapse">
+		<div class="text-danger" v-if="errors.length">
+			<div v-for="error in errors">{{ error }}</div>
+		</div>
+
 		<form method="get" asp-area="Admin" asp-controller="Buildings" asp-action="Index">
-			<div class="form-floating mb-1">
-				<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Search)" asp-for="Pagination.Search" placeholder="@Html.DisplayNameFor(e => Model.Pagination.Search)" />
-				<label class="form-label" asp-for="Pagination.Search"></label>
+			<div>
+				<div class="col-12 form-floating mb-1">
+					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Search)" asp-for="Pagination.Search" placeholder="@Html.DisplayNameFor(e => Model.Pagination.Search)" />
+					<label class="form-label" asp-for="Pagination.Search"></label>
+				</div>
 			</div>
-			<div class="form-floating mb-1">
-				<select class="form-select" name="@nameof(BuildingsPaginated.Pagination.BuildingType)" asp-for="Pagination.BuildingType" asp-items="Html.GetEnumSelectList<BuildingType>()" placeholder="@Html.DisplayNameFor(e => Model.Pagination.BuildingType)">
-					<option value=""></option>
-				</select>
-				<label class="form-label" asp-for="Pagination.BuildingType"></label>
+			<div>
+				<div class="col-6 col-md-12 form-floating mb-1">
+					<select class="form-select" name="@nameof(BuildingsPaginated.Pagination.BuildingType)" asp-for="Pagination.BuildingType" asp-items="Html.GetEnumSelectList<BuildingType>()" placeholder="@Html.DisplayNameFor(e => Model.Pagination.BuildingType)">
+						<option value=""></option>
+					</select>
+					<label class="form-label" asp-for="Pagination.BuildingType"></label>
+				</div>
+				<div class="col-6 col-md-12 form-floating mb-1">
+					<select class="form-select" name="@nameof(BuildingsPaginated.Pagination.FinishingType)" asp-for="Pagination.FinishingType" asp-items="Html.GetEnumSelectList<FinishingType>()" placeholder="@Html.DisplayNameFor(e => Model.Pagination.FinishingType)">
+						<option value=""></option>
+					</select>
+					<label class="form-label" asp-for="Pagination.FinishingType"></label>
+				</div>
 			</div>
-			<div class="form-floating mb-1">
-				<select class="form-select" name="@nameof(BuildingsPaginated.Pagination.FinishingType)" asp-for="Pagination.FinishingType" asp-items="Html.GetEnumSelectList<FinishingType>()" placeholder="@Html.DisplayNameFor(e => Model.Pagination.FinishingType)">
-					<option value=""></option>
-				</select>
-				<label class="form-label" asp-for="Pagination.FinishingType"></label>
+			<div>
+				<div class="input-group form-floating mb-1">
+					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Floor)" asp-for="Pagination.Floor" placeholder="@Html.DisplayNameFor(e => Model.Pagination.Floor)" />
+					<label class="form-label" asp-for="Pagination.Floor"></label>
+					<span class="input-group-text">@Html.DisplayNameFor(e => Model.Pagination.MaxFloor)</span>
+					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.MaxFloor)" asp-for="Pagination.MaxFloor" />
+				</div>
 			</div>
-			<div class="input-group form-floating mb-1">
-				<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Floor)" asp-for="Pagination.Floor" placeholder="@Html.DisplayNameFor(e => Model.Pagination.Floor)" />
-				<label class="form-label" asp-for="Pagination.Floor"></label>
-				<span class="input-group-text">@Html.DisplayNameFor(e => Model.Pagination.MaxFloor)</span>
-				<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.MaxFloor)" asp-for="Pagination.MaxFloor" />
+			<div>
+				<div class="input-group form-floating mb-1">
+					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Rooms)" asp-for="Pagination.Rooms" placeholder="@Html.DisplayNameFor(e => Model.Pagination.Rooms)" />
+					<label class="form-label" asp-for="Pagination.Rooms"></label>
+					<span class="input-group-text">@Html.DisplayNameFor(e => Model.Pagination.MaxRooms)</span>
+					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.MaxRooms)" asp-for="Pagination.MaxRooms" />
+				</div>
 			</div>
-			<div class="input-group form-floating mb-1">
-				<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Rooms)" asp-for="Pagination.Rooms" placeholder="@Html.DisplayNameFor(e => Model.Pagination.Rooms)" />
-				<label class="form-label" asp-for="Pagination.Rooms"></label>
-				<span class="input-group-text">@Html.DisplayNameFor(e => Model.Pagination.MaxRooms)</span>
-				<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.MaxRooms)" asp-for="Pagination.MaxRooms" />
+			<div>
+				<div class="input-group form-floating mb-1">
+					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Bathrooms)" asp-for="Pagination.Bathrooms" placeholder="@Html.DisplayNameFor(e => Model.Pagination.Bathrooms)" />
+					<label class="form-label" asp-for="Pagination.Bathrooms"></label>
+					<span class="input-group-text">@Html.DisplayNameFor(e => Model.Pagination.MaxBathrooms)</span>
+					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.MaxBathrooms)" asp-for="Pagination.MaxBathrooms" />
+				</div>
 			</div>
-			<div class="input-group form-floating mb-1">
-				<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Bathrooms)" asp-for="Pagination.Bathrooms" placeholder="@Html.DisplayNameFor(e => Model.Pagination.Bathrooms)" />
-				<label class="form-label" asp-for="Pagination.Bathrooms"></label>
-				<span class="input-group-text">@Html.DisplayNameFor(e => Model.Pagination.MaxBathrooms)</span>
-				<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.MaxBathrooms)" asp-for="Pagination.MaxBathrooms" />
+			<div>
+				<div class="input-group form-floating mb-1">
+					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Area)" asp-for="Pagination.Area" placeholder="@Html.DisplayNameFor(e => Model.Pagination.Area)" />
+					<label class="form-label" asp-for="Pagination.Area"></label>
+					<span class="input-group-text">@Html.DisplayNameFor(e => Model.Pagination.MaxArea)</span>
+					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.MaxArea)" asp-for="Pagination.MaxArea" />
+				</div>
 			</div>
-			<div class="input-group form-floating mb-1">
-				<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Area)" asp-for="Pagination.Area" placeholder="@Html.DisplayNameFor(e => Model.Pagination.Area)" />
-				<label class="form-label" asp-for="Pagination.Area"></label>
-				<span class="input-group-text">@Html.DisplayNameFor(e => Model.Pagination.MaxArea)</span>
-				<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.MaxArea)" asp-for="Pagination.MaxArea" />
+			<div>
+				<div class="form-floating mb-1">
+					<input type="hidden" asp-for="Pagination.CountryCode" :value="countryCode" />
+					<autocomplete name="@nameof(BuildingsPaginated.Pagination.CountryCode)" class="w-100" input-class="w-100"
+								:suggestions="countries" option-label="name" placeholder="البلد" v-model="selectedCountry" data-key="id"
+								v-on:complete="fetchCountries($event.query)" v-on:change="fetchCities($event.value)">
+					</autocomplete>
+				</div>
+				<div class="form-floating mb-1">
+					<input type="hidden" asp-for="Pagination.CityId" :value="cityId" />
+					<autocomplete name="@nameof(BuildingsPaginated.Pagination.CityId)" class="w-100" input-class="w-100" :suggestions="cities" 
+								option-label="name" placeholder="المدينة" v-model="selectedCity" data-key="id" v-on:complete="fetchCities(countryCode, $event.query)">
+					</autocomplete>
+				</div>
 			</div>
-			<div class="form-floating mb-1">
-				<select class="form-select" name="@nameof(BuildingsPaginated.Pagination.CountryCode)" asp-for="Pagination.CountryCode" asp-items="Model.Pagination.Countries.Select(e => new SelectListItem(e.Name, e.Id, e.Id == Model.Pagination.CountryCode))"
-						onchange="populateCities(event.target.value)">
-					<option value=""></option>
-				</select>
-				<label class="form-label" asp-for="Pagination.CountryCode"></label>
-			</div>
-			<div class="form-floating mb-1">
-				<select class="form-select" name="@nameof(BuildingsPaginated.Pagination.CityId)" asp-for="Pagination.CityId" asp-items="Model.Pagination.Cities.Select(e => new SelectListItem(e.Name, e.Id.ToString(), e.Id == Model.Pagination.CityId))">
-					<option value=""></option>
-				</select>
-				<label class="form-label" asp-for="Pagination.CityId"></label>
-			</div>
-			<div class="mb-1">
-				<button type="submit" class="btn btn-outline-primary border-0"><span class="fa fa-magnifying-glass"></span></button>
+			<div class="my-1">
+				<button type="submit" class="btn btn-outline-secondary btn-sm"><span class="fa fa-magnifying-glass"></span></button>
 			</div>
 		</form>
 	</div>
 </div>
 <div class="row mb-1">
 	<div class="col-12">
-		<a asp-area="Admin" asp-controller="Buildings" asp-action="Add" class="btn btn-outline-primary border-0"><i class="fa fa-plus"></i></a>
+		<a asp-area="Admin" asp-controller="Buildings" asp-action="Add" class="btn btn-outline-primary border-0"><i class="fa fa-plus"></i> إضافة عقار</a>
 	</div>
 </div>
-<form id="deleteBuildingForm" class="d-none" asp-area="Admin" asp-controller="Buildings" asp-action="Delete" method="post">
-	<input type="hidden" name="id" value="" />
-	<input type="hidden" name="returnUrl" value="@Context.Request.GetEncodedPathAndQuery()" />
-</form>
+
 <div class="row table-responsive">
 	<table class="table table-borderless table-hover">
 		<thead>
-		<tr>
-			@if (isSystem)
-			{
-				<th scope="col"></th>
-			}
-			<th scope="col"></th>
-			<th scope="col">@Html.DisplayNameForInnerType((BuildingForList e) => e.Name)</th>
-			<th scope="col">@Html.DisplayNameForInnerType((BuildingForList e) => e.BuildingType)</th>
-			<th scope="col">@Html.DisplayNameForInnerType((BuildingForList e) => e.FinishingType)</th>
-		</tr>
-		</thead>
-		<tbody>
-		@foreach (BuildingForList building in Model.Result)
-		{
 			<tr>
 				@if (isSystem)
 				{
-					<th scope="row">
-						<a class="btn btn-outline-primary border-0 mb-1" asp-area="Admin" asp-action="Edit" asp-route-id="@building.Id"><i class="fa fa-pen"></i></a>
-						<a class="btn btn-outline-danger border-0 mb-1" onclick="JavaScript:deleteBuilding(@building.Id, '@building.Name');"><i class="fa fa-xmark"></i></a>
-					</th>
+					<th scope="col"></th>
 				}
-				<td>
-					<a asp-area="Admin" asp-controller="Buildings" asp-action="Get" asp-route-id="@building.Id" class="text-decoration-none">
-						<img-asset src="@building.ImageUrl" readonly imageclass="img-fluid img-list rounded mx-auto d-block"/>
-					</a>
-				</td>
-				<td>
-					<a asp-area="Admin" asp-controller="Buildings" asp-action="Get" asp-route-id="@building.Id" class="text-decoration-none">
-						@building.Name
-					</a>
-				</td>
-				<td>@building.BuildingType.GetDisplayName()</td>
-				<td>@building.FinishingType?.GetDisplayName()</td>
+				<th scope="col"></th>
+				<th scope="col">@Html.DisplayNameForInnerType((BuildingForList e) => e.Name)</th>
+				<th scope="col">@Html.DisplayNameForInnerType((BuildingForList e) => e.BuildingType)</th>
+				<th scope="col">@Html.DisplayNameForInnerType((BuildingForList e) => e.FinishingType)</th>
 			</tr>
-		}
+		</thead>
+		<tbody>
+			@foreach (BuildingForList building in Model.Result)
+			{
+				<tr role="button" onclick="window.location = '@Url.Action("Get", "Buildings", new { area = "Admin", id = building.Id })'">
+					@if (isSystem)
+					{
+						<th scope="row">
+							<a class="btn btn-outline-primary border-0 mb-1" asp-area="Admin" asp-action="Edit" asp-route-id="@building.Id"><i class="fa fa-pen"></i></a>
+							<a class="btn btn-outline-danger border-0 mb-1" onclick="JavaScript:deleteBuilding(event, @building.Id, '@building.Name');"><i class="fa fa-xmark"></i></a>
+						</th>
+					}
+					<td>
+						<img-asset src="@building.ImageUrl" readonly imageclass="img-fluid img-list mx-auto d-block" />
+					</td>
+					<td>@building.Name</td>
+					<td>@building.BuildingType.GetDisplayName()</td>
+					<td>@building.FinishingType?.GetDisplayName()</td>
+				</tr>
+			}
 		</tbody>
 	</table>
 </div>
@@ -127,42 +138,143 @@
 @section scripts
 {
 	<script type="text/javascript">
-		async function populateCities(countryCode) {
-			const citiesDropDown = $("#@nameof(Model.Pagination)_@nameof(Model.Pagination.CityId)");
-			citiesDropDown.empty();
-			if (!countryCode) return;
+		async function deleteBuilding(evt, id, name) {
+			evt.stopPropagation();
+			if (!confirm(`هل تريد حذف العقار '${name}'؟`)) return;
 
-			try {
-				const url = `@Url.Action("List", "Cities", new
+			try
+			{
+				const url = '@Url.Action("Delete", "Buildings", new
 				             {
-					             area = "Admin"
-				             }, Context.Request.Scheme)?countryCode=${encodeURIComponent(countryCode)}`;
-				const response = await fetch(url);
-
-				if (!response.ok) {
-					const isJson = response.headers.get('content-type')?.includes('application/json');
-					const data = isJson && await response.json();
-					const error = (data && data.message) || response.status;
-					throw error;
-				}
-
-				const cities = await response.json();
-				citiesDropDown.append("<option value=''></option>");
-
-				for (const city of cities) {
-					citiesDropDown.append(`<option value='${city.id}'>${city.name}</option>`);
-				}
-			} catch (e) {
-				alert(e.message || e);
+					             area = "Admin",
+					             id = "${0}"
+				             })'.replace("${0}", id);
+				const formData = new FormData();
+				formData.append("returnUrl", "@Context.Request.GetEncodedPathAndQuery()");
+				await fetch(url, {
+					method: "post",
+					body: formData,
+					headers: {
+						RequestVerificationToken: "@Antiforgery.GetAndStoreTokens(Context).RequestToken"
+					},
+					credentials: "same-origin"
+				});
+			}
+			catch (ex)
+			{
+				alert(ex.message || ex);
 			}
 		}
+	</script>
+	<script type="text/javascript" defer>
+		const { createApp, nextTick } = Vue;
 
-		async function deleteBuilding(id, name) {
-			if (!confirm(`هل تريد حذف العقار '${name}'?`)) return;
+		const DELAY = 300;
+		
+		createApp({
+			data() {
+				return {
+					loading: false,
+					selectedCountry: null,
+					countryCode: "@Model.Pagination.CountryCode",
+					countries: [],
+					selectedCity: null,
+					cityId: @Model.Pagination.CityId,
+					cities: [],
+					errors: []
+				}
+			},
+			watch: {
+				selectedCountry(newValue) {
+					if (newValue && newValue.id)
+						this.countryCode = newValue.id;
+					else
+						this.countryCode = "";
+				},
+				selectedCity(newValue) {
+					if (newValue && newValue.id)
+						this.cityId = newValue.id;
+					else
+						this.cityId = 0;
+				}
+			},
+			methods: {
+				async fetchData() {
+					this.errors.length = 0;
+					await this.fetchCountries();
+					await this.fetchCities(this.countryCode);
+				},
+				async fetchCountries(search) {
+					this.loading = true;
+					search = search && search.trim();
+					
+					try {
+						const url = `@Url.Action("Countries", "Cities", new
+									 {
+										 area = "Admin"
+									 }, Context.Request.Scheme)`;
+						const params = new URLSearchParams({
+							countryCode: this.countryCode,
+							search: search ? encodeURIComponent(search) : ""
+						});
+						const response = await window.fetch(url + "?" + params);
 
-			const form = $("$deleteBuildingForm");
-			form.find("input[name='id']").val(id);
-			form.submit();
-		}
+						if (!response.ok) {
+							const isJson = response.headers.get('content-type')?.includes('application/json');
+							const data = isJson && await response.json();
+							const error = (data && data.message) || response.status;
+							throw error;
+						}
+						
+						this.countries = await response.json();
+					} catch (e) {
+						alert(e.message || e);
+					} finally {
+						this.loading = false;
+					}
+				},
+				async fetchCities(countryCode, search) {
+					if (!countryCode) {
+						this.cityId = 0;
+						this.cities = [];
+						return;
+					}
+					
+					this.loading = true;
+					search = search && search.trim();
+
+					try {
+						const url = `@Url.Action("List", "Cities", new
+									 {
+										 area = "Admin"
+									 }, Context.Request.Scheme)`;
+						const params = new URLSearchParams({
+							countryCode: this.countryCode,
+							search: search ? encodeURIComponent(search) : ""
+						});
+						const response = await window.fetch(url + "?" + params);
+
+						if (!response.ok) {
+							const isJson = response.headers.get('content-type')?.includes('application/json');
+							const data = isJson && await response.json();
+							const error = (data && data.message) || response.status;
+							throw error;
+						}
+
+						this.cities = await response.json();
+					} catch (e) {
+						alert(e.message || e);
+					} finally {
+						this.loading = false;
+					}
+				}
+			},
+			mounted() {
+				this.fetchData();
+			}
+		})
+		.use(primevue.config.default)
+		.component("autocomplete", primevue.autocomplete)
+		.mount("#searchForm");
 	</script>
 }

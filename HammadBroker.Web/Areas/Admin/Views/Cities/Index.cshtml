@@ -1,5 +1,8 @@
 ﻿@using HammadBroker.Model.DTO
 @using HammadBroker.Model.Entities
+@using Microsoft.AspNetCore.Antiforgery
+@using Microsoft.AspNetCore.Http.Extensions
+@inject IAntiforgery Antiforgery
 @model CitiesPaginated
 @{
 	ViewData["Title"] = "المدن";
@@ -12,7 +15,7 @@
 	<div id="searchForm" class="card-body collapse">
 		<form method="get" asp-area="Admin" asp-controller="Cities" asp-action="Index">
 			<div class="form-floating mb-1">
-				<select class="form-select" name="@nameof(CitiesPaginated.Pagination.CountryCode)" asp-for="Pagination.CountryCode" asp-items="Model.Countries.Select(e => new SelectListItem(e.Name, e.Id, e.Id == Model.Pagination.CountryCode))">
+				<select class="form-select" id="@nameof(CitiesPaginated.Pagination.CountryCode)" name="@nameof(CitiesPaginated.Pagination.CountryCode)" asp-for="Pagination.CountryCode" asp-items="Model.Countries.Select(e => new SelectListItem(e.Name, e.Id, e.Id == Model.Pagination.CountryCode))">
 					<option value=""></option>
 				</select>
 				<label class="form-label" asp-for="Pagination.CountryCode"></label>
@@ -21,15 +24,15 @@
 				<input class="form-control" name="@nameof(CitiesPaginated.Pagination.Search)" asp-for="Pagination.Search" placeholder="@Html.DisplayNameFor(e => Model.Pagination.Search)" />
 				<label class="form-label" asp-for="Pagination.Search"></label>
 			</div>
-			<div class="mb-1">
-				<button type="submit" class="btn btn-outline-primary border-0"><span class="fa fa-magnifying-glass"></span></button>
+			<div class="my-1">
+				<button type="submit" class="btn btn-outline-secondary btn-sm"><span class="fa fa-magnifying-glass"></span></button>
 			</div>
 		</form>
 	</div>
 </div>
 <div class="row mb-1">
 	<div class="col-12">
-		<a href="#" onclick="JavaScript:addCity();" class="btn btn-outline-primary border-0"><i class="fa fa-plus"></i></a>
+		<a href="#" onclick="JavaScript:addCity();" class="btn btn-outline-primary border-0"><i class="fa fa-plus"></i> إضافة مدينة</a>
 	</div>
 </div>
 <div class="row table-responsive">
@@ -74,29 +77,37 @@
 	{
 	<script type="text/javascript">
 		function addCity() {
+			const countryCode = $("#@nameof(CitiesPaginated.Pagination.CountryCode)").val();
 			const url = '@Url.Action("Add", "Cities", null, Context.Request.Scheme)';
 			const params = new URLSearchParams({
-				countryCode: document.getElementById("CountryCode").value
+				countryCode
 			});
 			window.location.href = url + '?' + params.toString();
 		}
 
-		function deleteCity(id, name) {
+		async function deleteCity(id, name) {
 			if (!confirm(`هل تريد حذف مدينة '${name}'?`)) return;
-			const url = '@Url.Action("Delete", "Cities", null, Context.Request.Scheme)';
-			const params = new URLSearchParams({
-				id
-			});
-			fetch(url + '?' + params.toString(), { method: "DELETE" })
-				.then(async response => {
-					if (!response.ok) {
-						const isJson = response.headers.get('content-type')?.includes('application/json');
-						const data = isJson && await response.json();
-						const error = (data && data.message) || response.status;
-						alert(error);
-					}
-					location.reload();
-				});
+
+			try {
+				const url = '@Url.Action("Delete", "Cities", new
+			             {
+							 area = "Admin",
+							 id = "${0}"
+			             })'.replace("${0}", id);
+				const formData = new FormData();
+				formData.append("returnUrl", "@Context.Request.GetEncodedPathAndQuery()");
+				await fetch(url,
+					{
+						method: "post",
+						body: formData,
+						headers: {
+							RequestVerificationToken: "@Antiforgery.GetAndStoreTokens(Context).RequestToken"
+						},
+						credentials: "same-origin"
+					});
+			} catch (e) {
+				alert(ex.message || ex);
+			} 
 		}
 	</script>
 }

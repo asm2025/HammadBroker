@@ -70,3 +70,41 @@ function rgxFormat(str) {
 
 	return str;
 }
+
+function *range(start, end, step = 1) {
+	for (let i = start; i <= end; i += step) {
+		yield i;
+	}
+}
+
+function getTotalPages(pageSize, totalCount) {
+	return ~~Math.ceil(totalCount / pageSize.toFixed(2));
+}
+
+function isActivePage(currentPage, currentIteration) {
+	return currentPage === currentIteration;
+}
+		
+function getMaxPage(maxPages, currentPage) {
+	return ~~Math.ceil(currentPage / maxPages.toFixed(2)) * maxPages;
+}
+		
+function getMinPageToRender(maxPages, totalPages, currentPage) {
+	let minPageToRender = getMaxPageToRender(maxPages, totalPages, currentPage);
+	if (minPageToRender === 1) return minPageToRender;
+	if (minPageToRender === totalPages) minPageToRender = getMaxPage(maxPages, currentPage);
+	return minPageToRender - maxPages + 1;
+}
+
+function getMaxPageToRender(maxPages, totalPages, currentPage) {
+	const maxPage = getMaxPage(maxPages, currentPage);
+	return maxPage <= totalPages ? maxPage : totalPages;
+}
+
+function showLeftPagerButton(maxPages, totalPages, currentPage) {
+	return getMinPageToRender(maxPages, totalPages, currentPage) > maxPages;
+}
+
+function showRightPagerButton(maxPages, totalPages, currentPage) {
+	return getMaxPageToRender(maxPages, totalPages, currentPage) < totalPages;
+}

@@ -8,7 +8,7 @@
 
 <div class="row mb-1">
 	<div class="col-12">
-		<a asp-area="Admin" asp-controller="Buildings" asp-action="Add" class="btn btn-outline-primary border-0"><i class="fa fa-plus"></i></a>
+		<a asp-area="Admin" asp-controller="Buildings" asp-action="Add" class="btn btn-outline-primary border-0"><i class="fa fa-plus"></i> إضافة عقار</a>
 	</div>
 </div>
 <div class="d-flex">
@@ -19,9 +19,13 @@
 		}
 		else
 		{
-			<vid-asset VideoId="@Model.VideoId" AutoPlay="true" Class="ratio ratio-16x9"/>
+			<vid-asset VideoId="@Model.VideoId" Class="ratio ratio-16x9"/>
 		}
-		<div class="position-absolute bottom-0 mb-5 me-3 d-flex align-items-center">
+		<div class="position-absolute bottom-0 mb-5 mx-4 d-flex align-items-center">
+			<button class="btn btn-light me-1">
+				<i class="fa fa-plus"></i>
+				إضافة صور
+			</button>
 			@if (Model.Images.Count > 0)
 			{
 				<button class="btn btn-light me-1">
@@ -115,6 +119,6 @@
 	}
 </div>
 <div class="my-2">
-	<a asp-area="Admin" asp-controller="Buildings" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary border-0">تعديل</a>
+	<a asp-area="Admin" asp-controller="Buildings" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">تعديل</a>
 </div>
 

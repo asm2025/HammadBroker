@@ -32,6 +32,7 @@ public static class Constants
 	public static class Images
 	{
 		public const string Extensions = ".emf,.jfif,.jpg,.jpeg,.png,.svg,.wmf";
+		public const long FileSizeMax = 0xA00000;
 		public const int DimensionMax = 386;
 		public const string AssetImagesPath = "data/assets/";
 	}

@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace HammadBroker.Model.DTO;
 
-public class CityToUpdate : ICountryLookup
+public class CityToUpdate
 {
 	[Display(Name = "المدينة")]
 	[Required]
@@ -13,5 +12,4 @@ public class CityToUpdate : ICountryLookup
 	[Required]
 	[StringLength(3, MinimumLength = 3)]
 	public string CountryCode { get; set; }
-	public ICollection<CountryForList> Countries { get; set; }
 }

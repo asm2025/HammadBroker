@@ -12,7 +12,7 @@ namespace HammadBroker.Data.Repositories;
 
 public interface ICityRepository : IRepository<DataContext, City, int>
 {
-	IQueryable<City> List(string countryCode, IPagination settings = null);
+	IQueryable<City> List(string countryCode, string search = null, IPagination settings = null);
 	[NotNull]
-	Task<IList<City>> ListAsync(string countryCode, IPagination settings = null, CancellationToken token = default(CancellationToken));
+	Task<IList<City>> ListAsync(string countryCode, string search = null, IPagination settings = null, CancellationToken token = default(CancellationToken));
 }

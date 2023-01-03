@@ -183,7 +183,7 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 		ThrowIfDisposed();
 		if (string.IsNullOrEmpty(imageUrl)) throw new ArgumentNullException(nameof(imageUrl));
 		BuildingImage image = Images.Find(id);
-		if (image == null) throw new ArgumentOutOfRangeException(nameof(id));
+		if (image == null) return null;
 		image.ImageUrl = imageUrl;
 		Context.Entry(image).State = EntityState.Modified;
 		return image;
@@ -196,7 +196,7 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 		token.ThrowIfCancellationRequested();
 		if (string.IsNullOrEmpty(imageUrl)) throw new ArgumentNullException(nameof(imageUrl));
 		BuildingImage image = await Images.FindAsync(new[] { id }, token);
-		if (image == null) throw new ArgumentOutOfRangeException(nameof(id));
+		if (image == null) return null;
 		image.ImageUrl = imageUrl;
 		Context.Entry(image).State = EntityState.Modified;
 		return image;
@@ -207,8 +207,9 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	{
 		ThrowIfDisposed();
 		BuildingImage image = Images.Find(id);
-		if (image == null) throw new ArgumentOutOfRangeException(nameof(id));
-		return DeleteImageInternal(image);
+		return image == null
+					? null
+					: DeleteImageInternal(image);
 	}
 
 	/// <inheritdoc />
@@ -217,8 +218,9 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
 		BuildingImage image = await Images.FindAsync(new[] { id }, token);
-		if (image == null) throw new ArgumentOutOfRangeException(nameof(id));
-		return DeleteImageInternal(image);
+		return image == null
+					? null
+					: DeleteImageInternal(image);
 	}
 
 	/// <inheritdoc />

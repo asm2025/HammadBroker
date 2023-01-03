@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -43,10 +43,10 @@ public class CitiesController : MvcController
 		_mapper = mapper;
 	}
 
+	[Authorize(Policy = Constants.Authorization.AdministrationPolicy)]
 	[NotNull]
 	[ItemNotNull]
 	[HttpGet]
-	[Authorize(Policy = Constants.Authorization.AdministrationPolicy)]
 	public async Task<IActionResult> Index([FromQuery(Name = "")] CitiesList pagination, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
@@ -63,7 +63,7 @@ public class CitiesController : MvcController
 		token.ThrowIfCancellationRequested();
 		CitiesPaginated result = new CitiesPaginated(paginated.Result, (CitiesList)paginated.Pagination)
 		{
-			Countries = await _lookupService.ListCountriesAsync(token)
+			Countries = await _lookupService.ListCountriesAsync(pagination.Search, token)
 		};
 		token.ThrowIfCancellationRequested();
 		return View(result);
@@ -73,20 +73,33 @@ public class CitiesController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpGet("[action]")]
-	public async Task<IActionResult> List(string countryCode, CancellationToken token)
+	public async Task<IActionResult> Countries(string search, CancellationToken token)
+	{
+		token.ThrowIfCancellationRequested();
+		if (!string.IsNullOrEmpty(search)) search = WebUtility.UrlDecode(search);
+		IList<CountryForList> result = await _lookupService.ListCountriesAsync(search, token);
+		token.ThrowIfCancellationRequested();
+		return Ok(result);
+	}
+
+	[Authorize(Policy = Constants.Authorization.AdministrationPolicy)]
+	[NotNull]
+	[ItemNotNull]
+	[HttpGet("[action]")]
+	public async Task<IActionResult> List(string countryCode, string search, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		if (string.IsNullOrEmpty(countryCode)) countryCode = _companyInfo.CountryCode;
 		if (string.IsNullOrEmpty(countryCode)) return Ok(Array.Empty<CityForList>());
-		IPaginated<CityForList> result = await _cityService.ListAsync<CityForList>(_cityService.Repository.DbSet.Where(e => e.CountryCode == countryCode), null, token);
+		if (!string.IsNullOrEmpty(search)) search = WebUtility.UrlDecode(search);
+		IPaginated<CityForList> result = await _cityService.ListAsync<CityForList>(countryCode, search, null, token);
 		token.ThrowIfCancellationRequested();
 		return Ok(result.Result);
 	}
 
 	[NotNull]
-	[ItemNotNull]
 	[HttpGet("[action]")]
-	public async Task<IActionResult> Add(string countryCode, CancellationToken token)
+	public IActionResult Add(string countryCode, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		if (string.IsNullOrEmpty(countryCode)) countryCode = _companyInfo.CountryCode;
@@ -94,7 +107,6 @@ public class CitiesController : MvcController
 		{
 			CountryCode = countryCode
 		};
-		await _lookupService.FillCountriesAsync(cityToUpdate, token);
 		return View(cityToUpdate);
 	}
 
@@ -105,13 +117,7 @@ public class CitiesController : MvcController
 	public async Task<IActionResult> Add([NotNull] CityToUpdate cityToAdd, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
-
-		if (!ModelState.IsValid)
-		{
-			await _lookupService.FillCountriesAsync(cityToAdd, token);
-			token.ThrowIfCancellationRequested();
-			return View(cityToAdd);
-		}
+		if (!ModelState.IsValid) return View(cityToAdd);
 
 		City city = await _cityService.AddAsync(_mapper.Map<City>(cityToAdd), token);
 		token.ThrowIfCancellationRequested();
@@ -124,7 +130,7 @@ public class CitiesController : MvcController
 
 	[NotNull]
 	[ItemNotNull]
-	[HttpGet("[action]/{id:int}")]
+	[HttpGet("{id:int}/[action]")]
 	public async Task<IActionResult> Edit([Required] int id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
@@ -136,7 +142,7 @@ public class CitiesController : MvcController
 
 	[NotNull]
 	[ItemNotNull]
-	[HttpPost("[action]/{id:int}")]
+	[HttpPost("{id:int}/[action]")]
 	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> Edit([Required] int id, [NotNull] CityToUpdate cityToUpdate, CancellationToken token)
 	{
@@ -157,14 +163,21 @@ public class CitiesController : MvcController
 
 	[NotNull]
 	[ItemNotNull]
-	[HttpDelete("[action]")]
-	public async Task<IActionResult> Delete([Required] int id, CancellationToken token)
+	[HttpPost("{id:int}/[action]")]
+	[ValidateAntiForgeryToken]
+	public async Task<IActionResult> Delete([Required] int id, string returnUrl, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		City city = await _cityService.DeleteAsync(id, token);
 		token.ThrowIfCancellationRequested();
-		return city == null
-					? NotFound()
-					: Ok();
+		if (city == null) return NotFound();
+
+		if (!string.IsNullOrEmpty(returnUrl))
+		{
+			returnUrl = WebUtility.UrlDecode(returnUrl);
+			if (Url.IsLocalUrl(returnUrl)) return Redirect(returnUrl);
+		}
+
+		return RedirectToAction(nameof(Index));
 	}
 }

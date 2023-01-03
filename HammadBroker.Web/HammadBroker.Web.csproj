@@ -43,6 +43,12 @@
 		<ErrorReport>prompt</ErrorReport>
 		<CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
 	</PropertyGroup>
+	<ItemGroup>
+	  <Compile Remove="Areas\Admin\Views\Shared\**" />
+	  <Content Remove="Areas\Admin\Views\Shared\**" />
+	  <EmbeddedResource Remove="Areas\Admin\Views\Shared\**" />
+	  <None Remove="Areas\Admin\Views\Shared\**" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<Compile Include="..\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
@@ -122,7 +128,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Areas\Admin\Views\Shared\" />
 	  <Folder Include="_logs\" />
 	</ItemGroup>
 

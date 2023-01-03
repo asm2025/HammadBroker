@@ -9,6 +9,7 @@ using essentialMix.Core.Data.Entity.AutoMapper.Patterns.Services;
 using essentialMix.Patterns.Pagination;
 using HammadBroker.Data.Context;
 using HammadBroker.Data.Repositories;
+using HammadBroker.Extensions;
 using HammadBroker.Model.Entities;
 using HammadBroker.Model.Parameters;
 using JetBrains.Annotations;
@@ -68,13 +69,13 @@ public class CityService : Service<DataContext, ICityRepository, City, int>, ICi
 
 	/// <inheritdoc />
 	[ItemNotNull]
-	public async Task<IPaginated<City>> ListAsync(string countryCode, IPagination settings = null, CancellationToken token = default(CancellationToken))
+	public async Task<IPaginated<City>> ListAsync(string countryCode, string search = null, IPagination settings = null, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
-		IQueryable<City> queryable = string.IsNullOrEmpty(countryCode)
-										? Repository.DbSet
-										: Repository.DbSet.Where(e => e.CountryCode == countryCode);
+		IQueryable<City> queryable = Repository.DbSet
+												.WhereIf(!string.IsNullOrEmpty(countryCode), e => e.CountryCode == countryCode)
+												.WhereIf(!string.IsNullOrEmpty(search), e => e.Name.Contains(search));
 
 		if (settings is { PageSize: > 0 })
 		{
@@ -92,13 +93,13 @@ public class CityService : Service<DataContext, ICityRepository, City, int>, ICi
 
 	/// <inheritdoc />
 	[ItemNotNull]
-	public async Task<IPaginated<T>> ListAsync<T>(string countryCode, IPagination settings = null, CancellationToken token = default(CancellationToken))
+	public async Task<IPaginated<T>> ListAsync<T>(string countryCode, string search = null, IPagination settings = null, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
-		IQueryable<City> queryable = string.IsNullOrEmpty(countryCode)
-										? Repository.DbSet
-										: Repository.DbSet.Where(e => e.CountryCode == countryCode);
+		IQueryable<City> queryable = Repository.DbSet
+												.WhereIf(!string.IsNullOrEmpty(countryCode), e => e.CountryCode == countryCode)
+												.WhereIf(!string.IsNullOrEmpty(search), e => e.Name.Contains(search));
 
 		if (settings is { PageSize: > 0 })
 		{

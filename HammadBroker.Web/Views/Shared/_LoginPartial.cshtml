@@ -5,13 +5,14 @@
 	@if (SignInManager.IsSignedIn(User))
 	{
 		bool hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
-		<li class="nav-item dropdown">
-			<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+		<li class="nav-item btn-group">
+			<a class="nav-link btn border-0 rounded-0" asp-area="Identity" asp-page="/Account/Manage/Index" title="@User.Identity!.Name">
 				<i class="fa fa-circle-user"></i>
 			</a>
+			<a class="nav-link btn border-0 rounded-0 dropdown-toggle dropdown-toggle-split" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+				<span class="visually-hidden">Toggle Dropdown</span>
+			</a>
 			<ul class="dropdown-menu">
-				<li><a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index" title="ادارة الحساب">@User.Identity!.Name</a></li>
-				<li><hr class="dropdown-divider"></li>
 				<li><a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Email">البريد الالكتروني</a></li>
 				<li><a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/ChangePassword">كلمة المرور</a></li>
 				@if (hasExternalLogins)
@@ -32,7 +33,7 @@
 	else
 	{
 		<li class="nav-item">
-			<a class="nav-link" asp-area="Identity" asp-page="/Account/Login">دخول</a>
+			<a class="nav-link btn border-0 rounded-0" asp-area="Identity" asp-page="/Account/Login">دخول</a>
 		</li>
 	}
 </ul>
