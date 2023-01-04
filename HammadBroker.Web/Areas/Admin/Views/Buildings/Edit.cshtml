@@ -1,17 +1,20 @@
 ﻿@using HammadBroker.Model
+@using Microsoft.AspNetCore.Antiforgery
 @using Microsoft.AspNetCore.Http.Extensions
+@inject IAntiforgery Antiforgery
 @model HammadBroker.Model.DTO.BuildingToUpdate
 
 @{
 	ViewData["Title"] = "تعديل عقار";
-	int id = Context.Request.Query["id"].To(0);
+	int id = Context.Request.RouteValues["id"].To(0);
 }
 
 <form asp-area="Admin" asp-controller="Buildings" asp-action="Edit" Method="post" enctype="multipart/form-data">
 	<div id="buildingForm" v-scope class="card card-body mt-3">
 		<div asp-validation-summary="ModelOnly"></div>
-		<div class="text-danger" v-if="errors.length">
-			<div v-for="error in errors">{{ error }}</div>
+		<div v-if="errors && errors.length" class="alert alert-danger alert-dismissible fade show" role="alert" v-for="error of errors">
+			{{ error }}
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 		</div>
 
 		<input type="hidden" asp-route-id="@id" />
@@ -26,52 +29,55 @@
 						Drop zone is NOT shown
 					</div>
 					<div :class="['zone-item', uploading ? 'active' : '']">
-						<fileupload name="imagesToAdd[]" url="@Url.Action("AddImage", "Buildings", new { area = "Admin", id, returnUrl = Context.Request.GetEncodedPathAndQuery() })"
-									multiple accept="@Constants.Images.Extensions" :max-file-size="@Constants.Images.FileSizeMax" 
-									v-on:select="onFilesSelected($event)" v-on:upload="onFilesUploaded($event)">
+						<fileupload accept="@Constants.Images.Extensions" multiple :file-limit="10" :max-file-size="@Constants.Images.FileSizeMax" 
+									:custom-upload="true" v-on:select="onFilesSelected" v-on:uploader="onUpload" v-on:upload="onFilesUploaded" v-on:error="onError">
 							<template #header="{ chooseCallback, uploadCallback, clearCallback, files }">
-								<div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-									<div class="d-flex gap-2">
-										<p-button v-on:click="chooseCallback()" icon="pi pi-images" class="p-button-rounded"></p-button>
-										<p-button v-on:click="uploadCallback()" icon="pi pi-cloud-upload" class="p-button-rounded p-button-success" :disabled="!files || files.length === 0"></p-button>
-										<p-button v-on:click="clearCallback()" icon="pi pi-times" class="p-button-rounded p-button-danger" :disabled="!files || files.length === 0"></p-button>
+								<div class="w-100 d-flex flex-wrap align-items-center gap-2">
+									<div class="d-flex flex-grow-1 gap-2">
+										<button type="button" class="btn btn-outline-secondary btn-sm" title="اختيار ملفات" v-on:click="chooseCallback()"><i class="fa fa-images"></i></button>
+										<button type="button" class="btn btn-outline-secondary btn-sm" title="تحميل" v-on:click="uploadCallback()" :disabled="!files || files.length === 0"><i class="fa fa-cloud-upload"></i></button>
+										<button type="button" class="btn btn-outline-secondary btn-sm" title="حذف" v-on:click="clearCallback()" :disabled="!files || files.length === 0"><i class="fa fa-times"></i></button>
 									</div>
-									<ProgressBar :value="totalSizePercent" :showValue="false" :class="['md:w-10rem h-1rem w-full md:mr-auto', {'exceeded-progress-bar': (totalSizePercent > 100)}]">
+									<ProgressBar v-if="uploadProgress > 0" :value="uploadProgress" :showValue="false" :class="['md:w-10rem h-1rem w-full md:mr-auto', {'exceeded-progress-bar': (uploadProgress > 100)}]">
 										<span class="white-space-nowrap">{{ totalSize }}B / 1Mb</span>
 									</ProgressBar>
 								</div>
 							</template>
-							<template #content="{ files, uploadedFiles, onUploadedFileRemove, onFileRemove }">
-								<div v-if="files.length > 0">
-									<h5>تحميل</h5>
-									<div v-for="(file, index) of files" :key="file.name + file.type + file.size" class="card m-0 d-flex flex-column border-1 surface-border align-items-center">
-										<div>
-											<img role="presentation" :alt="file.name" :src="file.objectURL" height="50" class="shadow-2" />
+							<template #content="{ files, uploadedFiles, messages, onUploadedFileRemove, onFileRemove }">
+								<div v-if="messages && messages.length" class="alert " v-for="message in messages">{{ message }}</div>
+								<div v-if="files && files.length > 0">
+									<h5>قيد التحميل</h5>
+									<div v-for="(file, index) of files" :key="file.name + file.type + file.size" class="card m-0">
+										<span class="position-absolute top-0 start-0 border border-light p-1 m-1 badge rounded-pill text-bg-warning"><span class="visually-hidden">في انتظار التحميل</span></span>
+										<img class="card-img-top" role="presentation" :alt="file.name" :src="file.objectURL" />
+										<div class="card-body">
+											<div class="card-title text-truncate">{{ file.name }}</div>
+											<div class="d-flex align-items-center">
+												<div class="card-text flex-grow-1">{{ formatSize(file.size) }}</div>
+												<button type="button" class="btn btn-outline-danger btn-sm" v-on:click="onRemoveFile(file, onFileRemove, index)"><i class="fa fa-times"></i></button>
+											</div>
 										</div>
-										<div class="text-truncate">{{ file.name }}</div>
-										<div>{{ formatSize(file.size) }}</div>
-										<p-button icon="pi pi-times" v-on:click="onRemoveFile(file, onFileRemove, index)" class="p-button-outlined p-button-danger p-button-rounded" />
 									</div>
 								</div>
-								<div v-if="uploadedFiles.length > 0">
+								<div v-if="uploadedFiles && uploadedFiles.length > 0">
 									<h5>إكتمل</h5>
-									<div class="flex flex-wrap p-0 sm:p-5 gap-5">
-										<div v-for="(file, index) of uploadedFiles" :key="file.name + file.type + file.size" class="card m-0 px-6 flex flex-column border-1 surface-border align-items-center gap-3">
-											<div>
-												<img role="presentation" :alt="file.name" :src="file.objectURL" width="100" class="shadow-2" />
+									<div v-for="(file, index) of uploadedFiles" :key="file.name + file.type + file.size" class="card m-0">
+										<span class="position-absolute top-0 start-0 border border-light p-1 m-1 badge rounded-pill text-bg-success"><span class="visually-hidden">في انتظار التحميل</span></span>
+										<img class="card-img-top" role="presentation" :alt="file.name" :src="file.objectURL" />
+										<div class="card-body">
+											<div class="card-title text-truncate">{{ file.name }}</div>
+											<div class="d-flex align-items-center">
+												<div class="card-text flex-grow-1">{{ formatSize(file.size) }}</div>
+												<button type="button" class="btn btn-outline-danger btn-sm" v-on:click="onUploadedFileRemove(index)"><i class="fa fa-times"></i></button>
 											</div>
-											<span class="font-semibold">{{ file.name }}</span>
-											<div>{{ formatSize(file.size) }}</div>
-											<Badge value="Completed" class="mt-3" severity="success" />
-											<p-button icon="pi pi-times" v-on:click="onUploadedFileRemove(index)" class="p-button-outlined p-button-danger p-button-rounded" />
 										</div>
 									</div>
 								</div>
 							</template>
 							<template #empty>
-								<div class="flex align-items-center justify-content-center flex-column">
-									<i class="pi pi-cloud-upload border-2 border-circle p-5 text-8xl text-400 border-400"></i>
-									<p class="mt-4 mb-0">جر الملفات الى هنا للتحميل.</p>
+								<div class="d-flex align-items-center justify-content-center flex-column">
+									<i class="fa fa-cloud-upload border-2 border-circle p-5 text-6xl text-200 border-200"></i>
+									<p class="mt-4 mb-0">اسحب الملفات الى هنا للتحميل.</p>
 								</div>
 							</template>
 						</fileupload>
@@ -173,76 +179,87 @@
 
 		const DELAY = 300;
 
+		const _FILE_SIZES = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+		const _formatSize = (bytes) => {
+			if (!bytes) return '0 B';
+
+			const k = 1000;
+			const dm = 3;
+			const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+			return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + _FILE_SIZES[i];
+		};
+
 		const _fetchCountries = _.debounce(async (self, search) => {
-				self.errors.length = 0;
-				self.loading = true;
-				search = search && search.trim();
+			self.errors.length = 0;
+			self.loading = true;
+			search = search && search.trim();
 
-				try {
-					const url = `@Url.Action("Countries", "Cities", new
-					             {
-						             area = "Admin"
-					             }, Context.Request.Scheme)`;
-					const params = new URLSearchParams({
-						countryCode: self.countryCode,
-						search: search ? encodeURIComponent(search) : ""
-					});
-					const response = await window.fetch(url + "?" + params);
+			try {
+				const url = `@Url.Action("Countries", "Cities", new
+				             {
+					             area = "Admin"
+				             }, Context.Request.Scheme)`;
+				const params = new URLSearchParams({
+					countryCode: self.countryCode,
+					search: search ? encodeURIComponent(search) : ""
+				});
+				const response = await window.fetch(url + "?" + params);
 
-					if (!response.ok) {
-						const isJson = response.headers.get('content-type')?.includes('application/json');
-						const data = isJson && await response.json();
-						const error = (data && data.message) || response.status;
-						throw error;
-					}
-
-					self.countries = await response.json();
-				} catch (e) {
-					self.selectedCountry = null;
-					self.countries = [];
-					alert(e.message || e);
-				} finally {
-					self.loading = false;
+				if (!response.ok) {
+					const isJson = response.headers.get('content-type')?.includes('application/json');
+					const data = isJson && await response.json();
+					const error = (data && data.message) || response.status;
+					throw error;
 				}
+
+				self.countries = await response.json();
+			} catch (e) {
+				self.selectedCountry = null;
+				self.countries = [];
+				alert(e.message || e);
+			} finally {
+				self.loading = false;
+			}
 			},
 			DELAY,
 			{ leading: true });
 		const _fetchCities = _.debounce(async (self, countryCode, search) => {
-				if (!countryCode) {
-					self.selectedCity = null;
-					self.cities = [];
-					return;
+			if (!countryCode) {
+				self.selectedCity = null;
+				self.cities = [];
+				return;
+			}
+
+			self.loading = true;
+			search = search && search.trim();
+
+			try {
+				const url = `@Url.Action("List", "Cities", new
+				             {
+					             area = "Admin"
+				             }, Context.Request.Scheme)`;
+				const params = new URLSearchParams({
+					countryCode: self.countryCode,
+					search: search ? encodeURIComponent(search) : ""
+				});
+				const response = await window.fetch(url + "?" + params);
+
+				if (!response.ok) {
+					const isJson = response.headers.get('content-type')?.includes('application/json');
+					const data = isJson && await response.json();
+					const error = (data && data.message) || response.status;
+					throw error;
 				}
 
-				self.loading = true;
-				search = search && search.trim();
-
-				try {
-					const url = `@Url.Action("List", "Cities", new
-					             {
-						             area = "Admin"
-					             }, Context.Request.Scheme)`;
-					const params = new URLSearchParams({
-						countryCode: self.countryCode,
-						search: search ? encodeURIComponent(search) : ""
-					});
-					const response = await window.fetch(url + "?" + params);
-
-					if (!response.ok) {
-						const isJson = response.headers.get('content-type')?.includes('application/json');
-						const data = isJson && await response.json();
-						const error = (data && data.message) || response.status;
-						throw error;
-					}
-
-					self.cities = await response.json();
-				} catch (e) {
-					self.selectedCity = null;
-					self.cities = [];
-					alert(e.message || e);
-				} finally {
-					self.loading = false;
-				}
+				self.cities = await response.json();
+			} catch (e) {
+				self.selectedCity = null;
+				self.cities = [];
+				alert(e.message || e);
+			} finally {
+				self.loading = false;
+			}
 			},
 			DELAY,
 			{ leading: true });
@@ -258,10 +275,11 @@
 						cityId: @Model.CityId,
 						cities: [],
 						uploading: false,
-						uploadedFile: [],
 						files: [],
+						uploadedFiles: [],
+						uploadedSize: 0,
 						totalSize: 0,
-						totalSizePercent: 0,
+						uploadProgress: 0,
 						toast: useToast(),
 						errors: []
 					}
@@ -278,6 +296,12 @@
 							this.cityId = newValue.id;
 						else
 							this.cityId = 0;
+					},
+					uploadedSize(newValue) {
+						this.onProgress(newValue, this.totalSize);
+					},
+					totalSize(newValue) {
+						this.onProgress(this.uploadedSize, newValue);
 					}
 				},
 				methods: {
@@ -292,43 +316,79 @@
 					fetchCities(countryCode, search) {
 						_fetchCities(this, countryCode, search);
 					},
+					onFilesSelected(event) {
+						this.uploadedSize = 0;
+						this.files = event.files;
+
+						let totalSize = 0;
+						this.files.forEach((file) => {
+							totalSize += parseInt(this.formatSize(file.size));
+						});
+						this.totalSize = totalSize;
+					},
 					onRemoveFile(file, fileRemoveCallback, index) {
 						fileRemoveCallback(index);
 						this.totalSize -= parseInt(this.formatSize(file.size));
-						this.totalSizePercent = this.totalSize / 10.0;
 					},
 					onClearUpload(clear) {
 						clear();
+						this.uploadedSize = 0;
 						this.totalSize = 0;
-						this.totalSizePercent = 0;
 					},
-					onFilesSelected(event) {
-						this.files = event.files;
-						this.files.forEach((file) => {
-							this.totalSize += parseInt(this.formatSize(file.size));
-						});
+					async onUpload(event) {
+						const url = "@Url.Action("AddImage", "Buildings", new { area = "Admin", id, returnUrl = Context.Request.GetEncodedPathAndQuery() })";
+						const files = event.files;
+
+						this.uploadedSize = 0;
+
+						for (const file of files) {
+							const formData = new FormData();
+							formData.append("id", @id);
+							formData.append("imageToAdd", file);
+
+							try {
+								await fetch(url,
+									{
+										method: "post",
+										body: formData,
+										headers: {
+											RequestVerificationToken: "@Antiforgery.GetAndStoreTokens(Context).RequestToken"
+										},
+										credentials: "same-origin"
+									});
+							} catch (e) {
+								const error = e.message || e;
+								this.errors.push("حدث خطأ أثناء تحميل الملف: " + file.name + ". " + error);
+							} finally {
+								this.uploadedSize += parseInt(this.formatSize(file.size));
+							}
+						}
 					},
-					onAdvancedUpload() {
+					onFilesUploaded(event) {
+						this.uploadedFiles = event.files;
+						this.totalSize = 0;
+						this.uploadProgress = 0;
 						this.$toast.add({ severity: 'info', summary: 'تم بنجاح', detail: 'اكتمل تحميل الملف', life: 3000 });
 					},
-					uploadEvent(callback) {
-						this.totalSizePercent = this.totalSize / 10;
-						callback();
+					onProgress(uploaded, total) {
+						if (!uploaded || !total) {
+							this.uploadProgress = 0;
+							return;
+						}
+
+						this.uploadProgress = Math.ceil((uploaded / parseFloat(total)) * 100);
 					},
-					onUpload() {
-						this.totalSize = 0;
-						this.totalSizePercent = 0;
-						this.$toast.add({ severity: 'info', summary: 'تم بنجاح', detail: 'اكتمل تحميل الملف', life: 3000 });
+					onError(event) {
+						if (event.files && event.files.length) {
+							for (const file of event.files) {
+								this.errors.push("حدث خطأ أثناء تحميل الملف: " + file.name);
+							}
+						} else {
+							this.errors.push("حدث خطأ أثناء التحميل.");
+						}
 					},
 					formatSize(bytes) {
-						if (bytes === 0) return '0 B';
-
-						const k = 1000;
-						const dm = 3;
-						const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-						const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-						return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+						_formatSize(bytes);
 					}
 				},
 				mounted() {
@@ -339,8 +399,6 @@
 			.use(primevue.toastservice)
 			.component("autocomplete", primevue.autocomplete)
 			.component("fileupload", primevue.fileupload)
-			.component("p-button", primevue.button)
-			.component("badge", primevue.badge)
 			.component("progressbar", primevue.progressbar)
 			.component("toast", primevue.toast)
 			.mount("#buildingForm");

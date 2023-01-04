@@ -7,8 +7,9 @@
 <form asp-area="Admin" asp-controller="Cities" asp-action="Add" Method="post" enctype="multipart/form-data">
 	<div id="countryForm" v-scope class="card card-body mt-3">
 		<div asp-validation-summary="ModelOnly"></div>
-		<div class="text-danger" v-if="errors.length">
-			<div v-for="error in errors">{{ error }}</div>
+		<div v-if="errors && errors.length" class="alert alert-danger alert-dismissible fade show" role="alert" v-for="error of errors">
+			{{ error }}
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 		</div>
 
 		<div class="form-floating mb-1">

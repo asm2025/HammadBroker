@@ -119,13 +119,6 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 		ThrowIfDisposed();
 		if (string.IsNullOrEmpty(imageUrl)) throw new ArgumentNullException(nameof(imageUrl));
 
-		if (string.IsNullOrEmpty(building.ImageUrl))
-		{
-			building.ImageUrl = imageUrl;
-			Context.Entry(building).State = EntityState.Modified;
-			return;
-		}
-
 		Images.Add(new BuildingImage
 		{
 			BuildingId = building.Id,
@@ -140,13 +133,6 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 		token.ThrowIfCancellationRequested();
 		if (string.IsNullOrEmpty(imageUrl)) throw new ArgumentNullException(nameof(imageUrl));
 
-		if (string.IsNullOrEmpty(building.ImageUrl))
-		{
-			building.ImageUrl = imageUrl;
-			Context.Entry(building).State = EntityState.Modified;
-			return;
-		}
-
 		await Images.AddAsync(new BuildingImage
 		{
 			BuildingId = building.Id,
@@ -155,30 +141,7 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	}
 
 	/// <inheritdoc />
-	public void UpdateImage(int buildingId, string imageUrl)
-	{
-		ThrowIfDisposed();
-		if (string.IsNullOrEmpty(imageUrl)) throw new ArgumentNullException(nameof(imageUrl));
-		Building building = DbSet.Find(buildingId);
-		if (building == null) throw new ArgumentOutOfRangeException(nameof(buildingId));
-		building.ImageUrl = imageUrl;
-		Context.Entry(building).State = EntityState.Modified;
-	}
-
-	/// <inheritdoc />
-	public async ValueTask UpdateImageAsync(int buildingId, string imageUrl, CancellationToken token = default(CancellationToken))
-	{
-		ThrowIfDisposed();
-		token.ThrowIfCancellationRequested();
-		if (string.IsNullOrEmpty(imageUrl)) throw new ArgumentNullException(nameof(imageUrl));
-		Building building = await DbSet.FindAsync(new[] { buildingId }, token);
-		if (building == null) throw new ArgumentOutOfRangeException(nameof(buildingId));
-		building.ImageUrl = imageUrl;
-		Context.Entry(building).State = EntityState.Modified;
-	}
-
-	/// <inheritdoc />
-	public BuildingImage UpdateBuildingImage(int id, string imageUrl)
+	public BuildingImage UpdateImage(int id, string imageUrl)
 	{
 		ThrowIfDisposed();
 		if (string.IsNullOrEmpty(imageUrl)) throw new ArgumentNullException(nameof(imageUrl));
@@ -190,7 +153,7 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	}
 
 	/// <inheritdoc />
-	public async ValueTask<BuildingImage> UpdateBuildingImageAsync(int id, string imageUrl, CancellationToken token = default(CancellationToken))
+	public async ValueTask<BuildingImage> UpdateImageAsync(int id, string imageUrl, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();

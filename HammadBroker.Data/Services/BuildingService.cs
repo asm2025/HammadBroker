@@ -173,7 +173,7 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	public BuildingImage UpdateBuildingImage(int id, string imageUrl)
 	{
 		ThrowIfDisposed();
-		BuildingImage entity = Repository.UpdateBuildingImage(id, imageUrl);
+		BuildingImage entity = Repository.UpdateImage(id, imageUrl);
 		if (entity == null) return null;
 		Context.SaveChanges();
 		return entity;
@@ -193,7 +193,7 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
-		BuildingImage entity = await Repository.UpdateBuildingImageAsync(id, imageUrl, token);
+		BuildingImage entity = await Repository.UpdateImageAsync(id, imageUrl, token);
 		token.ThrowIfCancellationRequested();
 		if (entity == null) return null;
 		await Context.SaveChangesAsync(token);

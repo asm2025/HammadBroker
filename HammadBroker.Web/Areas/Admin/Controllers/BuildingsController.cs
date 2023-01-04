@@ -264,70 +264,37 @@ public class BuildingsController : MvcController
 	[ItemNotNull]
 	[HttpPost("{id:int}/images/[action]")]
 	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> AddImage([Required] int id, BuildingImageToAdd[] imagesToAdd, string returnUrl, CancellationToken token)
+	public async Task<IActionResult> AddImage([Required] int id, BuildingImageToAdd imageToAdd, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
-		if (imagesToAdd == null || imagesToAdd.Length == 0) ModelState.AddModelError(string.Empty, "لم يتم اختيار صور للتحميل");
-		if (imagesToAdd == null || !ModelState.IsValid) return BadRequest(ModelState);
+		if (imageToAdd == null) ModelState.AddModelError(nameof(imageToAdd), "لم يتم اختيار صورة للتحميل");
+		if (imageToAdd == null || !ModelState.IsValid) return BadRequest(ModelState);
 
 		Building building = await _buildingService.GetAsync(id, token);
 		token.ThrowIfCancellationRequested();
 		if (building == null) return NotFound();
 
-		foreach (BuildingImageToAdd imageToAdd in imagesToAdd)
-		{
-			IFormFile formFile = imageToAdd.ImageFile;
-			if (formFile is null || formFile.Length == 0) continue;
+		IFormFile formFile = imageToAdd.ImageFile;
 
-			try
-			{
-				string fileName = Upload(_assetImagesPath, building.Id, formFile);
-				if (string.IsNullOrEmpty(fileName)) return Problem($"Failed to upload file '{formFile.FileName}'.");
-				await _buildingService.AddImageAsync(building, Path.GetFileName(fileName), token);
-			}
-			catch (Exception ex)
-			{
-				Logger.LogError(ex.CollectMessages());
-				return Problem(ex.Unwrap());
-			}
+		if (formFile is null || formFile.Length == 0)
+		{
+			ModelState.AddModelError(nameof(imageToAdd), "صورة غير صالحة للتحميل");
+			return BadRequest(ModelState);
 		}
 
-		if (!string.IsNullOrEmpty(returnUrl))
+		try
 		{
-			returnUrl = WebUtility.UrlDecode(returnUrl);
-			if (Url.IsLocalUrl(returnUrl)) return Redirect(returnUrl);
+			string fileName = UploadBuildingImage(_assetImagesPath, building.Id, formFile);
+			if (string.IsNullOrEmpty(fileName)) return Problem($"Failed to upload file '{formFile.FileName}'.");
+			await _buildingService.AddImageAsync(building, Path.GetFileName(fileName), token);
+		}
+		catch (Exception ex)
+		{
+			Logger.LogError(ex.CollectMessages());
+			return Problem(ex.Unwrap());
 		}
 
-		return RedirectToAction(nameof(Get), new
-		{
-			id = building.Id
-		});
-
-		static string Upload(string path, int id, [NotNull] IFormFile formFile)
-		{
-			Stream stream = null;
-			Image image = null;
-			Image thumb = null;
-			string fileName = Path.Combine(path, $"{id}{Path.GetExtension(formFile.FileName).Prefix('.')}");
-
-			try
-			{
-				stream = formFile.OpenReadStream();
-				image = Image.FromStream(stream);
-				thumb = image.Width > Constants.Images.DimensionMax || image.Height > Constants.Images.DimensionMax
-							? ImageHelper.Resize(image, Constants.Images.DimensionMax, image.Width >= image.Height)
-							: image;
-				if (SysFile.Exists(fileName)) FileHelper.Delete(fileName);
-				fileName = ImageHelper.Save(thumb, fileName);
-				return fileName;
-			}
-			finally
-			{
-				ObjectHelper.Dispose(ref thumb);
-				ObjectHelper.Dispose(ref image);
-				ObjectHelper.Dispose(ref stream);
-			}
-		}
+		return Ok();
 	}
 
 	[NotNull]
@@ -350,5 +317,31 @@ public class BuildingsController : MvcController
 		{
 			id = buildingImage.BuildingId
 		});
+	}
+
+	private static string UploadBuildingImage(string path, int id, [NotNull] IFormFile formFile)
+	{
+		Stream stream = null;
+		Image image = null;
+		Image thumb = null;
+		string fileName = Path.Combine(path, $"{id}.{Guid.NewGuid():N}.{Path.GetExtension(formFile.FileName).Prefix('.')}");
+
+		try
+		{
+			stream = formFile.OpenReadStream();
+			image = Image.FromStream(stream);
+			thumb = image.Width > Constants.Images.DimensionMax || image.Height > Constants.Images.DimensionMax
+						? ImageHelper.Resize(image, Constants.Images.DimensionMax, image.Width >= image.Height)
+						: image;
+			if (SysFile.Exists(fileName)) FileHelper.Delete(fileName);
+			fileName = ImageHelper.Save(thumb, fileName);
+			return fileName;
+		}
+		finally
+		{
+			ObjectHelper.Dispose(ref thumb);
+			ObjectHelper.Dispose(ref image);
+			ObjectHelper.Dispose(ref stream);
+		}
 	}
 }

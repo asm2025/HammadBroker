@@ -29,10 +29,8 @@ public interface IBuildingRepository : IRepository<DataContext, Building, int>
 	ValueTask AddImageAsync(int buildingId, [NotNull] string imageUrl, CancellationToken token = default(CancellationToken));
 	void AddImage([NotNull] Building building, [NotNull] string imageUrl);
 	ValueTask AddImageAsync([NotNull] Building building, [NotNull] string imageUrl, CancellationToken token = default(CancellationToken));
-	void UpdateImage(int buildingId, [NotNull] string imageUrl);
-	ValueTask UpdateImageAsync(int buildingId, [NotNull] string imageUrl, CancellationToken token = default(CancellationToken));
-	BuildingImage UpdateBuildingImage(int id, [NotNull] string imageUrl);
-	ValueTask<BuildingImage> UpdateBuildingImageAsync(int id, [NotNull] string imageUrl, CancellationToken token = default(CancellationToken));
+	BuildingImage UpdateImage(int id, [NotNull] string imageUrl);
+	ValueTask<BuildingImage> UpdateImageAsync(int id, [NotNull] string imageUrl, CancellationToken token = default(CancellationToken));
 	BuildingImage DeleteImage(int id);
 	ValueTask<BuildingImage> DeleteImageAsync(int id, CancellationToken token = default(CancellationToken));
 	[NotNull]
