@@ -54,7 +54,7 @@ public class BuildingsController : MvcController
 		_companyInfo = companyInfo;
 		_mapper = mapper;
 		PathContent assetsPath = virtualPathSettings.PathContents?.FirstOrDefault(e => e.Alias.IsSame("AssetImages")) ?? throw new ConfigurationErrorsException($"{nameof(VirtualPathSettings)} does not contain a definition for AssetImages.");
-		_assetImagesPath = assetsPath.PhysicalPath.Suffix(Path.DirectorySeparatorChar);
+		_assetImagesPath = Path.Combine(environment.WebRootPath, assetsPath.PhysicalPath).Suffix(Path.DirectorySeparatorChar);
 		_assetImagesBaseUrl = assetsPath.RequestPath.Suffix(Path.AltDirectorySeparatorChar);
 	}
 
@@ -345,7 +345,7 @@ public class BuildingsController : MvcController
 		Stream stream = null;
 		Image image = null;
 		Image thumb = null;
-		string fileName = Path.Combine(path, $"{id}.{Guid.NewGuid():N}.{Path.GetExtension(formFile.FileName).Prefix('.')}");
+		string fileName = Path.Combine(path, $"{id}.{Guid.NewGuid():N}{Path.GetExtension(formFile.FileName).Prefix('.')}");
 
 		try
 		{

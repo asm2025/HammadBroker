@@ -25,13 +25,19 @@
 			<div class="card card-body">
 				<div class="drop-zone">
 					<div :class="['zone-item', !uploading ? 'active' : '']">
-						<carousel :value="images" :num-visible="4" :num-scroll="2" orientation="vertical" circular
-								:showNavigators="false" :showIndicators="false" :responsive-options="responsiveOptions"
-								:autoplayInterval="5000">
+						<carousel :value="images" :num-visible="1" :num-scroll="1" :page="carouselPage" :show-navigators="false" :show-indicators="false">
 							<template #item="{ data }">
 								<img :src="data" alt="" class="img-fluid" />
 							</template>
 						</carousel>
+						<div v-if="images && images.length" class="d-flex justify-content-between w-100 position-absolute px-3" style="top: 50% !important;">
+							<button type="button" class="btn btn-light btn-sm border-0" v-on:click="previousImage">
+								<i class="fa fa-circle-arrow-right"></i>
+							</button>
+							<button type="button" class="btn btn-light btn-sm border-0" v-on:click="nextImage">
+								<i class="fa fa-circle-arrow-left"></i>
+							</button>
+						</div>
 					</div>
 					<div :class="['zone-item', uploading ? 'active' : '']">
 						<fileupload accept="@Constants.Images.Extensions" multiple :file-limit="10" :max-file-size="@Constants.Images.FileSizeMax" 
@@ -281,22 +287,8 @@
 					selectedCity: null,
 					cityId: @Model.CityId,
 					cities: [],
+					carouselPage: 1,
 					images: [],
-					responsiveOptions: [
-						{
-							breakpoint: '1024px',
-							numVisible: 4,
-							numScroll: 2
-						}, {
-							breakpoint: '600px',
-							numVisible: 2,
-							numScroll: 1
-						}, {
-							breakpoint: '480px',
-							numVisible: 1,
-							numScroll: 1
-						}
-					],
 					uploading: false,
 					files: [],
 					uploadedFiles: [],
@@ -336,6 +328,7 @@
 				},
 				async fetchImages() {
 					this.errors.length = 0;
+					this.carouselPage = 1;
 					this.loading = true;
 
 					try {
@@ -360,6 +353,14 @@
 					} finally {
 						this.loading = false;
 					}
+				},
+				previousImage() {
+					if (!this.images || !this.images.length || this.carouselPage < 2) return;
+					this.carouselPage--;
+				},
+				nextImage() {
+					if (!this.images || !this.images.length || this.carouselPage >= this.images.length) return;
+					this.carouselPage++;
 				},
 				onFilesSelected(event) {
 					this.uploadedSize = 0;
@@ -416,7 +417,7 @@
 								throw error;
 							}
 
-							this.uploadedFiles = [...this.uploadedFiles, ...file];
+							this.uploadedFiles = [...this.uploadedFiles, file];
 						} catch (e) {
 							const error = e.message || e;
 							this.errors.push(error);
