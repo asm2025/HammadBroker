@@ -1,8 +1,8 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using essentialMix.Core.Data.Entity.AutoMapper.Patterns.Services;
 using essentialMix.Data.Patterns.Parameters;
-using essentialMix.Patterns.Pagination;
 using HammadBroker.Data.Context;
 using HammadBroker.Data.Repositories;
 using HammadBroker.Model.Entities;
@@ -13,10 +13,10 @@ namespace HammadBroker.Data.Services;
 public interface IBuildingService : IService<DataContext, IBuildingRepository, Building, int>
 {
 	[NotNull]
-	IPaginated<string> ListImages(int buildingId, IPagination settings = null);
+	IList<string> ListImages(int buildingId);
 	[NotNull]
 	[ItemNotNull]
-	Task<IPaginated<string>> ListImagesAsync(int buildingId, IPagination settings = null, CancellationToken token = default(CancellationToken));
+	Task<IList<string>> ListImagesAsync(int buildingId, CancellationToken token = default(CancellationToken));
 	T GetBuildingImage<T>(int id);
 	[NotNull]
 	Task<T> GetBuildingImageAsync<T>(int id, CancellationToken token = default(CancellationToken));

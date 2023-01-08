@@ -14,7 +14,7 @@
 	<h5 class="card-header collapsed" data-bs-toggle="collapse" data-bs-target="#searchForm" aria-expanded="false" aria-controls="searchForm">البحث</h5>
 	<div id="searchForm" v-scope class="card-body collapse">
 		<form method="get" asp-area="Admin" asp-controller="Buildings" asp-action="Index">
-			<div v-if="errors && errors.length" class="alert alert-danger alert-dismissible fade show" role="alert" v-for="error of errors">
+			<div v-if="errors && errors.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="error of errors">
 				{{ error }}
 				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 			</div>

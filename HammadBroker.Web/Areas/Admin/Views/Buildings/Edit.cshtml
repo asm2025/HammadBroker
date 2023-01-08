@@ -1,6 +1,5 @@
 ﻿@using HammadBroker.Model
 @using Microsoft.AspNetCore.Antiforgery
-@using Microsoft.AspNetCore.Http.Extensions
 @inject IAntiforgery Antiforgery
 @model HammadBroker.Model.DTO.BuildingToUpdate
 
@@ -12,7 +11,7 @@
 <form asp-area="Admin" asp-controller="Buildings" asp-action="Edit" Method="post" enctype="multipart/form-data">
 	<div id="buildingForm" v-scope class="card card-body mt-3">
 		<div asp-validation-summary="ModelOnly"></div>
-		<div v-if="errors && errors.length" class="alert alert-danger alert-dismissible fade show" role="alert" v-for="error of errors">
+		<div v-if="errors && errors.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="error of errors">
 			{{ error }}
 			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 		</div>
@@ -20,13 +19,19 @@
 		<input type="hidden" asp-route-id="@id" />
 		<div class="card-deck2 align-items-stretch">
 			<div class="card card-body">
-				<img-asset name="ImageFile" src="@Model.ImageUrl" class="img-placeholder" imageclass="img-fluid d-block" />
+				<img-asset name="Image" src="@Model.ImageUrl" class="img-placeholder" imageclass="img-fluid d-block" />
 				<input type="hidden" asp-for="ImageUrl" />
 			</div>
 			<div class="card card-body">
 				<div class="drop-zone">
 					<div :class="['zone-item', !uploading ? 'active' : '']">
-						Drop zone is NOT shown
+						<carousel :value="images" :num-visible="4" :num-scroll="2" orientation="vertical" circular
+								:showNavigators="false" :showIndicators="false" :responsive-options="responsiveOptions"
+								:autoplayInterval="5000">
+							<template #item="{ data }">
+								<img :src="data" alt="" class="img-fluid" />
+							</template>
+						</carousel>
 					</div>
 					<div :class="['zone-item', uploading ? 'active' : '']">
 						<fileupload accept="@Constants.Images.Extensions" multiple :file-limit="10" :max-file-size="@Constants.Images.FileSizeMax" 
@@ -35,18 +40,20 @@
 								<div class="w-100 d-flex flex-wrap align-items-center gap-2">
 									<div class="d-flex flex-grow-1 gap-2">
 										<button type="button" class="btn btn-outline-secondary btn-sm" title="اختيار ملفات" v-on:click="chooseCallback()"><i class="fa fa-images"></i></button>
-										<button type="button" class="btn btn-outline-secondary btn-sm" title="تحميل" v-on:click="uploadCallback()" :disabled="!files || files.length === 0"><i class="fa fa-cloud-upload"></i></button>
-										<button type="button" class="btn btn-outline-secondary btn-sm" title="حذف" v-on:click="clearCallback()" :disabled="!files || files.length === 0"><i class="fa fa-times"></i></button>
+										<button v-if="files && files.length" type="button" class="btn btn-outline-secondary btn-sm" title="تحميل" v-on:click="uploadCallback()"><i class="fa fa-cloud-upload"></i></button>
+										<button v-if="files && files.length" type="button" class="btn btn-outline-secondary btn-sm" title="حذف" v-on:click="clearCallback()"><i class="fa fa-times"></i></button>
 									</div>
-									<ProgressBar v-if="uploadProgress > 0" :value="uploadProgress" :showValue="false" :class="['md:w-10rem h-1rem w-full md:mr-auto', {'exceeded-progress-bar': (uploadProgress > 100)}]">
-										<span class="white-space-nowrap">{{ totalSize }}B / 1Mb</span>
+									<ProgressBar v-show="uploadProgress > 0" :value="uploadProgress" :show-value="false" :class="['md:w-10rem h-1rem w-full md:mr-auto', {'exceeded-progress-bar': (uploadProgress > 100)}]">
 									</ProgressBar>
 								</div>
 							</template>
 							<template #content="{ files, uploadedFiles, messages, onUploadedFileRemove, onFileRemove }">
-								<div v-if="messages && messages.length" class="alert " v-for="message in messages">{{ message }}</div>
+								<div v-if="messages && messages.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="message of messages">
+									{{ message }}
+									<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+								</div>
 								<div v-if="files && files.length > 0">
-									<h5>قيد التحميل</h5>
+									<h5>التحميل</h5>
 									<div v-for="(file, index) of files" :key="file.name + file.type + file.size" class="card m-0">
 										<span class="position-absolute top-0 start-0 border border-light p-1 m-1 badge rounded-pill text-bg-warning"><span class="visually-hidden">في انتظار التحميل</span></span>
 										<img class="card-img-top" role="presentation" :alt="file.name" :src="file.objectURL" />
@@ -191,216 +198,278 @@
 		};
 
 		const _fetchCountries = _.debounce(async (self, search) => {
-			self.errors.length = 0;
-			self.loading = true;
-			search = search && search.trim();
+				self.errors.length = 0;
+				self.loading = true;
+				search = search && search.trim();
 
-			try {
-				const url = `@Url.Action("Countries", "Cities", new
-				             {
-					             area = "Admin"
-				             }, Context.Request.Scheme)`;
-				const params = new URLSearchParams({
-					countryCode: self.countryCode,
-					search: search ? encodeURIComponent(search) : ""
-				});
-				const response = await window.fetch(url + "?" + params);
+				try {
+					const url = `@Url.Action("Countries", "Cities", new
+					             {
+						             area = "Admin"
+					             }, Context.Request.Scheme)`;
+					const params = new URLSearchParams({
+						countryCode: self.countryCode,
+						search: search ? encodeURIComponent(search) : ""
+					});
+					const response = await window.fetch(url + "?" + params);
 
-				if (!response.ok) {
-					const isJson = response.headers.get('content-type')?.includes('application/json');
-					const data = isJson && await response.json();
-					const error = (data && data.message) || response.status;
-					throw error;
+					if (!response.ok) {
+						const isJson = response.headers.get('content-type')?.includes('application/json');
+						const data = isJson && await response.json();
+						const error = (data && data.message) || response.status;
+						throw error;
+					}
+
+					self.countries = await response.json();
+				} catch (e) {
+					self.selectedCountry = null;
+					self.countries = [];
+					alert(e.message || e);
+				} finally {
+					self.loading = false;
 				}
-
-				self.countries = await response.json();
-			} catch (e) {
-				self.selectedCountry = null;
-				self.countries = [];
-				alert(e.message || e);
-			} finally {
-				self.loading = false;
-			}
 			},
 			DELAY,
 			{ leading: true });
 		const _fetchCities = _.debounce(async (self, countryCode, search) => {
-			if (!countryCode) {
-				self.selectedCity = null;
-				self.cities = [];
-				return;
-			}
-
-			self.loading = true;
-			search = search && search.trim();
-
-			try {
-				const url = `@Url.Action("List", "Cities", new
-				             {
-					             area = "Admin"
-				             }, Context.Request.Scheme)`;
-				const params = new URLSearchParams({
-					countryCode: self.countryCode,
-					search: search ? encodeURIComponent(search) : ""
-				});
-				const response = await window.fetch(url + "?" + params);
-
-				if (!response.ok) {
-					const isJson = response.headers.get('content-type')?.includes('application/json');
-					const data = isJson && await response.json();
-					const error = (data && data.message) || response.status;
-					throw error;
+				if (!countryCode) {
+					self.selectedCity = null;
+					self.cities = [];
+					return;
 				}
 
-				self.cities = await response.json();
-			} catch (e) {
-				self.selectedCity = null;
-				self.cities = [];
-				alert(e.message || e);
-			} finally {
-				self.loading = false;
-			}
+				self.loading = true;
+				search = search && search.trim();
+
+				try {
+					const url = `@Url.Action("List", "Cities", new
+					             {
+						             area = "Admin"
+					             }, Context.Request.Scheme)`;
+					const params = new URLSearchParams({
+						countryCode: self.countryCode,
+						search: search ? encodeURIComponent(search) : ""
+					});
+					const response = await window.fetch(url + "?" + params);
+
+					if (!response.ok) {
+						const isJson = response.headers.get('content-type')?.includes('application/json');
+						const data = isJson && await response.json();
+						const error = (data && data.message) || response.status;
+						throw error;
+					}
+
+					self.cities = await response.json();
+				} catch (e) {
+					self.selectedCity = null;
+					self.cities = [];
+					alert(e.message || e);
+				} finally {
+					self.loading = false;
+				}
 			},
 			DELAY,
 			{ leading: true });
 
 		createApp({
-				data() {
-					return {
-						loading: false,
-						selectedCountry: null,
-						countryCode: "@Model.CountryCode",
-						countries: [],
-						selectedCity: null,
-						cityId: @Model.CityId,
-						cities: [],
-						uploading: false,
-						files: [],
-						uploadedFiles: [],
-						uploadedSize: 0,
-						totalSize: 0,
-						uploadProgress: 0,
-						toast: useToast(),
-						errors: []
-					}
-				},
-				watch: {
-					selectedCountry(newValue) {
-						if (newValue && newValue.id)
-							this.countryCode = newValue.id;
-						else
-							this.countryCode = "";
-					},
-					selectedCity(newValue) {
-						if (newValue && newValue.id)
-							this.cityId = newValue.id;
-						else
-							this.cityId = 0;
-					},
-					uploadedSize(newValue) {
-						this.onProgress(newValue, this.totalSize);
-					},
-					totalSize(newValue) {
-						this.onProgress(this.uploadedSize, newValue);
-					}
-				},
-				methods: {
-					fetchData() {
-						this.errors.length = 0;
-						this.fetchCountries();
-						this.fetchCities(this.countryCode);
-					},
-					fetchCountries(search) {
-						_fetchCountries(this, search);
-					},
-					fetchCities(countryCode, search) {
-						_fetchCities(this, countryCode, search);
-					},
-					onFilesSelected(event) {
-						this.uploadedSize = 0;
-						this.files = event.files;
-
-						let totalSize = 0;
-						this.files.forEach((file) => {
-							totalSize += parseInt(this.formatSize(file.size));
-						});
-						this.totalSize = totalSize;
-					},
-					onRemoveFile(file, fileRemoveCallback, index) {
-						fileRemoveCallback(index);
-						this.totalSize -= parseInt(this.formatSize(file.size));
-					},
-					onClearUpload(clear) {
-						clear();
-						this.uploadedSize = 0;
-						this.totalSize = 0;
-					},
-					async onUpload(event) {
-						const url = "@Url.Action("AddImage", "Buildings", new { area = "Admin", id, returnUrl = Context.Request.GetEncodedPathAndQuery() })";
-						const files = event.files;
-
-						this.uploadedSize = 0;
-
-						for (const file of files) {
-							const formData = new FormData();
-							formData.append("id", @id);
-							formData.append("imageToAdd", file);
-
-							try {
-								await fetch(url,
-									{
-										method: "post",
-										body: formData,
-										headers: {
-											RequestVerificationToken: "@Antiforgery.GetAndStoreTokens(Context).RequestToken"
-										},
-										credentials: "same-origin"
-									});
-							} catch (e) {
-								const error = e.message || e;
-								this.errors.push("حدث خطأ أثناء تحميل الملف: " + file.name + ". " + error);
-							} finally {
-								this.uploadedSize += parseInt(this.formatSize(file.size));
-							}
+			data() {
+				return {
+					loading: false,
+					selectedCountry: null,
+					countryCode: "@Model.CountryCode",
+					countries: [],
+					selectedCity: null,
+					cityId: @Model.CityId,
+					cities: [],
+					images: [],
+					responsiveOptions: [
+						{
+							breakpoint: '1024px',
+							numVisible: 4,
+							numScroll: 2
+						}, {
+							breakpoint: '600px',
+							numVisible: 2,
+							numScroll: 1
+						}, {
+							breakpoint: '480px',
+							numVisible: 1,
+							numScroll: 1
 						}
-					},
-					onFilesUploaded(event) {
-						this.uploadedFiles = event.files;
-						this.totalSize = 0;
-						this.uploadProgress = 0;
-						this.$toast.add({ severity: 'info', summary: 'تم بنجاح', detail: 'اكتمل تحميل الملف', life: 3000 });
-					},
-					onProgress(uploaded, total) {
-						if (!uploaded || !total) {
-							this.uploadProgress = 0;
-							return;
-						}
-
-						this.uploadProgress = Math.ceil((uploaded / parseFloat(total)) * 100);
-					},
-					onError(event) {
-						if (event.files && event.files.length) {
-							for (const file of event.files) {
-								this.errors.push("حدث خطأ أثناء تحميل الملف: " + file.name);
-							}
-						} else {
-							this.errors.push("حدث خطأ أثناء التحميل.");
-						}
-					},
-					formatSize(bytes) {
-						_formatSize(bytes);
-					}
-				},
-				mounted() {
-					this.fetchData();
+					],
+					uploading: false,
+					files: [],
+					uploadedFiles: [],
+					uploadedSize: 0,
+					totalSize: 0,
+					uploadProgress: 0,
+					toast: useToast(),
+					errors: []
 				}
-			})
-			.use(primevue.config.default)
-			.use(primevue.toastservice)
-			.component("autocomplete", primevue.autocomplete)
-			.component("fileupload", primevue.fileupload)
-			.component("progressbar", primevue.progressbar)
-			.component("toast", primevue.toast)
-			.mount("#buildingForm");
+			},
+			watch: {
+				selectedCountry(newValue) {
+					if (newValue && newValue.id)
+						this.countryCode = newValue.id;
+					else
+						this.countryCode = "";
+				},
+				selectedCity(newValue) {
+					if (newValue && newValue.id)
+						this.cityId = newValue.id;
+					else
+						this.cityId = 0;
+				}
+			},
+			methods: {
+				async fetchData() {
+					this.errors.length = 0;
+					this.fetchCountries();
+					this.fetchCities(this.countryCode);
+					await this.fetchImages();
+				},
+				fetchCountries(search) {
+					_fetchCountries(this, search);
+				},
+				fetchCities(countryCode, search) {
+					_fetchCities(this, countryCode, search);
+				},
+				async fetchImages() {
+					this.errors.length = 0;
+					this.loading = true;
+
+					try {
+						const url = `@Url.Action("ListImages", "Buildings", new
+					             {
+						             area = "Admin",
+									 id
+					             }, Context.Request.Scheme)`;
+						const response = await window.fetch(url);
+
+						if (!response.ok) {
+							const isJson = response.headers.get('content-type')?.includes('application/json');
+							const data = isJson && await response.json();
+							const error = (data && data.message) || response.status;
+							throw error;
+						}
+
+						this.images = await response.json();
+					} catch (e) {
+						this.images = [];
+						alert(e.message || e);
+					} finally {
+						this.loading = false;
+					}
+				},
+				onFilesSelected(event) {
+					this.uploadedSize = 0;
+					this.files = event.files;
+
+					let totalSize = 0;
+					this.files.forEach((file) => {
+						totalSize += file.size;
+					});
+					this.totalSize = totalSize;
+					this.updateProgress();
+				},
+				onRemoveFile(file, fileRemoveCallback, index) {
+					fileRemoveCallback(index);
+					this.totalSize -= file.size;
+				},
+				onClearUpload(clear) {
+					clear();
+					this.uploadedSize = 0;
+					this.totalSize = 0;
+					this.updateProgress();
+				},
+				async onUpload(event) {
+					this.errors.length = 0;
+					this.uploadedSize = 0;
+					this.uploadProgress = 0;
+
+					const url = "@Url.Action("AddImage", "Buildings", new
+						            {
+							            area = "Admin",
+							            id
+						            })";
+					const files = event.files;
+
+					for (const file of files) {
+						const formData = new FormData();
+						formData.append("imageToAdd.image", file);
+
+						try {
+							const response = await fetch(url,
+								{
+									method: "post",
+									body: formData,
+									headers: {
+										RequestVerificationToken: "@Antiforgery.GetAndStoreTokens(Context).RequestToken"
+									},
+									credentials: "same-origin"
+								});
+
+							if (!response.ok) {
+								const isJson = response.headers.get('content-type')?.includes('application/json');
+								const data = isJson && await response.json();
+								const error = (data && data.message) || response.status;
+								throw error;
+							}
+
+							this.uploadedFiles = [...this.uploadedFiles, ...file];
+						} catch (e) {
+							const error = e.message || e;
+							this.errors.push(error);
+						} finally {
+							this.uploadedSize += file.size;
+							this.updateProgress();
+						}
+					}
+
+					if (this.errors.length) return;
+					this.uploading = false;
+					await this.fetchImages();
+				},
+				onFilesUploaded(event) {
+					this.uploadedFiles = event.files;
+					this.uploadedSize = 0;
+					this.totalSize = 0;
+					this.updateProgress();
+					this.$toast.add({ severity: 'info', summary: 'تم بنجاح', detail: 'اكتمل تحميل الملف', life: 3000 });
+				},
+				updateProgress() {
+					if (!this.totalSize || !this.uploadedSize) {
+						this.uploadProgress = 0;
+						return;
+					}
+
+					this.uploadProgress = Math.ceil((this.uploadedSize / parseFloat(this.totalSize)) * 100);
+				},
+				onError(event) {
+					if (event.files && event.files.length) {
+						for (const file of event.files) {
+							this.errors.push("حدث خطأ أثناء تحميل الملف: " + file.name);
+						}
+					} else {
+						this.errors.push("حدث خطأ أثناء التحميل.");
+					}
+				},
+				formatSize(bytes) {
+					_formatSize(bytes);
+				}
+			},
+			mounted()
+			{
+				this.fetchData();
+			}
+		})
+		.use(primevue.config.default)
+		.use(primevue.toastservice)
+		.component("autocomplete", primevue.autocomplete)
+		.component("carousel", primevue.carousel)
+		.component("fileupload", primevue.fileupload)
+		.component("progressbar", primevue.progressbar)
+		.component("toast", primevue.toast)
+		.mount("#buildingForm");
 	</script>
 }

@@ -8,12 +8,12 @@
 <form asp-area="Admin" asp-controller="Buildings" asp-action="Add" Method="post" enctype="multipart/form-data">
 	<div id="buildingForm" v-scope class="card card-body mt-3">
 		<div asp-validation-summary="ModelOnly"></div>
-		<div v-if="errors && errors.length" class="alert alert-danger alert-dismissible fade show" role="alert" v-for="error of errors">
+		<div v-if="errors && errors.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="error of errors">
 			{{ error }}
 			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 		</div>
 
-		<img-asset name="ImageFile" src="@Model.ImageUrl" class="img-placeholder mx-auto" imageclass="img-fluid mx-auto d-block" />
+		<img-asset name="Image" src="@Model.ImageUrl" class="img-placeholder mx-auto" imageclass="img-fluid mx-auto d-block" />
 		<input type="hidden" asp-for="ImageUrl" />
 		<div class="form-floating mb-1">
 			<input class="form-control" asp-for="Name" placeholder="@Html.DisplayNameFor(e => Model.Name)" />

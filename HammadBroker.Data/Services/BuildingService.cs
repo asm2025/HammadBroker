@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,47 +25,27 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	}
 
 	/// <inheritdoc />
-	public IPaginated<string> ListImages(int buildingId, IPagination settings = null)
+	public IList<string> ListImages(int buildingId)
 	{
 		ThrowIfDisposed();
 
-		IQueryable<BuildingImage> entities = Repository.ListImages(buildingId, settings);
-
-		if (settings is { PageSize: > 0 })
-		{
-			settings.Count = Repository.Count(settings);
-			int maxPages = (int)Math.Ceiling(settings.Count / (double)settings.PageSize);
-			if (settings.Page > maxPages) settings.Page = maxPages;
-			entities = entities.Paginate(settings);
-		}
-
+		IQueryable<BuildingImage> entities = Repository.ListImages(buildingId);
 		IList<string> result = entities.Select(e => e.ImageUrl)
 								.ToList();
-		return new Paginated<string>(result, settings);
+		return result;
 	}
 
 	/// <inheritdoc />
-	public async Task<IPaginated<string>> ListImagesAsync(int buildingId, IPagination settings = null, CancellationToken token = default(CancellationToken))
+	public async Task<IList<string>> ListImagesAsync(int buildingId, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
 
-		IQueryable<BuildingImage> entities = Repository.ListImages(buildingId, settings);
-
-		if (settings is { PageSize: > 0 })
-		{
-			settings.Count = await Repository.CountAsync(settings, token);
-			token.ThrowIfCancellationRequested();
-			int maxPages = (int)Math.Ceiling(settings.Count / (double)settings.PageSize);
-			if (settings.Page > maxPages) settings.Page = maxPages;
-			entities = entities.Paginate(settings);
-		}
-
+		IQueryable<BuildingImage> entities = Repository.ListImages(buildingId);
 		IList<string> result = await entities.Select(e => e.ImageUrl)
 										.ToListAsync(token)
 										.ConfigureAwait();
-		token.ThrowIfCancellationRequested();
-		return new Paginated<string>(result, settings);
+		return result;
 	}
 
 	/// <inheritdoc />

@@ -6,9 +6,9 @@ namespace HammadBroker.Model.DTO;
 
 public class BuildingImageToAdd
 {
-
 	[Display(Name = "الصورة")]
+	[Required]
 	[MaxFileSize(Constants.Images.FileSizeMax)]
 	[DataType(DataType.Upload)]
-	public IFormFile ImageFile { get; set; }
+	public IFormFile Image { get; set; }
 }

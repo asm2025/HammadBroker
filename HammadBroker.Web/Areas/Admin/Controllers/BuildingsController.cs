@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Configuration;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -42,16 +43,19 @@ public class BuildingsController : MvcController
 	private readonly CompanyInfo _companyInfo;
 	private readonly IMapper _mapper;
 	private readonly string _assetImagesPath;
+	private readonly string _assetImagesBaseUrl;
 
 	/// <inheritdoc />
-	public BuildingsController([NotNull] IBuildingService buildingService, [NotNull] ILookupService lookupService, [NotNull] CompanyInfo companyInfo, [NotNull] IMapper mapper, [NotNull] IEnumerable<IFileProvider> fileProviders, [NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, [NotNull] ILogger<BuildingsController> logger)
+	public BuildingsController([NotNull] IBuildingService buildingService, [NotNull] ILookupService lookupService, [NotNull] CompanyInfo companyInfo, [NotNull] IMapper mapper, [NotNull] VirtualPathSettings virtualPathSettings, [NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, [NotNull] ILogger<BuildingsController> logger)
 		: base(configuration, environment, logger)
 	{
 		_buildingService = buildingService;
 		_lookupService = lookupService;
 		_companyInfo = companyInfo;
 		_mapper = mapper;
-		_assetImagesPath = fileProviders.First(e => e.Alias == "AssetImages").Root;
+		PathContent assetsPath = virtualPathSettings.PathContents?.FirstOrDefault(e => e.Alias.IsSame("AssetImages")) ?? throw new ConfigurationErrorsException($"{nameof(VirtualPathSettings)} does not contain a definition for AssetImages.");
+		_assetImagesPath = assetsPath.PhysicalPath.Suffix(Path.DirectorySeparatorChar);
+		_assetImagesBaseUrl = assetsPath.RequestPath.Suffix(Path.AltDirectorySeparatorChar);
 	}
 
 	[NotNull]
@@ -262,30 +266,40 @@ public class BuildingsController : MvcController
 
 	[NotNull]
 	[ItemNotNull]
+	[HttpGet("{id:int}/images")]
+	public async Task<IActionResult> ListImages(int id, CancellationToken token)
+	{
+		token.ThrowIfCancellationRequested();
+		IList<string> images = await _buildingService.ListImagesAsync(id, token);
+
+		for (int i = 0; i < images.Count; i++)
+		{
+			images[i] = _assetImagesBaseUrl + images[i];
+		}
+
+		return Ok(images);
+	}
+
+	[NotNull]
+	[ItemNotNull]
 	[HttpPost("{id:int}/images/[action]")]
 	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> AddImage([Required] int id, BuildingImageToAdd imageToAdd, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
-		if (imageToAdd == null) ModelState.AddModelError(nameof(imageToAdd), "لم يتم اختيار صورة للتحميل");
-		if (imageToAdd == null || !ModelState.IsValid) return BadRequest(ModelState);
+		if (imageToAdd?.Image == null) ModelState.AddModelError(string.Empty, "لم يتم اختيار صورة للتحميل");
+		else if (imageToAdd.Image.Length == 0) ModelState.AddModelError(string.Empty, $"الصورة '{imageToAdd.Image.FileName}' غير صالحة للتحميل.");
 
-		Building building = await _buildingService.GetAsync(id, token);
-		token.ThrowIfCancellationRequested();
-		if (building == null) return NotFound();
-
-		IFormFile formFile = imageToAdd.ImageFile;
-
-		if (formFile is null || formFile.Length == 0)
-		{
-			ModelState.AddModelError(nameof(imageToAdd), "صورة غير صالحة للتحميل");
-			return BadRequest(ModelState);
-		}
+		if (imageToAdd?.Image == null || !ModelState.IsValid) return BadRequest(ModelState);
 
 		try
 		{
-			string fileName = UploadBuildingImage(_assetImagesPath, building.Id, formFile);
-			if (string.IsNullOrEmpty(fileName)) return Problem($"Failed to upload file '{formFile.FileName}'.");
+			Building building = await _buildingService.GetAsync(id, token);
+			token.ThrowIfCancellationRequested();
+			if (building == null) return NotFound();
+
+			string fileName = UploadBuildingImage(_assetImagesPath, building.Id, imageToAdd.Image);
+			if (string.IsNullOrEmpty(fileName)) return Problem($"حدث خطأ أثناء تحميل الصورة '{imageToAdd.Image.FileName}'.");
 			await _buildingService.AddImageAsync(building, Path.GetFileName(fileName), token);
 		}
 		catch (Exception ex)
@@ -299,24 +313,31 @@ public class BuildingsController : MvcController
 
 	[NotNull]
 	[ItemNotNull]
-	[HttpPost("images/{id:int}/[action]")]
+	[HttpPost("{id:int}/images/[action]")]
 	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> DeleteImage([Required] int id, string returnUrl, CancellationToken token)
+	public async Task<IActionResult> DeleteImage([Required] int id, [Required] int imageId, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
-		BuildingImage buildingImage = await _buildingService.DeleteBuildingImageAsync(id, token);
-		if (buildingImage == null) return NotFound();
 
-		if (!string.IsNullOrEmpty(returnUrl))
+		try
 		{
-			returnUrl = WebUtility.UrlDecode(returnUrl);
-			if (Url.IsLocalUrl(returnUrl)) return Redirect(returnUrl);
+			Building building = await _buildingService.GetAsync(id, token);
+			token.ThrowIfCancellationRequested();
+			if (building == null) return NotFound();
+
+			BuildingImage buildingImage = await _buildingService.DeleteBuildingImageAsync(imageId, token);
+			if (buildingImage == null) return Problem($"Building image with id {imageId} is not found.");
+
+			string fileName = Path.Combine(_assetImagesPath, buildingImage.ImageUrl);
+			if (SysFile.Exists(fileName)) FileHelper.Delete(fileName);
+		}
+		catch (Exception ex)
+		{
+			Logger.LogError(ex.CollectMessages());
+			return Problem(ex.Unwrap());
 		}
 
-		return RedirectToAction(nameof(Get), new
-		{
-			id = buildingImage.BuildingId
-		});
+		return Ok();
 	}
 
 	private static string UploadBuildingImage(string path, int id, [NotNull] IFormFile formFile)
