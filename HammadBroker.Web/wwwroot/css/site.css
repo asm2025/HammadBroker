@@ -531,3 +531,35 @@ span.oi {
 .overflow-y-visible {
 	overflow-y: visible !important;
 }
+
+.glleria {
+}
+
+	.glleria .fullscreen {
+		display: flex;
+		flex-direction: column;
+	}
+
+		.glleria .fullscreen .p-galleria-content {
+			-o-flex-grow: 1;
+			-webkit-flex-grow: 1;
+			flex-grow: 1;
+			-o-justify-content: center;
+			-webkit-justify-content: center;
+			justify-content: center;
+		}
+
+	.glleria .fullscreen {
+		position: relative;
+	}
+
+	.glleria .p-galleria-thumbnail-wrapper {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+	}
+
+	.glleria .p-galleria-thumbnail-items-container {
+		width: 100%;
+	}
