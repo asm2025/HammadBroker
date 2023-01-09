@@ -1,5 +1,5 @@
-﻿@using HammadBroker.Model
-@using Microsoft.AspNetCore.Antiforgery
+﻿@using Microsoft.AspNetCore.Antiforgery
+@using HammadBroker.Model
 @inject IAntiforgery Antiforgery
 @model HammadBroker.Model.DTO.BuildingToUpdate
 
@@ -24,20 +24,24 @@
 			</div>
 			<div class="card card-body">
 				<div class="drop-zone">
-					<div :class="['zone-item', !uploading ? 'active' : '']">
-						<carousel :value="images" :num-visible="1" :num-scroll="1" :page="carouselPage" :show-navigators="false" :show-indicators="false">
-							<template #item="{ data }">
-								<img :src="data" alt="" class="img-fluid" />
+					<div :class="['zone-item', !uploading ? 'active' : '']" dir="ltr">
+						<galleria :value="images" v-model:active-index="activeImage" :num-visible="5" :show-thumbnails="showThumbnails" 
+								show-item-navigators show-item-navigators-on-hover circular autoPlay :transition-interval="3000">
+							<template #item="{ item }">
+								<img :src="item" alt="" class="img-fluid" v-on:click="fullScreen = !fullScreen" />
 							</template>
-						</carousel>
-						<div v-if="images && images.length" class="d-flex justify-content-between w-100 position-absolute px-3" style="top: 50% !important;">
-							<button type="button" class="btn btn-light btn-sm border-0" v-on:click="previousImage">
-								<i class="fa fa-circle-arrow-right"></i>
-							</button>
-							<button type="button" class="btn btn-light btn-sm border-0" v-on:click="nextImage">
-								<i class="fa fa-circle-arrow-left"></i>
-							</button>
-						</div>
+							<template #footer>
+								<div class="w-100 d-flex px-3">
+									<button type="button" class="btn btn-light btn-sm" v-on:click="showThumbnails = !showThumbnails">
+										<i class="fa fa-list"></i>
+									</button>
+									<div v-if="images" class="flex-grow-1">{{ activeImage + 1 }}/{{ images.length }}</div>
+									<button type="button" class="btn btn-light btn-sm" v-on:click="fullScreen = !fullScreen">
+										<i :class="['fa', fullScreen ? 'fa-window-minimize' : 'fa-window-maximize']"></i>
+									</button>
+								</div>
+							</template>
+						</galleria>
 					</div>
 					<div :class="['zone-item', uploading ? 'active' : '']">
 						<fileupload accept="@Constants.Images.Extensions" multiple :file-limit="10" :max-file-size="@Constants.Images.FileSizeMax" 
@@ -97,8 +101,7 @@
 					</div>
 					<div class="d-flex justify-content-end w-100 position-absolute bottom-0 left-0 mb-2 px-3">
 						<button type="button" class="btn btn-light btn-sm border-0" v-on:click="uploading = !uploading">
-							<i v-if="!uploading" class="fa fa-cloud-arrow-up"></i>
-							<i v-if="uploading" class="fa fa-image"></i>
+							<i :class="['fa', uploading ? 'fa-image' : 'fa-cloud-arrow-up']"></i>
 						</button>
 					</div>
 				</div>
@@ -287,7 +290,9 @@
 					selectedCity: null,
 					cityId: @Model.CityId,
 					cities: [],
-					carouselPage: 1,
+					fullScreen: false,
+					showThumbnails: false,
+					activeImage: 0,
 					images: [],
 					uploading: false,
 					files: [],
@@ -328,7 +333,7 @@
 				},
 				async fetchImages() {
 					this.errors.length = 0;
-					this.carouselPage = 1;
+					this.activeImage = 0;
 					this.loading = true;
 
 					try {
@@ -353,14 +358,6 @@
 					} finally {
 						this.loading = false;
 					}
-				},
-				previousImage() {
-					if (!this.images || !this.images.length || this.carouselPage < 2) return;
-					this.carouselPage--;
-				},
-				nextImage() {
-					if (!this.images || !this.images.length || this.carouselPage >= this.images.length) return;
-					this.carouselPage++;
 				},
 				onFilesSelected(event) {
 					this.uploadedSize = 0;
@@ -467,7 +464,7 @@
 		.use(primevue.config.default)
 		.use(primevue.toastservice)
 		.component("autocomplete", primevue.autocomplete)
-		.component("carousel", primevue.carousel)
+		.component("galleria", primevue.galleria)
 		.component("fileupload", primevue.fileupload)
 		.component("progressbar", primevue.progressbar)
 		.component("toast", primevue.toast)
