@@ -17,7 +17,7 @@
 		</div>
 
 		<input type="hidden" asp-route-id="@id" />
-		<div class="card-deck2 align-items-stretch">
+		<div class="card-deck2">
 			<div class="card card-body">
 				<img-asset name="Image" src="@Model.ImageUrl" class="img-placeholder" imageclass="img-fluid d-block" />
 				<input type="hidden" asp-for="ImageUrl" />
@@ -26,9 +26,9 @@
 				<div class="drop-zone">
 					<div :class="['zone-item', !uploading ? 'active' : '']" dir="ltr">
 						<galleria ref="galleria" :value="images" v-model:active-index="activeImage" :num-visible="5" :show-thumbnails="showThumbnails" 
-								:containerClass="galleriaClass" show-item-navigators show-item-navigators-on-hover circular autoPlay :transition-interval="3000">
+								:container-class="galleriaClass" show-item-navigators show-item-navigators-on-hover circular auto-play :transition-interval="3000">
 							<template #item="{ item }">
-								<img :src="item" alt="" class="img-fluid" v-on:click="toggleFullScreen" />
+								<img :src="item" alt="" class="img-fluid" v-on:click="toggleFullScreen"/>
 							</template>
 							<template #thumbnail="{ item }">
 								<div class="grid grid-nogutter justify-content-center">
@@ -93,7 +93,7 @@
 							</template>
 						</fileupload>
 					</div>
-					<div class="d-flex justify-content-end w-100 position-absolute bottom-0 left-0 mb-2 px-3">
+					<div class="d-flex justify-content-end w-100 position-absolute bottom-0 left-0 mb-2 px-3 banner-light30">
 						<button type="button" class="btn btn-light btn-sm border-0 me-1" v-on:click="uploading = !uploading">
 							<i :class="['fa', uploading ? 'fa-image' : 'fa-cloud-arrow-up']"></i>
 						</button>
@@ -101,7 +101,7 @@
 							<button type="button" class="btn btn-light btn-sm border-0 me-1" v-on:click="showThumbnails = !showThumbnails">
 								<i class="fa fa-list"></i>
 							</button>
-							<div class="flex-grow-1">{{ activeImage + 1 }}/{{ images.length }}</div>
+							<div class="flex-grow-1 px-2">{{ activeImage + 1 }}/{{ images.length }}</div>
 							<button type="button" class="btn btn-light btn-sm border-0 me-1" v-on:click="toggleFullScreen">
 								<i :class="['fa', fullScreen ? 'fa-window-minimize' : 'fa-window-maximize']"></i>
 							</button>
