@@ -127,7 +127,7 @@ public class BuildingsController : MvcController
 		if (building == null) return BadRequest();
 
 		bool update = false;
-		IFormFile formFile = buildingToUpdate.ImageFile;
+		IFormFile formFile = buildingToUpdate.Image;
 
 		if (formFile is { Length: > 0 })
 		{
@@ -200,7 +200,7 @@ public class BuildingsController : MvcController
 		if (building == null) return BadRequest();
 
 		bool update = false;
-		IFormFile formFile = buildingToUpdate.ImageFile;
+		IFormFile formFile = buildingToUpdate.Image;
 
 		if (formFile is { Length: > 0 })
 		{

@@ -14,7 +14,7 @@ public class BuildingToUpdate
 	[Display(Name = "الصورة الرئيسية")]
 	[MaxFileSize(Constants.Images.FileSizeMax)]
 	[DataType(DataType.Upload)]
-	public IFormFile ImageFile { get; set; }
+	public IFormFile Image { get; set; }
 
 	[Display(Name = "الصورة الرئيسية")]
 	[StringLength(320)]

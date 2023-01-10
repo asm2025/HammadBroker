@@ -15,82 +15,79 @@
 
 		<img-asset name="Image" src="@Model.ImageUrl" class="img-placeholder mx-auto" imageclass="img-fluid mx-auto d-block" />
 		<input type="hidden" asp-for="ImageUrl" />
-		<div class="form-floating mb-1">
-			<input class="form-control" asp-for="Name" placeholder="@Html.DisplayNameFor(e => Model.Name)" />
-			<label class="form-label" asp-for="Name"></label>
+		<div class="mb-1">
+			<input class="form-control" asp-for="Name" placeholder="@Html.DisplayNameFor(e => e.Name)" title="@Html.DisplayNameFor(e => e.Name)" />
 			<span asp-validation-for="Name" class="text-danger"></span>
 		</div>
-		<div class="form-floating mb-1">
-			<input class="form-control" asp-for="VideoId" placeholder="@Html.DisplayNameFor(e => Model.VideoId)" />
-			<label class="form-label" asp-for="VideoId"></label>
+		<div class="mb-1">
+			<input class="form-control" asp-for="VideoId" placeholder="@Html.DisplayNameFor(e => e.VideoId)" title="@Html.DisplayNameFor(e => e.VideoId)" />
 			<span asp-validation-for="VideoId" class="text-danger"></span>
 		</div>
-		<div class="form-floating mb-1">
-			<select asp-for="BuildingType" class="form-select" asp-items="Html.GetEnumSelectList<BuildingType>()">
+		<div class="mb-1">
+			<select asp-for="BuildingType" class="form-select" asp-items="Html.GetEnumSelectList<BuildingType>()" title="@Html.DisplayNameFor(e => e.BuildingType)">
+				<option value="">@Html.DisplayNameFor(e => e.BuildingType)</option>
 			</select>
-			<label class="form-label" asp-for="BuildingType"></label>
 			<span asp-validation-for="BuildingType" class="text-danger"></span>
 		</div>
-		<div class="form-floating mb-1">
-			<select asp-for="FinishingType" class="form-select" asp-items="Html.GetEnumSelectList<FinishingType>()">
-				<option value=""></option>
+		<div class="mb-1">
+			<select asp-for="FinishingType" class="form-select" asp-items="Html.GetEnumSelectList<FinishingType>()" title="@Html.DisplayNameFor(e => e.FinishingType)">
+				<option value="">@Html.DisplayNameFor(e => e.FinishingType)</option>
 			</select>
-			<label class="form-label" asp-for="FinishingType"></label>
 			<span asp-validation-for="FinishingType" class="text-danger"></span>
 		</div>
-		<div class="form-floating mb-1">
-			<input class="form-control" asp-for="Floor" placeholder="@Html.DisplayNameFor(e => Model.Floor)" />
-			<label class="form-label" asp-for="Floor"></label>
+		<div class="mb-1">
+			<input class="form-control" asp-for="Floor" placeholder="@Html.DisplayNameFor(e => e.Floor)" title="@Html.DisplayNameFor(e => e.Floor)" />
 			<span asp-validation-for="Floor" class="text-danger"></span>
 		</div>
-		<div class="form-floating mb-1">
-			<input class="form-control" asp-for="Rooms" placeholder="@Html.DisplayNameFor(e => Model.Rooms)" />
-			<label class="form-label" asp-for="Rooms"></label>
+		<div class="mb-1">
+			<input class="form-control" asp-for="Rooms" placeholder="@Html.DisplayNameFor(e => e.Rooms)" title="@Html.DisplayNameFor(e => e.Rooms)" />
 			<span asp-validation-for="Rooms" class="text-danger"></span>
 		</div>
-		<div class="form-floating mb-1">
-			<input class="form-control" asp-for="Bathrooms" placeholder="@Html.DisplayNameFor(e => Model.Bathrooms)" />
-			<label class="form-label" asp-for="Bathrooms"></label>
+		<div class="mb-1">
+			<input class="form-control" asp-for="Bathrooms" placeholder="@Html.DisplayNameFor(e => e.Bathrooms)" title="@Html.DisplayNameFor(e => e.Bathrooms)" />
 			<span asp-validation-for="Bathrooms" class="text-danger"></span>
 		</div>
-		<div class="form-floating mb-1">
-			<input class="form-control" asp-for="Area" placeholder="@Html.DisplayNameFor(e => Model.Area)" />
-			<label class="form-label" asp-for="Area"></label>
+		<div class="mb-1">
+			<input class="form-control" asp-for="Area" placeholder="@Html.DisplayNameFor(e => e.Area)" title="@Html.DisplayNameFor(e => e.Area)" />
 			<span asp-validation-for="Area" class="text-danger"></span>
 		</div>
-		<div class="form-floating mb-1">
-			<input class="form-control" asp-for="Address" placeholder="@Html.DisplayNameFor(e => Model.Address)" />
-			<label class="form-label" asp-for="Address"></label>
+		<div class="mb-1">
+			<input class="form-control" asp-for="Address" placeholder="@Html.DisplayNameFor(e => e.Address)" title="@Html.DisplayNameFor(e => e.Address)" />
 			<span asp-validation-for="Address" class="text-danger"></span>
 		</div>
-		<div class="form-floating mb-1">
-			<input class="form-control" asp-for="Address2" placeholder="@Html.DisplayNameFor(e => Model.Address2)" />
-			<label class="form-label" asp-for="Address2"></label>
+		<div class="mb-1">
+			<input class="form-control" asp-for="Address2" placeholder="@Html.DisplayNameFor(e => e.Address2)" title="@Html.DisplayNameFor(e => e.Address2)" />
 			<span asp-validation-for="Address2" class="text-danger"></span>
 		</div>
-		<div class="form-floating mb-1">
+		<div class="mb-1">
 			<input type="hidden" asp-for="CountryCode" :value="countryCode" />
-			<autocomplete class="w-100" input-class="w-100" :suggestions="countries"
-						option-label="name" placeholder="البلد" :min-length="0" v-model="selectedCountry" data-key="id" force-selection
+			<autocomplete class="w-100" input-class="w-100" :suggestions="countries" option-label="name" 
+						placeholder="@Html.DisplayNameFor(e => e.CountryCode)" 
+						title="@Html.DisplayNameFor(e => e.CountryCode)"
+						:min-length="0" v-model="selectedCountry" data-key="id" force-selection
 						v-on:complete="fetchCountries($event.query)" v-on:change="fetchCities($event.value)">
 			</autocomplete>
 			<span asp-validation-for="CountryCode" class="text-danger"></span>
 		</div>
-		<div class="form-floating mb-1">
+		<div class="mb-1">
 			<input type="hidden" asp-for="CityId" :value="cityId" />
-			<autocomplete name="@nameof(Model.CityId)" class="w-100" input-class="w-100" :suggestions="cities" option-label="name" placeholder="المدينة"
+			<autocomplete name="@nameof(Model.CityId)" class="w-100" input-class="w-100" :suggestions="cities" option-label="name" 
+						placeholder="@Html.DisplayNameFor(e => e.CityId)"
+						title="@Html.DisplayNameFor(e => e.CityId)"
 						:min-length="0" v-model="selectedCity" data-key="id" force-selection v-on:complete="fetchCities(countryCode, $event.query)">
 			</autocomplete>
 			<span asp-validation-for="CityId" class="text-danger"></span>
 		</div>
-		<div class="form-floating mb-1">
-			<textarea class="form-control" asp-for="Description" rows="5" placeholder="@Html.DisplayNameFor(e => Model.Description)">
+		<div class="mb-1">
+			<textarea class="form-control" asp-for="Description" rows="5" 
+			placeholder="@Html.DisplayNameFor(e => e.Description)"
+			title="@Html.DisplayNameFor(e => e.Description)">
 			</textarea>
-			<label class="form-label" asp-for="Description"></label>
 			<span asp-validation-for="Description" class="text-danger"></span>
 		</div>
 		<div class="my-1">
-			<button type="submit" class="btn btn-primary">إضافة</button>
+			<button type="submit" class="btn btn-primary me-1">إضافة</button>
+			<a class="btn btn-outline-primary border-0 me-1" asp-area="Admin" asp-controller="Buildings" asp-action="Index">الغاء</a>
 		</div>
 	</div>
 </form>

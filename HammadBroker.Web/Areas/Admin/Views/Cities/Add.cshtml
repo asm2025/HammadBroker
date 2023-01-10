@@ -12,20 +12,20 @@
 			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 		</div>
 
-		<div class="form-floating mb-1">
+		<div class="mb-1">
 			<input type="hidden" asp-for="CountryCode" :value="countryCode" />
 			<autocomplete name="@nameof(Model.CountryCode)" class="w-100" input-class="w-100" :suggestions="countries"
-						  option-label="name" placeholder="البلد" :min-length="0" v-model="selectedCountry" data-key="id"
-						v-on:complete="fetchCountries($event.query)">
+						option-label="name" placeholder="@Html.DisplayNameFor(e => e.CountryCode)" title="@Html.DisplayNameFor(e => e.CountryCode)"
+						:min-length="0" v-model="selectedCountry" data-key="id" v-on:complete="fetchCountries($event.query)">
 			</autocomplete>
 		</div>
-		<div class="form-floating mb-1">
-			<input class="form-control" asp-for="Name" placeholder="@Html.DisplayNameFor(E => Model.Name)"/>
-			<label class="form-label" asp-for="Name"></label>
+		<div class="mb-1">
+			<input class="form-control" asp-for="Name" placeholder="@Html.DisplayNameFor(e => e.Name)" title="@Html.DisplayNameFor(e => e.Name)" />
 			<span asp-validation-for="Name" class="text-danger"></span>
 		</div>
 		<div class="my-1">
-			<button type="submit" class="btn btn-outline-primary border-0">إضافة</button>
+			<button type="submit" class="btn btn-primary border-0 me-1">إضافة</button>
+			<a class="btn btn-outline-primary border-0 me-1" asp-area="Admin" asp-controller="Cities" asp-action="Index">الغاء</a>
 		</div>
 	</div>
 </form>
