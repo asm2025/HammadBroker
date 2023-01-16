@@ -31,6 +31,54 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	protected DbSet<BuildingImage> Images { get; }
 
 	/// <inheritdoc />
+	protected override Building AddInternal(Building entity)
+	{
+		if (entity is { CityId: > 0 })
+		{
+			City city = Context.Cities.Find(entity.CityId);
+			if (city != null && !string.Equals(entity.CountryCode, city.CountryCode, StringComparison.OrdinalIgnoreCase)) entity.CountryCode = city.CountryCode;
+		}
+
+		return base.AddInternal(entity);
+	}
+
+	/// <inheritdoc />
+	protected override async ValueTask<Building> AddAsyncInternal(Building entity, CancellationToken token = new CancellationToken())
+	{
+		if (entity is { CityId: > 0 })
+		{
+			City city = await Context.Cities.FindAsync(new[] { entity.CityId }, token);
+			if (city != null && !string.Equals(entity.CountryCode, city.CountryCode, StringComparison.OrdinalIgnoreCase)) entity.CountryCode = city.CountryCode;
+		}
+
+		return await base.AddAsyncInternal(entity, token);
+	}
+
+	/// <inheritdoc />
+	protected override Building UpdateInternal(Building entity)
+	{
+		if (entity is { CityId: > 0 })
+		{
+			City city = Context.Cities.Find(entity.CityId);
+			if (city != null && !string.Equals(entity.CountryCode, city.CountryCode, StringComparison.OrdinalIgnoreCase)) entity.CountryCode = city.CountryCode;
+		}
+
+		return base.UpdateInternal(entity);
+	}
+
+	/// <inheritdoc />
+	protected override async ValueTask<Building> UpdateAsyncInternal(Building entity, CancellationToken token = new CancellationToken())
+	{
+		if (entity is { CityId: > 0 })
+		{
+			City city = await Context.Cities.FindAsync(new[] { entity.CityId }, token);
+			if (city != null && !string.Equals(entity.CountryCode, city.CountryCode, StringComparison.OrdinalIgnoreCase)) entity.CountryCode = city.CountryCode;
+		}
+
+		return await base.UpdateAsyncInternal(entity, token);
+	}
+
+	/// <inheritdoc />
 	public IQueryable<BuildingImage> ListImages(int buildingId, IPagination settings = null)
 	{
 		ThrowIfDisposed();

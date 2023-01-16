@@ -95,8 +95,6 @@ public class BuildingsController : MvcController
 		token.ThrowIfCancellationRequested();
 		await _lookupService.FillCityNameAsync(building, token);
 		token.ThrowIfCancellationRequested();
-		building.Images = await _lookupService.ListBuildingImagesAsync(id, 0, token);
-		token.ThrowIfCancellationRequested();
 		return View(building);
 	}
 
@@ -117,7 +115,7 @@ public class BuildingsController : MvcController
 	[ItemNotNull]
 	[HttpPost("[action]")]
 	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Add([NotNull] BuildingToUpdate buildingToUpdate, CancellationToken token)
+	public async Task<IActionResult> Add([NotNull, FromForm(Name = "")] BuildingToUpdate buildingToUpdate, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return View(buildingToUpdate);
@@ -186,7 +184,7 @@ public class BuildingsController : MvcController
 	[ItemNotNull]
 	[HttpPost("{id:int}/[action]")]
 	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Edit([Required] int id, [NotNull] BuildingToUpdate buildingToUpdate, CancellationToken token)
+	public async Task<IActionResult> Edit([Required] int id, [NotNull, FromForm(Name = "")] BuildingToUpdate buildingToUpdate, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return View(buildingToUpdate);

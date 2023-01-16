@@ -77,7 +77,6 @@ public class AdsController : MvcController
 		token.ThrowIfCancellationRequested();
 		await _lookupService.FillCityNameAsync(building, token);
 		token.ThrowIfCancellationRequested();
-		building.Images = await _lookupService.ListBuildingImagesAsync(id, 0, token);
 		token.ThrowIfCancellationRequested();
 		return View(building);
 	}

@@ -1,0 +1,664 @@
+﻿@using Microsoft.AspNetCore.Antiforgery
+@using HammadBroker.Model
+@using HammadBroker.Model.DTO
+@using HammadBroker.Model.Configuration
+@inject IAntiforgery Antiforgery
+@inject CompanyInfo CompanyInfo
+@model BuildingModel
+
+@{
+	string action = Model.Id > 0
+						? Url.Action("Edit", "Buildings", new
+						{
+							area = "Admin",
+							id = Model.Id
+						})
+						: Url.Action("Add", "Buildings", new
+						{
+							area = "Admin"
+						});
+}
+
+<div id="buildingForm" v-scope class="card card-body mt-3">
+	@if (Model.CanEdit)
+	{
+		@:<form action="@action" Method="post" enctype="multipart/form-data">
+		<div asp-validation-summary="ModelOnly"></div>
+	}
+	<div v-if="errors && errors.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="error of errors">
+		{{ error }}
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
+
+	<div class="card-deck2">
+		<div class="card card-body position-relative">
+			@if (Model.CanEdit)
+			{
+				<img-asset name="Image" src="@Model.Building.ImageUrl" readOnly="@(!Model.CanUpload)" class="img-placeholder" imageclass="img-fluid"/>
+				<input type="hidden" asp-for="Building.ImageUrl"/>
+			}
+			else
+			{
+				if (string.IsNullOrEmpty(Model.Building.VideoId))
+				{
+					<img-asset src="@Model.Building.ImageUrl" ReadOnly="true" ImageClass="img-fluid"/>
+				}
+				else
+				{
+					<vid-asset VideoId="@Model.Building.VideoId" Class="ratio ratio-16x9"/>
+				}
+			}
+			@if (Model.Id > 0)
+			{
+				<div class="position-absolute bottom-0 mb-3 mx-3 d-flex align-items-center z-3">
+					@if (Model.CanUpload)
+					{
+						<button v-if="!fullScreen" type="button" title="إضافة صور" class="btn btn-light me-1" v-on:click="uploading = !uploading">
+							<i class="fa fa-plus"></i>
+						</button>
+					}
+					<button v-if="images && images.length" type="button" :title="`تصفح ال ${images.length} صور`" class="btn btn-light me-1" v-on:click="toggleFullScreen">
+						<i class="fa fa-camera"></i>
+					</button>
+					<button type="button" title="مشاهدة على الخريطة" class="btn btn-light me-1">
+						<i class="fa fa-location-dot"></i>
+					</button>
+				</div>
+			}
+		</div>
+		@if (Model.Id > 0)
+		{
+			<div class="card card-body position-relative">
+				<div ref="dropZone" :class="['drop-zone', { fullScreen }]">
+					<div :class="@(Model.CanUpload ? "['zone-item', { active: !uploading }]" : "'zone-item'")" dir="ltr">
+						<galleria ref="galleria" :container-class="galleriaClass" :value="images" v-model:active-index="activeImage" :show-thumbnails="false"
+								show-item-navigators show-item-navigators-on-hover show-indicators change-item-on-indicator-hover show-indicators-on-item
+								circular auto-play :transition-interval="3000">
+							<template #item="{ item }">
+								<img :src="item" alt="" class="img-fluid" v-on:click="toggleFullScreen"/>
+							</template>
+							<template #footer>
+								<div ref="galleriaFooter"></div>
+							</template>
+						</galleria>
+					</div>
+					@if (Model.CanUpload)
+					{
+						<div :class="['zone-item', { active: uploading }]">
+							<fileupload accept="@Constants.Images.Extensions" multiple :file-limit="10" :max-file-size="@Constants.Images.FileSizeMax"
+										:custom-upload="true" v-on:select="onFilesSelected" v-on:uploader="onUpload" v-on:upload="onFilesUploaded" v-on:error="onError">
+								<template #header="{ chooseCallback, uploadCallback, clearCallback, files }">
+									<div class="w-100 d-flex flex-wrap align-items-center gap-2">
+										<div class="d-flex flex-grow-1 gap-2">
+											<button type="button" class="btn btn-outline-secondary btn-sm" title="اختيار ملفات" v-on:click="chooseCallback()"><i class="fa fa-images"></i></button>
+											<button v-if="files && files.length" type="button" class="btn btn-outline-secondary btn-sm" title="تحميل" v-on:click="uploadCallback()"><i class="fa fa-cloud-upload"></i></button>
+											<button v-if="files && files.length" type="button" class="btn btn-outline-secondary btn-sm" title="حذف" v-on:click="clearCallback()"><i class="fa fa-times"></i></button>
+										</div>
+										<ProgressBar v-show="uploadProgress > 0" :value="uploadProgress" :show-value="false" :class="['md:w-10rem h-1rem w-full md:mr-auto', {'exceeded-progress-bar': (uploadProgress > 100)}]">
+										</ProgressBar>
+									</div>
+								</template>
+								<template #content="{ files, uploadedFiles, messages, onUploadedFileRemove, onFileRemove }">
+									<div v-if="messages && messages.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="message of messages">
+										{{ message }}
+										<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+									</div>
+									<div v-if="files && files.length > 0">
+										<h5>التحميل</h5>
+										<div v-for="(file, index) of files" :key="file.name + file.type + file.size" class="card m-0">
+											<span class="position-absolute top-0 start-0 border border-light p-1 m-1 badge rounded-pill text-bg-warning"><span class="visually-hidden">في انتظار التحميل</span></span>
+											<img class="card-img-top" role="presentation" :alt="file.name" :src="file.objectURL"/>
+											<div class="card-body">
+												<div class="card-title text-truncate">{{ file.name }}</div>
+												<div class="d-flex align-items-center">
+													<div class="card-text flex-grow-1">{{ formatSize(file.size) }}</div>
+													<button type="button" class="btn btn-outline-danger btn-sm" v-on:click="onRemoveFile(file, onFileRemove, index)"><i class="fa fa-times"></i></button>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div v-if="uploadedFiles && uploadedFiles.length > 0">
+										<h5>إكتمل</h5>
+										<div v-for="(file, index) of uploadedFiles" :key="file.name + file.type + file.size" class="card m-0">
+											<span class="position-absolute top-0 start-0 border border-light p-1 m-1 badge rounded-pill text-bg-success"><span class="visually-hidden">في انتظار التحميل</span></span>
+											<img class="card-img-top" role="presentation" :alt="file.name" :src="file.objectURL"/>
+											<div class="card-body">
+												<div class="card-title text-truncate">{{ file.name }}</div>
+												<div class="d-flex align-items-center">
+													<div class="card-text flex-grow-1">{{ formatSize(file.size) }}</div>
+													<button type="button" class="btn btn-outline-danger btn-sm" v-on:click="onUploadedFileRemove(index)"><i class="fa fa-times"></i></button>
+												</div>
+											</div>
+										</div>
+									</div>
+								</template>
+								<template #empty>
+									<div class="d-flex align-items-center justify-content-center flex-column">
+										<i class="fa fa-cloud-upload border-2 border-circle p-5 lead text-200 border-200"></i>
+										<p class="mt-4 mb-0">اسحب الملفات الى هنا للتحميل.</p>
+									</div>
+								</template>
+							</fileupload>
+						</div>
+					}
+					<div ref="zoneFooter" class="zone-footer" dir="ltr">
+						@if (Model.CanUpload)
+						{
+							<button type="button" v-if="!uploading && images && images.length" class="btn btn-light btn-sm border-0 me-1" v-on:click="toggleFullScreen">
+								<i :class="['fa', fullScreen ? 'fa-minimize' : 'fa-maximize']"></i>
+							</button>
+							<button type="button" v-if="!fullScreen" class="btn btn-light btn-sm border-0 me-1" v-on:click="uploading = !uploading">
+								<i :class="['fa', uploading ? 'fa-image' : 'fa-cloud-arrow-up']"></i>
+							</button>
+						}
+						else
+						{
+							<button type="button" v-if="images && images.length" class="btn btn-light btn-sm border-0 me-1" v-on:click="toggleFullScreen">
+								<i :class="['fa', fullScreen ? 'fa-minimize' : 'fa-maximize']"></i>
+							</button>
+						}
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+
+	@if (Model.CanEdit)
+	{
+		<div class="mb-1">
+			<input class="form-control" asp-for="Building.VideoId" placeholder="@Html.DisplayNameFor(e => e.Building.VideoId)" title="@Html.DisplayNameFor(e => e.Building.VideoId)"/>
+			<span asp-validation-for="Building.VideoId" class="text-danger"></span>
+		</div>
+		<div class="mb-1">
+			<input class="form-control" asp-for="Building.Name" placeholder="@Html.DisplayNameFor(e => e.Building.Name)" title="@Html.DisplayNameFor(e => e.Building.Name)"/>
+			<span asp-validation-for="Building.Name" class="text-danger"></span>
+		</div>
+		<div class="mb-1">
+			<select asp-for="Building.BuildingType" class="form-select" asp-items="Html.GetEnumSelectList<BuildingType>()" title="@Html.DisplayNameFor(e => e.Building.BuildingType)">
+				<option value="">@Html.DisplayNameFor(e => e.Building.BuildingType)</option>
+			</select>
+			<span asp-validation-for="Building.BuildingType" class="text-danger"></span>
+		</div>
+		<div class="mb-1">
+			<select asp-for="Building.FinishingType" class="form-select" asp-items="Html.GetEnumSelectList<FinishingType>()" title="@Html.DisplayNameFor(e => e.Building.FinishingType)">
+				<option value="">@Html.DisplayNameFor(e => e.Building.FinishingType)</option>
+			</select>
+			<span asp-validation-for="Building.FinishingType" class="text-danger"></span>
+		</div>
+		<div class="mb-1">
+			<input class="form-control" asp-for="Building.Floor" placeholder="@Html.DisplayNameFor(e => e.Building.Floor)" title="@Html.DisplayNameFor(e => e.Building.Floor)"/>
+			<span asp-validation-for="Building.Floor" class="text-danger"></span>
+		</div>
+		<div class="mb-1">
+			<input class="form-control" asp-for="Building.Rooms" placeholder="@Html.DisplayNameFor(e => e.Building.Rooms)" title="@Html.DisplayNameFor(e => e.Building.Rooms)"/>
+			<span asp-validation-for="Building.Rooms" class="text-danger"></span>
+		</div>
+		<div class="mb-1">
+			<input class="form-control" asp-for="Building.Bathrooms" placeholder="@Html.DisplayNameFor(e => e.Building.Bathrooms)" title="@Html.DisplayNameFor(e => e.Building.Bathrooms)"/>
+			<span asp-validation-for="Building.Bathrooms" class="text-danger"></span>
+		</div>
+		<div class="mb-1">
+			<input class="form-control" asp-for="Building.Area" placeholder="@Html.DisplayNameFor(e => e.Building.Area)" title="@Html.DisplayNameFor(e => e.Building.Area)"/>
+			<span asp-validation-for="Building.Area" class="text-danger"></span>
+		</div>
+		<div class="mb-1">
+			<input class="form-control" asp-for="Building.Address" placeholder="@Html.DisplayNameFor(e => e.Building.Address)" title="@Html.DisplayNameFor(e => e.Building.Address)"/>
+			<span asp-validation-for="Building.Address" class="text-danger"></span>
+		</div>
+		<div class="mb-1">
+			<input class="form-control" asp-for="Building.Address2" placeholder="@Html.DisplayNameFor(e => e.Building.Address2)" title="@Html.DisplayNameFor(e => e.Building.Address2)"/>
+			<span asp-validation-for="Building.Address2" class="text-danger"></span>
+		</div>
+		<div class="mb-1">
+			<input type="hidden" asp-for="Building.CountryCode" :value="countryCode"/>
+			<autocomplete name="@nameof(Model.Building.CountryCode)" class="w-100" input-class="w-100" :suggestions="countries"
+						option-label="name" placeholder="@Html.DisplayNameFor(e => e.Building.CountryCode)"
+						title="@Html.DisplayNameFor(e => e.Building.CountryCode)"
+						:min-length="0" v-model="selectedCountry" data-key="id"
+						v-on:complete="fetchCountries($event.query)" v-on:change="fetchCities($event.value)">
+			</autocomplete>
+			<span asp-validation-for="Building.CountryCode" class="text-danger"></span>
+		</div>
+		<div class="mb-1">
+			<input type="hidden" asp-for="Building.CityId" :value="cityId"/>
+			<autocomplete name="@nameof(Model.Building.CityId)" class="w-100" input-class="w-100" :suggestions="cities" option-label="name"
+						placeholder="@Html.DisplayNameFor(e => e.Building.CityId)"
+						title="@Html.DisplayNameFor(e => e.Building.CityId)"
+						:min-length="0" v-model="selectedCity" data-key="id" v-on:complete="fetchCities(countryCode, $event.query)">
+			</autocomplete>
+			<span asp-validation-for="Building.CityId" class="text-danger"></span>
+		</div>
+		<div class="mb-1">
+			<textarea class="form-control" asp-for="Building.Description" rows="5" 
+				placeholder="@Html.DisplayNameFor(e => e.Building.Description)"
+				title="@Html.DisplayNameFor(e => e.Building.Description)">
+				</textarea>
+			<span asp-validation-for="Building.Description" class="text-danger"></span>
+		</div>
+		<div class="my-1">
+			<button type="submit" class="btn btn-primary me-1">حفظ</button>
+			<a class="btn btn-outline-primary border-0 me-1" asp-area="Admin" asp-controller="Buildings" asp-action="Get" asp-route-id="@Model.Id">الغاء</a>
+		</div>
+		@:</form>
+	}
+	else
+	{
+		<div class="row">
+			<div class="col-12">
+				<small>@Model.Building.BuildingType.GetDisplayName() @Model.Building.FinishingType?.GetDisplayName()</small>
+				<h5>@Model.Building.Name</h5>
+			</div>
+			@if (Model.Building.Floor > 0)
+			{
+				<div class="col-6">
+					<label asp-for="Building.Floor"></label>:&nbsp;
+					@Html.DisplayFor(e => e.Building.Floor)
+				</div>
+			}
+			@if (Model.Building.Rooms > 0)
+			{
+				<div class="col-6">
+					<label asp-for="Building.Rooms"></label>:&nbsp;
+					@Html.DisplayFor(e => e.Building.Rooms)
+				</div>
+			}
+			@if (Model.Building.Bathrooms > 0)
+			{
+				<div class="col-6">
+					<label asp-for="Building.Bathrooms"></label>:&nbsp;
+					@Html.DisplayFor(e => e.Building.Bathrooms)
+				</div>
+			}
+			@if (Model.Building.Area > 0)
+			{
+				<div class="col-6">
+					<label asp-for="Building.Area"></label>:&nbsp;
+					@Html.DisplayFor(e => e.Building.Area) م
+				</div>
+			}
+			@if (!string.IsNullOrEmpty(Model.Building.Address))
+			{
+				<div class="col-12">
+					<label asp-for="Building.Address"></label>:&nbsp;
+					@Html.DisplayFor(e => e.Building.Address)
+				</div>
+			}
+			@if (!string.IsNullOrEmpty(Model.Building.Address2))
+			{
+				<div class="col-12">
+					<label asp-for="Building.Address2"></label>:&nbsp;
+					@Html.DisplayFor(e => e.Building.Address2)
+				</div>
+			}
+			@if (Model.Building is ICityNameLookup cityNameLookup && !string.IsNullOrEmpty(cityNameLookup.CityName))
+			{
+				<div class="col-6">
+					<label asp-for="Building.CityId"></label>:&nbsp;
+					@Html.DisplayFor(e => cityNameLookup.CityName)
+				</div>
+			}
+			@if (Model.Building.CountryCode != CompanyInfo.CountryCode && Model.Building is ICountryNameLookup countryNameLookup && !string.IsNullOrEmpty(countryNameLookup.CountryName))
+			{
+				<div class="col-6">
+					<label asp-for="Building.CountryCode"></label>:&nbsp;
+					@Html.DisplayFor(e => countryNameLookup.CountryName)
+				</div>
+			}
+			@if (!string.IsNullOrEmpty(Model.Building.Description))
+			{
+				<div class="col-12">
+					<label asp-for="Building.Description"></label>:&nbsp;
+					@Html.DisplayFor(e => e.Building.Description)
+				</div>
+			}
+		</div>
+		<div class="my-2">
+			<a asp-area="Admin" asp-controller="Buildings" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">تعديل</a>
+		</div>
+	}
+</div>
+
+<script type="text/javascript" defer>
+	const { createApp, nextTick, ref } = Vue;
+	const { useToast } = primevue.usetoast;
+
+	const DELAY = 300;
+
+	const _FILE_SIZES = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+	const _formatSize = (bytes) => {
+		if (!bytes) return '0 B';
+
+		const k = 1000;
+		const dm = 3;
+		const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+		return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + _FILE_SIZES[i];
+	};
+
+	const _fetchCountries = _.debounce(async (self, search) => {
+			self.errors.length = 0;
+			self.loading = true;
+			search = search && search.trim();
+
+			try {
+				const url = `@Url.Action("Countries", "Cities", new
+				             {
+					             area = "Admin"
+				             }, Context.Request.Scheme)`;
+				const params = new URLSearchParams({
+					countryCode: self.countryCode,
+					search: search ? encodeURIComponent(search) : ""
+				});
+				const response = await window.fetch(url + "?" + params);
+
+				if (!response.ok) {
+					const isJson = response.headers.get('content-type')?.includes('application/json');
+					const data = isJson && await response.json();
+					const error = (data && data.message) || response.status;
+					throw error;
+				}
+
+				self.countries = await response.json();
+			} catch (e) {
+				self.selectedCountry = null;
+				self.countries = [];
+				alert(e.message || e);
+			} finally {
+				self.loading = false;
+			}
+		},
+		DELAY,
+		{ leading: true });
+	const _fetchCities = _.debounce(async (self, countryCode, search) => {
+		if (!countryCode) {
+			self.selectedCity = null;
+			self.cities = [];
+			return;
+		}
+
+		self.loading = true;
+		search = search && search.trim();
+
+		try {
+			const url = `@Url.Action("List", "Cities", new
+			             {
+				             area = "Admin"
+			             }, Context.Request.Scheme)`;
+			const params = new URLSearchParams({
+				countryCode: self.countryCode,
+				search: search ? encodeURIComponent(search) : ""
+			});
+			const response = await window.fetch(url + "?" + params);
+
+			if (!response.ok) {
+				const isJson = response.headers.get('content-type')?.includes('application/json');
+				const data = isJson && await response.json();
+				const error = (data && data.message) || response.status;
+				throw error;
+			}
+
+			self.cities = await response.json();
+		} catch (e) {
+			self.selectedCity = null;
+			self.cities = [];
+			alert(e.message || e);
+		} finally {
+			self.loading = false;
+		}
+		},
+		DELAY,
+		{ leading: true });
+
+	createApp({
+			data() {
+				return {
+					loading: false,
+					selectedCountry: null,
+					countryCode: "@Model.Building.CountryCode",
+					countries: [],
+					selectedCity: null,
+					cityId: @Model.Building.CityId,
+					cities: [],
+					fullScreen: false,
+					activeImage: 0,
+					images: [],
+					uploading: false,
+					files: [],
+					uploadedFiles: [],
+					uploadedSize: 0,
+					totalSize: 0,
+					uploadProgress: 0,
+					toast: useToast(),
+					errors: []
+				}
+			},
+			computed: {
+				galleriaClass() {
+					return ['galleria', { 'fullscreen': this.fullScreen }];
+				}
+			},
+			watch: {
+				selectedCountry(newValue) {
+					if (newValue && newValue.id)
+						this.countryCode = newValue.id;
+					else
+						this.countryCode = "";
+				},
+				selectedCity(newValue) {
+					if (newValue && newValue.id)
+						this.cityId = newValue.id;
+					else
+						this.cityId = 0;
+				}
+			},
+			methods: {
+				async fetchData() {
+					this.errors.length = 0;
+					this.fetchCountries();
+					this.fetchCities(this.countryCode);
+					await this.fetchImages();
+				},
+				fetchCountries(search) {
+					_fetchCountries(this, search);
+				},
+				fetchCities(countryCode, search) {
+					_fetchCities(this, countryCode, search);
+				},
+				async fetchImages() {
+					this.errors.length = 0;
+					this.activeImage = 0;
+					this.loading = true;
+
+					try {
+						const url = `@Url.Action("ListImages", "Buildings", new
+						             {
+							             area = "Admin",
+							             Model.Id
+						             }, Context.Request.Scheme)`;
+						const response = await window.fetch(url);
+
+						if (!response.ok) {
+							const isJson = response.headers.get('content-type')?.includes('application/json');
+							const data = isJson && await response.json();
+							const error = (data && data.message) || response.status;
+							throw error;
+						}
+
+						this.images = await response.json();
+					} catch (e) {
+						this.images = [];
+						alert(e.message || e);
+					} finally {
+						this.loading = false;
+					}
+				},
+				onFilesSelected(event) {
+					this.uploadedSize = 0;
+					this.files = event.files;
+
+					let totalSize = 0;
+					this.files.forEach((file) => {
+						totalSize += file.size;
+					});
+					this.totalSize = totalSize;
+					this.updateProgress();
+				},
+				onRemoveFile(file, fileRemoveCallback, index) {
+					fileRemoveCallback(index);
+					this.totalSize -= file.size;
+				},
+				onClearUpload(clear) {
+					clear();
+					this.uploadedSize = 0;
+					this.totalSize = 0;
+					this.updateProgress();
+				},
+				async onUpload(event) {
+					this.errors.length = 0;
+					this.uploadedSize = 0;
+					this.uploadProgress = 0;
+
+					const url = "@Url.Action("AddImage", "Buildings", new
+					             {
+						             area = "Admin",
+						             Model.Id
+					             })";
+					const files = event.files;
+
+					for (const file of files) {
+						const formData = new FormData();
+						formData.append("imageToAdd.image", file);
+
+						try {
+							const response = await fetch(url,
+								{
+									method: "post",
+									body: formData,
+									headers: {
+										RequestVerificationToken: "@Antiforgery.GetAndStoreTokens(Context).RequestToken"
+									},
+									credentials: "same-origin"
+								});
+
+							if (!response.ok) {
+								const isJson = response.headers.get('content-type')?.includes('application/json');
+								const data = isJson && await response.json();
+								const error = (data && data.message) || response.status;
+								throw error;
+							}
+
+							this.uploadedFiles = [...this.uploadedFiles, file];
+						} catch (e) {
+							const error = e.message || e;
+							this.errors.push(error);
+						} finally {
+							this.uploadedSize += file.size;
+							this.updateProgress();
+						}
+					}
+
+					if (this.errors.length) return;
+					this.uploading = false;
+					await this.fetchImages();
+				},
+				onFilesUploaded(event) {
+					this.uploadedFiles = event.files;
+					this.uploadedSize = 0;
+					this.totalSize = 0;
+					this.updateProgress();
+					this.$toast.add({ severity: 'info', summary: 'تم بنجاح', detail: 'اكتمل تحميل الملف', life: 3000 });
+				},
+				onError(event) {
+					if (event.files && event.files.length) {
+						for (const file of event.files) {
+							this.errors.push("حدث خطأ أثناء تحميل الملف: " + file.name);
+						}
+					} else {
+						this.errors.push("حدث خطأ أثناء التحميل.");
+					}
+				},
+				updateProgress() {
+					if (!this.totalSize || !this.uploadedSize) {
+						this.uploadProgress = 0;
+						return;
+					}
+
+					this.uploadProgress = Math.ceil((this.uploadedSize / parseFloat(this.totalSize)) * 100);
+				},
+				formatSize(bytes) {
+					_formatSize(bytes);
+				},
+				toggleFullScreen() {
+					if (this.fullScreen) {
+						this.closeFullScreen();
+					} else {
+						this.openFullScreen();
+					}
+				},
+				onFullScreenChange() {
+					const elem = this.$refs.zoneFooter;
+					let parent;
+
+					if (document.fullscreenElement) {
+						this.fullScreen = true;
+						parent = this.$refs.galleriaFooter;
+					} else {
+						this.fullScreen = false;
+						parent = this.$refs.dropZone;
+					}
+
+					parent.appendChild(elem);
+				},
+				openFullScreen() {
+					const elem = this.$refs.galleria.$el;
+					if (elem.requestFullscreen) {
+						elem.requestFullscreen();
+					} else if (elem.mozRequestFullScreen) { /* Firefox */
+						elem.mozRequestFullScreen();
+					} else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+						elem.webkitRequestFullscreen();
+					} else if (elem.msRequestFullscreen) { /* IE/Edge */
+						elem.msRequestFullscreen();
+					}
+				},
+				closeFullScreen() {
+					if (document.exitFullscreen) {
+						document.exitFullscreen();
+					} else if (document.mozCancelFullScreen) {
+						document.mozCancelFullScreen();
+					} else if (document.webkitExitFullscreen) {
+						document.webkitExitFullscreen();
+					} else if (document.msExitFullscreen) {
+						document.msExitFullscreen();
+					}
+				},
+				bindDocumentListeners() {
+					document.addEventListener("fullscreenchange", this.onFullScreenChange);
+					document.addEventListener("mozfullscreenchange", this.onFullScreenChange);
+					document.addEventListener("webkitfullscreenchange", this.onFullScreenChange);
+					document.addEventListener("msfullscreenchange", this.onFullScreenChange);
+				},
+				unbindDocumentListeners() {
+					document.removeEventListener("fullscreenchange", this.onFullScreenChange);
+					document.removeEventListener("mozfullscreenchange", this.onFullScreenChange);
+					document.removeEventListener("webkitfullscreenchange", this.onFullScreenChange);
+					document.removeEventListener("msfullscreenchange", this.onFullScreenChange);
+				}
+			},
+			mounted() {
+				this.bindDocumentListeners();
+				this.fetchData();
+			},
+			unmounted() {
+				this.unbindDocumentListeners();
+			}
+		})
+		.use(primevue.config.default)
+		.use(primevue.toastservice)
+		.component("autocomplete", primevue.autocomplete)
+		.component("galleria", primevue.galleria)
+		.component("fileupload", primevue.fileupload)
+		.component("progressbar", primevue.progressbar)
+		.component("toast", primevue.toast)
+		.mount("#buildingForm");
+</script>

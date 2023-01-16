@@ -1,9 +1,9 @@
-﻿@using HammadBroker.Model.Configuration
-@inject CompanyInfo CompanyInfo
-@model HammadBroker.Model.DTO.BuildingForDetails
+﻿@using HammadBroker.Model.DTO
+@model BuildingForDetails
 
 @{
 	ViewData["Title"] = "عقار";
+	int id = Context.Request.RouteValues["id"].To(0);
 }
 
 <div class="row mb-1">
@@ -11,114 +11,10 @@
 		<a asp-area="Admin" asp-controller="Buildings" asp-action="Add" class="btn btn-outline-primary border-0"><i class="fa fa-plus"></i> إضافة عقار</a>
 	</div>
 </div>
-<div class="d-flex">
-	<div class="m-1 flex-grow-1 position-relative">
-		@if (string.IsNullOrEmpty(Model.VideoId))
-		{
-			<img-asset src="@Model.ImageUrl" ReadOnly="true" ImageClass="img-fluid"/>
-		}
-		else
-		{
-			<vid-asset VideoId="@Model.VideoId" Class="ratio ratio-16x9"/>
-		}
-		<div class="position-absolute bottom-0 mb-5 mx-4 d-flex align-items-center">
-			<button class="btn btn-light me-1">
-				<i class="fa fa-plus"></i>
-				إضافة صور
-			</button>
-			@if (Model.Images.Count > 0)
-			{
-				<button class="btn btn-light me-1">
-					<i class="fa fa-camera"></i>
-					تصفح ال @Model.Images.Count صور
-				</button>
-			}
-			<button class="btn btn-light me-1">
-				<i class="fa fa-location-dot"></i>
-				مشاهدة على الخريطة
-			</button>
-		</div>
-	</div>
-	@if (Model.Images.Count > 0)
-	{
-		<div class="card-deck">
-			@foreach (string image in Model.Images.Take(2))
-			{
-				<img-asset src="@image" ReadOnly="true" ImageClass="img-fluid" />
-			}
-		</div>
-	}
-</div>
-<div class="row">
-	<div class="col-12">
-		<small>@Model.BuildingType.GetDisplayName() @Model.FinishingType?.GetDisplayName()</small>
-		<h5>@Model.Name</h5>
-	</div>
-	@if (Model.Floor > 0)
-	{
-		<div class="col-6">
-			<label asp-for="Floor"></label>:&nbsp;
-			@Html.DisplayFor(e => e.Floor)
-		</div>
-	}
-	@if (Model.Rooms > 0)
-	{
-		<div class="col-6">
-			<label asp-for="Rooms"></label>:&nbsp;
-			@Html.DisplayFor(e => e.Rooms)
-		</div>
-	}
-	@if (Model.Bathrooms > 0)
-	{
-		<div class="col-6">
-			<label asp-for="Bathrooms"></label>:&nbsp;
-			@Html.DisplayFor(e => e.Bathrooms)
-		</div>
-	}
-	@if (Model.Area > 0)
-	{
-		<div class="col-6">
-			<label asp-for="Area"></label>:&nbsp;
-			@Html.DisplayFor(e => e.Area) م
-		</div>
-	}
-	@if (!string.IsNullOrEmpty(Model.Address))
-	{
-		<div class="col-12">
-			<label asp-for="Address"></label>:&nbsp;
-			@Html.DisplayFor(e => e.Address)
-		</div>
-	}
-	@if (!string.IsNullOrEmpty(Model.Address2))
-	{
-		<div class="col-12">
-			<label asp-for="Address2"></label>:&nbsp;
-			@Html.DisplayFor(e => e.Address2)
-		</div>
-	}
-	@if (!string.IsNullOrEmpty(Model.CityName))
-	{
-		<div class="col-12">
-			<label asp-for="CityName"></label>:&nbsp;
-			@Html.DisplayFor(e => e.CityName)
-		</div>
-	}
-	@if (Model.CountryCode != CompanyInfo.CountryCode && !string.IsNullOrEmpty(Model.CountryName))
-	{
-		<div class="col-12">
-			<label asp-for="CountryName"></label>:&nbsp;
-			@Html.DisplayFor(e => e.CountryName)
-		</div>
-	}
-	@if (!string.IsNullOrEmpty(Model.Description))
-	{
-		<div class="col-12">
-			<label asp-for="Description"></label>:&nbsp;
-			@Html.DisplayFor(e => e.Description)
-		</div>
-	}
-</div>
-<div class="my-2">
-	<a asp-area="Admin" asp-controller="Buildings" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">تعديل</a>
-</div>
 
+@await Component.InvokeAsync(typeof(BuildingViewComponent), new BuildingModel(Model)
+{
+   Id = id,
+   CanEdit = false,
+   CanUpload = true
+})
