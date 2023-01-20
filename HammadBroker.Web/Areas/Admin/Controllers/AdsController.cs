@@ -66,7 +66,7 @@ public class AdsController : MvcController
 
 	[NotNull]
 	[ItemNotNull]
-	[HttpGet("{id:int}")]
+	[HttpGet("[action]")]
 	public async Task<IActionResult> Get(int id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
@@ -118,7 +118,7 @@ public class AdsController : MvcController
 
 	[NotNull]
 	[ItemNotNull]
-	[HttpGet("{id:int}/[action]")]
+	[HttpGet("[action]")]
 	public async Task<IActionResult> Edit([Required] int id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
@@ -130,7 +130,7 @@ public class AdsController : MvcController
 
 	[NotNull]
 	[ItemNotNull]
-	[HttpPost("{id:int}/[action]")]
+	[HttpPost("[action]")]
 	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> Edit([Required] int id, [NotNull] BuildingAdToUpdate buildingAdToUpdate, CancellationToken token)
 	{
@@ -152,7 +152,7 @@ public class AdsController : MvcController
 
 	[NotNull]
 	[ItemNotNull]
-	[HttpPost("{id:int}/[action]")]
+	[HttpPost("[action]")]
 	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> Delete([Required] int id, string returnUrl, CancellationToken token)
 	{

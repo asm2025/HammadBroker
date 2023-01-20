@@ -3,12 +3,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using essentialMix.Core.Data.Entity.AutoMapper.Patterns.Services;
 using essentialMix.Data.Patterns.Parameters;
 using essentialMix.Extensions;
 using essentialMix.Patterns.Pagination;
 using HammadBroker.Data.Context;
 using HammadBroker.Data.Repositories;
+using HammadBroker.Model.DTO;
 using HammadBroker.Model.Entities;
 using HammadBroker.Model.Parameters;
 using JetBrains.Annotations;
@@ -22,6 +24,30 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	public BuildingService([NotNull] IBuildingRepository repository, [NotNull] IMapper mapper, [NotNull] ILogger<BuildingService> logger)
 		: base(repository, mapper, logger)
 	{
+	}
+
+	/// <inheritdoc />
+	public IList<BuildingForList> List(BuildingList settings)
+	{
+		ThrowIfDisposed();
+
+		IQueryable<Building> queryable = Repository.List(settings);
+		IList<BuildingForList> result = queryable.ProjectTo<BuildingForList>(Mapper.ConfigurationProvider)
+														.ToList();
+		return result;
+	}
+
+	/// <inheritdoc />
+	public async Task<IList<BuildingForList>> ListAsync(BuildingList settings, CancellationToken token = default(CancellationToken))
+	{
+		ThrowIfDisposed();
+		token.ThrowIfCancellationRequested();
+
+		IQueryable<Building> queryable = Repository.List(settings);
+		IList<BuildingForList> result = await queryable.ProjectTo<BuildingForList>(Mapper.ConfigurationProvider)
+														.ToListAsync(token)
+														.ConfigureAwait();
+		return result;
 	}
 
 	/// <inheritdoc />

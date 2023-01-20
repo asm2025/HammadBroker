@@ -3,33 +3,24 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HammadBroker.Model.DTO;
 
-public class BuildingAdToUpdate : IBuildingAd
+public interface IBuildingAd
 {
-	[Display(Name = "النوع")]
-	public BuildingAdType Type { get; set; }
-	[Display(Name = "الاولوية")]
-	public byte Priority { get; set; }
 	[Display(Name = "العقار")]
-	[Required]
 	public int BuildingId { get; set; }
+	[Display(Name = "نوع الاعلان")]
+	public BuildingAdType Type { get; set; }
 	[Display(Name = "التاريخ")]
 	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}")]
 	public DateTime Date { get; set; }
-	[Display(Name = "تاريخ الانتهاء")]
+	[Display(Name = "ينتهي في")]
 	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}")]
 	public DateTime? Expires { get; set; }
-	[Display(Name = "التليفون")]
-	[Required]
-	[Phone]
-	[DataType(DataType.PhoneNumber)]
+	[Display(Name = "تليفون")]
 	public string Phone { get; set; }
-	[Display(Name = "المحمول")]
-	[Phone]
-	[DataType(DataType.PhoneNumber)]
+	[Display(Name = "محمول")]
 	public string Mobile { get; set; }
 	[Display(Name = "السعر")]
-	[Required]
-	[Range(0, 1000000000)]
+	[DisplayFormat(DataFormatString = "{0:N}")]
 	public long Price { get; set; }
 	[Display(Name = "المشاهدات")]
 	public long Views { get; set; }

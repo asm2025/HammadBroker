@@ -5,13 +5,20 @@ using essentialMix.Core.Data.Entity.AutoMapper.Patterns.Services;
 using essentialMix.Data.Patterns.Parameters;
 using HammadBroker.Data.Context;
 using HammadBroker.Data.Repositories;
+using HammadBroker.Model.DTO;
 using HammadBroker.Model.Entities;
+using HammadBroker.Model.Parameters;
 using JetBrains.Annotations;
 
 namespace HammadBroker.Data.Services;
 
 public interface IBuildingService : IService<DataContext, IBuildingRepository, Building, int>
 {
+	[NotNull]
+	IList<BuildingForList> List(BuildingList settings);
+	[NotNull]
+	[ItemNotNull]
+	Task<IList<BuildingForList>> ListAsync(BuildingList settings, CancellationToken token = default(CancellationToken));
 	[NotNull]
 	IList<string> ListImages(int buildingId);
 	[NotNull]

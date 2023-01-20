@@ -3,15 +3,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HammadBroker.Model.DTO;
 
-public class BuildingAdForDetails : BuildingForDetails
+public class BuildingAdForDetails : BuildingForDetails, IBuildingAd
 {
 	[Display(Name = "العقار")]
 	public int BuildingId { get; set; }
 	[Display(Name = "نوع الاعلان")]
 	public BuildingAdType Type { get; set; }
 	[Display(Name = "التاريخ")]
+	[DisplayFormat(DataFormatString = "{0:D}")]
 	public DateTime Date { get; set; }
 	[Display(Name = "ينتهي في")]
+	[DisplayFormat(DataFormatString = "{0:D}")]
 	public DateTime? Expires { get; set; }
 	[Display(Name = "تليفون")]
 	public string Phone { get; set; }

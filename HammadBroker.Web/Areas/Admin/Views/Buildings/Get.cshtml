@@ -12,9 +12,10 @@
 	</div>
 </div>
 
-@await Component.InvokeAsync(typeof(BuildingViewComponent), new BuildingModel(Model)
+@await Component.InvokeAsync(typeof(BuildingViewComponent), new BuildingModel
 {
-   Id = id,
-   CanEdit = false,
-   CanUpload = true
+	Id = id,
+	Building = Model,
+	CanEdit = false,
+	CanUpload = true
 })

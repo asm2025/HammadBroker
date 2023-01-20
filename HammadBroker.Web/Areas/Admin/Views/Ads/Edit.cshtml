@@ -1,3 +1,24 @@
-﻿@{
-	ViewData["Title"] = "الاعلانات";
+﻿@using HammadBroker.Model.DTO
+@model BuildingAdToUpdate
+
+@{
+	ViewData["Title"] = "تعديل الاعلان";
+	int id = Context.Request.RouteValues["id"].To(0);
 }
+
+@if (id > 0)
+{
+	<div class="row mb-1">
+		<div class="col-12">
+			<a asp-area="Admin" asp-controller="Ads" asp-action="Add" class="btn btn-outline-primary border-0"><i class="fa fa-plus"></i> إضافة اعلان</a>
+		</div>
+	</div>
+}
+
+@await Component.InvokeAsync(typeof(BuildingAdViewComponent), new BuildingAdModel
+	   {
+		   Id = id,
+		   Ad = Model,
+		   CanEdit = true,
+		   CanUpload = true
+	   })

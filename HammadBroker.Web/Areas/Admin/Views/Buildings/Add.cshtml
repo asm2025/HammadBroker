@@ -5,8 +5,9 @@
 	ViewData["Title"] = "إضافة عقار";
 }
 
-@await Component.InvokeAsync(typeof(BuildingViewComponent), new BuildingModel(Model)
+@await Component.InvokeAsync(typeof(BuildingViewComponent), new BuildingModel
 {
+	Building = Model,
 	CanEdit = true,
 	CanUpload = false
 })

@@ -1,22 +1,25 @@
-﻿using JetBrains.Annotations;
-
-namespace HammadBroker.Model.DTO;
+﻿namespace HammadBroker.Model.DTO;
 
 public class BuildingModel
 {
+	private bool _canEdit;
 	private bool _canUpload;
 
-	public BuildingModel([NotNull] IBuilding building)
+	public BuildingModel()
 	{
-		Building = building;
 	}
 
 	public int Id { get; set; }
 
-	[NotNull]
 	public IBuilding Building { get; set; }
 
-	public bool CanEdit { get; set; }
+	public bool ReadOnly { get; set; }
+
+	public bool CanEdit
+	{
+		get => !ReadOnly && _canEdit;
+		set => _canEdit = value;
+	}
 
 	public bool CanUpload
 	{

@@ -70,10 +70,10 @@
 		{
 			<div class="card card-body position-relative">
 				<div ref="dropZone" :class="['drop-zone', { fullScreen }]">
-					<div :class="@(Model.CanUpload ? "['zone-item', { active: !uploading }]" : "'zone-item'")" dir="ltr">
-						<galleria ref="galleria" :container-class="galleriaClass" :value="images" v-model:active-index="activeImage" :show-thumbnails="false"
-								show-item-navigators show-item-navigators-on-hover show-indicators change-item-on-indicator-hover show-indicators-on-item
-								circular auto-play :transition-interval="3000">
+					<div :class="@(Model.CanUpload ? "['zone-item', { active: !uploading }]" : "'zone-item active'")" dir="ltr">
+						<galleria ref="galleria" :container-class="['galleria', { fullScreen }]" :value="images" :show-thumbnails="false" 
+								show-item-navigators show-item-navigators-on-hover show-indicators change-item-on-indicator-hover 
+								show-indicators-on-item circular auto-play :transition-interval="3000">
 							<template #item="{ item }">
 								<img :src="item" alt="" class="img-fluid" v-on:click="toggleFullScreen"/>
 							</template>
@@ -312,9 +312,12 @@
 				</div>
 			}
 		</div>
-		<div class="my-2">
-			<a asp-area="Admin" asp-controller="Buildings" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">تعديل</a>
-		</div>
+		@if (!Model.ReadOnly)
+		{
+			<div class="my-2">
+				<a asp-area="Admin" asp-controller="Buildings" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">تعديل</a>
+			</div>
+		}
 	}
 </div>
 
@@ -323,7 +326,6 @@
 	const { useToast } = primevue.usetoast;
 
 	const DELAY = 300;
-
 	const _FILE_SIZES = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 	const _formatSize = (bytes) => {
 		if (!bytes) return '0 B';
@@ -420,7 +422,6 @@
 					cityId: @Model.Building.CityId,
 					cities: [],
 					fullScreen: false,
-					activeImage: 0,
 					images: [],
 					uploading: false,
 					files: [],
@@ -430,11 +431,6 @@
 					uploadProgress: 0,
 					toast: useToast(),
 					errors: []
-				}
-			},
-			computed: {
-				galleriaClass() {
-					return ['galleria', { 'fullscreen': this.fullScreen }];
 				}
 			},
 			watch: {
@@ -466,16 +462,17 @@
 				},
 				async fetchImages() {
 					this.errors.length = 0;
-					this.activeImage = 0;
 					this.loading = true;
 
 					try {
 						const url = `@Url.Action("ListImages", "Buildings", new
 						             {
-							             area = "Admin",
-							             Model.Id
+							             area = "Admin"
 						             }, Context.Request.Scheme)`;
-						const response = await window.fetch(url);
+						const params = new URLSearchParams({
+							id: @Model.Id
+						});
+						const response = await window.fetch(url + "?" + params);
 
 						if (!response.ok) {
 							const isJson = response.headers.get('content-type')?.includes('application/json');

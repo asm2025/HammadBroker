@@ -84,7 +84,19 @@ public class BuildingsController : MvcController
 
 	[NotNull]
 	[ItemNotNull]
-	[HttpGet("{id:int}")]
+	[Authorize]
+	[HttpGet("[action]")]
+	public async Task<IActionResult> List([FromQuery(Name = "")] BuildingList settings, CancellationToken token)
+	{
+		token.ThrowIfCancellationRequested();
+		IList<BuildingForList> result = await _buildingService.ListAsync(settings, token);
+		token.ThrowIfCancellationRequested();
+		return Ok(result);
+	}
+
+	[NotNull]
+	[ItemNotNull]
+	[HttpGet("[action]")]
 	public async Task<IActionResult> Get(int id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
@@ -96,6 +108,22 @@ public class BuildingsController : MvcController
 		await _lookupService.FillCityNameAsync(building, token);
 		token.ThrowIfCancellationRequested();
 		return View(building);
+	}
+
+	[NotNull]
+	[ItemNotNull]
+	[HttpGet("[action]")]
+	public async Task<IActionResult> GetById(int id, CancellationToken token)
+	{
+		token.ThrowIfCancellationRequested();
+		BuildingForDetails building = await _buildingService.GetAsync<BuildingForDetails>(id, token);
+		token.ThrowIfCancellationRequested();
+		if (building == null) return NotFound();
+		await _lookupService.FillCountryNameAsync(building, token);
+		token.ThrowIfCancellationRequested();
+		await _lookupService.FillCityNameAsync(building, token);
+		token.ThrowIfCancellationRequested();
+		return Ok(building);
 	}
 
 	[NotNull]
@@ -170,7 +198,7 @@ public class BuildingsController : MvcController
 
 	[NotNull]
 	[ItemNotNull]
-	[HttpGet("{id:int}/[action]")]
+	[HttpGet("[action]")]
 	public async Task<IActionResult> Edit([Required] int id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
@@ -182,7 +210,7 @@ public class BuildingsController : MvcController
 
 	[NotNull]
 	[ItemNotNull]
-	[HttpPost("{id:int}/[action]")]
+	[HttpPost("[action]")]
 	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> Edit([Required] int id, [NotNull, FromForm(Name = "")] BuildingToUpdate buildingToUpdate, CancellationToken token)
 	{
@@ -243,7 +271,7 @@ public class BuildingsController : MvcController
 
 	[NotNull]
 	[ItemNotNull]
-	[HttpPost("{id:int}/[action]")]
+	[HttpPost("[action]")]
 	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> Delete([Required] int id, string returnUrl, CancellationToken token)
 	{
@@ -264,7 +292,7 @@ public class BuildingsController : MvcController
 
 	[NotNull]
 	[ItemNotNull]
-	[HttpGet("{id:int}/images")]
+	[HttpGet("[action]")]
 	public async Task<IActionResult> ListImages(int id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
@@ -280,7 +308,7 @@ public class BuildingsController : MvcController
 
 	[NotNull]
 	[ItemNotNull]
-	[HttpPost("{id:int}/images/[action]")]
+	[HttpPost("[action]")]
 	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> AddImage([Required] int id, BuildingImageToAdd imageToAdd, CancellationToken token)
 	{
@@ -311,7 +339,7 @@ public class BuildingsController : MvcController
 
 	[NotNull]
 	[ItemNotNull]
-	[HttpPost("{id:int}/images/[action]")]
+	[HttpPost("[action]")]
 	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> DeleteImage([Required] int id, [Required] int imageId, CancellationToken token)
 	{

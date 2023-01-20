@@ -140,14 +140,14 @@
 			{
 				const url = '@Url.Action("Delete", "Buildings", new
 				             {
-					             area = "Admin",
-					             id = "${0}"
-				             })'.replace("${0}", id);
-				const formData = new FormData();
-				formData.append("returnUrl", "@Context.Request.GetEncodedPathAndQuery()");
+					             area = "Admin"
+				             }, Context.Request.Scheme)';
+				const data = new FormData();
+				data.append("id", id);
+				data.append("returnUrl", "@Context.Request.GetEncodedPathAndQuery()");
 				await fetch(url, {
 					method: "post",
-					body: formData,
+					body: data,
 					headers: {
 						RequestVerificationToken: "@Antiforgery.GetAndStoreTokens(Context).RequestToken"
 					},
