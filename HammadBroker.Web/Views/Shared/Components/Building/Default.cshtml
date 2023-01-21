@@ -34,7 +34,7 @@
 		<div class="card card-body position-relative">
 			@if (Model.CanEdit)
 			{
-				<img-asset name="Image" src="@Model.Building.ImageUrl" readOnly="@(!Model.CanUpload)" class="img-placeholder" imageclass="img-fluid"/>
+				<img-asset name="Image" src="@Model.Building.ImageUrl" class="img-placeholder" imageclass="img-fluid"/>
 				<input type="hidden" asp-for="Building.ImageUrl"/>
 			}
 			else
@@ -165,75 +165,93 @@
 
 	@if (Model.CanEdit)
 	{
-		<div class="mb-1">
-			<input class="form-control" asp-for="Building.VideoId" placeholder="@Html.DisplayNameFor(e => e.Building.VideoId)" title="@Html.DisplayNameFor(e => e.Building.VideoId)"/>
-			<span asp-validation-for="Building.VideoId" class="text-danger"></span>
+		<div class="row px-2">
+			<div class="col-12 px-0 mb-1">
+				<input class="form-control" asp-for="Building.VideoId" placeholder="@Html.DisplayNameFor(e => e.Building.VideoId)" title="@Html.DisplayNameFor(e => e.Building.VideoId)"/>
+				<span asp-validation-for="Building.VideoId" class="text-danger"></span>
+			</div>
 		</div>
-		<div class="mb-1">
-			<input class="form-control" asp-for="Building.Name" placeholder="@Html.DisplayNameFor(e => e.Building.Name)" title="@Html.DisplayNameFor(e => e.Building.Name)"/>
-			<span asp-validation-for="Building.Name" class="text-danger"></span>
+		<div class="row px-2">
+			<div class="col-12 px-0 mb-1">
+				<input class="form-control" asp-for="Building.Name" placeholder="@Html.DisplayNameFor(e => e.Building.Name)" title="@Html.DisplayNameFor(e => e.Building.Name)"/>
+				<span asp-validation-for="Building.Name" class="text-danger"></span>
+			</div>
 		</div>
-		<div class="mb-1">
-			<select asp-for="Building.BuildingType" class="form-select" asp-items="Html.GetEnumSelectList<BuildingType>()" title="@Html.DisplayNameFor(e => e.Building.BuildingType)">
-				<option value="">@Html.DisplayNameFor(e => e.Building.BuildingType)</option>
-			</select>
-			<span asp-validation-for="Building.BuildingType" class="text-danger"></span>
+		<div class="row px-2">
+			<div class="col-sm-12 col-md-6 px-0 mb-1">
+				<select asp-for="Building.BuildingType" class="form-select" asp-items="Html.GetEnumSelectList<BuildingType>()" title="@Html.DisplayNameFor(e => e.Building.BuildingType)">
+					<option value="">@Html.DisplayNameFor(e => e.Building.BuildingType)</option>
+				</select>
+				<span asp-validation-for="Building.BuildingType" class="text-danger"></span>
+			</div>
+			<div class="col-sm-12 col-md-6 px-0 mb-1">
+				<select asp-for="Building.FinishingType" class="form-select" asp-items="Html.GetEnumSelectList<FinishingType>()" title="@Html.DisplayNameFor(e => e.Building.FinishingType)">
+					<option value="">@Html.DisplayNameFor(e => e.Building.FinishingType)</option>
+				</select>
+				<span asp-validation-for="Building.FinishingType" class="text-danger"></span>
+			</div>
 		</div>
-		<div class="mb-1">
-			<select asp-for="Building.FinishingType" class="form-select" asp-items="Html.GetEnumSelectList<FinishingType>()" title="@Html.DisplayNameFor(e => e.Building.FinishingType)">
-				<option value="">@Html.DisplayNameFor(e => e.Building.FinishingType)</option>
-			</select>
-			<span asp-validation-for="Building.FinishingType" class="text-danger"></span>
+		<div class="row px-2">
+			<div class="col-sm-12 col-md-6 px-0 mb-1">
+				<input class="form-control" asp-for="Building.Floor" placeholder="@Html.DisplayNameFor(e => e.Building.Floor)" title="@Html.DisplayNameFor(e => e.Building.Floor)"/>
+				<span asp-validation-for="Building.Floor" class="text-danger"></span>
+			</div>
+			<div class="col-sm-12 col-md-6 px-0 mb-1">
+				<input class="form-control" asp-for="Building.Area" placeholder="@Html.DisplayNameFor(e => e.Building.Area)" title="@Html.DisplayNameFor(e => e.Building.Area)"/>
+				<span asp-validation-for="Building.Area" class="text-danger"></span>
+			</div>
 		</div>
-		<div class="mb-1">
-			<input class="form-control" asp-for="Building.Floor" placeholder="@Html.DisplayNameFor(e => e.Building.Floor)" title="@Html.DisplayNameFor(e => e.Building.Floor)"/>
-			<span asp-validation-for="Building.Floor" class="text-danger"></span>
+		<div class="row px-2">
+			<div class="col-sm-12 col-md-6 px-0 mb-1">
+				<input class="form-control" asp-for="Building.Rooms" placeholder="@Html.DisplayNameFor(e => e.Building.Rooms)" title="@Html.DisplayNameFor(e => e.Building.Rooms)"/>
+				<span asp-validation-for="Building.Rooms" class="text-danger"></span>
+			</div>
+			<div class="col-sm-12 col-md-6 px-0 mb-1">
+				<input class="form-control" asp-for="Building.Bathrooms" placeholder="@Html.DisplayNameFor(e => e.Building.Bathrooms)" title="@Html.DisplayNameFor(e => e.Building.Bathrooms)"/>
+				<span asp-validation-for="Building.Bathrooms" class="text-danger"></span>
+			</div>
 		</div>
-		<div class="mb-1">
-			<input class="form-control" asp-for="Building.Rooms" placeholder="@Html.DisplayNameFor(e => e.Building.Rooms)" title="@Html.DisplayNameFor(e => e.Building.Rooms)"/>
-			<span asp-validation-for="Building.Rooms" class="text-danger"></span>
+		<div class="row px-2">
+			<div class="col-12 px-0 mb-1">
+				<input class="form-control" asp-for="Building.Address" placeholder="@Html.DisplayNameFor(e => e.Building.Address)" title="@Html.DisplayNameFor(e => e.Building.Address)"/>
+				<span asp-validation-for="Building.Address" class="text-danger"></span>
+			</div>
 		</div>
-		<div class="mb-1">
-			<input class="form-control" asp-for="Building.Bathrooms" placeholder="@Html.DisplayNameFor(e => e.Building.Bathrooms)" title="@Html.DisplayNameFor(e => e.Building.Bathrooms)"/>
-			<span asp-validation-for="Building.Bathrooms" class="text-danger"></span>
+		<div class="row px-2">
+			<div class="col-12 px-0 mb-1">
+				<input class="form-control" asp-for="Building.Address2" placeholder="@Html.DisplayNameFor(e => e.Building.Address2)" title="@Html.DisplayNameFor(e => e.Building.Address2)"/>
+				<span asp-validation-for="Building.Address2" class="text-danger"></span>
+			</div>
 		</div>
-		<div class="mb-1">
-			<input class="form-control" asp-for="Building.Area" placeholder="@Html.DisplayNameFor(e => e.Building.Area)" title="@Html.DisplayNameFor(e => e.Building.Area)"/>
-			<span asp-validation-for="Building.Area" class="text-danger"></span>
+		<div class="row px-2">
+			<div class="col-sm-12 col-md-6 px-0 mb-1">
+				<input type="hidden" asp-for="Building.CountryCode" :value="countryCode"/>
+				<autocomplete name="@nameof(Model.Building.CountryCode)" class="w-100" input-class="w-100" :suggestions="countries"
+							option-label="name" placeholder="@Html.DisplayNameFor(e => e.Building.CountryCode)"
+							title="@Html.DisplayNameFor(e => e.Building.CountryCode)"
+							:min-length="0" v-model="selectedCountry" data-key="id"
+							v-on:complete="fetchCountries($event.query)" v-on:change="fetchCities($event.value)">
+				</autocomplete>
+				<span asp-validation-for="Building.CountryCode" class="text-danger"></span>
+			</div>
+			<div class="col-sm-12 col-md-6 px-0 mb-1">
+				<input type="hidden" asp-for="Building.CityId" :value="cityId"/>
+				<autocomplete name="@nameof(Model.Building.CityId)" class="w-100" input-class="w-100" :suggestions="cities" option-label="name"
+							placeholder="@Html.DisplayNameFor(e => e.Building.CityId)"
+							title="@Html.DisplayNameFor(e => e.Building.CityId)"
+							:min-length="0" v-model="selectedCity" data-key="id" v-on:complete="fetchCities(countryCode, $event.query)">
+				</autocomplete>
+				<span asp-validation-for="Building.CityId" class="text-danger"></span>
+			</div>
 		</div>
-		<div class="mb-1">
-			<input class="form-control" asp-for="Building.Address" placeholder="@Html.DisplayNameFor(e => e.Building.Address)" title="@Html.DisplayNameFor(e => e.Building.Address)"/>
-			<span asp-validation-for="Building.Address" class="text-danger"></span>
-		</div>
-		<div class="mb-1">
-			<input class="form-control" asp-for="Building.Address2" placeholder="@Html.DisplayNameFor(e => e.Building.Address2)" title="@Html.DisplayNameFor(e => e.Building.Address2)"/>
-			<span asp-validation-for="Building.Address2" class="text-danger"></span>
-		</div>
-		<div class="mb-1">
-			<input type="hidden" asp-for="Building.CountryCode" :value="countryCode"/>
-			<autocomplete name="@nameof(Model.Building.CountryCode)" class="w-100" input-class="w-100" :suggestions="countries"
-						option-label="name" placeholder="@Html.DisplayNameFor(e => e.Building.CountryCode)"
-						title="@Html.DisplayNameFor(e => e.Building.CountryCode)"
-						:min-length="0" v-model="selectedCountry" data-key="id"
-						v-on:complete="fetchCountries($event.query)" v-on:change="fetchCities($event.value)">
-			</autocomplete>
-			<span asp-validation-for="Building.CountryCode" class="text-danger"></span>
-		</div>
-		<div class="mb-1">
-			<input type="hidden" asp-for="Building.CityId" :value="cityId"/>
-			<autocomplete name="@nameof(Model.Building.CityId)" class="w-100" input-class="w-100" :suggestions="cities" option-label="name"
-						placeholder="@Html.DisplayNameFor(e => e.Building.CityId)"
-						title="@Html.DisplayNameFor(e => e.Building.CityId)"
-						:min-length="0" v-model="selectedCity" data-key="id" v-on:complete="fetchCities(countryCode, $event.query)">
-			</autocomplete>
-			<span asp-validation-for="Building.CityId" class="text-danger"></span>
-		</div>
-		<div class="mb-1">
-			<textarea class="form-control" asp-for="Building.Description" rows="5" 
-				placeholder="@Html.DisplayNameFor(e => e.Building.Description)"
-				title="@Html.DisplayNameFor(e => e.Building.Description)">
-				</textarea>
-			<span asp-validation-for="Building.Description" class="text-danger"></span>
+		<div class="row px-2">
+			<div class="col-12 px-0 mb-1">
+				<textarea class="form-control" asp-for="Building.Description" rows="5" 
+					placeholder="@Html.DisplayNameFor(e => e.Building.Description)"
+					title="@Html.DisplayNameFor(e => e.Building.Description)">
+					</textarea>
+				<span asp-validation-for="Building.Description" class="text-danger"></span>
+			</div>
 		</div>
 		<div class="my-1">
 			<button type="submit" class="btn btn-primary me-1">حفظ</button>
@@ -243,7 +261,7 @@
 	}
 	else
 	{
-		<div class="row">
+		<div class="row px-2">
 			<div class="col-12">
 				<small>@Model.Building.BuildingType.GetDisplayName() @Model.Building.FinishingType?.GetDisplayName()</small>
 				<h5>@Model.Building.Name</h5>

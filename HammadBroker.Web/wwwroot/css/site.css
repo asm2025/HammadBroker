@@ -226,6 +226,12 @@ code {
 	}
 }
 
+.card .img-fluid {
+	max-height: 480px;
+	max-width: max-content;
+	margin: auto;
+}
+
 .list-deck .list-group-item {
 	-webkit-flex: 25%;
 	-ms-flex: 25%;
@@ -313,13 +319,11 @@ code {
 	float: none !important;
 }
 
-.form-floating > .form-control-plaintext ~ label,
-.form-floating > .form-control:focus ~ label,
-.form-floating > .form-control:not(:placeholder-shown) ~ label,
-.form-floating > .form-select ~ label {
-	-ms-transform: translateY(-1rem) translateX(0);
-	-webkit-transform: translateY(-1rem) translateX(0);
-	transform: translateY(-1rem) translateX(0);
+.form-control,
+.form-select,
+.p-component {
+	-ms-border-radius: 0 !important;
+	border-radius: 0 !important;
 }
 
 span.oi {
@@ -549,6 +553,8 @@ span.oi {
 }
 
 .p-galleria-item-wrapper .img-fluid {
+	max-width: 100%;
+	max-height: none;
 	width: 100%;
 	margin: auto;
 }

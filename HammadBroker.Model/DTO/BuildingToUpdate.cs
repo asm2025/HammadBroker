@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using essentialMix.Core.Web.Annotations;
+using essentialMix.Extensions;
 using Microsoft.AspNetCore.Http;
 
 namespace HammadBroker.Model.DTO;
@@ -34,10 +35,14 @@ public class BuildingToUpdate : IBuilding, IImageUpload
 	[Required]
 	public BuildingType BuildingType { get; set; }
 
+	public string BuildingTypeName => BuildingType.GetDisplayName();
+
 	/// <inheritdoc />
 	[Display(Name = "نوع التشطيب")]
 	[Required]
 	public FinishingType? FinishingType { get; set; }
+
+	public string FinishingTypeName => FinishingType?.GetDisplayName();
 
 	/// <inheritdoc />
 	[Display(Name = "الدور")]
