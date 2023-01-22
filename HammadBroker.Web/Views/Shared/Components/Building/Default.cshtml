@@ -141,7 +141,7 @@
 							</fileupload>
 						</div>
 					}
-					<div ref="zoneFooter" class="zone-footer" dir="ltr">
+					<div ref="zoneFooter" class="zone-footer position-absolute bottom-0 mb-2 d-flex align-items-center z-3" dir="ltr">
 						@if (Model.CanUpload)
 						{
 							<button type="button" v-if="!uploading && images && images.length" class="btn btn-light btn-sm border-0 me-1" v-on:click="toggleFullScreen">
@@ -166,25 +166,25 @@
 	@if (Model.CanEdit)
 	{
 		<div class="row px-2">
-			<div class="col-12 px-0 mb-1">
+			<div class="col-12">
 				<input class="form-control" asp-for="Building.VideoId" placeholder="@Html.DisplayNameFor(e => e.Building.VideoId)" title="@Html.DisplayNameFor(e => e.Building.VideoId)"/>
 				<span asp-validation-for="Building.VideoId" class="text-danger"></span>
 			</div>
 		</div>
 		<div class="row px-2">
-			<div class="col-12 px-0 mb-1">
+			<div class="col-12">
 				<input class="form-control" asp-for="Building.Name" placeholder="@Html.DisplayNameFor(e => e.Building.Name)" title="@Html.DisplayNameFor(e => e.Building.Name)"/>
 				<span asp-validation-for="Building.Name" class="text-danger"></span>
 			</div>
 		</div>
 		<div class="row px-2">
-			<div class="col-sm-12 col-md-6 px-0 mb-1">
+			<div class="col-sm-12 col-md-6">
 				<select asp-for="Building.BuildingType" class="form-select" asp-items="Html.GetEnumSelectList<BuildingType>()" title="@Html.DisplayNameFor(e => e.Building.BuildingType)">
 					<option value="">@Html.DisplayNameFor(e => e.Building.BuildingType)</option>
 				</select>
 				<span asp-validation-for="Building.BuildingType" class="text-danger"></span>
 			</div>
-			<div class="col-sm-12 col-md-6 px-0 mb-1">
+			<div class="col-sm-12 col-md-6">
 				<select asp-for="Building.FinishingType" class="form-select" asp-items="Html.GetEnumSelectList<FinishingType>()" title="@Html.DisplayNameFor(e => e.Building.FinishingType)">
 					<option value="">@Html.DisplayNameFor(e => e.Building.FinishingType)</option>
 				</select>
@@ -192,60 +192,60 @@
 			</div>
 		</div>
 		<div class="row px-2">
-			<div class="col-sm-12 col-md-6 px-0 mb-1">
+			<div class="col-sm-12 col-md-6">
 				<input class="form-control" asp-for="Building.Floor" placeholder="@Html.DisplayNameFor(e => e.Building.Floor)" title="@Html.DisplayNameFor(e => e.Building.Floor)"/>
 				<span asp-validation-for="Building.Floor" class="text-danger"></span>
 			</div>
-			<div class="col-sm-12 col-md-6 px-0 mb-1">
+			<div class="col-sm-12 col-md-6">
 				<input class="form-control" asp-for="Building.Area" placeholder="@Html.DisplayNameFor(e => e.Building.Area)" title="@Html.DisplayNameFor(e => e.Building.Area)"/>
 				<span asp-validation-for="Building.Area" class="text-danger"></span>
 			</div>
 		</div>
 		<div class="row px-2">
-			<div class="col-sm-12 col-md-6 px-0 mb-1">
+			<div class="col-sm-12 col-md-6">
 				<input class="form-control" asp-for="Building.Rooms" placeholder="@Html.DisplayNameFor(e => e.Building.Rooms)" title="@Html.DisplayNameFor(e => e.Building.Rooms)"/>
 				<span asp-validation-for="Building.Rooms" class="text-danger"></span>
 			</div>
-			<div class="col-sm-12 col-md-6 px-0 mb-1">
+			<div class="col-sm-12 col-md-6">
 				<input class="form-control" asp-for="Building.Bathrooms" placeholder="@Html.DisplayNameFor(e => e.Building.Bathrooms)" title="@Html.DisplayNameFor(e => e.Building.Bathrooms)"/>
 				<span asp-validation-for="Building.Bathrooms" class="text-danger"></span>
 			</div>
 		</div>
 		<div class="row px-2">
-			<div class="col-12 px-0 mb-1">
+			<div class="col-12">
 				<input class="form-control" asp-for="Building.Address" placeholder="@Html.DisplayNameFor(e => e.Building.Address)" title="@Html.DisplayNameFor(e => e.Building.Address)"/>
 				<span asp-validation-for="Building.Address" class="text-danger"></span>
 			</div>
 		</div>
 		<div class="row px-2">
-			<div class="col-12 px-0 mb-1">
+			<div class="col-12">
 				<input class="form-control" asp-for="Building.Address2" placeholder="@Html.DisplayNameFor(e => e.Building.Address2)" title="@Html.DisplayNameFor(e => e.Building.Address2)"/>
 				<span asp-validation-for="Building.Address2" class="text-danger"></span>
 			</div>
 		</div>
 		<div class="row px-2">
-			<div class="col-sm-12 col-md-6 px-0 mb-1">
+			<div class="col-sm-12 col-md-6">
 				<input type="hidden" asp-for="Building.CountryCode" :value="countryCode"/>
 				<autocomplete name="@nameof(Model.Building.CountryCode)" class="w-100" input-class="w-100" :suggestions="countries"
 							option-label="name" placeholder="@Html.DisplayNameFor(e => e.Building.CountryCode)"
 							title="@Html.DisplayNameFor(e => e.Building.CountryCode)"
-							:min-length="0" v-model="selectedCountry" data-key="id"
+							:min-length="0" v-model="selectedCountry" data-key="id" dropdown
 							v-on:complete="fetchCountries($event.query)" v-on:change="fetchCities($event.value)">
 				</autocomplete>
 				<span asp-validation-for="Building.CountryCode" class="text-danger"></span>
 			</div>
-			<div class="col-sm-12 col-md-6 px-0 mb-1">
+			<div class="col-sm-12 col-md-6">
 				<input type="hidden" asp-for="Building.CityId" :value="cityId"/>
 				<autocomplete name="@nameof(Model.Building.CityId)" class="w-100" input-class="w-100" :suggestions="cities" option-label="name"
 							placeholder="@Html.DisplayNameFor(e => e.Building.CityId)"
-							title="@Html.DisplayNameFor(e => e.Building.CityId)"
-							:min-length="0" v-model="selectedCity" data-key="id" v-on:complete="fetchCities(countryCode, $event.query)">
+							title="@Html.DisplayNameFor(e => e.Building.CityId)" :min-length="0" v-model="selectedCity" 
+							data-key="id" dropdown v-on:complete="fetchCities(countryCode, $event.query)">
 				</autocomplete>
 				<span asp-validation-for="Building.CityId" class="text-danger"></span>
 			</div>
 		</div>
 		<div class="row px-2">
-			<div class="col-12 px-0 mb-1">
+			<div class="col-12">
 				<textarea class="form-control" asp-for="Building.Description" rows="5" 
 					placeholder="@Html.DisplayNameFor(e => e.Building.Description)"
 					title="@Html.DisplayNameFor(e => e.Building.Description)">
@@ -255,7 +255,10 @@
 		</div>
 		<div class="my-1">
 			<button type="submit" class="btn btn-primary me-1">حفظ</button>
-			<a class="btn btn-outline-primary border-0 me-1" asp-area="Admin" asp-controller="Buildings" asp-action="Get" asp-route-id="@Model.Id">الغاء</a>
+			@if (Model.Id > 0)
+			{
+				<a class="btn btn-outline-primary border-0 me-1" asp-area="Admin" asp-controller="Buildings" asp-action="Get" asp-route-id="@Model.Id">الغاء</a>
+			}
 		</div>
 		@:</form>
 	}

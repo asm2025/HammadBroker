@@ -3,7 +3,7 @@
 
 @{
 	ViewData["Title"] = "تعديل عقار";
-	int id = Context.Request.RouteValues["id"].To(0);
+	int id = Context.Request.Query["id"].To(0);
 }
 
 @if (id > 0)

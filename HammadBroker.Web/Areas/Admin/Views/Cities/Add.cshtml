@@ -15,8 +15,9 @@
 		<div class="mb-1">
 			<input type="hidden" asp-for="CountryCode" :value="countryCode" />
 			<autocomplete name="@nameof(Model.CountryCode)" class="w-100" input-class="w-100" :suggestions="countries"
-						option-label="name" placeholder="@Html.DisplayNameFor(e => e.CountryCode)" title="@Html.DisplayNameFor(e => e.CountryCode)"
-						:min-length="0" v-model="selectedCountry" data-key="id" v-on:complete="fetchCountries($event.query)">
+						option-label="name" placeholder="@Html.DisplayNameFor(e => e.CountryCode)" 
+						title="@Html.DisplayNameFor(e => e.CountryCode)" :min-length="0" 
+						v-model="selectedCountry" data-key="id" dropdown v-on:complete="fetchCountries($event.query)">
 			</autocomplete>
 		</div>
 		<div class="mb-1">

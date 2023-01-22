@@ -40,13 +40,13 @@
 
 	@if (Model.CanEdit)
 	{
-		<div v-if="Boolean(building)" class="row px-2 mb-1">
+		<div v-if="Boolean(building)" class="row">
 			<div class="col-12 card-deck2">
 				<div class="card card-body position-relative">
-					<img v-if="!building.videoId" :src="`@Context.Request.Scheme://@Context.Request.Host/@_basePath/${building.imageUrl}`" alt=""
+					<img v-if="!building.videoId" class="img-fluid" :src="`@Context.Request.Scheme://@Context.Request.Host/@_basePath/${building.imageUrl}`" alt=""
 						v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host/@_basePath/@_placeholderImage'`"/>
 					<div v-else>
-						<iframe :src="`https://www.youtube.com/embed/${building.videoId}`" class="ratio ratio-16x9" allowfullscreen>
+						<iframe class="ratio ratio-16x9" :src="`https://www.youtube.com/embed/${building.videoId}`" allowfullscreen>
 						</iframe>
 					</div>
 					<div class="position-absolute bottom-0 mb-3 mx-3 d-flex align-items-center z-3">
@@ -137,7 +137,7 @@
 								</fileupload>
 							</div>
 						}
-						<div ref="zoneFooter" class="zone-footer" dir="ltr">
+						<div ref="zoneFooter" class="zone-footer position-absolute bottom-0 mb-2 d-flex align-items-center z-3" dir="ltr">
 							@if (Model.CanUpload)
 							{
 								<button type="button" v-if="!uploading && images && images.length" class="btn btn-light btn-sm border-0 me-1" v-on:click="toggleFullScreen">
@@ -158,15 +158,15 @@
 				</div>
 			</div>
 		</div>
-		<div class="row px-2">
-			<div class="col-12 px-0 mb-1">
+		<div class="row">
+			<div class="col-12">
 				<input type="hidden" asp-for="Ad.BuildingId" :value="buildingId"/>
 				<div class="d-flex">
 					<div class="flex-grow-1">
 						<autocomplete name="@nameof(Model.Ad.BuildingId)" class="w-100" input-class="w-100" :suggestions="buildings" option-label="name"
 									placeholder="@Html.DisplayNameFor(e => e.Ad.BuildingId)"
 									title="@Html.DisplayNameFor(e => e.Ad.BuildingId)"
-									:min-length="0" v-model="selectedBuilding" data-key="id"
+									:min-length="0" v-model="selectedBuilding" data-key="id" dropdown
 									v-on:complete="fetchBuildings($event.query)" v-on:item-select="fetchBuilding($event.value.id)" v-on:item-unselect="building = null">
 						</autocomplete>
 						<span asp-validation-for="Ad.BuildingId" class="text-danger"></span>
@@ -178,8 +178,8 @@
 			</div>
 		</div>
 		<div v-if="Boolean(building)">
-			<div class="row px-2">
-				<div class="col-12 px-0 mb-1">
+			<div class="row">
+				<div class="col-12">
 					<small>{{ building.buildingTypeName }} {{ building.finishingTypeName }}</small>
 					<h5>{{ building.name }}</h5>
 				</div>
@@ -199,11 +199,11 @@
 					<label asp-for="Building.Area"></label>:&nbsp;
 					{{ building.area }}
 				</div>
-				<div v-if="building.address" class="col-12 px-0 mb-1">
+				<div v-if="building.address" class="col-12">
 					<label asp-for="Building.Address"></label>:&nbsp;
 					{{ building.address }}
 				</div>
-				<div v-if="building.address2" class="col-12 px-0 mb-1">
+				<div v-if="building.address2" class="col-12">
 					<label asp-for="Building.Address2"></label>:&nbsp;
 					{{ building.address2 }}
 				</div>
@@ -215,29 +215,29 @@
 					<label asp-for="Building.CountryCode"></label>:&nbsp;
 					{{ building.countryName }}
 				</div>
-				<div v-if="building.description" class="col-12 px-0 mb-1">
+				<div v-if="building.description" class="col-12">
 					<label asp-for="Building.Description"></label>:&nbsp;
 					{{ building.description }}
 				</div>
 			</div>
 		</div>
-		<div class="row px-2">
-			<div class="col-12 px-0 mb-1">
+		<div class="row">
+			<div class="col-12">
 				<select asp-for="Ad.Type" class="form-select" asp-items="Html.GetEnumSelectList<BuildingAdType>()" title="@Html.DisplayNameFor(e => e.Ad.Type)">
 					<option value="">@Html.DisplayNameFor(e => e.Ad.Type)</option>
 				</select>
 				<span asp-validation-for="Ad.Type" class="text-danger"></span>
 			</div>
 		</div>
-		<div class="row px-2">
-			<div class="col-sm-12 col-md-6 px-0 mb-1">
+		<div class="row">
+			<div class="col-sm-12 col-md-6">
 				<input type="hidden" name="@nameof(Model.Ad.Date)" :value="date"/>
 				<calendar class="w-100" placeholder="@Html.DisplayNameFor(e => e.Ad.Date)" v-model="date"
 						selection-mode="single" date-format="yy/mm/dd">
 				</calendar>
 				<span asp-validation-for="Ad.Date" class="text-danger"></span>
 			</div>
-			<div class="col-sm-12 col-md-6 px-0 mb-1">
+			<div class="col-sm-12 col-md-6">
 				<input type="hidden" name="@nameof(Model.Ad.Expires)" :value="expires"/>
 				<calendar class="w-100" placeholder="@Html.DisplayNameFor(e => e.Ad.Expires)" v-model="expires"
 						selection-mode="single" date-format="yy/mm/dd">
@@ -245,31 +245,34 @@
 				<span asp-validation-for="Ad.Expires" class="text-danger"></span>
 			</div>
 		</div>
-		<div class="row px-2">
-			<div class="col-sm-12 col-md-6 px-0 mb-1">
+		<div class="row">
+			<div class="col-sm-12 col-md-6">
 				<input class="form-control" asp-for="Ad.Phone" placeholder="@Html.DisplayNameFor(e => e.Ad.Phone)" title="@Html.DisplayNameFor(e => e.Ad.Phone)"/>
 				<span asp-validation-for="Ad.Phone" class="text-danger"></span>
 			</div>
-			<div class="col-sm-12 col-md-6 px-0 mb-1">
+			<div class="col-sm-12 col-md-6">
 				<input class="form-control" asp-for="Ad.Mobile" placeholder="@Html.DisplayNameFor(e => e.Ad.Mobile)" title="@Html.DisplayNameFor(e => e.Ad.Mobile)"/>
 				<span asp-validation-for="Ad.Mobile" class="text-danger"></span>
 			</div>
 		</div>
-		<div class="row px-2">
-			<div class="col-12 px-0 mb-1">
+		<div class="row">
+			<div class="col-12">
 				<input class="form-control" asp-for="Ad.Price" placeholder="@Html.DisplayNameFor(e => e.Ad.Price)" title="@Html.DisplayNameFor(e => e.Ad.Price)"/>
 				<span asp-validation-for="Ad.Price" class="text-danger"></span>
 			</div>
 		</div>
 		<div class="my-1">
 			<button type="submit" class="btn btn-primary me-1">حفظ</button>
-			<a class="btn btn-outline-primary border-0 me-1" asp-area="Admin" asp-controller="Ads" asp-action="Get" asp-route-id="@Model.Id">الغاء</a>
+			@if (Model.Id > 0)
+			{
+				<a class="btn btn-outline-primary border-0 me-1" asp-area="Admin" asp-controller="Ads" asp-action="Get" asp-route-id="@Model.Id">الغاء</a>
+			}
 		</div>
 		@:</form>
 	}
 	else
 	{
-		<div class="row px-2">
+		<div class="row">
 			<div class="col-12">
 				<small>@Model.Ad.Date.ToString("D") @Model.Ad.Type.GetDisplayName()</small>
 				@if (Model.Building is not null)

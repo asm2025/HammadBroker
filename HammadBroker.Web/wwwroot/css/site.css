@@ -72,6 +72,10 @@ code {
 	word-wrap: break-word;
 }
 
+a {
+	text-decoration: none;
+}
+
 .fs-s1 {
 	font-size: 0.75rem !important;
 }
@@ -100,6 +104,7 @@ code {
 		flex: 50%;
 		margin: 0.375rem !important;
 		padding: 0.5rem !important;
+		overflow: hidden;
 	}
 
 @media (min-width: 576px) {
@@ -148,6 +153,7 @@ code {
 		border-radius: 0;
 		margin: 0 !important;
 		padding: 0 !important;
+		overflow: hidden;
 	}
 
 	.card-deck2 .img-placeholder {
@@ -227,8 +233,10 @@ code {
 }
 
 .card .img-fluid {
-	max-height: 480px;
-	max-width: max-content;
+	min-height: 256px;
+	max-height: 320px;
+	max-width: none;
+	width: auto;
 	margin: auto;
 }
 
@@ -324,7 +332,20 @@ code {
 .p-component {
 	-ms-border-radius: 0 !important;
 	border-radius: 0 !important;
+	margin-bottom: 0.25rem;
 }
+
+.col,
+div[class^="col-"] {
+	padding: 0.025rem 0.25rem !important;
+}
+
+	.col > .btn,
+	.col > .d-flex > .btn,
+	div[class^="col-"] > .btn,
+	div[class^="col-"] > .d-flex > .btn {
+		margin: 0rem 0.25rem 0.5rem 0.25rem !important;
+	}
 
 span.oi {
 	font-size: 16px;
@@ -445,6 +466,7 @@ span.oi {
 		position: relative;
 		width: 100%;
 		height: 100%;
+		min-height: 256px;
 		overflow: hidden;
 	}
 
@@ -453,10 +475,6 @@ span.oi {
 	}
 
 	.drop-zone .zone-footer {
-		display: flex;
-		position: absolute;
-		left: 0;
-		bottom: 0;
 		width: 100%;
 		padding: .5rem;
 	}
@@ -547,9 +565,20 @@ span.oi {
 }
 
 .p-galleria-item-wrapper .p-galleria-item-container {
-	position: absolute;
+	position: relative;
 	width: 100%;
 	height: 100%;
+}
+
+.p-galleria-item-wrapper .p-galleria-item {
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: 100%;
+	height: 100%;
+	margin: auto;
 }
 
 .p-galleria-item-wrapper .img-fluid {
@@ -561,7 +590,9 @@ span.oi {
 
 .p-galleria-item-wrapper .p-galleria-item-nav {
 	position: absolute;
-	top: calc(50% + 32px);
+	top: 0;
+	bottom: 0;
+	margin: calc(50% - 32px) 0;
 	z-index: 1000;
 }
 

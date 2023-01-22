@@ -22,12 +22,7 @@
 	<script type="text/javascript" src="@Url.Content("~/lib/lodash.js/lodash.min.js")"></script>
 
 	<!--VueJs and components-->
-	<environment include="Development">
-		<script type="text/javascript" src="@Url.Content("~/lib/vue/vue.global.min.js")"></script>
-	</environment>
-	<environment exclude="Development">
-		<script type="text/javascript" src="@Url.Content("~/lib/vue/vue.global.prod.js")"></script>
-	</environment>
+	<script type="text/javascript" src="@Url.Content("~/lib/vue/vue.global.min.js")"></script>
 
 	<!--multiselect-->
 	<script type="text/javascript" src="@Url.Content("~/lib/vueform/multiselect/dist/multiselect.global.js")">
@@ -35,7 +30,7 @@
 	<link href="~/lib/vueform/multiselect/themes/default.css" asp-append-version="true" rel="stylesheet" />
 
 	<!--primeVue-->
-	<link href="~/lib/primevue/resources/themes/bootstrap4-light-blue/theme.css" asp-append-version="true" rel="stylesheet" />
+	<link href="~/lib/primevue/resources/themes/saga-blue/theme.css" asp-append-version="true" rel="stylesheet" />
 	<link href="~/lib/primevue/resources/primevue.min.css" asp-append-version="true" rel="stylesheet" />
 	<link href="~/lib/primeflex/primeflex.min.css" asp-append-version="true" rel="stylesheet" />
 	<link href="~/lib/primeicons/primeicons.css" asp-append-version="true" rel="stylesheet" />
