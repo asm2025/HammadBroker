@@ -5,7 +5,6 @@ using System.Configuration;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -202,6 +201,7 @@ public class BuildingsController : MvcController
 	public async Task<IActionResult> Edit([Required] int id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
+		if (!ModelState.IsValid) return BadRequest(ModelState);
 		BuildingToUpdate buildingToUpdate = await _buildingService.GetAsync<BuildingToUpdate>(id, token);
 		token.ThrowIfCancellationRequested();
 		if (buildingToUpdate == null) return NotFound();
@@ -212,7 +212,7 @@ public class BuildingsController : MvcController
 	[ItemNotNull]
 	[HttpPost("[action]")]
 	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Edit([Required] int id, [NotNull, FromForm(Name = "")] BuildingToUpdate buildingToUpdate, CancellationToken token)
+	public async Task<IActionResult> Edit([Required, FromQuery] int id, [NotNull] BuildingToUpdate buildingToUpdate, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return View(buildingToUpdate);
@@ -273,21 +273,15 @@ public class BuildingsController : MvcController
 	[ItemNotNull]
 	[HttpPost("[action]")]
 	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Delete([Required] int id, string returnUrl, CancellationToken token)
+	public async Task<IActionResult> Delete([Required] int id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
+		if (!ModelState.IsValid) return BadRequest(ModelState);
 		Building building = await _buildingService.DeleteAsync(id, token);
 		token.ThrowIfCancellationRequested();
 		if (building == null) return NotFound();
 		if (!string.IsNullOrEmpty(building.ImageUrl)) FileHelper.Delete(Path.Combine(_assetImagesPath, building.ImageUrl));
-
-		if (!string.IsNullOrEmpty(returnUrl))
-		{
-			returnUrl = WebUtility.UrlDecode(returnUrl);
-			if (Url.IsLocalUrl(returnUrl)) return Redirect(returnUrl);
-		}
-
-		return RedirectToAction(nameof(Index));
+		return Ok();
 	}
 
 	[NotNull]
@@ -344,6 +338,7 @@ public class BuildingsController : MvcController
 	public async Task<IActionResult> DeleteImage([Required] int id, [Required] int imageId, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
+		if (!ModelState.IsValid) return BadRequest(ModelState);
 
 		try
 		{

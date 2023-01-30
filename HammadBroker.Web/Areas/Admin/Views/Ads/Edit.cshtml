@@ -15,7 +15,7 @@
 	</div>
 }
 
-@await Component.InvokeAsync(typeof(BuildingAdViewComponent), new BuildingAdModel
+@await Component.InvokeAsync(typeof(BuildingAdViewComponent), new BuildingAdModel(Model)
 	   {
 		   Id = id,
 		   Ad = Model,

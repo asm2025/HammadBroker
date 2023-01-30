@@ -62,6 +62,7 @@
 				}
 
 				self.countries = await response.json();
+				if (self.countryCode) self.selectedCountry = self.countries.find(e => e.id === self.countryCode);
 			} catch (e) {
 				self.selectedCountry = null;
 				self.countries = [];

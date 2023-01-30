@@ -13,6 +13,7 @@ using HammadBroker.Extensions;
 using HammadBroker.Model;
 using HammadBroker.Model.DTO;
 using HammadBroker.Model.Entities;
+using HammadBroker.Model.Parameters;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -57,14 +58,14 @@ public class LookupService : ServiceBase<DataContext>, ILookupService
 	}
 
 	/// <inheritdoc />
-	public Task<IList<CityForList>> ListCitiesAsync(string countryCode, string search, CancellationToken token = default(CancellationToken))
+	public Task<IList<CityForList>> ListCitiesAsync(CitiesList settings, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
-		return _cityRepository.List(countryCode, search)
-											.ProjectTo<CityForList>(Mapper.ConfigurationProvider)
-											.ToListAsync(token)
-											.As<List<CityForList>, IList<CityForList>>(token);
+		return _cityRepository.List(settings)
+							.ProjectTo<CityForList>(Mapper.ConfigurationProvider)
+							.ToListAsync(token)
+							.As<List<CityForList>, IList<CityForList>>(token);
 	}
 
 	/// <inheritdoc />

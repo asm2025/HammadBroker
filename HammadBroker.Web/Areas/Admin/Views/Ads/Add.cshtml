@@ -5,7 +5,7 @@
 	ViewData["Title"] = "اضافة اعلان";
 }
 
-@await Component.InvokeAsync(typeof(BuildingAdViewComponent), new BuildingAdModel
+@await Component.InvokeAsync(typeof(BuildingAdViewComponent), new BuildingAdModel(Model)
 	   {
 		   Ad = Model,
 		   CanEdit = true,

@@ -12,11 +12,9 @@
 	</div>
 </div>
 
-@await Component.InvokeAsync(typeof(BuildingAdViewComponent), new BuildingAdModel
+@await Component.InvokeAsync(typeof(BuildingAdViewComponent), new BuildingAdModel(Model, Model)
 	   {
 		   Id = id,
-		   Ad = Model,
-		   Building = Model,
 		   CanEdit = false,
 		   CanUpload = true
 	   })

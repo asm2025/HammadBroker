@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -132,7 +131,7 @@ public class AdsController : MvcController
 	[ItemNotNull]
 	[HttpPost("[action]")]
 	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Edit([Required] int id, [NotNull] BuildingAdToUpdate buildingAdToUpdate, CancellationToken token)
+	public async Task<IActionResult> Edit([Required, FromQuery] int id, [NotNull] BuildingAdToUpdate buildingAdToUpdate, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return View(buildingAdToUpdate);
@@ -154,19 +153,14 @@ public class AdsController : MvcController
 	[ItemNotNull]
 	[HttpPost("[action]")]
 	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Delete([Required] int id, string returnUrl, CancellationToken token)
+	public async Task<IActionResult> Delete([Required] int id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
+		if (!ModelState.IsValid) return BadRequest(ModelState);
 		BuildingAd buildingAd = await _buildingAdService.DeleteAsync(id, token);
 		token.ThrowIfCancellationRequested();
-		if (buildingAd == null) return NotFound();
-
-		if (!string.IsNullOrEmpty(returnUrl))
-		{
-			returnUrl = WebUtility.UrlDecode(returnUrl);
-			if (Url.IsLocalUrl(returnUrl)) return Redirect(returnUrl);
-		}
-
-		return RedirectToAction(nameof(Index));
+		return buildingAd == null
+					? NotFound()
+					: Ok();
 	}
 }

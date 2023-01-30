@@ -188,6 +188,7 @@ public class Program
 			.Configure<FormOptions>(options =>
 			{
 				options.ValueLengthLimit = int.MaxValue;
+				options.ValueCountLimit = int.MaxValue;
 				options.MultipartBodyLengthLimit = int.MaxValue;
 				options.MemoryBufferThreshold = int.MaxValue;
 			})
@@ -274,7 +275,14 @@ public class Program
 				});
 			})
 			// MVC
-			.AddControllersWithViews();
+			.AddControllersWithViews()
+			.ConfigureApiBehaviorOptions(options =>
+			{
+				options.SuppressConsumesConstraintForFormFileParameters = true;
+				options.SuppressInferBindingSourcesForParameters = true;
+				options.SuppressModelStateInvalidFilter = true;
+				options.SuppressMapClientErrors = true;
+			});
 		services
 			// Razor Pages
 			.AddRazorPages()

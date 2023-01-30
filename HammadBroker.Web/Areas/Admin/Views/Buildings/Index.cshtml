@@ -2,7 +2,6 @@
 @using HammadBroker.Model.Entities
 @using HammadBroker.Model
 @using Microsoft.AspNetCore.Antiforgery
-@using Microsoft.AspNetCore.Http.Extensions
 @inject IAntiforgery Antiforgery
 @model BuildingsPaginated
 @{
@@ -19,12 +18,12 @@
 				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 			</div>
 
-			<div class="row">
+			<div class="row g-0 mb-1">
 				<div class="col-12">
 					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Search)" asp-for="Pagination.Search" placeholder="@Html.DisplayNameFor(e => e.Pagination.Search)" />
 				</div>
 			</div>
-			<div class="row">
+			<div class="row g-0 mb-1">
 				<div class="col-sm-12 col-md-6">
 					<select class="form-select" name="@nameof(BuildingsPaginated.Pagination.BuildingType)" asp-for="Pagination.BuildingType" asp-items="Html.GetEnumSelectList<BuildingType>()" placeholder="@Html.DisplayNameFor(e => e.Pagination.BuildingType)">
 						<option value="">@Html.DisplayNameFor(e => e.Pagination.BuildingType)</option>
@@ -36,7 +35,7 @@
 					</select>
 				</div>
 			</div>
-			<div class="row">
+			<div class="row g-0 mb-1">
 				<div class="col">
 					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Floor)" asp-for="Pagination.Floor" placeholder="@Html.DisplayNameFor(e => e.Pagination.Floor)" />
 				</div>
@@ -44,7 +43,7 @@
 					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.MaxFloor)" asp-for="Pagination.MaxFloor" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxFloor)" />
 				</div>
 			</div>
-			<div class="row">
+			<div class="row g-0 mb-1">
 				<div class="col">
 					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Rooms)" asp-for="Pagination.Rooms" placeholder="@Html.DisplayNameFor(e => e.Pagination.Rooms)" />
 				</div>
@@ -52,7 +51,7 @@
 					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.MaxRooms)" asp-for="Pagination.MaxRooms" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxRooms)" />
 				</div>
 			</div>
-			<div class="row">
+			<div class="row g-0 mb-1">
 				<div class="col">
 					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Bathrooms)" asp-for="Pagination.Bathrooms" placeholder="@Html.DisplayNameFor(e => e.Pagination.Bathrooms)" />
 				</div>
@@ -60,7 +59,7 @@
 					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.MaxBathrooms)" asp-for="Pagination.MaxBathrooms" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxBathrooms)" />
 				</div>
 			</div>
-			<div class="row">
+			<div class="row g-0 mb-1">
 				<div class="col">
 					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Area)" asp-for="Pagination.Area" placeholder="@Html.DisplayNameFor(e => e.Pagination.Area)" />
 				</div>
@@ -68,7 +67,7 @@
 					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.MaxArea)" asp-for="Pagination.MaxArea" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxArea)" />
 				</div>
 			</div>
-			<div class="row">
+			<div class="row g-0 mb-1">
 				<div class="col-sm-12 col-md-6">
 					<input type="hidden" asp-for="Pagination.CountryCode" :value="countryCode" />
 					<autocomplete name="@nameof(BuildingsPaginated.Pagination.CountryCode)" class="w-100" input-class="w-100"
@@ -151,7 +150,6 @@
 				             }, Context.Request.Scheme)';
 				const data = new FormData();
 				data.append("id", id);
-				data.append("returnUrl", "@Context.Request.GetEncodedPathAndQuery()");
 				await fetch(url, {
 					method: "post",
 					body: data,
@@ -160,6 +158,7 @@
 					},
 					credentials: "same-origin"
 				});
+				window.location.reload();
 			}
 			catch (ex)
 			{
