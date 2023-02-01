@@ -28,6 +28,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.DependencyInjection;
@@ -192,6 +193,7 @@ public class Program
 				options.MultipartBodyLengthLimit = int.MaxValue;
 				options.MemoryBufferThreshold = int.MaxValue;
 			})
+			.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN")
 			.AddHttpContextAccessor()
 			.AddDefaultCorsPolicy(options => options.WithExposedHeaders("Set-Cookie"),
 								(configuration.GetValue<string>("AllowedHosts").ToNullIfEmpty() ?? "*").Split(',',
@@ -221,6 +223,7 @@ public class Program
 								options.AddProfile(new CommonProfile());
 								options.AddProfile(new IdentityProfile());
 								options.AddProfile(new BuildingProfile());
+								options.AddProfile(new BuildingAdProfile());
 							},
 							new[]
 							{
@@ -275,7 +278,10 @@ public class Program
 				});
 			})
 			// MVC
-			.AddControllersWithViews()
+			.AddControllersWithViews(options =>
+			{
+				options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+			})
 			.ConfigureApiBehaviorOptions(options =>
 			{
 				options.SuppressConsumesConstraintForFormFileParameters = true;

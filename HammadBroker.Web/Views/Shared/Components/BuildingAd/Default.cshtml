@@ -27,6 +27,7 @@
 	{
 		@:<form action="@action" Method="post" enctype="multipart/form-data">
 		<div asp-validation-summary="ModelOnly"></div>
+		@Html.AntiForgeryToken()
 	}
 	<div v-if="errors && errors.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="error of errors">
 		{{ error }}
@@ -155,16 +156,16 @@
 		</div>
 		<div class="row">
 			<div class="col-12">
-				<input type="hidden" asp-for="BuildingId" :value="buildingId"/>
+				<input type="hidden" asp-for="Ad.BuildingId" :value="buildingId"/>
 				<div class="d-flex">
 					<div class="flex-grow-1">
 						<autocomplete class="w-100" input-class="w-100" :suggestions="buildings" option-label="name"
-									placeholder="@Html.DisplayNameFor(e => e.BuildingId)"
-									title="@Html.DisplayNameFor(e => e.BuildingId)"
+									placeholder="@Html.DisplayNameFor(e => e.Ad.BuildingId)"
+									title="@Html.DisplayNameFor(e => e.Ad.BuildingId)"
 									:min-length="0" v-model="selectedBuilding" data-key="id" dropdown
 									v-on:complete="fetchBuildings($event.query)" v-on:item-select="fetchBuilding($event.value.id)" v-on:item-unselect="building = null">
 						</autocomplete>
-						<span asp-validation-for="BuildingId" class="text-danger"></span>
+						<span asp-validation-for="Ad.BuildingId" class="text-danger"></span>
 					</div>
 					<button type="button" class="btn btn-outline-secondary btn-sm m-1" title="اضافة مبنى">
 						<i class="fa fa-plus"></i>
@@ -218,42 +219,42 @@
 		</div>
 		<div class="row">
 			<div class="col-12">
-				<select asp-for="Type" class="form-select" asp-items="Html.GetEnumSelectList<BuildingAdType>()" title="@Html.DisplayNameFor(e => e.Type)">
-					<option value="">@Html.DisplayNameFor(e => e.Type)</option>
+				<select asp-for="Ad.Type" class="form-select" asp-items="Html.GetEnumSelectList<BuildingAdType>()" title="@Html.DisplayNameFor(e => e.Ad.Type)">
+					<option value="">@Html.DisplayNameFor(e => e.Ad.Type)</option>
 				</select>
-				<span asp-validation-for="Type" class="text-danger"></span>
+				<span asp-validation-for="Ad.Type" class="text-danger"></span>
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-sm-12 col-md-6">
-				<input type="hidden" :value="date"/>
-				<calendar class="w-100" placeholder="@Html.DisplayNameFor(e => e.Date)" v-model="date"
+				<input type="hidden" name="@($"{nameof(Model.Ad)}.{nameof(BuildingAdToUpdate.Date)}")" :value="date"/>
+				<calendar class="w-100" placeholder="@Html.DisplayNameFor(e => e.Ad.Date)" v-model="date"
 						selection-mode="single" date-format="yy/mm/dd">
 				</calendar>
-				<span asp-validation-for="Date" class="text-danger"></span>
+				<span asp-validation-for="Ad.Date" class="text-danger"></span>
 			</div>
 			<div class="col-sm-12 col-md-6">
-				<input type="hidden" :value="expires"/>
-				<calendar class="w-100" placeholder="@Html.DisplayNameFor(e => e.Expires)" v-model="expires"
+				<input type="hidden" name="@($"{nameof(Model.Ad)}.{nameof(BuildingAdToUpdate.Expires)}")" :value="expires"/>
+				<calendar class="w-100" placeholder="@Html.DisplayNameFor(e => e.Ad.Expires)" v-model="expires"
 						selection-mode="single" date-format="yy/mm/dd">
 				</calendar>
-				<span asp-validation-for="Expires" class="text-danger"></span>
+				<span asp-validation-for="Ad.Expires" class="text-danger"></span>
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-sm-12 col-md-6">
-				<input class="form-control" asp-for="Phone" placeholder="@Html.DisplayNameFor(e => e.Phone)" title="@Html.DisplayNameFor(e => e.Phone)"/>
-				<span asp-validation-for="Phone" class="text-danger"></span>
+				<input class="form-control" asp-for="Ad.Phone" placeholder="@Html.DisplayNameFor(e => e.Ad.Phone)" title="@Html.DisplayNameFor(e => e.Ad.Phone)"/>
+				<span asp-validation-for="Ad.Phone" class="text-danger"></span>
 			</div>
 			<div class="col-sm-12 col-md-6">
-				<input class="form-control" asp-for="Mobile" placeholder="@Html.DisplayNameFor(e => e.Mobile)" title="@Html.DisplayNameFor(e => e.Mobile)"/>
-				<span asp-validation-for="Mobile" class="text-danger"></span>
+				<input class="form-control" asp-for="Ad.Mobile" placeholder="@Html.DisplayNameFor(e => e.Ad.Mobile)" title="@Html.DisplayNameFor(e => e.Ad.Mobile)"/>
+				<span asp-validation-for="Ad.Mobile" class="text-danger"></span>
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-12">
-				<input class="form-control" asp-for="Price" placeholder="@Html.DisplayNameFor(e => e.Price)" title="@Html.DisplayNameFor(e => e.Price)"/>
-				<span asp-validation-for="Price" class="text-danger"></span>
+				<input class="form-control" asp-for="Ad.Price" placeholder="@Html.DisplayNameFor(e => e.Ad.Price)" title="@Html.DisplayNameFor(e => e.Ad.Price)"/>
+				<span asp-validation-for="Ad.Price" class="text-danger"></span>
 			</div>
 		</div>
 		<div class="my-1">
@@ -269,7 +270,7 @@
 	{
 		<div class="row">
 			<div class="col-12">
-				<small>@Model.Date.ToString("D") @Model.Type.GetDisplayName()</small>
+				<small>@Model.Ad.Date.ToString("d") @Model.Ad.Type.GetDisplayName()</small>
 				@if (Model.Building is not null)
 				{
 					<small>@Model.Building.BuildingType.GetDisplayName() @Model.Building.FinishingType?.GetDisplayName()</small>
@@ -337,21 +338,21 @@
 			}
 			@if (Model.Building is not null)
 			{
-				@if (!string.IsNullOrEmpty(Model.Phone) || !string.IsNullOrEmpty(Model.Mobile))
+				@if (!string.IsNullOrEmpty(Model.Ad.Phone) || !string.IsNullOrEmpty(Model.Ad.Mobile))
 				{
 					<div class="col-12">
-						@if (!string.IsNullOrEmpty(Model.Phone))
+						@if (!string.IsNullOrEmpty(Model.Ad.Phone))
 						{
-							<label asp-for="Phone"></label>
-							@Html.DisplayFor(e => e.Phone)
+							<label asp-for="Ad.Phone"></label>
+							@Html.DisplayFor(e => e.Ad.Phone)
 						}
-						@if (!string.IsNullOrEmpty(Model.Phone))
+						@if (!string.IsNullOrEmpty(Model.Ad.Phone))
 						{
-							<label asp-for="Mobile"></label>
-							@Html.DisplayFor(e => e.Mobile)
+							<label asp-for="Ad.Mobile"></label>
+							@Html.DisplayFor(e => e.Ad.Mobile)
 						}
-						<label asp-for="Price"></label>
-						@Html.DisplayFor(e => e.Price) جنيه
+						<label asp-for="Ad.Price"></label>
+						@Html.DisplayFor(e => e.Ad.Price) جنيه
 					</div>
 				}
 
@@ -397,7 +398,7 @@
 				const url = `@Url.Action("List", "Buildings", new
 						 {
 							 area = "Admin"
-						 }, Context.Request.Scheme)`;
+						 })`;
 				const params = new URLSearchParams({
 					search: search ? encodeURIComponent(search) : ""
 				});
@@ -435,7 +436,7 @@
 				const url = `@Url.Action("GetById", "Buildings", new
 						 {
 							 area = "Admin"
-						 }, Context.Request.Scheme)`;
+						 })`;
 				const params = new URLSearchParams({
 					id
 				});
@@ -471,7 +472,7 @@
 				const url = `@Url.Action("Countries", "Cities", new
 				             {
 					             area = "Admin"
-				             }, Context.Request.Scheme)`;
+				             })`;
 				const params = new URLSearchParams({
 					countryCode: self.countryCode,
 					search: search ? encodeURIComponent(search) : ""
@@ -551,7 +552,7 @@
 			const url = `@Url.Action("ListImages", "Buildings", new
 						            {
 							            area = "Admin"
-						            }, Context.Request.Scheme)`;
+						            })`;
 			const params = new URLSearchParams({
 				id
 			});
@@ -581,11 +582,11 @@
 					loading: false,
 					newBuilding: false,
 					selectedBuilding: null,
-					buildingId: @Model.BuildingId,
+					buildingId: @Model.Ad.BuildingId,
 					building: @Html.Raw(Model.Building is null ? "null" : Json.Serialize(Model.Building)),
 					buildings: [],
-					date: '@Model.Date.ToString("yyyy/MM/dd")',
-					expires: '@Model.Expires?.ToString("yyyy/MM/dd")',
+					date: '@Model.Ad.Date.ToString("yyyy/MM/dd")',
+					expires: '@Model.Ad.Expires?.ToString("yyyy/MM/dd")',
 					selectedCountry: null,
 					countryCode: null,
 					countries: [],

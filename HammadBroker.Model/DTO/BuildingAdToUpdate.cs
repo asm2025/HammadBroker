@@ -13,6 +13,7 @@ public class BuildingAdToUpdate : IBuildingAd
 	[Required]
 	public int BuildingId { get; set; }
 	[Display(Name = "التاريخ")]
+	[Required]
 	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}")]
 	public DateTime Date { get; set; }
 	[Display(Name = "تاريخ الانتهاء")]

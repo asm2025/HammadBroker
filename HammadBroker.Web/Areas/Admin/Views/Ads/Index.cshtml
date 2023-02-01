@@ -1,3 +1,339 @@
-﻿@{
+﻿@using HammadBroker.Model.DTO
+@using HammadBroker.Model
+@using Microsoft.AspNetCore.Antiforgery
+@using Microsoft.AspNetCore.Authorization
+@inject IAntiforgery Antiforgery
+@inject IAuthorizationService AuthorizationService
+@model BuildingAdsPaginated
+@{
 	ViewData["Title"] = "الاعلانات";
+	bool isAdmin = (await AuthorizationService.AuthorizeAsync(User, Constants.Authorization.AdministrationPolicy)).Succeeded;
+}
+
+<div class="card mb-1">
+	<h5 class="card-header collapsed" data-bs-toggle="collapse" data-bs-target="#searchForm" aria-expanded="false" aria-controls="searchForm">البحث</h5>
+	<div id="searchForm" v-scope class="card-body collapse">
+		<form method="get" asp-area="Admin" asp-controller="Ads" asp-action="Index">
+			<div v-if="errors && errors.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="error of errors">
+				{{ error }}
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			</div>
+
+			<div class="row g-0 mb-1">
+				<div class="col-12">
+					<input class="form-control" name="@nameof(BuildingAdsPaginated.Pagination.Search)" asp-for="Pagination.Search" placeholder="@Html.DisplayNameFor(e => e.Pagination.Search)" />
+				</div>
+			</div>
+			<div class="row g-0 mb-1">
+				<div class="col-sm-12 col-md-6">
+					<select class="form-select" name="@nameof(BuildingAdsPaginated.Pagination.Type)" asp-for="Pagination.Type" asp-items="Html.GetEnumSelectList<BuildingAdType>()" placeholder="@Html.DisplayNameFor(e => e.Pagination.Type)">
+						<option value="">@Html.DisplayNameFor(e => e.Pagination.Type)</option>
+					</select>
+				</div>
+				<div class="col-sm-12 col-md-6">
+					<input type="hidden" name="@nameof(BuildingAdsPaginated.Pagination.Date)" :value="date"/>
+					<input type="hidden" name="@nameof(BuildingAdsPaginated.Pagination.MaxDate)" :value="maxDate"/>
+					<calendar class="w-100" placeholder="@Html.DisplayNameFor(e => e.Pagination.Date)" 
+							v-model="dateRange" selection-mode="range" date-format="yy/mm/dd">
+					</calendar>
+				</div>
+			</div>
+			<div class="row g-0 mb-1">
+				<div class="col">
+					<input class="form-control" name="@nameof(BuildingAdsPaginated.Pagination.Price)" asp-for="Pagination.Price" placeholder="@Html.DisplayNameFor(e => e.Pagination.Price)" />
+				</div>
+				<div class="col">
+					<input class="form-control" name="@nameof(BuildingAdsPaginated.Pagination.MaxPrice)" asp-for="Pagination.MaxPrice" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxPrice)" />
+				</div>
+			</div>
+			<div class="row g-0 mb-1">
+				<div class="col-sm-12 col-md-6">
+					<select class="form-select" name="@nameof(BuildingAdsPaginated.Pagination.BuildingType)" asp-for="Pagination.BuildingType" asp-items="Html.GetEnumSelectList<BuildingType>()" placeholder="@Html.DisplayNameFor(e => e.Pagination.BuildingType)">
+						<option value="">@Html.DisplayNameFor(e => e.Pagination.BuildingType)</option>
+					</select>
+				</div>
+				<div class="col-sm-12 col-md-6">
+					<select class="form-select" name="@nameof(BuildingAdsPaginated.Pagination.FinishingType)" asp-for="Pagination.FinishingType" asp-items="Html.GetEnumSelectList<FinishingType>()" placeholder="@Html.DisplayNameFor(e => e.Pagination.FinishingType)">
+						<option value="">@Html.DisplayNameFor(e => e.Pagination.FinishingType)</option>
+					</select>
+				</div>
+			</div>
+			<div class="row g-0 mb-1">
+				<div class="col">
+					<input class="form-control" name="@nameof(BuildingAdsPaginated.Pagination.Floor)" asp-for="Pagination.Floor" placeholder="@Html.DisplayNameFor(e => e.Pagination.Floor)" />
+				</div>
+				<div class="col">
+					<input class="form-control" name="@nameof(BuildingAdsPaginated.Pagination.MaxFloor)" asp-for="Pagination.MaxFloor" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxFloor)" />
+				</div>
+			</div>
+			<div class="row g-0 mb-1">
+				<div class="col">
+					<input class="form-control" name="@nameof(BuildingAdsPaginated.Pagination.Rooms)" asp-for="Pagination.Rooms" placeholder="@Html.DisplayNameFor(e => e.Pagination.Rooms)" />
+				</div>
+				<div class="col">
+					<input class="form-control" name="@nameof(BuildingAdsPaginated.Pagination.MaxRooms)" asp-for="Pagination.MaxRooms" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxRooms)" />
+				</div>
+			</div>
+			<div class="row g-0 mb-1">
+				<div class="col">
+					<input class="form-control" name="@nameof(BuildingAdsPaginated.Pagination.Bathrooms)" asp-for="Pagination.Bathrooms" placeholder="@Html.DisplayNameFor(e => e.Pagination.Bathrooms)" />
+				</div>
+				<div class="col">
+					<input class="form-control" name="@nameof(BuildingAdsPaginated.Pagination.MaxBathrooms)" asp-for="Pagination.MaxBathrooms" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxBathrooms)" />
+				</div>
+			</div>
+			<div class="row g-0 mb-1">
+				<div class="col">
+					<input class="form-control" name="@nameof(BuildingAdsPaginated.Pagination.Area)" asp-for="Pagination.Area" placeholder="@Html.DisplayNameFor(e => e.Pagination.Area)" />
+				</div>
+				<div class="col">
+					<input class="form-control" name="@nameof(BuildingAdsPaginated.Pagination.MaxArea)" asp-for="Pagination.MaxArea" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxArea)" />
+				</div>
+			</div>
+			<div class="row g-0 mb-1">
+				<div class="col-sm-12 col-md-6">
+					<input type="hidden" asp-for="Pagination.CountryCode" :value="countryCode" />
+					<autocomplete name="@nameof(BuildingAdsPaginated.Pagination.CountryCode)" class="w-100" input-class="w-100"
+								:suggestions="countries" option-label="name" placeholder="@Html.DisplayNameFor(e => e.Pagination.CountryCode)" 
+								v-model="selectedCountry" data-key="id" dropdown
+								v-on:complete="fetchCountries($event.query)" v-on:change="fetchCities($event.value)">
+					</autocomplete>
+				</div>
+				<div class="col-sm-12 col-md-6">
+					<input type="hidden" asp-for="Pagination.CityId" :value="cityId" />
+					<autocomplete name="@nameof(BuildingAdsPaginated.Pagination.CityId)" class="w-100" input-class="w-100" :suggestions="cities" 
+								option-label="name" placeholder="@Html.DisplayNameFor(e => e.Pagination.CityId)" 
+								v-model="selectedCity" data-key="id" dropdown v-on:complete="fetchCities(countryCode, $event.query)">
+					</autocomplete>
+				</div>
+			</div>
+			<div class="my-1">
+				<button type="submit" class="btn btn-outline-secondary btn-sm me-1"><span class="fa fa-magnifying-glass"></span></button>
+				<button type="reset" class="btn btn-outline-secondary btn-sm border-0" v-on:click="onReset"><span class="fa fa-times"></span></button>
+			</div>
+		</form>
+	</div>
+</div>
+<div class="row mb-1">
+	<div class="col-12">
+		<a asp-area="Admin" asp-controller="Ads" asp-action="Add" class="btn btn-outline-primary border-0"><i class="fa fa-plus"></i> إضافة إعلان</a>
+	</div>
+</div>
+
+<div class="row table-responsive">
+	<table class="table table-borderless table-hover">
+		<thead>
+			<tr>
+				@if (isAdmin)
+				{
+					<th scope="col"></th>
+				}
+				<th scope="col"></th>
+				<th scope="col" class="text-nowrap">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Date)</th>
+				<th scope="col" class="text-nowrap">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.BuildingType)</th>
+				<th scope="col" class="text-nowrap">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Type)</th>
+				<th scope="col" class="text-center text-nowrap">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Price)</th>
+				<th scope="col" class="text-center text-nowrap">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Views)</th>
+				<th scope="col" class="text-center text-nowrap">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.PageViews)</th>
+				<th scope="col" class="text-center text-nowrap">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Requests)</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (BuildingAdForList ad in Model.Result)
+			{
+				<tr role="button" onclick="window.location = '@Url.Action("Get", "Ads", new { area = "Admin", id = ad.Id })'">
+					@if (isAdmin)
+					{
+						<th scope="row">
+							<a class="btn btn-outline-primary btn-sm border-0 mb-1" asp-area="Admin" asp-action="Edit" asp-route-id="@ad.Id"><i class="fa fa-pen"></i></a>
+							<a class="btn btn-outline-danger btn-sm border-0 mb-1" onclick="JavaScript:deleteAd(event, @ad.Id, '@ad.Name');"><i class="fa fa-xmark"></i></a>
+						</th>
+					}
+					<td>
+						<img-asset src="@ad.ImageUrl" readonly imageclass="img-fluid img-list mx-auto d-block" />
+					</td>
+					<td class="text-nowrap">@ad.Date.ToString("yyyy/MM/dd")</td>
+					<td class="text-nowrap" title="@ad.Name">@ad.BuildingType.GetDisplayName()</td>
+					<td class="text-nowrap">@ad.Type.GetDisplayName()</td>
+					<td class="text-center">@ad.Price.ToString("#,##0.##")</td>
+					<td class="text-center">@ad.Views</td>
+					<td class="text-center">@ad.PageViews</td>
+					<td class="text-center">@ad.Requests</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</div>
+<partial name="_PaginationPartial" model="Model.Pagination" />
+
+@section scripts
+{
+	<script type="text/javascript">
+		async function deleteAd(evt, id, name) {
+			evt.stopPropagation();
+			if (!confirm(`هل تريد حذف الاعلان الخاص بالعقار '${name}'؟`)) return;
+
+			try
+			{
+				const url = '@Url.Action("Delete", "Ads", new
+				             {
+					             area = "Admin"
+				             })';
+				const data = new FormData();
+				data.append("id", id);
+				await fetch(url, {
+					method: "post",
+					body: data,
+					headers: {
+						RequestVerificationToken: "@Antiforgery.GetAndStoreTokens(Context).RequestToken"
+					},
+					credentials: "same-origin"
+				});
+				window.location.reload();
+			}
+			catch (ex)
+			{
+				alert(ex.message || ex);
+			}
+		}
+	</script>
+	<script type="text/javascript" defer>
+		const { createApp, nextTick } = Vue;
+
+		const DELAY = 300;
+		const DATE = "@Model.Pagination.Date?.ToString("yyyy/MM/dd")";
+		const MAX_DATE = "@Model.Pagination.MaxDate?.ToString("yyyy/MM/dd")";
+		const DATE_RANGE = "@string.Join(" - ", Model.Pagination.Date?.ToString("yyyy/MM/dd"), Model.Pagination.MaxDate?.ToString("yyyy/MM/dd")).Trim('-', ' ')";
+		createApp({
+			data() {
+				return {
+					loading: false,
+					date: DATE,
+					maxDate: MAX_DATE,
+					dateRange: DATE_RANGE,
+					selectedCountry: null,
+					countryCode: "@Model.Pagination.CountryCode",
+					countries: [],
+					selectedCity: null,
+					cityId: @Model.Pagination.CityId,
+					cities: [],
+					errors: []
+				}
+			},
+			watch: {
+				selectedCountry(newValue) {
+					if (newValue && newValue.id)
+						this.countryCode = newValue.id;
+					else
+						this.countryCode = "";
+				},
+				selectedCity(newValue) {
+					if (newValue && newValue.id)
+						this.cityId = newValue.id;
+					else
+						this.cityId = 0;
+				},
+				dateRange(newValue) {
+					if (!newValue) {
+						this.date = null;
+						this.maxDate = null;
+						return;
+					}
+					
+					if (!_.isArray(newValue)) {
+						this.date = newValue;
+						this.maxDate = null;
+						return;
+					}
+					
+					this.date = newValue[0] ? newValue[0].toLocaleDateString() : null;
+					this.maxDate = newValue[1] ? newValue[1].toLocaleDateString() : null;
+				}
+			},
+			methods: {
+				async fetchData() {
+					this.errors.length = 0;
+					await this.fetchCountries();
+					await this.fetchCities(this.countryCode);
+				},
+				async fetchCountries(search) {
+					this.loading = true;
+					search = search && search.trim();
+					
+					try {
+						const url = `@Url.Action("Countries", "Cities", new
+									 {
+										 area = "Admin"
+									 })`;
+						const params = new URLSearchParams({
+							countryCode: this.countryCode,
+							search: search ? encodeURIComponent(search) : ""
+						});
+						const response = await window.fetch(url + "?" + params);
+
+						if (!response.ok) {
+							const isJson = response.headers.get('content-type')?.includes('application/json');
+							const data = isJson && await response.json();
+							const error = (data && data.message) || response.status;
+							throw error;
+						}
+						
+						this.countries = await response.json();
+					} catch (e) {
+						alert(e.message || e);
+					} finally {
+						this.loading = false;
+					}
+				},
+				async fetchCities(countryCode, search) {
+					if (!countryCode) {
+						this.cityId = 0;
+						this.cities = [];
+						return;
+					}
+					
+					this.loading = true;
+					search = search && search.trim();
+
+					try {
+						const url = `@Url.Action("List", "Cities", new
+									 {
+										 area = "Admin"
+									 })`;
+						const params = new URLSearchParams({
+							countryCode: this.countryCode,
+							search: search ? encodeURIComponent(search) : ""
+						});
+						const response = await window.fetch(url + "?" + params);
+
+						if (!response.ok) {
+							const isJson = response.headers.get('content-type')?.includes('application/json');
+							const data = isJson && await response.json();
+							const error = (data && data.message) || response.status;
+							throw error;
+						}
+
+						this.cities = await response.json();
+					} catch (e) {
+						alert(e.message || e);
+					} finally {
+						this.loading = false;
+					}
+				},
+				onReset() {
+					this.errors.length = 0;
+					this.dateRange = null;
+					this.selectedCountry = null;
+					this.selectedCity = null;
+				}
+			},
+			mounted() {
+				this.fetchData();
+			}
+		})
+		.use(primevue.config.default)
+		.component("autocomplete", primevue.autocomplete)
+		.component("calendar", primevue.calendar)
+		.mount("#searchForm");
+	</script>
 }

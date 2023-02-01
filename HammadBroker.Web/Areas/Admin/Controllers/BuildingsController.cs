@@ -141,8 +141,7 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Add([NotNull, FromForm(Name = "")] BuildingToUpdate buildingToUpdate, CancellationToken token)
+	public async Task<IActionResult> Add([NotNull, FromForm(Name = nameof(BuildingModel.Building))] BuildingToUpdate buildingToUpdate, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return View(buildingToUpdate);
@@ -189,10 +188,7 @@ public class BuildingsController : MvcController
 		}
 
 		if (update && await _buildingService.UpdateAsync(building, token) == null) return Problem("تعذر حفظ الصورة بعد حفظ العقار");
-		return RedirectToAction(nameof(Get), new
-		{
-			id = building.Id,
-		});
+		return RedirectToAction(nameof(Index));
 	}
 
 	[NotNull]
@@ -211,8 +207,7 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Edit([Required, FromQuery] int id, [NotNull] BuildingToUpdate buildingToUpdate, CancellationToken token)
+	public async Task<IActionResult> Edit([Required, FromQuery] int id, [NotNull, FromForm(Name = nameof(BuildingModel.Building))] BuildingToUpdate buildingToUpdate, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return View(buildingToUpdate);
@@ -272,7 +267,6 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> Delete([Required] int id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
@@ -303,7 +297,6 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> AddImage([Required] int id, BuildingImageToAdd imageToAdd, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
@@ -334,7 +327,6 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> DeleteImage([Required] int id, [Required] int imageId, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();

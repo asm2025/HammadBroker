@@ -57,7 +57,7 @@ public class AdsController : MvcController
 			pagination.OrderBy.Add(new SortField(nameof(BuildingAd.Type)));
 		}
 
-		IPaginated<BuildingAdForList> paginated = await _buildingAdService.ListAsync<BuildingAdForList>(pagination, token);
+		IPaginated<BuildingAdForList> paginated = await _buildingAdService.ListWithBuildingsAsync(pagination, token);
 		token.ThrowIfCancellationRequested();
 		BuildingAdsPaginated result = new BuildingAdsPaginated(paginated.Result, (BuildingAdList)paginated.Pagination);
 		return View(result);
@@ -100,8 +100,7 @@ public class AdsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Add([NotNull] BuildingAdToUpdate buildingAdToUpdate, CancellationToken token)
+	public async Task<IActionResult> Add([NotNull, FromForm(Name = nameof(BuildingAdModel.Ad))] BuildingAdToUpdate buildingAdToUpdate, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return View(buildingAdToUpdate);
@@ -109,10 +108,7 @@ public class AdsController : MvcController
 		BuildingAd buildingAd = await _buildingAdService.AddAsync(_mapper.Map<BuildingAd>(buildingAdToUpdate), token);
 		token.ThrowIfCancellationRequested();
 		if (buildingAd == null) return BadRequest();
-		return RedirectToAction(nameof(Get), new
-		{
-			id = buildingAd.Id,
-		});
+		return RedirectToAction(nameof(Index));
 	}
 
 	[NotNull]
@@ -130,8 +126,7 @@ public class AdsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Edit([Required, FromQuery] int id, [NotNull] BuildingAdToUpdate buildingAdToUpdate, CancellationToken token)
+	public async Task<IActionResult> Edit([Required, FromQuery] int id, [NotNull, FromForm(Name = nameof(BuildingAdModel.Ad))] BuildingAdToUpdate buildingAdToUpdate, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return View(buildingAdToUpdate);
@@ -152,7 +147,6 @@ public class AdsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> Delete([Required] int id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();

@@ -68,7 +68,7 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	{
 		if (entity is { CityId: > 0 })
 		{
-			City city = await Context.Cities.FindAsync(new[] { entity.CityId }, token);
+			City city = await Context.Cities.FindAsync(new object[] { entity.CityId }, token);
 			if (city != null && !string.Equals(entity.CountryCode, city.CountryCode, StringComparison.OrdinalIgnoreCase)) entity.CountryCode = city.CountryCode;
 		}
 
@@ -92,7 +92,7 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	{
 		if (entity is { CityId: > 0 })
 		{
-			City city = await Context.Cities.FindAsync(new[] { entity.CityId }, token);
+			City city = await Context.Cities.FindAsync(new object[] { entity.CityId }, token);
 			if (city != null && !string.Equals(entity.CountryCode, city.CountryCode, StringComparison.OrdinalIgnoreCase)) entity.CountryCode = city.CountryCode;
 		}
 
@@ -177,7 +177,7 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
 		if (string.IsNullOrEmpty(imageUrl)) throw new ArgumentNullException(nameof(imageUrl));
-		Building building = await DbSet.FindAsync(new[] { buildingId }, token);
+		Building building = await DbSet.FindAsync(new object[] { buildingId }, token);
 		if (building == null) throw new ArgumentOutOfRangeException(nameof(buildingId));
 		await AddImageAsync(building, imageUrl, token);
 	}
@@ -227,7 +227,7 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
 		if (string.IsNullOrEmpty(imageUrl)) throw new ArgumentNullException(nameof(imageUrl));
-		BuildingImage image = await Images.FindAsync(new[] { id }, token);
+		BuildingImage image = await Images.FindAsync(new object[] { id }, token);
 		if (image == null) return null;
 		image.ImageUrl = imageUrl;
 		Context.Entry(image).State = EntityState.Modified;
@@ -249,7 +249,7 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
-		BuildingImage image = await Images.FindAsync(new[] { id }, token);
+		BuildingImage image = await Images.FindAsync(new object[] { id }, token);
 		return image == null
 					? null
 					: DeleteImageInternal(image);

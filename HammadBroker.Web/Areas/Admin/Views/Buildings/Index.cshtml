@@ -1,12 +1,13 @@
 ﻿@using HammadBroker.Model.DTO
-@using HammadBroker.Model.Entities
 @using HammadBroker.Model
 @using Microsoft.AspNetCore.Antiforgery
+@using Microsoft.AspNetCore.Authorization
 @inject IAntiforgery Antiforgery
+@inject IAuthorizationService AuthorizationService
 @model BuildingsPaginated
 @{
 	ViewData["Title"] = "العقارات";
-	bool isSystem = User.IsInRole(Role.System);
+	bool isSystem = (await AuthorizationService.AuthorizeAsync(User, Constants.Authorization.SystemPolicy)).Succeeded;
 }
 
 <div class="card mb-1">
@@ -106,9 +107,9 @@
 					<th scope="col"></th>
 				}
 				<th scope="col"></th>
-				<th scope="col">@Html.DisplayNameForInnerType((BuildingForList e) => e.Name)</th>
-				<th scope="col">@Html.DisplayNameForInnerType((BuildingForList e) => e.BuildingType)</th>
-				<th scope="col">@Html.DisplayNameForInnerType((BuildingForList e) => e.FinishingType)</th>
+				<th scope="col" class="text-nowrap">@Html.DisplayNameForInnerType((BuildingForList e) => e.Name)</th>
+				<th scope="col" class="text-nowrap">@Html.DisplayNameForInnerType((BuildingForList e) => e.BuildingType)</th>
+				<th scope="col" class="text-nowrap">@Html.DisplayNameForInnerType((BuildingForList e) => e.FinishingType)</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -126,8 +127,8 @@
 						<img-asset src="@building.ImageUrl" readonly imageclass="img-fluid img-list mx-auto d-block" />
 					</td>
 					<td>@building.Name</td>
-					<td>@building.BuildingType.GetDisplayName()</td>
-					<td>@building.FinishingType?.GetDisplayName()</td>
+					<td class="text-nowrap">@building.BuildingType.GetDisplayName()</td>
+					<td class="text-nowrap">@building.FinishingType?.GetDisplayName()</td>
 				</tr>
 			}
 		</tbody>
@@ -147,7 +148,7 @@
 				const url = '@Url.Action("Delete", "Buildings", new
 				             {
 					             area = "Admin"
-				             }, Context.Request.Scheme)';
+				             })';
 				const data = new FormData();
 				data.append("id", id);
 				await fetch(url, {
@@ -178,9 +179,6 @@
 					selectedCountry: null,
 					countryCode: "@Model.Pagination.CountryCode",
 					countries: [],
-					countryCodeProps: {
-						overlayVisible: false
-					},
 					selectedCity: null,
 					cityId: @Model.Pagination.CityId,
 					cities: [],
@@ -215,7 +213,7 @@
 						const url = `@Url.Action("Countries", "Cities", new
 									 {
 										 area = "Admin"
-									 }, Context.Request.Scheme)`;
+									 })`;
 						const params = new URLSearchParams({
 							countryCode: this.countryCode,
 							search: search ? encodeURIComponent(search) : ""
@@ -250,7 +248,7 @@
 						const url = `@Url.Action("List", "Cities", new
 									 {
 										 area = "Admin"
-									 }, Context.Request.Scheme)`;
+									 })`;
 						const params = new URLSearchParams({
 							countryCode: this.countryCode,
 							search: search ? encodeURIComponent(search) : ""

@@ -47,7 +47,7 @@
 				const url = `@Url.Action("Countries", "Cities", new
 							 {
 								 area = "Admin"
-							 }, Context.Request.Scheme)`;
+							 })`;
 				const params = new URLSearchParams({
 					countryCode: self.countryCode,
 					search: search ? encodeURIComponent(search) : ""

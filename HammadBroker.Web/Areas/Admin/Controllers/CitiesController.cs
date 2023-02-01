@@ -122,7 +122,6 @@ public class CitiesController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> Add([NotNull] CityToUpdate cityToAdd, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
@@ -153,7 +152,6 @@ public class CitiesController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> Edit([Required, FromQuery] int id, [NotNull] CityToUpdate cityToUpdate, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
@@ -174,7 +172,6 @@ public class CitiesController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> Delete([Required] int id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();

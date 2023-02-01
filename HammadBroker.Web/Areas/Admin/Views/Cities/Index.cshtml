@@ -1,11 +1,13 @@
 ﻿@using HammadBroker.Model.DTO
-@using HammadBroker.Model.Entities
 @using Microsoft.AspNetCore.Antiforgery
+@using Microsoft.AspNetCore.Authorization
+@using HammadBroker.Model
 @inject IAntiforgery Antiforgery
+@inject IAuthorizationService AuthorizationService
 @model CitiesPaginated
 @{
 	ViewData["Title"] = "المدن";
-	bool isSystem = User.IsInRole(Role.System);
+	bool isSystem = (await AuthorizationService.AuthorizeAsync(User, Constants.Authorization.SystemPolicy)).Succeeded;
 	bool showCountry = string.IsNullOrEmpty(Model.Pagination.CountryCode);
 }
 
