@@ -133,7 +133,7 @@
 								</fileupload>
 							</div>
 						}
-						<div ref="zoneFooter" class="zone-footer position-absolute bottom-0 mb-2 d-flex align-items-center z-3" dir="ltr">
+						<div ref="zoneFooter" class="zone-footer mb-2" dir="ltr">
 							@if (Model.CanUpload)
 							{
 								<button type="button" v-if="!uploading && images && images.length" class="btn btn-light btn-sm border-0 me-1" v-on:click="toggleFullScreen">
@@ -405,9 +405,7 @@
 				const response = await window.fetch(url + "?" + params);
 
 				if (!response.ok) {
-					const isJson = response.headers.get('content-type')?.includes('application/json');
-					const data = isJson && await response.json();
-					const error = (data && data.message) || response.status;
+					const error = await getResponseError(response);
 					throw error;
 				}
 
@@ -443,9 +441,7 @@
 				const response = await window.fetch(url + "?" + params);
 
 				if (!response.ok) {
-					const isJson = response.headers.get('content-type')?.includes('application/json');
-					const data = isJson && await response.json();
-					const error = (data && data.message) || response.status;
+					const error = await getResponseError(response);
 					throw error;
 				}
 
@@ -480,9 +476,7 @@
 				const response = await window.fetch(url + "?" + params);
 
 				if (!response.ok) {
-					const isJson = response.headers.get('content-type')?.includes('application/json');
-					const data = isJson && await response.json();
-					const error = (data && data.message) || response.status;
+					const error = await getResponseError(response);
 					throw error;
 				}
 
@@ -520,9 +514,7 @@
 			const response = await window.fetch(url + "?" + params);
 
 			if (!response.ok) {
-				const isJson = response.headers.get('content-type')?.includes('application/json');
-				const data = isJson && await response.json();
-				const error = (data && data.message) || response.status;
+				const error = await getResponseError(response);
 				throw error;
 			}
 
@@ -559,9 +551,7 @@
 			const response = await window.fetch(url + "?" + params);
 
 			if (!response.ok) {
-				const isJson = response.headers.get('content-type')?.includes('application/json');
-				const data = isJson && await response.json();
-				const error = (data && data.message) || response.status;
+				const error = await getResponseError(response);
 				throw error;
 			}
 
@@ -684,7 +674,7 @@
 
 					for (const file of files) {
 						const formData = new FormData();
-						formData.append("imageToAdd.image", file);
+						formData.append("image", file);
 
 						try {
 							const response = await fetch(url,
@@ -698,9 +688,7 @@
 								});
 
 							if (!response.ok) {
-								const isJson = response.headers.get('content-type')?.includes('application/json');
-								const data = isJson && await response.json();
-								const error = (data && data.message) || response.status;
+								const error = await getResponseError(response);
 								throw error;
 							}
 

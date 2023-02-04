@@ -281,9 +281,10 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpGet("[action]")]
-	public async Task<IActionResult> ListImages(int id, CancellationToken token)
+	public async Task<IActionResult> ListImages([Required] int id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
+		if (!ModelState.IsValid) return BadRequest(ModelState);
 		IList<string> images = await _buildingService.ListImagesAsync(id, token);
 
 		for (int i = 0; i < images.Count; i++)
@@ -297,13 +298,13 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	public async Task<IActionResult> AddImage([Required] int id, BuildingImageToAdd imageToAdd, CancellationToken token)
+	public async Task<IActionResult> AddImage([Required, FromQuery] int id, [NotNull] BuildingImageToAdd imageToAdd, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
-		if (imageToAdd?.Image == null) ModelState.AddModelError(string.Empty, "لم يتم اختيار صورة للتحميل");
+		if (imageToAdd.Image == null) ModelState.AddModelError(string.Empty, "لم يتم اختيار صورة للتحميل");
 		else if (imageToAdd.Image.Length == 0) ModelState.AddModelError(string.Empty, $"الصورة '{imageToAdd.Image.FileName}' غير صالحة للتحميل.");
 
-		if (imageToAdd?.Image == null || !ModelState.IsValid) return BadRequest(ModelState);
+		if (imageToAdd.Image == null || !ModelState.IsValid) return BadRequest(ModelState);
 
 		try
 		{
@@ -327,7 +328,7 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	public async Task<IActionResult> DeleteImage([Required] int id, [Required] int imageId, CancellationToken token)
+	public async Task<IActionResult> DeleteImage([Required, FromQuery] int id, [Required, FromQuery] int imageId, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return BadRequest(ModelState);

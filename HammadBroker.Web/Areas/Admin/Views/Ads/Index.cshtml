@@ -272,9 +272,7 @@
 						const response = await window.fetch(url + "?" + params);
 
 						if (!response.ok) {
-							const isJson = response.headers.get('content-type')?.includes('application/json');
-							const data = isJson && await response.json();
-							const error = (data && data.message) || response.status;
+							const error = await getResponseError(response);
 							throw error;
 						}
 						
@@ -307,9 +305,7 @@
 						const response = await window.fetch(url + "?" + params);
 
 						if (!response.ok) {
-							const isJson = response.headers.get('content-type')?.includes('application/json');
-							const data = isJson && await response.json();
-							const error = (data && data.message) || response.status;
+							const error = await getResponseError(response);
 							throw error;
 						}
 

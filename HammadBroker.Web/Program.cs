@@ -193,7 +193,6 @@ public class Program
 				options.MultipartBodyLengthLimit = int.MaxValue;
 				options.MemoryBufferThreshold = int.MaxValue;
 			})
-			.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN")
 			.AddHttpContextAccessor()
 			.AddDefaultCorsPolicy(options => options.WithExposedHeaders("Set-Cookie"),
 								(configuration.GetValue<string>("AllowedHosts").ToNullIfEmpty() ?? "*").Split(',',

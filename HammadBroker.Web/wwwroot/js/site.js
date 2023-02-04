@@ -19,6 +19,19 @@
 	reader.readAsDataURL(file);
 }
 
+async function getResponseError(response) {
+	if (!response || response.ok) return undefined;
+	const statusMessage = `Error ${response.status}: ${response.statusText}. `;
+	if (response.bodyUsed) return statusMessage;
+
+	const isJson = response.headers.get("content-type")?.includes("application/json");
+	const jsonData = isJson && await response.json();
+	if (jsonData) return statusMessage + jsonData.message;
+
+	const text = await response.text();
+	return statusMessage + text;
+}
+
 function toUrlParams(params, prefix = "") {
 	if (!params) return null;
 	return Object.entries(params)
