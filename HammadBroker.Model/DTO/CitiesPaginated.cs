@@ -11,6 +11,4 @@ public class CitiesPaginated : Paginated<CityForList, CitiesList>
 		: base(result, pagination)
 	{
 	}
-
-	public IList<CountryForList> Countries { get; set; }
 }

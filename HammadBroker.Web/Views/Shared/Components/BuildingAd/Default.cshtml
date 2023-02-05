@@ -36,7 +36,7 @@
 
 	@if (Model.CanEdit)
 	{
-		<div v-if="Boolean(building)" class="row">
+		<div v-if="Boolean(building)" class="row g-0">
 			<div class="col-12 card-deck2">
 				<div class="card card-body position-relative">
 					<img v-if="!building.videoId" class="img-fluid" :src="`@Context.Request.Scheme://@Context.Request.Host/@_basePath/${building.imageUrl}`" alt=""
@@ -154,16 +154,28 @@
 				</div>
 			</div>
 		</div>
-		<div class="row">
+		<div class="row g-0">
 			<div class="col-12">
-				<input type="hidden" asp-for="Ad.BuildingId" :value="buildingId"/>
 				<div class="d-flex">
 					<div class="flex-grow-1">
+						<input type="hidden" asp-for="Ad.BuildingId" :value="buildingId"/>
 						<autocomplete class="w-100" input-class="w-100" :suggestions="buildings" option-label="name"
 									placeholder="@Html.DisplayNameFor(e => e.Ad.BuildingId)"
 									title="@Html.DisplayNameFor(e => e.Ad.BuildingId)"
 									:min-length="0" v-model="selectedBuilding" data-key="id" dropdown
-									v-on:complete="fetchBuildings($event.query)" v-on:item-select="fetchBuilding($event.value.id)" v-on:item-unselect="building = null">
+									v-on:complete="fetchBuildings($event.query)" v-on:item-select="fetchBuilding($event.value.id)"
+									v-on:item-unselect="building = null">
+							<template #item="{ item }">
+								<div class="row row-cols-auto">
+									<div class="col">
+										<img class="img-fluid" :src="`@Context.Request.Scheme://@Context.Request.Host/@_basePath/${item.imageUrl}`" alt=""
+											v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host/@_basePath/@_placeholderImage'`"/>
+									</div>
+									<div class="col">{{ item.name }}</div>
+									<div class="col text-nowrap">{{ item.buildingTypeName }}</div>
+									<div class="col text-nowrap">{{ item.finishingTypeName }}</div>
+								</div>
+							</template>
 						</autocomplete>
 						<span asp-validation-for="Ad.BuildingId" class="text-danger"></span>
 					</div>
@@ -173,8 +185,8 @@
 				</div>
 			</div>
 		</div>
-		<div v-if="Boolean(building)">
-			<div class="row">
+		<div v-if="Boolean(building)" class="mb-2">
+			<div class="row g-0">
 				<div class="col-12">
 					<small>{{ building.buildingTypeName }} {{ building.finishingTypeName }}</small>
 					<h5>{{ building.name }}</h5>
@@ -217,7 +229,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="row">
+		<div class="row g-0">
 			<div class="col-12">
 				<select asp-for="Ad.Type" class="form-select" asp-items="Html.GetEnumSelectList<BuildingAdType>()" title="@Html.DisplayNameFor(e => e.Ad.Type)">
 					<option value="">@Html.DisplayNameFor(e => e.Ad.Type)</option>
@@ -225,7 +237,7 @@
 				<span asp-validation-for="Ad.Type" class="text-danger"></span>
 			</div>
 		</div>
-		<div class="row">
+		<div class="row g-0">
 			<div class="col-sm-12 col-md-6">
 				<input type="hidden" name="@($"{nameof(Model.Ad)}.{nameof(BuildingAdToUpdate.Date)}")" :value="date"/>
 				<calendar class="w-100" placeholder="@Html.DisplayNameFor(e => e.Ad.Date)" v-model="date"
@@ -241,7 +253,7 @@
 				<span asp-validation-for="Ad.Expires" class="text-danger"></span>
 			</div>
 		</div>
-		<div class="row">
+		<div class="row g-0">
 			<div class="col-sm-12 col-md-6">
 				<input class="form-control" asp-for="Ad.Phone" placeholder="@Html.DisplayNameFor(e => e.Ad.Phone)" title="@Html.DisplayNameFor(e => e.Ad.Phone)"/>
 				<span asp-validation-for="Ad.Phone" class="text-danger"></span>
@@ -251,13 +263,13 @@
 				<span asp-validation-for="Ad.Mobile" class="text-danger"></span>
 			</div>
 		</div>
-		<div class="row">
+		<div class="row g-0">
 			<div class="col-12">
 				<input class="form-control" asp-for="Ad.Price" placeholder="@Html.DisplayNameFor(e => e.Ad.Price)" title="@Html.DisplayNameFor(e => e.Ad.Price)"/>
 				<span asp-validation-for="Ad.Price" class="text-danger"></span>
 			</div>
 		</div>
-		<div class="my-1">
+		<div class="row g-0 my-1">
 			<button type="submit" class="btn btn-primary me-1">حفظ</button>
 			@if (Model.Id > 0)
 			{
@@ -268,7 +280,7 @@
 	}
 	else
 	{
-		<div class="row">
+		<div class="row g-0">
 			<div class="col-12">
 				<small>@Model.Ad.Date.ToString("d") @Model.Ad.Type.GetDisplayName()</small>
 				@if (Model.Building is not null)

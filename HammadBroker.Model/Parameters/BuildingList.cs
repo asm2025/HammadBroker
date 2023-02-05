@@ -33,4 +33,19 @@ public class BuildingList : SortablePagination
 	public string CountryCode { get; set; }
 	[Display(Name = "المدينة")]
 	public int CityId { get; set; }
+
+	public virtual bool HasSearch => !string.IsNullOrEmpty(Search)
+							|| BuildingType.HasValue
+							|| FinishingType.HasValue
+							|| Floor.HasValue
+							|| MaxFloor.HasValue
+							|| Rooms.HasValue
+							|| MaxRooms.HasValue
+							|| Bathrooms.HasValue
+							|| MaxBathrooms.HasValue
+							|| Area.HasValue
+							|| MaxArea.HasValue
+							|| !string.IsNullOrEmpty(Address)
+							|| !string.IsNullOrEmpty(CountryCode)
+							|| CityId > 0;
 }

@@ -316,6 +316,14 @@ a {
 	white-space: nowrap !important;
 }
 
+.row > .btn-sm {
+	width: auto;
+}
+
+[type=number], [type=tel] {
+	direction: inherit;
+}
+
 .form-control[readonly],
 .form-control disabled {
 	background-color: transparent;

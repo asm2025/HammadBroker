@@ -44,6 +44,8 @@ public class LookupService : ServiceBase<DataContext>, ILookupService
 	}
 
 	/// <inheritdoc />
+	public Task<IList<CountryForList>> ListCountriesAsync(CancellationToken token = default(CancellationToken)) { return ListCountriesAsync(null, token); }
+	/// <inheritdoc />
 	public Task<IList<CountryForList>> ListCountriesAsync(string search, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();

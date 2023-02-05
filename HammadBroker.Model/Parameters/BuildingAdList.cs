@@ -15,4 +15,12 @@ public class BuildingAdList : BuildingList
 	public long? Price { get; set; }
 	[Display(Name = "بحد أقصى")]
 	public long? MaxPrice { get; set; }
+
+	/// <inheritdoc />
+	public override bool HasSearch => base.HasSearch
+									|| Type.HasValue
+									|| Date.HasValue
+									|| MaxDate.HasValue
+									|| Price.HasValue
+									|| MaxPrice.HasValue;
 }

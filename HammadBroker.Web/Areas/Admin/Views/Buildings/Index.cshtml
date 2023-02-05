@@ -8,11 +8,13 @@
 @{
 	ViewData["Title"] = "العقارات";
 	bool isSystem = (await AuthorizationService.AuthorizeAsync(User, Constants.Authorization.SystemPolicy)).Succeeded;
+	bool hasSearch = Model.Pagination.HasSearch;
 }
 
 <div class="card mb-1">
-	<h5 class="card-header collapsed" data-bs-toggle="collapse" data-bs-target="#searchForm" aria-expanded="false" aria-controls="searchForm">البحث</h5>
-	<div id="searchForm" v-scope class="card-body collapse">
+	<h5 class="card-header @(hasSearch ? null : "collapsed")" data-bs-toggle="collapse" data-bs-target="#searchForm" 
+		aria-expanded="@(hasSearch ? "true" : "false")" aria-controls="searchForm">البحث</h5>
+	<div id="searchForm" v-scope class="card-body @(hasSearch ? null : "collapse")">
 		<form method="get" asp-area="Admin" asp-controller="Buildings" asp-action="Index">
 			<div v-if="errors && errors.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="error of errors">
 				{{ error }}
@@ -70,24 +72,21 @@
 			</div>
 			<div class="row g-0 mb-1">
 				<div class="col-sm-12 col-md-6">
-					<input type="hidden" asp-for="Pagination.CountryCode" :value="countryCode" />
-					<autocomplete name="@nameof(BuildingsPaginated.Pagination.CountryCode)" class="w-100" input-class="w-100"
-								:suggestions="countries" option-label="name" placeholder="@Html.DisplayNameFor(e => e.Pagination.CountryCode)" 
-								v-model="selectedCountry" data-key="id" dropdown
-								v-on:complete="fetchCountries($event.query)" v-on:change="fetchCities($event.value)">
+					<input type="hidden" name="@nameof(CitiesPaginated.Pagination.CountryCode)" asp-for="Pagination.CountryCode" :value="countryCode" />
+					<autocomplete class="w-100" input-class="w-100" :suggestions="countries" option-label="name" placeholder="@Html.DisplayNameFor(e => e.Pagination.CountryCode)" 
+								v-model="selectedCountry" data-key="id" dropdown v-on:complete="fetchCountries($event.query)" v-on:change="fetchCities($event.value)">
 					</autocomplete>
 				</div>
 				<div class="col-sm-12 col-md-6">
-					<input type="hidden" asp-for="Pagination.CityId" :value="cityId" />
-					<autocomplete name="@nameof(BuildingsPaginated.Pagination.CityId)" class="w-100" input-class="w-100" :suggestions="cities" 
-								option-label="name" placeholder="@Html.DisplayNameFor(e => e.Pagination.CityId)" 
+					<input type="hidden" name="@nameof(BuildingsPaginated.Pagination.CityId)" asp-for="Pagination.CityId" :value="cityId" />
+					<autocomplete class="w-100" input-class="w-100" :suggestions="cities" option-label="name" placeholder="@Html.DisplayNameFor(e => e.Pagination.CityId)" 
 								v-model="selectedCity" data-key="id" dropdown v-on:complete="fetchCities(countryCode, $event.query)">
 					</autocomplete>
 				</div>
 			</div>
-			<div class="my-1">
+			<div class="row g-0 my-1">
 				<button type="submit" class="btn btn-outline-secondary btn-sm me-1"><span class="fa fa-magnifying-glass"></span></button>
-				<button type="reset" class="btn btn-outline-secondary btn-sm border-0"><span class="fa fa-times"></span></button>
+				<button type="reset" class="btn btn-outline-secondary btn-sm border-0" v-on:click="onReset"><span class="fa fa-times"></span></button>
 			</div>
 		</form>
 	</div>
@@ -118,7 +117,7 @@
 				<tr role="button" onclick="window.location = '@Url.Action("Get", "Buildings", new { area = "Admin", id = building.Id })'">
 					@if (isSystem)
 					{
-						<th scope="row">
+						<th scope="row" class="text-nowrap">
 							<a class="btn btn-outline-primary btn-sm border-0 mb-1" asp-area="Admin" asp-action="Edit" asp-route-id="@building.Id"><i class="fa fa-pen"></i></a>
 							<a class="btn btn-outline-danger btn-sm border-0 mb-1" onclick="JavaScript:deleteBuilding(event, @building.Id, '@building.Name');"><i class="fa fa-xmark"></i></a>
 						</th>
@@ -226,7 +225,9 @@
 						}
 						
 						this.countries = await response.json();
+						this.selectedCountry = this.countries.find(e => e.id === this.countryCode);
 					} catch (e) {
+						this.selectedCountry = null;
 						alert(e.message || e);
 					} finally {
 						this.loading = false;
@@ -234,7 +235,7 @@
 				},
 				async fetchCities(countryCode, search) {
 					if (!countryCode) {
-						this.cityId = 0;
+						this.selectedCity = null;
 						this.cities = [];
 						return;
 					}
@@ -259,11 +260,18 @@
 						}
 
 						this.cities = await response.json();
+						this.selectedCity = this.cities.find(e => e.id === this.cityId);
 					} catch (e) {
+						this.selectedCity = null;
 						alert(e.message || e);
 					} finally {
 						this.loading = false;
 					}
+				},
+				onReset() {
+					this.errors.length = 0;
+					this.selectedCountry = null;
+					this.selectedCity = null;
 				}
 			},
 			mounted() {

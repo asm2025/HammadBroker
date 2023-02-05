@@ -61,10 +61,7 @@ public class CitiesController : MvcController
 
 		IPaginated<CityForList> paginated = await _cityService.ListAsync<CityForList>(pagination, token);
 		token.ThrowIfCancellationRequested();
-		CitiesPaginated result = new CitiesPaginated(paginated.Result, (CitiesList)paginated.Pagination)
-		{
-			Countries = await _lookupService.ListCountriesAsync(pagination.Search, token)
-		};
+		CitiesPaginated result = new CitiesPaginated(paginated.Result, (CitiesList)paginated.Pagination);
 		token.ThrowIfCancellationRequested();
 		return View(result);
 	}

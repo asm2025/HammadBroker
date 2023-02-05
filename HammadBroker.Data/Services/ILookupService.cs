@@ -13,6 +13,10 @@ public interface ILookupService : IServiceBase<DataContext>
 {
 	[NotNull]
 	Task<IList<string>> ListBuildingImagesAsync(int id, int count, CancellationToken token = default(CancellationToken));
+
+	[NotNull]
+	[ItemNotNull]
+	Task<IList<CountryForList>> ListCountriesAsync(CancellationToken token = default(CancellationToken));
 	[NotNull]
 	[ItemNotNull]
 	Task<IList<CountryForList>> ListCountriesAsync(string search, CancellationToken token = default(CancellationToken));

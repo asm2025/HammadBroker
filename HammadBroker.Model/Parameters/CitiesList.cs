@@ -9,4 +9,6 @@ public class CitiesList : SortablePagination
 	public string Search { get; set; }
 	[Display(Name = "البلد")]
 	public string CountryCode { get; set; }
+
+	public bool HasSearch => !string.IsNullOrEmpty(Search) || !string.IsNullOrEmpty(CountryCode);
 }
