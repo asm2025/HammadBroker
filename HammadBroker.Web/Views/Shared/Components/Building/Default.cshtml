@@ -26,7 +26,7 @@
 		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 	</div>
 
-	<div class="card-deck2">
+	<div class="card-deck2 align-items-end mb-2">
 		<div class="card card-body position-relative">
 			@if (Model.CanEdit)
 			{
@@ -44,7 +44,7 @@
 					<vid-asset VideoId="@Model.Building.VideoId" Class="ratio ratio-16x9"/>
 				}
 			}
-			@if (Model.Id > 0)
+			@if (Model.CanEdit || (Model.Id > 0 && string.IsNullOrEmpty(Model.Building.VideoId)))
 			{
 				<div class="position-absolute bottom-0 mb-3 mx-3 d-flex align-items-center z-3">
 					@if (Model.CanUpload)
@@ -249,18 +249,22 @@
 				<span asp-validation-for="Building.Description" class="text-danger"></span>
 			</div>
 		</div>
-		<div class="row g-0 my-1">
-			<button type="submit" class="btn btn-primary me-1">حفظ</button>
+		<div class="g-0 my-1">
+			<button type="submit" class="btn btn-primary border-0 me-1">حفظ</button>
 			@if (Model.Id > 0)
 			{
 				<a class="btn btn-outline-primary border-0 me-1" asp-area="Admin" asp-controller="Buildings" asp-action="Get" asp-route-id="@Model.Id">الغاء</a>
+			}
+			else
+			{
+				<a class="btn btn-outline-primary border-0 me-1" asp-area="Admin" asp-controller="Buildings" asp-action="Index">الغاء</a>
 			}
 		</div>
 		@:</form>
 	}
 	else
 	{
-		<div class="row px-2">
+		<div class="row g-0 px-2">
 			<div class="col-12">
 				<small>@Model.Building.BuildingType.GetDisplayName() @Model.Building.FinishingType?.GetDisplayName()</small>
 				<h5>@Model.Building.Name</h5>
@@ -331,8 +335,9 @@
 		</div>
 		@if (!Model.ReadOnly)
 		{
-			<div class="my-2">
-				<a asp-area="Admin" asp-controller="Buildings" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">تعديل</a>
+			<div class="g-0 px-2 my-4">
+				<a asp-area="Admin" asp-controller="Buildings" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary border-0 me-1">تعديل</a>
+				<a asp-area="Admin" asp-controller="Ads" asp-action="Add" asp-route-buildingId="@Model.Id" class="btn btn-outline-primary border-0 me-1">إضافة إعلان</a>
 			</div>
 		}
 	}

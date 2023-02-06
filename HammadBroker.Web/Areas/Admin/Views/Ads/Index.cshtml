@@ -106,7 +106,7 @@
 					</autocomplete>
 				</div>
 			</div>
-			<div class="row g-0 my-1">
+			<div class="g-0 my-1">
 				<button type="submit" class="btn btn-outline-secondary btn-sm me-1"><span class="fa fa-magnifying-glass"></span></button>
 				<button type="reset" class="btn btn-outline-secondary btn-sm border-0" v-on:click="onReset"><span class="fa fa-times"></span></button>
 			</div>
@@ -144,8 +144,8 @@
 					@if (isAdmin)
 					{
 						<th scope="row" class="text-nowrap">
-							<a class="btn btn-outline-primary btn-sm border-0 mb-1" asp-area="Admin" asp-action="Edit" asp-route-id="@ad.Id"><i class="fa fa-pen"></i></a>
-							<a class="btn btn-outline-danger btn-sm border-0 mb-1" onclick="JavaScript:deleteAd(event, @ad.Id, '@ad.Name');"><i class="fa fa-xmark"></i></a>
+							<a class="btn btn-outline-secondary btn-sm border-0 mb-1" asp-area="Admin" asp-controller="Ads" asp-action="Edit" asp-route-id="@ad.Id" title="تعديل"><i class="fa fa-pen"></i></a>
+							<a class="btn btn-outline-danger btn-sm border-0 mb-1" onclick="JavaScript:deleteAd(event, @ad.Id, '@ad.Name');" title="حذف الاعلان"><i class="fa fa-xmark"></i></a>
 						</th>
 					}
 					<td>

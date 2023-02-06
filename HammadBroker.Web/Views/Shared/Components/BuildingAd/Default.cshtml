@@ -29,22 +29,20 @@
 		<div asp-validation-summary="ModelOnly"></div>
 		@Html.AntiForgeryToken()
 	}
+
 	<div v-if="errors && errors.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="error of errors">
 		{{ error }}
 		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 	</div>
 
-	@if (Model.CanEdit)
-	{
-		<div v-if="Boolean(building)" class="row g-0">
-			<div class="col-12 card-deck2">
-				<div class="card card-body position-relative">
-					<img v-if="!building.videoId" class="img-fluid" :src="`@Context.Request.Scheme://@Context.Request.Host/@_basePath/${building.imageUrl}`" alt=""
+	<div v-if="Boolean(building)" class="row g-0">
+		<div class="col-12 card-deck2 align-items-end mb-2">
+			<div class="card card-body position-relative">
+				<iframe v-if="building.videoId" class="ratio ratio-16x9" :src="`https://www.youtube.com/embed/${building.videoId}`" allowfullscreen>
+				</iframe>
+				<div v-else>
+					<img class="img-fluid" :src="`@Context.Request.Scheme://@Context.Request.Host/@_basePath/${building.imageUrl}`" alt=""
 						v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host/@_basePath/@_placeholderImage'`"/>
-					<div v-else>
-						<iframe class="ratio ratio-16x9" :src="`https://www.youtube.com/embed/${building.videoId}`" allowfullscreen>
-						</iframe>
-					</div>
 					<div class="position-absolute bottom-0 mb-3 mx-3 d-flex align-items-center z-3">
 						@if (Model.CanUpload)
 						{
@@ -60,103 +58,107 @@
 						</button>
 					</div>
 				</div>
-				<div class="card card-body position-relative">
-					<div ref="dropZone" :class="['drop-zone', { fullScreen }]">
-						<div :class="@(Model.CanUpload ? "['zone-item', { active: !uploading }]" : "'zone-item active'")" dir="ltr">
-							<galleria ref="galleria" :container-class="['galleria', { fullScreen }]" :value="images" :show-thumbnails="false"
-									show-item-navigators show-item-navigators-on-hover show-indicators change-item-on-indicator-hover 
-									show-indicators-on-item circular auto-play :transition-interval="3000">
-								<template #item="{ item }">
-									<img :src="item" alt="" class="img-fluid" v-on:click="toggleFullScreen"/>
+			</div>
+			<div class="card card-body position-relative">
+				<div ref="dropZone" :class="['drop-zone', { fullScreen }]">
+					<div :class="@(Model.CanUpload ? "['zone-item', { active: !uploading }]" : "'zone-item active'")" dir="ltr">
+						<galleria ref="galleria" :container-class="['galleria', { fullScreen }]" :value="images" :show-thumbnails="false"
+								show-item-navigators show-item-navigators-on-hover show-indicators change-item-on-indicator-hover 
+								show-indicators-on-item circular auto-play :transition-interval="3000">
+							<template #item="{ item }">
+								<img :src="item" alt="" class="img-fluid" v-on:click="toggleFullScreen"/>
+							</template>
+							<template #footer>
+								<div ref="galleriaFooter"></div>
+							</template>
+						</galleria>
+					</div>
+					@if (Model.CanUpload)
+					{
+						<div :class="['zone-item', { active: uploading }]">
+							<fileupload accept="@Constants.Images.Extensions" multiple :file-limit="10" :max-file-size="@Constants.Images.FileSizeMax"
+										:custom-upload="true" v-on:select="onFilesSelected" v-on:uploader="onUpload" v-on:upload="onFilesUploaded" v-on:error="onError">
+								<template #header="{ chooseCallback, uploadCallback, clearCallback, files }">
+									<div class="w-100 d-flex flex-wrap align-items-center gap-2">
+										<div class="d-flex flex-grow-1 gap-2">
+											<button type="button" class="btn btn-outline-secondary btn-sm" title="اختيار ملفات" v-on:click="chooseCallback()"><i class="fa fa-images"></i></button>
+											<button v-if="files && files.length" type="button" class="btn btn-outline-secondary btn-sm" title="تحميل" v-on:click="uploadCallback()"><i class="fa fa-cloud-upload"></i></button>
+											<button v-if="files && files.length" type="button" class="btn btn-outline-secondary btn-sm" title="حذف" v-on:click="clearCallback()"><i class="fa fa-times"></i></button>
+										</div>
+										<ProgressBar v-show="uploadProgress > 0" :value="uploadProgress" :show-value="false" :class="['md:w-10rem h-1rem w-full md:mr-auto', {'exceeded-progress-bar': (uploadProgress > 100)}]">
+										</ProgressBar>
+									</div>
 								</template>
-								<template #footer>
-									<div ref="galleriaFooter"></div>
+								<template #content="{ files, uploadedFiles, messages, onUploadedFileRemove, onFileRemove }">
+									<div v-if="messages && messages.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="message of messages">
+										{{ message }}
+										<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+									</div>
+									<div v-if="files && files.length > 0">
+										<h5>التحميل</h5>
+										<div v-for="(file, index) of files" :key="file.name + file.type + file.size" class="card m-0">
+											<span class="position-absolute top-0 start-0 border border-light p-1 m-1 badge rounded-pill text-bg-warning"><span class="visually-hidden">في انتظار التحميل</span></span>
+											<img class="card-img-top" role="presentation" :alt="file.name" :src="file.objectURL"/>
+											<div class="card-body">
+												<div class="card-title text-truncate">{{ file.name }}</div>
+												<div class="d-flex align-items-center">
+													<div class="card-text flex-grow-1">{{ formatSize(file.size) }}</div>
+													<button type="button" class="btn btn-outline-danger btn-sm" v-on:click="onRemoveFile(file, onFileRemove, index)"><i class="fa fa-times"></i></button>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div v-if="uploadedFiles && uploadedFiles.length > 0">
+										<h5>إكتمل</h5>
+										<div v-for="(file, index) of uploadedFiles" :key="file.name + file.type + file.size" class="card m-0">
+											<span class="position-absolute top-0 start-0 border border-light p-1 m-1 badge rounded-pill text-bg-success"><span class="visually-hidden">في انتظار التحميل</span></span>
+											<img class="card-img-top" role="presentation" :alt="file.name" :src="file.objectURL"/>
+											<div class="card-body">
+												<div class="card-title text-truncate">{{ file.name }}</div>
+												<div class="d-flex align-items-center">
+													<div class="card-text flex-grow-1">{{ formatSize(file.size) }}</div>
+													<button type="button" class="btn btn-outline-danger btn-sm" v-on:click="onUploadedFileRemove(index)"><i class="fa fa-times"></i></button>
+												</div>
+											</div>
+										</div>
+									</div>
 								</template>
-							</galleria>
+								<template #empty>
+									<div class="d-flex align-items-center justify-content-center flex-column">
+										<i class="fa fa-cloud-upload border-2 border-circle p-5 lead text-200 border-200"></i>
+										<p class="mt-4 mb-0">اسحب الملفات الى هنا للتحميل.</p>
+									</div>
+								</template>
+							</fileupload>
 						</div>
+					}
+					<div ref="zoneFooter" class="zone-footer mb-2" dir="ltr">
 						@if (Model.CanUpload)
 						{
-							<div :class="['zone-item', { active: uploading }]">
-								<fileupload accept="@Constants.Images.Extensions" multiple :file-limit="10" :max-file-size="@Constants.Images.FileSizeMax"
-											:custom-upload="true" v-on:select="onFilesSelected" v-on:uploader="onUpload" v-on:upload="onFilesUploaded" v-on:error="onError">
-									<template #header="{ chooseCallback, uploadCallback, clearCallback, files }">
-										<div class="w-100 d-flex flex-wrap align-items-center gap-2">
-											<div class="d-flex flex-grow-1 gap-2">
-												<button type="button" class="btn btn-outline-secondary btn-sm" title="اختيار ملفات" v-on:click="chooseCallback()"><i class="fa fa-images"></i></button>
-												<button v-if="files && files.length" type="button" class="btn btn-outline-secondary btn-sm" title="تحميل" v-on:click="uploadCallback()"><i class="fa fa-cloud-upload"></i></button>
-												<button v-if="files && files.length" type="button" class="btn btn-outline-secondary btn-sm" title="حذف" v-on:click="clearCallback()"><i class="fa fa-times"></i></button>
-											</div>
-											<ProgressBar v-show="uploadProgress > 0" :value="uploadProgress" :show-value="false" :class="['md:w-10rem h-1rem w-full md:mr-auto', {'exceeded-progress-bar': (uploadProgress > 100)}]">
-											</ProgressBar>
-										</div>
-									</template>
-									<template #content="{ files, uploadedFiles, messages, onUploadedFileRemove, onFileRemove }">
-										<div v-if="messages && messages.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="message of messages">
-											{{ message }}
-											<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-										</div>
-										<div v-if="files && files.length > 0">
-											<h5>التحميل</h5>
-											<div v-for="(file, index) of files" :key="file.name + file.type + file.size" class="card m-0">
-												<span class="position-absolute top-0 start-0 border border-light p-1 m-1 badge rounded-pill text-bg-warning"><span class="visually-hidden">في انتظار التحميل</span></span>
-												<img class="card-img-top" role="presentation" :alt="file.name" :src="file.objectURL"/>
-												<div class="card-body">
-													<div class="card-title text-truncate">{{ file.name }}</div>
-													<div class="d-flex align-items-center">
-														<div class="card-text flex-grow-1">{{ formatSize(file.size) }}</div>
-														<button type="button" class="btn btn-outline-danger btn-sm" v-on:click="onRemoveFile(file, onFileRemove, index)"><i class="fa fa-times"></i></button>
-													</div>
-												</div>
-											</div>
-										</div>
-										<div v-if="uploadedFiles && uploadedFiles.length > 0">
-											<h5>إكتمل</h5>
-											<div v-for="(file, index) of uploadedFiles" :key="file.name + file.type + file.size" class="card m-0">
-												<span class="position-absolute top-0 start-0 border border-light p-1 m-1 badge rounded-pill text-bg-success"><span class="visually-hidden">في انتظار التحميل</span></span>
-												<img class="card-img-top" role="presentation" :alt="file.name" :src="file.objectURL"/>
-												<div class="card-body">
-													<div class="card-title text-truncate">{{ file.name }}</div>
-													<div class="d-flex align-items-center">
-														<div class="card-text flex-grow-1">{{ formatSize(file.size) }}</div>
-														<button type="button" class="btn btn-outline-danger btn-sm" v-on:click="onUploadedFileRemove(index)"><i class="fa fa-times"></i></button>
-													</div>
-												</div>
-											</div>
-										</div>
-									</template>
-									<template #empty>
-										<div class="d-flex align-items-center justify-content-center flex-column">
-											<i class="fa fa-cloud-upload border-2 border-circle p-5 lead text-200 border-200"></i>
-											<p class="mt-4 mb-0">اسحب الملفات الى هنا للتحميل.</p>
-										</div>
-									</template>
-								</fileupload>
-							</div>
+							<button type="button" v-if="!uploading && images && images.length" class="btn btn-light btn-sm border-0 me-1" v-on:click="toggleFullScreen">
+								<i :class="['fa', fullScreen ? 'fa-minimize' : 'fa-maximize']"></i>
+							</button>
+							<button type="button" v-if="!fullScreen" class="btn btn-light btn-sm border-0 me-1" v-on:click="uploading = !uploading">
+								<i :class="['fa', uploading ? 'fa-image' : 'fa-cloud-arrow-up']"></i>
+							</button>
 						}
-						<div ref="zoneFooter" class="zone-footer mb-2" dir="ltr">
-							@if (Model.CanUpload)
-							{
-								<button type="button" v-if="!uploading && images && images.length" class="btn btn-light btn-sm border-0 me-1" v-on:click="toggleFullScreen">
-									<i :class="['fa', fullScreen ? 'fa-minimize' : 'fa-maximize']"></i>
-								</button>
-								<button type="button" v-if="!fullScreen" class="btn btn-light btn-sm border-0 me-1" v-on:click="uploading = !uploading">
-									<i :class="['fa', uploading ? 'fa-image' : 'fa-cloud-arrow-up']"></i>
-								</button>
-							}
-							else
-							{
-								<button type="button" v-if="images && images.length" class="btn btn-light btn-sm border-0 me-1" v-on:click="toggleFullScreen">
-									<i :class="['fa', fullScreen ? 'fa-minimize' : 'fa-maximize']"></i>
-								</button>
-							}
-						</div>
+						else
+						{
+							<button type="button" v-if="images && images.length" class="btn btn-light btn-sm border-0 me-1" v-on:click="toggleFullScreen">
+								<i :class="['fa', fullScreen ? 'fa-minimize' : 'fa-maximize']"></i>
+							</button>
+						}
 					</div>
 				</div>
 			</div>
 		</div>
+	</div>
+
+	@if (Model.CanEdit)
+	{
 		<div class="row g-0">
 			<div class="col-12">
-				<div class="d-flex">
+				<div class="d-flex align-items-center">
 					<div class="flex-grow-1">
 						<input type="hidden" asp-for="Ad.BuildingId" :value="buildingId"/>
 						<autocomplete class="w-100" input-class="w-100" :suggestions="buildings" option-label="name"
@@ -179,9 +181,9 @@
 						</autocomplete>
 						<span asp-validation-for="Ad.BuildingId" class="text-danger"></span>
 					</div>
-					<button type="button" class="btn btn-outline-secondary btn-sm m-1" title="اضافة مبنى">
+					<a asp-area="Admin" asp-controller="Buildings" asp-action="Add" asp-route-countryCode="@(Model.Building?.CountryCode ?? CompanyInfo.CountryCode)" class="btn btn-outline-secondary btn-sm" title="اضافة مبنى">
 						<i class="fa fa-plus"></i>
-					</button>
+					</a>
 				</div>
 			</div>
 		</div>
@@ -269,20 +271,24 @@
 				<span asp-validation-for="Ad.Price" class="text-danger"></span>
 			</div>
 		</div>
-		<div class="row g-0 my-1">
-			<button type="submit" class="btn btn-primary me-1">حفظ</button>
+		<div class="g-0 my-1">
+			<button type="submit" class="btn btn-primary border-0 me-1">حفظ</button>
 			@if (Model.Id > 0)
 			{
 				<a class="btn btn-outline-primary border-0 me-1" asp-area="Admin" asp-controller="Ads" asp-action="Get" asp-route-id="@Model.Id">الغاء</a>
+			}
+			else
+			{
+				<a class="btn btn-outline-primary border-0 me-1" asp-area="Admin" asp-controller="Ads" asp-action="Index" asp-route-id="@Model.Id">الغاء</a>
 			}
 		</div>
 		@:</form>
 	}
 	else
 	{
-		<div class="row g-0">
+		<div class="row g-0 px-2">
 			<div class="col-12">
-				<small>@Model.Ad.Date.ToString("d") @Model.Ad.Type.GetDisplayName()</small>
+				<small>@Model.Ad.Date.ToString("d") @Model.Ad.Type.GetDisplayName() </small>
 				@if (Model.Building is not null)
 				{
 					<small>@Model.Building.BuildingType.GetDisplayName() @Model.Building.FinishingType?.GetDisplayName()</small>
@@ -348,26 +354,26 @@
 					</div>
 				}
 			}
+			@if (!string.IsNullOrEmpty(Model.Ad.Phone))
+			{
+				<div class="col-6">
+					<label asp-for="Ad.Phone"></label>
+					@Html.DisplayFor(e => e.Ad.Phone)
+				</div>
+			}
+			@if (!string.IsNullOrEmpty(Model.Ad.Mobile))
+			{
+				<div class="col-6">
+					<label asp-for="Ad.Mobile"></label>
+					@Html.DisplayFor(e => e.Ad.Mobile)
+				</div>
+			}
+			<div class="col-12">
+				<label asp-for="Ad.Price"></label>
+				@Html.DisplayFor(e => e.Ad.Price) جنيه
+			</div>
 			@if (Model.Building is not null)
 			{
-				@if (!string.IsNullOrEmpty(Model.Ad.Phone) || !string.IsNullOrEmpty(Model.Ad.Mobile))
-				{
-					<div class="col-12">
-						@if (!string.IsNullOrEmpty(Model.Ad.Phone))
-						{
-							<label asp-for="Ad.Phone"></label>
-							@Html.DisplayFor(e => e.Ad.Phone)
-						}
-						@if (!string.IsNullOrEmpty(Model.Ad.Phone))
-						{
-							<label asp-for="Ad.Mobile"></label>
-							@Html.DisplayFor(e => e.Ad.Mobile)
-						}
-						<label asp-for="Ad.Price"></label>
-						@Html.DisplayFor(e => e.Ad.Price) جنيه
-					</div>
-				}
-
 				@if (!string.IsNullOrEmpty(Model.Building.Description))
 				{
 					<div class="col-12">
@@ -379,7 +385,7 @@
 		</div>
 		@if (!Model.ReadOnly)
 		{
-			<div class="my-2">
+			<div class="g-0 px-2 my-4">
 				<a asp-area="Admin" asp-controller="Ads" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">تعديل</a>
 			</div>
 		}
@@ -422,6 +428,8 @@
 				}
 
 				self.buildings = await response.json();
+				self.selectedBuilding = self.buildings.find(e => e.id === self.buildingId);
+				await _fetchBuilding(self, self.buildingId);
 			} catch (e) {
 				self.selectedBuilding = null;
 				self.buildings = [];
@@ -434,7 +442,6 @@
 		{ leading: true });
 	const _fetchBuilding = _.debounce(async (self, id) => {
 			if (!id) {
-				self.selectedBuilding = null;
 				self.building = null;
 				self.images = [];
 				return;
@@ -459,7 +466,11 @@
 
 				self.building = await response.json();
 				self.selectedBuilding = self.buildings.find(e => e.id === self.buildingId);
-				await _fetchImages(self, id);
+				
+				if (self.building)
+					await _fetchImages(self, id);
+				else
+					self.images = [];
 			} catch (e) {
 				self.selectedBuilding = null;
 				self.building = null;
@@ -582,7 +593,6 @@
 			data() {
 				return {
 					loading: false,
-					newBuilding: false,
 					selectedBuilding: null,
 					buildingId: @Model.Ad.BuildingId,
 					building: @Html.Raw(Model.Building is null ? "null" : Json.Serialize(Model.Building)),
@@ -630,11 +640,15 @@
 			methods: {
 				async fetchData() {
 					this.errors.length = 0;
+					
 					@if (Model.Id == 0)
 					{
 						@:this.fetchBuildings();
 					}
-					this.fetchImages();
+					else
+					{
+						@:this.fetchBuilding(@Model.Id);
+					}
 				},
 				fetchBuildings(search) {
 					_fetchBuildings(this, search);

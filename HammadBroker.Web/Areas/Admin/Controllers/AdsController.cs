@@ -69,7 +69,7 @@ public class AdsController : MvcController
 	public async Task<IActionResult> Get(int id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
-		BuildingAdForDetails building = await _buildingAdService.GetAsync<BuildingAdForDetails>(id, token);
+		BuildingAdForDetails building = await _buildingAdService.GetBuildingAsync(id, token);
 		token.ThrowIfCancellationRequested();
 		if (building == null) return NotFound();
 		await _lookupService.FillCountryNameAsync(building, token);

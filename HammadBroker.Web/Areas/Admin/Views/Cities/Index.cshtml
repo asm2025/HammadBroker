@@ -33,7 +33,7 @@
 					<input class="form-control" name="@nameof(CitiesPaginated.Pagination.Search)" asp-for="Pagination.Search" placeholder="@Html.DisplayNameFor(e => e.Pagination.Search)" />
 				</div>
 			</div>
-			<div class="row g-0 my-1">
+			<div class="g-0 my-1">
 				<button type="submit" class="btn btn-outline-secondary btn-sm me-1"><span class="fa fa-magnifying-glass"></span></button>
 				<button type="reset" class="btn btn-outline-secondary btn-sm border-0" v-on:click="onReset"><span class="fa fa-times"></span></button>
 			</div>
@@ -67,7 +67,7 @@
 					@if (isSystem)
 					{
 						<th scope="row" class="text-nowrap">
-							<a class="btn btn-outline-primary btn-sm border-0 mb-1" asp-area="Admin" asp-action="Edit" asp-route-id="@city.Id"><i class="fa fa-pen"></i></a>
+							<a class="btn btn-outline-secondary btn-sm border-0 mb-1" asp-area="Admin" asp-controller="Cities" asp-action="Edit" asp-route-id="@city.Id"><i class="fa fa-pen"></i></a>
 							<a class="btn btn-outline-danger btn-sm border-0 mb-1" onclick="JavaScript:deleteCity(@city.Id, '@city.Name');"><i class="fa fa-xmark"></i></a>
 						</th>
 					}
@@ -87,7 +87,7 @@
 	{
 	<script type="text/javascript">
 		function addCity() {
-			const countryCode = $("#@nameof(CitiesPaginated.Pagination.CountryCode)").val();
+			const countryCode = $("input[name='@nameof(CitiesPaginated.Pagination.CountryCode)']").val() || "";
 			const url = '@Url.Action("Add", "Cities", new
 			             {
 							 area = "Admin"

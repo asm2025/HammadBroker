@@ -398,6 +398,7 @@ span.oi {
 }
 
 .img-list {
+	min-width: 24px;
 	width: 40px;
 	height: auto;
 }
@@ -535,6 +536,52 @@ span.oi {
 
 .multiselect-option .option__desc {
 	padding: 4px;
+}
+
+.p-autocomplete-dd > * {
+	margin: 0;
+}
+
+.p-autocomplete-dd:active,
+.p-autocomplete-dd:focus,
+.p-autocomplete-dd:focus-within {
+	border-color: #86b7fe;
+	box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, .25);
+}
+
+.p-autocomplete-dd-input {
+	background-color: #fff;
+	border-left-width: 0;
+	margin-bottom: 0;
+}
+
+.p-inputtext:enabled:focus,
+.p-inputtext:disabled:focus {
+	box-shadow: none !important;
+	border-color: #ced4da;
+}
+
+.p-autocomplete-dropdown {
+	color: #6c757d;
+	background: none;
+	background-color: #fff;
+	border: 1px solid #ced4da;
+	border-right-width: 0;
+}
+
+.p-button:enabled:active,
+.p-button:enabled:hover {
+	color: #6c757d;
+	background: none;
+	border-color: #ced4da;
+}
+
+.p-button:focus {
+	box-shadow: none !important;
+}
+
+.p-button-icon {
+	font-size: .75rem;
 }
 
 .p-autocomplete-item i:before {
