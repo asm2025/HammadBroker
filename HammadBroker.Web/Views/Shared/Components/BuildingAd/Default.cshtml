@@ -8,7 +8,7 @@
 @inject IAntiforgery Antiforgery
 @inject CompanyInfo CompanyInfo
 @inject VirtualPathSettings VirtualPathSettings
-@inject IConfiguration configuration
+@inject IConfiguration Configuration
 @model BuildingAdModel
 
 @{
@@ -18,8 +18,8 @@
 							id = Model.Id
 						});
 	PathContent assetsPath = VirtualPathSettings.PathContents?.FirstOrDefault(e => e.Alias.IsSame("AssetImages")) ?? throw new ConfigurationErrorsException($"{nameof(VirtualPathSettings)} does not contain a definition for AssetImages.");
-	string _basePath = assetsPath.RequestPath.Trim('/');
-	string _placeholderImage = configuration.GetValue("Images:AssetPlaceholder", string.Empty);
+	string basePath = assetsPath.RequestPath.Trim('/');
+	string placeholderImage = Configuration.GetValue("Images:AssetPlaceholder", string.Empty);
 }
 
 <div id="buildingAdForm" v-scope class="card card-body mt-3">
@@ -41,8 +41,8 @@
 				<iframe v-if="building.videoId" class="ratio ratio-16x9" :src="`https://www.youtube.com/embed/${building.videoId}`" allowfullscreen>
 				</iframe>
 				<div v-else>
-					<img class="img-fluid" :src="`@Context.Request.Scheme://@Context.Request.Host/@_basePath/${building.imageUrl}`" alt=""
-						v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host/@_basePath/@_placeholderImage'`"/>
+					<img class="img-fluid" :src="`@Context.Request.Scheme://@Context.Request.Host/@basePath/${building.imageUrl}`" alt=""
+						v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host/@basePath/@placeholderImage'`"/>
 					<div class="position-absolute bottom-0 mb-3 mx-3 d-flex align-items-center z-3">
 						@if (Model.CanUpload)
 						{
@@ -170,8 +170,8 @@
 							<template #item="{ item }">
 								<div class="row row-cols-auto">
 									<div class="col">
-										<img class="img-fluid" :src="`@Context.Request.Scheme://@Context.Request.Host/@_basePath/${item.imageUrl}`" alt=""
-											v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host/@_basePath/@_placeholderImage'`"/>
+										<img class="img-fluid" :src="`@Context.Request.Scheme://@Context.Request.Host/@basePath/${item.imageUrl}`" alt=""
+											v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host/@basePath/@placeholderImage'`"/>
 									</div>
 									<div class="col">{{ item.name }}</div>
 									<div class="col text-nowrap">{{ item.buildingTypeName }}</div>

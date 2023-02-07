@@ -125,16 +125,16 @@
 			<tr>
 				@if (isAdmin)
 				{
-					<th scope="col"></th>
+					<th scope="col" class="auto-cell"></th>
 				}
-				<th scope="col"></th>
-				<th scope="col" class="text-nowrap">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Date)</th>
+				<th scope="col" class="auto-cell"></th>
+				<th scope="col" class="auto-cell">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Date)</th>
 				<th scope="col" class="text-nowrap">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.BuildingType)</th>
 				<th scope="col" class="text-nowrap">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Type)</th>
-				<th scope="col" class="text-center text-nowrap">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Price)</th>
-				<th scope="col" class="text-center text-nowrap">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Views)</th>
-				<th scope="col" class="text-center text-nowrap">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.PageViews)</th>
-				<th scope="col" class="text-center text-nowrap">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Requests)</th>
+				<th scope="col" class="text-center auto-cell">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Price)</th>
+				<th scope="col" class="text-center auto-cell">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Views)</th>
+				<th scope="col" class="text-center auto-cell">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.PageViews)</th>
+				<th scope="col" class="text-center auto-cell">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Requests)</th>
 			</tr>
 		</thead>
 		<tbody>

@@ -54,7 +54,7 @@
 	<header>
 		<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-4">
 			<div class="container">
-				<a class="navbar-brand py-0 m-0" menu-route asp-area="" asp-action="Index">
+				<a class="navbar-brand py-0 m-0" menu-route asp-area="" asp-controller="Home" asp-action="Index">
 					<img src="@Url.Content("~/images/logo.jpg")" alt="@CompanyInfo.Title" class="img-fluid" style="max-width: 4rem;" />
 					<span class="p-1">@CompanyInfo.Title</span>
 				</a>
@@ -103,8 +103,8 @@
 			</div>
 		</nav>
 	</header>
-	<div class="container">
-		<main role="main" class="pb-3">
+	<div class="container pb-3">
+		<main role="main">
 			@RenderBody()
 		</main>
 	</div>

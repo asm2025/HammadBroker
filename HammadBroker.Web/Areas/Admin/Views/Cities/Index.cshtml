@@ -51,11 +51,11 @@
 			<tr>
 				@if (isSystem)
 				{
-					<th scope="col"></th>
+					<th scope="col" class="auto-cell"></th>
 				}
 				@if (showCountry)
 				{
-					<th scope="col">@Html.DisplayNameForInnerType((CityForList e) => e.CountryCode)</th>
+					<th scope="col" class="auto-cell">@Html.DisplayNameForInnerType((CityForList e) => e.CountryCode)</th>
 				}
 				<th scope="col">@Html.DisplayNameForInnerType((CityForList e) => e.Name)</th>
 			</tr>

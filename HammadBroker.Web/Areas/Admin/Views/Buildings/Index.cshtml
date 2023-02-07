@@ -103,12 +103,12 @@
 			<tr>
 				@if (isSystem)
 				{
-					<th scope="col"></th>
+					<th scope="col" class="auto-cell"></th>
 				}
-				<th scope="col"></th>
+				<th scope="col" class="auto-cell"></th>
 				<th scope="col" class="text-nowrap">@Html.DisplayNameForInnerType((BuildingForList e) => e.Name)</th>
-				<th scope="col" class="text-nowrap">@Html.DisplayNameForInnerType((BuildingForList e) => e.BuildingType)</th>
-				<th scope="col" class="text-nowrap">@Html.DisplayNameForInnerType((BuildingForList e) => e.FinishingType)</th>
+				<th scope="col" class="auto-cell">@Html.DisplayNameForInnerType((BuildingForList e) => e.BuildingType)</th>
+				<th scope="col" class="auto-cell">@Html.DisplayNameForInnerType((BuildingForList e) => e.FinishingType)</th>
 			</tr>
 		</thead>
 		<tbody>
