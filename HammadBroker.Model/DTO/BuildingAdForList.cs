@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using essentialMix.Extensions;
 
 namespace HammadBroker.Model.DTO;
 
@@ -9,6 +10,7 @@ public class BuildingAdForList : BuildingForList
 	public int BuildingId { get; set; }
 	[Display(Name = "نوع الاعلان")]
 	public BuildingAdType Type { get; set; }
+	public string TypeName => Type.GetDisplayName();
 	[Display(Name = "التاريخ")]
 	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}")]
 	public DateTime Date { get; set; }

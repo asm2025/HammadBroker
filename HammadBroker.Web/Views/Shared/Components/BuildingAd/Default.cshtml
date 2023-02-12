@@ -291,12 +291,12 @@
 			<div class="col-12">
 				@if (Model.Building is not null)
 				{
-					<small class="text-muted">#@Model.Building.Id @Model.Building.BuildingType.GetDisplayName() @Model.Building.FinishingType?.GetDisplayName() @Model.Ad.Type.GetDisplayName()</small>
+					<small class="text-muted">#@Model.Building.Id @Model.Building.BuildingTypeName @Model.Building.FinishingTypeName @Model.Ad.TypeName</small>
 					<h5>@Model.Building.Name</h5>
 				}
 				else
 				{
-					<small class="text-muted">@Model.Ad.Date.ToString("d") @Model.Ad.Type.GetDisplayName()</small>
+					<small class="text-muted">@Model.Ad.Date.ToString("d") @Model.Ad.TypeName</small>
 				}
 			</div>
 			@if (Model.Building is not null)

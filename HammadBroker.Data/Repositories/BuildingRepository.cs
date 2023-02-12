@@ -35,6 +35,7 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	protected override IQueryable<Building> PrepareCountQuery(IQueryable<Building> query, IPagination settings)
 	{
 		if (settings is not BuildingList buildingList) return base.PrepareCountQuery(query, settings);
+		if (buildingList.Id > 0) return query.Where(e => e.Id == buildingList.Id.Value);
 		query = PrepareLocation(query, buildingList);
 		query = PrepareNumbers(query, buildingList);
 		query = PrepareSearch(query, buildingList);
@@ -45,6 +46,7 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	protected override IQueryable<Building> PrepareListQuery(IQueryable<Building> query, IPagination settings)
 	{
 		if (settings is not BuildingList buildingList) return base.PrepareListQuery(query, settings);
+		if (buildingList.Id > 0) return query.Where(e => e.Id == buildingList.Id.Value);
 		query = PrepareLocation(query, buildingList);
 		query = PrepareNumbers(query, buildingList);
 		query = PrepareSearch(query, buildingList);

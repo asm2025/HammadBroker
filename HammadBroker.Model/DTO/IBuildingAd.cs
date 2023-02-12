@@ -9,6 +9,7 @@ public interface IBuildingAd
 	public int BuildingId { get; set; }
 	[Display(Name = "نوع الاعلان")]
 	public BuildingAdType Type { get; set; }
+	public string TypeName { get; }
 	[Display(Name = "التاريخ")]
 	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}")]
 	public DateTime Date { get; set; }

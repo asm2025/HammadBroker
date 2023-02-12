@@ -22,7 +22,10 @@
 			</div>
 
 			<div class="row g-0 mb-1">
-				<div class="col-12">
+				<div class="col-sm-12 col-md-6">
+					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Id)" asp-for="Pagination.Id" placeholder="@Html.DisplayNameFor(e => e.Pagination.Id)" />
+				</div>
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Search)" asp-for="Pagination.Search" placeholder="@Html.DisplayNameFor(e => e.Pagination.Search)" />
 				</div>
 			</div>
@@ -39,34 +42,34 @@
 				</div>
 			</div>
 			<div class="row g-0 mb-1">
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Floor)" asp-for="Pagination.Floor" placeholder="@Html.DisplayNameFor(e => e.Pagination.Floor)" />
 				</div>
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.MaxFloor)" asp-for="Pagination.MaxFloor" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxFloor)" />
 				</div>
 			</div>
 			<div class="row g-0 mb-1">
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Rooms)" asp-for="Pagination.Rooms" placeholder="@Html.DisplayNameFor(e => e.Pagination.Rooms)" />
 				</div>
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.MaxRooms)" asp-for="Pagination.MaxRooms" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxRooms)" />
 				</div>
 			</div>
 			<div class="row g-0 mb-1">
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Bathrooms)" asp-for="Pagination.Bathrooms" placeholder="@Html.DisplayNameFor(e => e.Pagination.Bathrooms)" />
 				</div>
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.MaxBathrooms)" asp-for="Pagination.MaxBathrooms" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxBathrooms)" />
 				</div>
 			</div>
 			<div class="row g-0 mb-1">
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.Area)" asp-for="Pagination.Area" placeholder="@Html.DisplayNameFor(e => e.Pagination.Area)" />
 				</div>
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingsPaginated.Pagination.MaxArea)" asp-for="Pagination.MaxArea" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxArea)" />
 				</div>
 			</div>
@@ -106,6 +109,7 @@
 					<th scope="col" class="auto-cell"></th>
 				}
 				<th scope="col" class="auto-cell"></th>
+				<th scope="col" class="auto-cell">@Html.DisplayNameForInnerType((BuildingForList e) => e.Id)</th>
 				<th scope="col" class="text-nowrap">@Html.DisplayNameForInnerType((BuildingForList e) => e.Name)</th>
 				<th scope="col" class="auto-cell">@Html.DisplayNameForInnerType((BuildingForList e) => e.BuildingType)</th>
 				<th scope="col" class="auto-cell">@Html.DisplayNameForInnerType((BuildingForList e) => e.FinishingType)</th>
@@ -126,6 +130,7 @@
 					<td>
 						<img-asset src="@building.ImageUrl" readonly imageclass="img-fluid img-list mx-auto d-block" />
 					</td>
+					<td>@building.Id</td>
 					<td>@building.Name</td>
 					<td class="text-nowrap">@building.BuildingTypeName</td>
 					<td class="text-nowrap">@building.FinishingTypeName</td>

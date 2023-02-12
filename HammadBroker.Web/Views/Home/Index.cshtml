@@ -24,7 +24,10 @@
 			</div>
 
 			<div class="row g-0 mb-1">
-				<div class="col-12">
+				<div class="col-sm-12 col-md-6">
+					<input class="form-control" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.Id)" asp-for="Pagination.Id" placeholder="@Html.DisplayNameFor(e => e.Pagination.Id)" />
+				</div>
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.Search)" asp-for="Pagination.Search" placeholder="@Html.DisplayNameFor(e => e.Pagination.Search)" />
 				</div>
 			</div>
@@ -43,10 +46,10 @@
 				</div>
 			</div>
 			<div class="row g-0 mb-1">
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.Price)" asp-for="Pagination.Price" placeholder="@Html.DisplayNameFor(e => e.Pagination.Price)" />
 				</div>
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.MaxPrice)" asp-for="Pagination.MaxPrice" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxPrice)" />
 				</div>
 			</div>
@@ -63,34 +66,34 @@
 				</div>
 			</div>
 			<div class="row g-0 mb-1">
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.Floor)" asp-for="Pagination.Floor" placeholder="@Html.DisplayNameFor(e => e.Pagination.Floor)" />
 				</div>
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.MaxFloor)" asp-for="Pagination.MaxFloor" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxFloor)" />
 				</div>
 			</div>
 			<div class="row g-0 mb-1">
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.Rooms)" asp-for="Pagination.Rooms" placeholder="@Html.DisplayNameFor(e => e.Pagination.Rooms)" />
 				</div>
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.MaxRooms)" asp-for="Pagination.MaxRooms" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxRooms)" />
 				</div>
 			</div>
 			<div class="row g-0 mb-1">
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.Bathrooms)" asp-for="Pagination.Bathrooms" placeholder="@Html.DisplayNameFor(e => e.Pagination.Bathrooms)" />
 				</div>
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.MaxBathrooms)" asp-for="Pagination.MaxBathrooms" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxBathrooms)" />
 				</div>
 			</div>
 			<div class="row g-0 mb-1">
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.Area)" asp-for="Pagination.Area" placeholder="@Html.DisplayNameFor(e => e.Pagination.Area)" />
 				</div>
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.MaxArea)" asp-for="Pagination.MaxArea" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxArea)" />
 				</div>
 			</div>
@@ -126,7 +129,7 @@
 		<div class="col-md-8">
 			<div class="card-body px-2 h-100">
 				<div class="d-flex flex-column h-100" role="button" onclick="window.location = '@Url.Action("Get", "Home", new { area = "", id = ad.Id })'">
-					<small class="text-muted">@ad.BuildingTypeName @ad.FinishingTypeName @ad.Type.GetDisplayName()</small>
+					<small class="text-muted">#@ad.BuildingId @ad.BuildingTypeName @ad.FinishingTypeName @ad.TypeName</small>
 					<h5 class="card-title">@Html.DisplayFor(e => ad.Price) جنيه</h5>
 					<div class="row g-0">
 						<div class="col-12">@ad.Name</div>

@@ -22,7 +22,10 @@
 			</div>
 
 			<div class="row g-0 mb-1">
-				<div class="col-12">
+				<div class="col-sm-12 col-md-6">
+					<input class="form-control" name="@nameof(BuildingAdsPaginated.Pagination.Id)" asp-for="Pagination.Id" placeholder="@Html.DisplayNameFor(e => e.Pagination.Id)" />
+				</div>
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingAdsPaginated.Pagination.Search)" asp-for="Pagination.Search" placeholder="@Html.DisplayNameFor(e => e.Pagination.Search)" />
 				</div>
 			</div>
@@ -41,10 +44,10 @@
 				</div>
 			</div>
 			<div class="row g-0 mb-1">
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingAdsPaginated.Pagination.Price)" asp-for="Pagination.Price" placeholder="@Html.DisplayNameFor(e => e.Pagination.Price)" />
 				</div>
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingAdsPaginated.Pagination.MaxPrice)" asp-for="Pagination.MaxPrice" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxPrice)" />
 				</div>
 			</div>
@@ -61,34 +64,34 @@
 				</div>
 			</div>
 			<div class="row g-0 mb-1">
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingAdsPaginated.Pagination.Floor)" asp-for="Pagination.Floor" placeholder="@Html.DisplayNameFor(e => e.Pagination.Floor)" />
 				</div>
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingAdsPaginated.Pagination.MaxFloor)" asp-for="Pagination.MaxFloor" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxFloor)" />
 				</div>
 			</div>
 			<div class="row g-0 mb-1">
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingAdsPaginated.Pagination.Rooms)" asp-for="Pagination.Rooms" placeholder="@Html.DisplayNameFor(e => e.Pagination.Rooms)" />
 				</div>
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingAdsPaginated.Pagination.MaxRooms)" asp-for="Pagination.MaxRooms" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxRooms)" />
 				</div>
 			</div>
 			<div class="row g-0 mb-1">
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingAdsPaginated.Pagination.Bathrooms)" asp-for="Pagination.Bathrooms" placeholder="@Html.DisplayNameFor(e => e.Pagination.Bathrooms)" />
 				</div>
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingAdsPaginated.Pagination.MaxBathrooms)" asp-for="Pagination.MaxBathrooms" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxBathrooms)" />
 				</div>
 			</div>
 			<div class="row g-0 mb-1">
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingAdsPaginated.Pagination.Area)" asp-for="Pagination.Area" placeholder="@Html.DisplayNameFor(e => e.Pagination.Area)" />
 				</div>
-				<div class="col">
+				<div class="col-sm-12 col-md-6">
 					<input class="form-control" name="@nameof(BuildingAdsPaginated.Pagination.MaxArea)" asp-for="Pagination.MaxArea" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxArea)" />
 				</div>
 			</div>
@@ -128,6 +131,7 @@
 					<th scope="col" class="auto-cell"></th>
 				}
 				<th scope="col" class="auto-cell"></th>
+				<th scope="col" class="auto-cell">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Id)</th>
 				<th scope="col" class="auto-cell">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Date)</th>
 				<th scope="col" class="text-nowrap">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.BuildingType)</th>
 				<th scope="col" class="text-nowrap">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Type)</th>
@@ -152,9 +156,10 @@
 					<td>
 						<img-asset src="@ad.ImageUrl" readonly imageclass="img-fluid img-list mx-auto d-block" />
 					</td>
+					<td class="text-nowrap">@ad.Id</td>
 					<td class="text-nowrap">@ad.Date.ToString("yyyy/MM/dd")</td>
 					<td class="text-nowrap" title="@ad.Name">@ad.BuildingTypeName</td>
-					<td class="text-nowrap">@ad.Type.GetDisplayName()</td>
+					<td class="text-nowrap">@ad.TypeName</td>
 					<td class="text-nowrap">@ad.FinishingTypeName</td>
 					<td class="text-center">@ad.Price.ToString("#,##0.##")</td>
 					<td class="text-center">@ad.Views</td>

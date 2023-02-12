@@ -268,67 +268,31 @@
 	}
 	else
 	{
-		<div class="row g-0 px-2">
+		<div class="row g-0">
 			<div class="col-12">
 				<small class="text-muted">#@Model.Id @Model.Building.BuildingTypeName @Model.Building.FinishingTypeName</small>
 				<h5>@Model.Building.Name</h5>
 			</div>
-			@if (Model.Building.Floor > 0)
-			{
-				<div class="col-6">
-					<label asp-for="Building.Floor"></label>:&nbsp;
-					@Html.DisplayFor(e => e.Building.Floor)
-				</div>
-			}
-			@if (Model.Building.Rooms > 0)
-			{
-				<div class="col-6">
-					<label asp-for="Building.Rooms"></label>:&nbsp;
-					@Html.DisplayFor(e => e.Building.Rooms)
-				</div>
-			}
-			@if (Model.Building.Bathrooms > 0)
-			{
-				<div class="col-6">
-					<label asp-for="Building.Bathrooms"></label>:&nbsp;
-					@Html.DisplayFor(e => e.Building.Bathrooms)
-				</div>
-			}
-			@if (Model.Building.Area > 0)
-			{
-				<div class="col-6">
-					<label asp-for="Building.Area"></label>:&nbsp;
-					@Html.DisplayFor(e => e.Building.Area) م
-				</div>
-			}
-			@if (!string.IsNullOrEmpty(Model.Building.Address))
-			{
-				<div class="col-12">
-					<label asp-for="Building.Address"></label>:&nbsp;
-					@Html.DisplayFor(e => e.Building.Address)
-				</div>
-			}
-			@if (!string.IsNullOrEmpty(Model.Building.Address2))
-			{
-				<div class="col-12">
-					<label asp-for="Building.Address2"></label>:&nbsp;
-					@Html.DisplayFor(e => e.Building.Address2)
-				</div>
-			}
-			@if (Model.Building is ICityNameLookup cityNameLookup && !string.IsNullOrEmpty(cityNameLookup.CityName))
-			{
-				<div class="col-6">
-					<label asp-for="Building.CityId"></label>:&nbsp;
+		</div>
+		<div class="row g-0">
+			<div class="col-12">
+				<i class="fa fa-location-dot"></i>
+				@Html.DisplayFor(e => e.Building.Address)
+				&nbsp;
+				@Html.DisplayFor(e => e.Building.Address2)
+				&nbsp;
+				@if (Model.Building is ICityNameLookup cityNameLookup && !string.IsNullOrEmpty(cityNameLookup.CityName))
+				{
 					@Html.DisplayFor(e => cityNameLookup.CityName)
-				</div>
-			}
-			@if (Model.Building.CountryCode != CompanyInfo.CountryCode && Model.Building is ICountryNameLookup countryNameLookup && !string.IsNullOrEmpty(countryNameLookup.CountryName))
-			{
-				<div class="col-6">
-					<label asp-for="Building.CountryCode"></label>:&nbsp;
+				}
+				&nbsp;
+				@if (Model.Building.CountryCode != CompanyInfo.CountryCode && Model.Building is ICountryNameLookup countryNameLookup && !string.IsNullOrEmpty(countryNameLookup.CountryName))
+				{
 					@Html.DisplayFor(e => countryNameLookup.CountryName)
-				</div>
-			}
+				}
+			</div>
+		</div>
+		<div class="row g-0 px-2">
 			@if (!string.IsNullOrEmpty(Model.Building.Description))
 			{
 				<div class="col-12">
@@ -336,9 +300,43 @@
 				</div>
 			}
 		</div>
+		<div class="row g-0">
+			@if (Model.Building.Floor > 0)
+			{
+				<div class="col">
+					<i class="fa fa-building"></i>
+					<label asp-for="Building.Floor"></label>&nbsp;
+					@Html.DisplayFor(e => e.Building.Floor)
+				</div>
+			}
+			@if (Model.Building.Rooms > 0)
+			{
+				<div class="col">
+					<i class="fa fa-person-shelter"></i>
+					@Html.DisplayFor(e => e.Building.Rooms)
+					<label asp-for="Building.Rooms"></label>&nbsp;
+				</div>
+			}
+			@if (Model.Building.Bathrooms > 0)
+			{
+				<div class="col">
+					<i class="fa fa-restroom"></i>
+					@Html.DisplayFor(e => e.Building.Bathrooms)
+					<label asp-for="Building.Bathrooms"></label>:&nbsp;
+				</div>
+			}
+			@if (Model.Building.Area > 0)
+			{
+				<div class="col">
+					<i class="fa fa-square"></i>
+					@Html.DisplayFor(e => e.Building.Area) م
+					<label asp-for="Building.Area"></label>:&nbsp;
+				</div>
+			}
+		</div>
 		@if (!Model.ReadOnly)
 		{
-			<div class="g-0 px-2 my-4">
+			<div class="g-0 my-4">
 				<a asp-area="Admin" asp-controller="Buildings" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary border-0 me-1">تعديل</a>
 				<a asp-area="Admin" asp-controller="Ads" asp-action="Add" asp-route-buildingId="@Model.Id" class="btn btn-outline-primary border-0 me-1">إضافة إعلان</a>
 			</div>

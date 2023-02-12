@@ -276,6 +276,7 @@ public class BuildingAdRepository : Repository<DataContext, BuildingAd, int>, IB
 	[NotNull]
 	private static IQueryable<BuildingAd> PrepareQuery([NotNull] IQueryable<BuildingAd> queryable, [NotNull] BuildingAdList buildingAdList)
 	{
+		if (buildingAdList.Id > 0) return queryable.Where(e => e.BuildingId == buildingAdList.Id);
 		if (buildingAdList.Type.HasValue) queryable = queryable.Where(e => e.Type == buildingAdList.Type.Value);
 
 		if (buildingAdList.Date.HasValue)
@@ -306,6 +307,7 @@ public class BuildingAdRepository : Repository<DataContext, BuildingAd, int>, IB
 	[NotNull]
 	private static IQueryable<BuildingAdBuilding> PrepareListQuery([NotNull] IQueryable<BuildingAdBuilding> queryable, [NotNull] BuildingList buildingList)
 	{
+		if (buildingList.Id > 0) return queryable.Where(e => e.Ad.BuildingId == buildingList.Id.Value);
 		if (buildingList is BuildingAdList buildingAdList) queryable = PrepareAd(queryable, buildingAdList);
 		queryable = PrepareLocation(queryable, buildingList);
 		queryable = PrepareNumbers(queryable, buildingList);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using essentialMix.Extensions;
 
 namespace HammadBroker.Model.DTO;
 
@@ -7,6 +8,7 @@ public class BuildingAdToUpdate : IBuildingAd
 {
 	[Display(Name = "النوع")]
 	public BuildingAdType Type { get; set; }
+	public string TypeName => Type.GetDisplayName();
 	[Display(Name = "الاولوية")]
 	public byte Priority { get; set; }
 	[Display(Name = "العقار")]

@@ -5,6 +5,8 @@ namespace HammadBroker.Model.Parameters;
 
 public class BuildingList : SortablePagination
 {
+	[Display(Name = "الرقم")]
+	public int? Id { get; set; }
 	[Display(Name = "البحث")]
 	public string Search { get; set; }
 	[Display(Name = "نوع العقار")]
