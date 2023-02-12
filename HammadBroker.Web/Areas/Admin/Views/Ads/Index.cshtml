@@ -119,7 +119,7 @@
 	</div>
 </div>
 
-<div class="row table-responsive">
+<div class="table-responsive">
 	<table class="table table-borderless table-hover">
 		<thead>
 			<tr>
@@ -131,6 +131,7 @@
 				<th scope="col" class="auto-cell">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Date)</th>
 				<th scope="col" class="text-nowrap">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.BuildingType)</th>
 				<th scope="col" class="text-nowrap">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Type)</th>
+				<th scope="col" class="text-nowrap auto-cell">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.FinishingType)</th>
 				<th scope="col" class="text-center auto-cell">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Price)</th>
 				<th scope="col" class="text-center auto-cell">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Views)</th>
 				<th scope="col" class="text-center auto-cell">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.PageViews)</th>
@@ -152,8 +153,9 @@
 						<img-asset src="@ad.ImageUrl" readonly imageclass="img-fluid img-list mx-auto d-block" />
 					</td>
 					<td class="text-nowrap">@ad.Date.ToString("yyyy/MM/dd")</td>
-					<td class="text-nowrap" title="@ad.Name">@ad.BuildingType.GetDisplayName()</td>
+					<td class="text-nowrap" title="@ad.Name">@ad.BuildingTypeName</td>
 					<td class="text-nowrap">@ad.Type.GetDisplayName()</td>
+					<td class="text-nowrap">@ad.FinishingTypeName</td>
 					<td class="text-center">@ad.Price.ToString("#,##0.##")</td>
 					<td class="text-center">@ad.Views</td>
 					<td class="text-center">@ad.PageViews</td>

@@ -29,6 +29,7 @@ public class BuildingAdToUpdate : IBuildingAd
 	[DataType(DataType.PhoneNumber)]
 	public string Mobile { get; set; }
 	[Display(Name = "السعر")]
+	[DisplayFormat(DataFormatString = "{0:#,#.##}")]
 	[Required]
 	[Range(0, 1000000000)]
 	public long Price { get; set; }

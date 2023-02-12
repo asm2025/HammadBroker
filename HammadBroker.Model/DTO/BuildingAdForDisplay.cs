@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HammadBroker.Model.DTO;
 
-public class BuildingAdForList : BuildingForList
+public class BuildingAdForDisplay : BuildingForDisplay
 {
 	[Display(Name = "العقار")]
 	public int BuildingId { get; set; }
@@ -22,10 +22,4 @@ public class BuildingAdForList : BuildingForList
 	[Display(Name = "السعر")]
 	[DisplayFormat(DataFormatString = "{0:#,#.##}")]
 	public long Price { get; set; }
-	[Display(Name = "المشاهدات")]
-	public long Views { get; set; }
-	[Display(Name = "مشاهدات الصفحة")]
-	public long PageViews { get; set; }
-	[Display(Name = "الطلبات")]
-	public long Requests { get; set; }
 }

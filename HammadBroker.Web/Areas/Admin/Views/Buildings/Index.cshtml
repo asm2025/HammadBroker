@@ -97,7 +97,7 @@
 	</div>
 </div>
 
-<div class="row table-responsive">
+<div class="table-responsive">
 	<table class="table table-borderless table-hover">
 		<thead>
 			<tr>
@@ -127,8 +127,8 @@
 						<img-asset src="@building.ImageUrl" readonly imageclass="img-fluid img-list mx-auto d-block" />
 					</td>
 					<td>@building.Name</td>
-					<td class="text-nowrap">@building.BuildingType.GetDisplayName()</td>
-					<td class="text-nowrap">@building.FinishingType?.GetDisplayName()</td>
+					<td class="text-nowrap">@building.BuildingTypeName</td>
+					<td class="text-nowrap">@building.FinishingTypeName</td>
 				</tr>
 			}
 		</tbody>

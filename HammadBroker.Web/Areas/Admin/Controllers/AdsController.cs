@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using essentialMix.Core.Web.Controllers;
-using essentialMix.Patterns.Pagination;
 using essentialMix.Patterns.Sorting;
 using HammadBroker.Data.Services;
 using HammadBroker.Model;
@@ -57,9 +56,7 @@ public class AdsController : MvcController
 			pagination.OrderBy.Add(new SortField(nameof(BuildingAd.Type)));
 		}
 
-		IPaginated<BuildingAdForList> paginated = await _buildingAdService.ListWithBuildingsAsync(pagination, token);
-		token.ThrowIfCancellationRequested();
-		BuildingAdsPaginated result = new BuildingAdsPaginated(paginated.Result, (BuildingAdList)paginated.Pagination);
+		BuildingAdsPaginated result = await _buildingAdService.ListWithBuildingsAsync(pagination, token);
 		return View(result);
 	}
 
@@ -75,7 +72,6 @@ public class AdsController : MvcController
 		await _lookupService.FillCountryNameAsync(building, token);
 		token.ThrowIfCancellationRequested();
 		await _lookupService.FillCityNameAsync(building, token);
-		token.ThrowIfCancellationRequested();
 		token.ThrowIfCancellationRequested();
 		return View(building);
 	}

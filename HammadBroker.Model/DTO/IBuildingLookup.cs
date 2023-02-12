@@ -4,6 +4,8 @@ namespace HammadBroker.Model.DTO;
 
 public interface IBuildingLookup
 {
+	[Display(Name = "رقم")]
+	public int Id { get; set; }
 	[Display(Name = "العقار")]
 	string Name { get; set; }
 	[Display(Name = "نوع العقار")]

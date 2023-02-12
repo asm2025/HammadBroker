@@ -20,7 +20,7 @@ public interface IBuildingAd
 	[Display(Name = "محمول")]
 	public string Mobile { get; set; }
 	[Display(Name = "السعر")]
-	[DisplayFormat(DataFormatString = "{0:N}")]
+	[DisplayFormat(DataFormatString = "{0:#,#.##}")]
 	public long Price { get; set; }
 	[Display(Name = "المشاهدات")]
 	public long Views { get; set; }

@@ -169,6 +169,10 @@
 		</div>
 		<div class="row px-2">
 			<div class="col-12">
+				@if (Model.Id > 0)
+				{
+					<span>#@Html.DisplayFor(e => e.Id)</span>
+				}
 				<input class="form-control" asp-for="Building.Name" placeholder="@Html.DisplayNameFor(e => e.Building.Name)" title="@Html.DisplayNameFor(e => e.Building.Name)"/>
 				<span asp-validation-for="Building.Name" class="text-danger"></span>
 			</div>
@@ -266,7 +270,7 @@
 	{
 		<div class="row g-0 px-2">
 			<div class="col-12">
-				<small>@Model.Building.BuildingType.GetDisplayName() @Model.Building.FinishingType?.GetDisplayName()</small>
+				<small class="text-muted">#@Model.Id @Model.Building.BuildingTypeName @Model.Building.FinishingTypeName</small>
 				<h5>@Model.Building.Name</h5>
 			</div>
 			@if (Model.Building.Floor > 0)
@@ -328,7 +332,6 @@
 			@if (!string.IsNullOrEmpty(Model.Building.Description))
 			{
 				<div class="col-12">
-					<label asp-for="Building.Description"></label>:&nbsp;
 					@Html.DisplayFor(e => e.Building.Description)
 				</div>
 			}

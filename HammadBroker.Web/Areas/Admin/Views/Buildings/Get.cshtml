@@ -2,7 +2,7 @@
 @model BuildingForDetails
 
 @{
-	ViewData["Title"] = "عقار";
+	ViewData["Title"] = Model.Name;
 	int id = Context.Request.Query["id"].To(0);
 }
 

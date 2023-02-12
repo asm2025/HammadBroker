@@ -1,11 +1,11 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using essentialMix.Core.Data.Entity.AutoMapper.Patterns.Services;
-using essentialMix.Patterns.Pagination;
 using HammadBroker.Data.Context;
 using HammadBroker.Data.Repositories;
 using HammadBroker.Model.DTO;
 using HammadBroker.Model.Entities;
+using HammadBroker.Model.Parameters;
 using JetBrains.Annotations;
 
 namespace HammadBroker.Data.Services;
@@ -14,7 +14,10 @@ public interface IBuildingAdService : IService<DataContext, IBuildingAdRepositor
 {
 	[NotNull]
 	[ItemNotNull]
-	Task<IPaginated<BuildingAdForList>> ListWithBuildingsAsync(IPagination settings = null, CancellationToken token = default(CancellationToken));
+	Task<BuildingAdsPaginated> ListWithBuildingsAsync([NotNull] BuildingAdList settings, CancellationToken token = default(CancellationToken));
+	[NotNull]
+	[ItemNotNull]
+	Task<BuildingAdsForDisplayPaginated> ListActiveWithBuildingsAsync([NotNull] BuildingAdList settings, CancellationToken token = default(CancellationToken));
 	[NotNull]
 	Task<BuildingAdForDetails> GetBuildingAsync(int id, CancellationToken token = default(CancellationToken));
 }

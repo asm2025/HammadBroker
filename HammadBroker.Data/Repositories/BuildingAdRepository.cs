@@ -46,8 +46,7 @@ public class BuildingAdRepository : Repository<DataContext, BuildingAd, int>, IB
 
 		IQueryable<BuildingAdForList> queryable = (settings is BuildingList buildingList
 														? WithFilter(Context, buildingList)
-														: WithNoFilter(Context))
-			.Where(e => e.Expires == null || e.Expires >= DateTime.Today);
+														: WithNoFilter(Context));
 		return queryable;
 
 		[NotNull]
@@ -106,6 +105,121 @@ public class BuildingAdRepository : Repository<DataContext, BuildingAd, int>, IB
 					CityId = e.Building.CityId,
 					ImageUrl = e.Building.ImageUrl
 				});
+		}
+	}
+
+	/// <inheritdoc />
+	public IQueryable<BuildingAdForDisplay> ListActiveWithBuildings(IPagination settings = null, CancellationToken token = default(CancellationToken))
+	{
+		ThrowIfDisposed();
+		token.ThrowIfCancellationRequested();
+
+		IQueryable<BuildingAdForDisplay> queryable = (settings is BuildingList buildingList
+														? WithFilter(Context, buildingList)
+														: WithNoFilter(Context));
+		return queryable;
+
+		[NotNull]
+		static IQueryable<BuildingAdForDisplay> WithNoFilter([NotNull] DataContext context)
+		{
+			return context.BuildingAds
+						.Where(e => e.Expires == null || e.Expires >= DateTime.UtcNow.Date)
+						.Join(context.Buildings, ba => ba.BuildingId, b => b.Id, (Ad, Building) => new
+						{
+							Ad,
+							Building
+						})
+						.Join(context.Countries, bab => bab.Building.CountryCode, co => co.Id, (bab, Country) => new
+						{
+							bab.Ad,
+							bab.Building,
+							Country
+						})
+						.Join(context.Cities, babco => babco.Building.CityId, ci => ci.Id, (babco, City) => new
+						{
+							babco.Ad,
+							babco.Building,
+							babco.Country,
+							City
+						})
+						.Select(e => new BuildingAdForDisplay
+						{
+							Id = e.Ad.Id,
+							BuildingId = e.Ad.BuildingId,
+							Type = e.Ad.Type,
+							Date = e.Ad.Date,
+							Expires = e.Ad.Expires,
+							Phone = e.Ad.Phone,
+							Mobile = e.Ad.Mobile,
+							Price = e.Ad.Price,
+							Name = e.Building.Name,
+							BuildingType = e.Building.BuildingType,
+							FinishingType = e.Building.FinishingType,
+							Floor = e.Building.Floor,
+							Rooms = e.Building.Rooms,
+							Bathrooms = e.Building.Bathrooms,
+							Area = e.Building.Area,
+							Address = e.Building.Address,
+							Address2 = e.Building.Address2,
+							CountryCode = e.Building.CountryCode,
+							CountryName = e.Country.Name,
+							CityId = e.Building.CityId,
+							CityName = e.City.Name,
+							ImageUrl = e.Building.ImageUrl,
+							Description = e.Building.Description,
+						});
+		}
+
+		[NotNull]
+		static IQueryable<BuildingAdForDisplay> WithFilter([NotNull] DataContext context, [NotNull] BuildingList buildingList)
+		{
+			IQueryable<BuildingAdBuilding> q = context.BuildingAds
+													.Where(e => e.Expires == null || e.Expires >= DateTime.UtcNow.Date)
+													.Join(context.Buildings, ba => ba.BuildingId, b => b.Id, (Ad, Building) => new BuildingAdBuilding
+													{
+														Ad = Ad,
+														Building = Building
+													});
+			return PrepareListQuery(q, buildingList)
+					.Join(context.Countries, bab => bab.Building.CountryCode, co => co.Id, (bab, Country) => new
+					{
+						bab.Ad,
+						bab.Building,
+						Country
+					})
+					.Join(context.Cities, babco => babco.Building.CityId, ci => ci.Id, (babco, City) => new
+					{
+						babco.Ad,
+						babco.Building,
+						babco.Country,
+						City
+					})
+					.Select(e => new BuildingAdForDisplay
+					{
+						Id = e.Ad.Id,
+						BuildingId = e.Ad.BuildingId,
+						Type = e.Ad.Type,
+						Date = e.Ad.Date,
+						Expires = e.Ad.Expires,
+						Phone = e.Ad.Phone,
+						Mobile = e.Ad.Mobile,
+						Price = e.Ad.Price,
+						Name = e.Building.Name,
+						BuildingType = e.Building.BuildingType,
+						FinishingType = e.Building.FinishingType,
+						Floor = e.Building.Floor,
+						Rooms = e.Building.Rooms,
+						Bathrooms = e.Building.Bathrooms,
+						Area = e.Building.Area,
+						Address = e.Building.Address,
+						Address2 = e.Building.Address2,
+						CountryCode = e.Building.CountryCode,
+						CountryName = e.Country.Name,
+						CityId = e.Building.CityId,
+						CityName = e.City.Name,
+						ImageUrl = e.Building.ImageUrl,
+						Description = e.Building.Description,
+					});
 		}
 	}
 

@@ -16,5 +16,8 @@ public interface IBuildingAdRepository : IRepository<DataContext, BuildingAd, in
 	[ItemNotNull]
 	IQueryable<BuildingAdForList> ListWithBuildings(IPagination settings = null, CancellationToken token = default(CancellationToken));
 	[NotNull]
+	[ItemNotNull]
+	IQueryable<BuildingAdForDisplay> ListActiveWithBuildings(IPagination settings = null, CancellationToken token = default(CancellationToken));
+	[NotNull]
 	Task<BuildingAdForDetails> GetBuildingAsync(int id, CancellationToken token = default(CancellationToken));
 }

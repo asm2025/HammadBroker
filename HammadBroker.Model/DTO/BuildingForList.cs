@@ -5,6 +5,8 @@ namespace HammadBroker.Model.DTO;
 
 public class BuildingForList : IBuildingLookup
 {
+	/// <inheritdoc />
+	[Display(Name = "رقم")]
 	public int Id { get; set; }
 	/// <inheritdoc />
 	[Display(Name = "العقار")]

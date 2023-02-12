@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 using AutoMapper;
 using essentialMix.Core.Data.Entity.AutoMapper.Patterns.Services;
 using essentialMix.Extensions;
-using essentialMix.Patterns.Pagination;
 using HammadBroker.Data.Context;
 using HammadBroker.Data.Repositories;
 using HammadBroker.Model.DTO;
 using HammadBroker.Model.Entities;
+using HammadBroker.Model.Parameters;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -25,7 +25,7 @@ public class BuildingAdService : Service<DataContext, IBuildingAdRepository, Bui
 	}
 
 	/// <inheritdoc />
-	public async Task<IPaginated<BuildingAdForList>> ListWithBuildingsAsync(IPagination settings = null, CancellationToken token = default(CancellationToken))
+	public async Task<BuildingAdsPaginated> ListWithBuildingsAsync(BuildingAdList settings, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
@@ -44,7 +44,30 @@ public class BuildingAdService : Service<DataContext, IBuildingAdRepository, Bui
 		IList<BuildingAdForList> result = await queryable.ToListAsync(token)
 														.ConfigureAwait();
 		token.ThrowIfCancellationRequested();
-		return new Paginated<BuildingAdForList>(result, settings);
+		return new BuildingAdsPaginated(result, settings);
+	}
+
+	/// <inheritdoc />
+	public async Task<BuildingAdsForDisplayPaginated> ListActiveWithBuildingsAsync(BuildingAdList settings, CancellationToken token = default(CancellationToken))
+	{
+		ThrowIfDisposed();
+		token.ThrowIfCancellationRequested();
+
+		IQueryable<BuildingAdForDisplay> queryable = Repository.ListActiveWithBuildings(settings);
+
+		if (settings is { PageSize: > 0 })
+		{
+			settings.Count = await queryable.CountAsync(token);
+			token.ThrowIfCancellationRequested();
+			int maxPages = (int)Math.Ceiling(settings.Count / (double)settings.PageSize);
+			if (settings.Page > maxPages) settings.Page = maxPages;
+			queryable = queryable.Paginate(settings);
+		}
+
+		IList<BuildingAdForDisplay> result = await queryable.ToListAsync(token)
+															.ConfigureAwait();
+		token.ThrowIfCancellationRequested();
+		return new BuildingAdsForDisplayPaginated(result, settings);
 	}
 
 	/// <inheritdoc />

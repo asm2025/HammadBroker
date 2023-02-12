@@ -8,6 +8,9 @@ namespace HammadBroker.Model.DTO;
 public class BuildingToUpdate : IBuilding, IImageUpload
 {
 	/// <inheritdoc />
+	int IBuildingLookup.Id { get; set; }
+
+	/// <inheritdoc />
 	[Display(Name = "اسم العقار")]
 	[Required]
 	[StringLength(256)]

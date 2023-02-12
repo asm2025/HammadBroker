@@ -1,7 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Antiforgery
+@using HammadBroker.Model
 @using HammadBroker.Model.DTO
 @using HammadBroker.Model.Configuration
-@using HammadBroker.Model
 @using HammadBroker.Model.VirtualPath
 @using System.Configuration
 @using Microsoft.Extensions.Configuration
@@ -160,6 +160,7 @@
 			<div class="col-12">
 				<div class="d-flex align-items-center">
 					<div class="flex-grow-1">
+						<span v-if="buildingId">#{{buildingId}}</span>
 						<input type="hidden" asp-for="Ad.BuildingId" :value="buildingId"/>
 						<autocomplete class="w-100" input-class="w-100" :suggestions="buildings" option-label="name"
 									placeholder="@Html.DisplayNameFor(e => e.Ad.BuildingId)"
@@ -190,7 +191,7 @@
 		<div v-if="Boolean(building)" class="mb-2">
 			<div class="row g-0">
 				<div class="col-12">
-					<small>{{ building.buildingTypeName }} {{ building.finishingTypeName }}</small>
+					<small class="text-muted">#{{ building.id }} {{ building.buildingTypeName }} {{ building.finishingTypeName }}</small>
 					<h5>{{ building.name }}</h5>
 				</div>
 				<div v-if="building.floor" class="col-6 mb-1">
@@ -288,11 +289,14 @@
 	{
 		<div class="row g-0 px-2">
 			<div class="col-12">
-				<small>@Model.Ad.Date.ToString("d") @Model.Ad.Type.GetDisplayName() </small>
 				@if (Model.Building is not null)
 				{
-					<small>@Model.Building.BuildingType.GetDisplayName() @Model.Building.FinishingType?.GetDisplayName()</small>
+					<small class="text-muted">#@Model.Building.Id @Model.Building.BuildingType.GetDisplayName() @Model.Building.FinishingType?.GetDisplayName() @Model.Ad.Type.GetDisplayName()</small>
 					<h5>@Model.Building.Name</h5>
+				}
+				else
+				{
+					<small class="text-muted">@Model.Ad.Date.ToString("d") @Model.Ad.Type.GetDisplayName()</small>
 				}
 			</div>
 			@if (Model.Building is not null)
@@ -372,15 +376,11 @@
 				<label asp-for="Ad.Price"></label>
 				@Html.DisplayFor(e => e.Ad.Price) جنيه
 			</div>
-			@if (Model.Building is not null)
+			@if (Model.Building is not null && !string.IsNullOrEmpty(Model.Building.Description))
 			{
-				@if (!string.IsNullOrEmpty(Model.Building.Description))
-				{
-					<div class="col-12">
-						<label asp-for="Building.Description"></label>:&nbsp;
-						@Html.DisplayFor(e => e.Building.Description)
-					</div>
-				}
+				<div class="col-12">
+					@Html.DisplayFor(e => e.Building.Description)
+				</div>
 			}
 		</div>
 		@if (!Model.ReadOnly)
