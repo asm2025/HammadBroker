@@ -38,6 +38,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Serilog;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
+using SLogger = Serilog.ILogger;
 
 namespace HammadBroker.Web;
 
@@ -84,8 +85,6 @@ public class Program
 		AppName = configuration.GetValue("name", AppName);
 		AppTitle = configuration.GetValue("title", AppTitle);
 
-		ConfigureServices(builder);
-
 		// Logging
 		LoggerConfiguration loggerConfiguration = new LoggerConfiguration();
 
@@ -96,17 +95,18 @@ public class Program
 		}
 
 		Log.Logger = loggerConfiguration.CreateLogger();
+		SLogger logger = Log.Logger;
+
+		ConfigureServices(builder);
 
 		// application
 		WebApplication app = builder.Build();
 		Configure(app);
 
-		ILogger logger = app.Services.GetRequiredService<ILogger<Program>>();
-
 		try
 		{
 			// Start
-			logger.LogInformation($"{AppName} is starting...");
+			logger.Information($"{AppName} is starting...");
 
 			(bool migrationComplete, bool migrateOnly) = await ApplyMigrationsAsync(app, configuration, app.Environment, args, logger);
 
@@ -117,17 +117,17 @@ public class Program
 			}
 
 			if (migrateOnly) return;
-			logger.LogInformation("Running the application...");
+			logger.Information("Running the application...");
 			await app.RunAsync();
 		}
 		catch (Exception ex)
 		{
-			logger.LogError(ex.CollectMessages());
+			logger.Error(ex.CollectMessages());
 			Environment.ExitCode = ex.HResult;
 		}
 		finally
 		{
-			logger.LogInformation($"{AppName} finished.");
+			logger.Information($"{AppName} finished.");
 		}
 
 		await Log.CloseAndFlushAsync();
@@ -222,7 +222,6 @@ public class Program
 								options.AddProfile(new CommonProfile());
 								options.AddProfile(new IdentityProfile());
 								options.AddProfile(new BuildingProfile());
-								options.AddProfile(new BuildingAdProfile());
 							},
 							new[]
 							{
@@ -363,7 +362,7 @@ public class Program
 			});
 	}
 
-	private static async Task<(bool, bool)> ApplyMigrationsAsync([NotNull] IHost host, [NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, string[] args, [NotNull] ILogger logger)
+	private static async Task<(bool, bool)> ApplyMigrationsAsync([NotNull] IHost host, [NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, string[] args, SLogger logger)
 	{
 		bool applyMigrations = configuration.GetValue("Migrations:ApplyMigrations", true);
 		bool applySeed = configuration.GetValue("Migrations:ApplySeed", true);
@@ -385,7 +384,7 @@ public class Program
 		}
 
 		if (!applyMigrations) return (true, false);
-		logger.LogInformation("Checking database migrations...");
+		logger.Information("Checking database migrations...");
 
 		IServiceScope scope = null;
 		DataContext dataContext = null;
@@ -393,13 +392,14 @@ public class Program
 		try
 		{
 			scope = host.Services.GetRequiredService<IServiceScopeFactory>().CreateScope();
-			dataContext = scope.ServiceProvider.GetRequiredService<DataContext>();
+			IServiceProvider services = scope.ServiceProvider;
 
+			dataContext = services.GetRequiredService<DataContext>();
 			bool isMigrated = await dataContext.IsMigratedAsync();
 
 			if (isMigrated)
 			{
-				logger.LogInformation("Database is migrated.");
+				logger.Information("Database is migrated.");
 				return (true, migrateOnly);
 			}
 
@@ -407,14 +407,15 @@ public class Program
 												.SetBasePath(AppPath)
 												.AddConfigurationFile(AppPath, "seed.json", false, environment.EnvironmentName)
 												.Build();
+			ILogger xLogger = services.GetService<ILogger<DataContext>>();
 
-			if (!await dataContext.ApplyMigrationsAsync(host, seedConfiguration, applySeed, logger))
+			if (!await dataContext.ApplyMigrationsAsync(host, seedConfiguration, applySeed, xLogger))
 			{
-				logger.LogError("Database migrations were not successful.");
+				logger.Error("Database migrations were not successful.");
 				return (false, migrateOnly);
 			}
 
-			logger.LogInformation("Database migrations completed successfully.");
+			logger.Information("Database migrations completed successfully.");
 			return (true, migrateOnly);
 		}
 		finally

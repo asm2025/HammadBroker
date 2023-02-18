@@ -15,13 +15,6 @@ public interface ILookupService : IServiceBase<DataContext>
 	Task<IList<string>> ListBuildingImagesAsync(int id, int count, CancellationToken token = default(CancellationToken));
 
 	[NotNull]
-	[ItemNotNull]
-	Task<IList<CountryForList>> ListCountriesAsync(CancellationToken token = default(CancellationToken));
-	[NotNull]
-	[ItemNotNull]
-	Task<IList<CountryForList>> ListCountriesAsync(string search, CancellationToken token = default(CancellationToken));
-
-	[NotNull]
 	Task<IList<CityForList>> ListCitiesAsync([NotNull] CitiesList settings, CancellationToken token = default(CancellationToken));
 	[NotNull]
 	[ItemNotNull]
@@ -29,8 +22,6 @@ public interface ILookupService : IServiceBase<DataContext>
 	[NotNull]
 	[ItemNotNull]
 	IList<string> ListFinishingTypes();
-	[NotNull]
-	Task FillCountryNameAsync([NotNull] ICountryNameLookup lookup, CancellationToken token = default(CancellationToken));
 	[NotNull]
 	Task FillCityNameAsync([NotNull] ICityNameLookup lookup, CancellationToken token = default(CancellationToken));
 }

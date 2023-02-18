@@ -33,8 +33,8 @@
 			</div>
 			<div class="row g-0 mb-1">
 				<div class="col-sm-12 col-md-6">
-					<select class="form-select" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.Type)" asp-for="Pagination.Type" asp-items="Html.GetEnumSelectList<BuildingAdType>()" placeholder="@Html.DisplayNameFor(e => e.Pagination.Type)">
-						<option value="">@Html.DisplayNameFor(e => e.Pagination.Type)</option>
+					<select class="form-select" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.AdType)" asp-for="Pagination.AdType" asp-items="Html.GetEnumSelectList<BuildingAdType>()" placeholder="@Html.DisplayNameFor(e => e.Pagination.AdType)">
+						<option value="">@Html.DisplayNameFor(e => e.Pagination.AdType)</option>
 					</select>
 				</div>
 				<div class="col-sm-12 col-md-6">
@@ -129,7 +129,7 @@
 		<div class="col-md-8">
 			<div class="card-body px-2 h-100">
 				<div class="d-flex flex-column h-100" role="button" onclick="window.location = '@Url.Action("Get", "Home", new { area = "", id = ad.Id })'">
-					<small class="text-muted">#@ad.BuildingId @ad.BuildingTypeName @ad.FinishingTypeName @ad.TypeName</small>
+					<small class="text-muted">#@ad.BuildingId @ad.BuildingTypeName @ad.FinishingTypeName @ad.AdTypeName</small>
 					<h5 class="card-title">@Html.DisplayFor(e => ad.Price) جنيه</h5>
 					<div class="row g-0">
 						<div class="col-12">@ad.Name</div>

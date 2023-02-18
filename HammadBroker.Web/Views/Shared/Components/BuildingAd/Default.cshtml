@@ -226,7 +226,7 @@
 					<label asp-for="Building.CountryCode"></label>:&nbsp;
 					{{ building.countryName }}
 				</div>
-				<div v-if="building.description" class="col-12">
+				<div v-if="building.description" class="col-12 linebreaks">
 					<label asp-for="Building.Description"></label>:&nbsp;
 					{{ building.description }}
 				</div>
@@ -234,10 +234,10 @@
 		</div>
 		<div class="row g-0">
 			<div class="col-12">
-				<select asp-for="Ad.Type" class="form-select" asp-items="Html.GetEnumSelectList<BuildingAdType>()" title="@Html.DisplayNameFor(e => e.Ad.Type)">
-					<option value="">@Html.DisplayNameFor(e => e.Ad.Type)</option>
+				<select asp-for="Ad.AdType" class="form-select" asp-items="Html.GetEnumSelectList<BuildingAdType>()" title="@Html.DisplayNameFor(e => e.Ad.AdType)">
+					<option value="">@Html.DisplayNameFor(e => e.Ad.AdType)</option>
 				</select>
-				<span asp-validation-for="Ad.Type" class="text-danger"></span>
+				<span asp-validation-for="Ad.AdType" class="text-danger"></span>
 			</div>
 		</div>
 		<div class="row g-0">
@@ -291,12 +291,12 @@
 			<div class="col-12">
 				@if (Model.Building is not null)
 				{
-					<small class="text-muted">#@Model.Building.Id @Model.Building.BuildingTypeName @Model.Building.FinishingTypeName @Model.Ad.TypeName</small>
+					<small class="text-muted">#@Model.Building.Id @Model.Building.BuildingTypeName @Model.Building.FinishingTypeName @Model.Ad.AdTypeName</small>
 					<h5>@Model.Building.Name</h5>
 				}
 				else
 				{
-					<small class="text-muted">@Model.Ad.Date.ToString("d") @Model.Ad.TypeName</small>
+					<small class="text-muted">@Model.Ad.Date.ToString("d") @Model.Ad.AdTypeName</small>
 				}
 			</div>
 			@if (Model.Building is not null)
@@ -378,8 +378,8 @@
 			</div>
 			@if (Model.Building is not null && !string.IsNullOrEmpty(Model.Building.Description))
 			{
-				<div class="col-12">
-					@Html.DisplayFor(e => e.Building.Description)
+				<div class="col-12 linebreaks">
+					@Html.Raw(Html.Encode(Model.Building.Description).Replace("\n", "<br />"))
 				</div>
 			}
 		</div>

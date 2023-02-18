@@ -31,8 +31,8 @@
 			</div>
 			<div class="row g-0 mb-1">
 				<div class="col-sm-12 col-md-6">
-					<select class="form-select" name="@nameof(BuildingAdsPaginated.Pagination.Type)" asp-for="Pagination.Type" asp-items="Html.GetEnumSelectList<BuildingAdType>()" placeholder="@Html.DisplayNameFor(e => e.Pagination.Type)">
-						<option value="">@Html.DisplayNameFor(e => e.Pagination.Type)</option>
+					<select class="form-select" name="@nameof(BuildingAdsPaginated.Pagination.AdType)" asp-for="Pagination.AdType" asp-items="Html.GetEnumSelectList<BuildingAdType>()" placeholder="@Html.DisplayNameFor(e => e.Pagination.AdType)">
+						<option value="">@Html.DisplayNameFor(e => e.Pagination.AdType)</option>
 					</select>
 				</div>
 				<div class="col-sm-12 col-md-6">
@@ -134,7 +134,7 @@
 				<th scope="col" class="auto-cell">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Id)</th>
 				<th scope="col" class="auto-cell">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Date)</th>
 				<th scope="col" class="text-nowrap">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.BuildingType)</th>
-				<th scope="col" class="text-nowrap">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Type)</th>
+				<th scope="col" class="text-nowrap">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.AdType)</th>
 				<th scope="col" class="text-nowrap auto-cell">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.FinishingType)</th>
 				<th scope="col" class="text-center auto-cell">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Price)</th>
 				<th scope="col" class="text-center auto-cell">@Html.DisplayNameForInnerType((BuildingAdForList e) => e.Views)</th>
@@ -159,7 +159,7 @@
 					<td class="text-nowrap">@ad.Id</td>
 					<td class="text-nowrap">@ad.Date.ToString("yyyy/MM/dd")</td>
 					<td class="text-nowrap" title="@ad.Name">@ad.BuildingTypeName</td>
-					<td class="text-nowrap">@ad.TypeName</td>
+					<td class="text-nowrap">@ad.AdTypeName</td>
 					<td class="text-nowrap">@ad.FinishingTypeName</td>
 					<td class="text-center">@ad.Price.ToString("#,##0.##")</td>
 					<td class="text-center">@ad.Views</td>

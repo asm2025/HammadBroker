@@ -9,7 +9,6 @@ using essentialMix.Extensions;
 using essentialMix.Helpers;
 using HammadBroker.Data.Context;
 using HammadBroker.Data.Repositories;
-using HammadBroker.Extensions;
 using HammadBroker.Model;
 using HammadBroker.Model.DTO;
 using HammadBroker.Model.Entities;
@@ -44,22 +43,6 @@ public class LookupService : ServiceBase<DataContext>, ILookupService
 	}
 
 	/// <inheritdoc />
-	public Task<IList<CountryForList>> ListCountriesAsync(CancellationToken token = default(CancellationToken)) { return ListCountriesAsync(null, token); }
-	/// <inheritdoc />
-	public Task<IList<CountryForList>> ListCountriesAsync(string search, CancellationToken token = default(CancellationToken))
-	{
-		ThrowIfDisposed();
-		token.ThrowIfCancellationRequested();
-		return Context.Countries
-					.AsNoTracking()
-					.WhereIf(!string.IsNullOrEmpty(search), e => e.Name.Contains(search))
-					.OrderBy(e => e.Name)
-					.ProjectTo<CountryForList>(Mapper.ConfigurationProvider)
-					.ToListAsync(token)
-					.As<List<CountryForList>, IList<CountryForList>>(token);
-	}
-
-	/// <inheritdoc />
 	public Task<IList<CityForList>> ListCitiesAsync(CitiesList settings, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
@@ -86,21 +69,6 @@ public class LookupService : ServiceBase<DataContext>, ILookupService
 		return EnumHelper<FinishingType>
 				.GetDisplayNames()
 				.ToList();
-	}
-
-	/// <inheritdoc />
-	public async Task FillCountryNameAsync(ICountryNameLookup lookup, CancellationToken token = default(CancellationToken))
-	{
-		ThrowIfDisposed();
-		token.ThrowIfCancellationRequested();
-		lookup.CountryName = null;
-		if (string.IsNullOrEmpty(lookup.CountryCode)) return;
-		Country country = await Context.Countries
-										.FirstOrDefaultAsync(e => e.Id == lookup.CountryCode, token)
-										.ConfigureAwait();
-		token.ThrowIfCancellationRequested();
-		if (country == null) return;
-		lookup.CountryName = country.Name;
 	}
 
 	/// <inheritdoc />

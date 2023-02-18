@@ -36,9 +36,9 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	{
 		if (settings is not BuildingList buildingList) return base.PrepareCountQuery(query, settings);
 		if (buildingList.Id > 0) return query.Where(e => e.Id == buildingList.Id.Value);
-		query = PrepareLocation(query, buildingList);
+		query = PrepareTypes(query, buildingList);
 		query = PrepareNumbers(query, buildingList);
-		query = PrepareSearch(query, buildingList);
+		query = PrepareDateAndLocation(query, buildingList);
 		return base.PrepareCountQuery(query, settings);
 	}
 
@@ -47,58 +47,10 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	{
 		if (settings is not BuildingList buildingList) return base.PrepareListQuery(query, settings);
 		if (buildingList.Id > 0) return query.Where(e => e.Id == buildingList.Id.Value);
-		query = PrepareLocation(query, buildingList);
+		query = PrepareTypes(query, buildingList);
 		query = PrepareNumbers(query, buildingList);
-		query = PrepareSearch(query, buildingList);
+		query = PrepareDateAndLocation(query, buildingList);
 		return base.PrepareListQuery(query, settings);
-	}
-
-	/// <inheritdoc />
-	protected override Building AddInternal(Building entity)
-	{
-		if (entity is { CityId: > 0 })
-		{
-			City city = Context.Cities.Find(entity.CityId);
-			if (city != null && !string.Equals(entity.CountryCode, city.CountryCode, StringComparison.OrdinalIgnoreCase)) entity.CountryCode = city.CountryCode;
-		}
-
-		return base.AddInternal(entity);
-	}
-
-	/// <inheritdoc />
-	protected override async ValueTask<Building> AddAsyncInternal(Building entity, CancellationToken token = new CancellationToken())
-	{
-		if (entity is { CityId: > 0 })
-		{
-			City city = await Context.Cities.FindAsync(new object[] { entity.CityId }, token);
-			if (city != null && !string.Equals(entity.CountryCode, city.CountryCode, StringComparison.OrdinalIgnoreCase)) entity.CountryCode = city.CountryCode;
-		}
-
-		return await base.AddAsyncInternal(entity, token);
-	}
-
-	/// <inheritdoc />
-	protected override Building UpdateInternal(Building entity)
-	{
-		if (entity is { CityId: > 0 })
-		{
-			City city = Context.Cities.Find(entity.CityId);
-			if (city != null && !string.Equals(entity.CountryCode, city.CountryCode, StringComparison.OrdinalIgnoreCase)) entity.CountryCode = city.CountryCode;
-		}
-
-		return base.UpdateInternal(entity);
-	}
-
-	/// <inheritdoc />
-	protected override async ValueTask<Building> UpdateAsyncInternal(Building entity, CancellationToken token = new CancellationToken())
-	{
-		if (entity is { CityId: > 0 })
-		{
-			City city = await Context.Cities.FindAsync(new object[] { entity.CityId }, token);
-			if (city != null && !string.Equals(entity.CountryCode, city.CountryCode, StringComparison.OrdinalIgnoreCase)) entity.CountryCode = city.CountryCode;
-		}
-
-		return await base.UpdateAsyncInternal(entity, token);
 	}
 
 	/// <inheritdoc />
@@ -366,18 +318,27 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	}
 
 	[NotNull]
-	private static IQueryable<Building> PrepareLocation([NotNull] IQueryable<Building> queryable, [NotNull] BuildingList buildingList)
+	private static IQueryable<Building> PrepareTypes([NotNull] IQueryable<Building> queryable, [NotNull] BuildingList buildingList)
 	{
-		if (!string.IsNullOrEmpty(buildingList.CountryCode)) queryable = queryable.Where(e => e.CountryCode == buildingList.CountryCode);
-		if (buildingList.CityId > 0) queryable = queryable.Where(e => e.CityId == buildingList.CityId);
+		if (buildingList.AdType.HasValue) queryable = queryable.Where(e => e.AdType == buildingList.AdType.Value);
+		if (buildingList.BuildingType.HasValue) queryable = queryable.Where(e => e.BuildingType == buildingList.BuildingType.Value);
+		if (buildingList.FinishingType.HasValue) queryable = queryable.Where(e => e.FinishingType == buildingList.FinishingType.Value);
 		return queryable;
 	}
 
 	[NotNull]
 	private static IQueryable<Building> PrepareNumbers([NotNull] IQueryable<Building> queryable, [NotNull] BuildingList buildingList)
 	{
-		if (buildingList.BuildingType.HasValue) queryable = queryable.Where(e => e.BuildingType == buildingList.BuildingType.Value);
-		if (buildingList.FinishingType.HasValue) queryable = queryable.Where(e => e.FinishingType == buildingList.FinishingType.Value);
+		if (buildingList.Price.HasValue)
+		{
+			queryable = buildingList.MaxPrice.HasValue
+							? queryable.Where(e => e.Price >= buildingList.Price.Value && e.Price <= buildingList.MaxPrice.Value)
+							: queryable.Where(e => e.Price == buildingList.Price.Value);
+		}
+		else if (buildingList.Price.HasValue)
+		{
+			queryable = queryable.Where(e => e.Price <= buildingList.MaxPrice.Value);
+		}
 
 		if (buildingList.Floor.HasValue)
 		{
@@ -427,9 +388,20 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	}
 
 	[NotNull]
-	private static IQueryable<Building> PrepareSearch([NotNull] IQueryable<Building> queryable, [NotNull] BuildingList buildingList)
+	private static IQueryable<Building> PrepareDateAndLocation([NotNull] IQueryable<Building> queryable, [NotNull] BuildingList buildingList)
 	{
-		if (!string.IsNullOrEmpty(buildingList.Search)) queryable = queryable.Where(e => e.Name.Contains(buildingList.Search));
+		if (buildingList.Date.HasValue)
+		{
+			queryable = buildingList.MaxDate.HasValue
+							? queryable.Where(e => e.Date >= buildingList.Date.Value && e.Date <= buildingList.MaxDate.Value)
+							: queryable.Where(e => e.Date == buildingList.Date.Value);
+		}
+		else if (buildingList.MaxDate.HasValue)
+		{
+			queryable = queryable.Where(e => e.Date <= buildingList.MaxDate.Value);
+		}
+
+		if (buildingList.CityId > 0) queryable = queryable.Where(e => e.CityId == buildingList.CityId);
 		if (!string.IsNullOrEmpty(buildingList.Address)) queryable = queryable.Where(e => e.Address.Contains(buildingList.Address) || e.Address2.Contains(buildingList.Address));
 		return queryable;
 	}

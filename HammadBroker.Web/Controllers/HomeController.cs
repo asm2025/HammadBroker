@@ -46,7 +46,7 @@ public class HomeController : MvcController
 		{
 			pagination.OrderBy ??= new List<SortField>(3);
 			pagination.OrderBy.Add(new SortField(nameof(BuildingAd.Date), SortType.Descending));
-			pagination.OrderBy.Add(new SortField(nameof(BuildingAd.Type)));
+			pagination.OrderBy.Add(new SortField(nameof(BuildingAd.AdType)));
 		}
 
 		BuildingAdsForDisplayPaginated result = await _buildingAdService.ListActiveWithBuildingsAsync(pagination, token);

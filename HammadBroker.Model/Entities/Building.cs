@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using essentialMix.Data.Model;
 
 namespace HammadBroker.Model.Entities;
@@ -9,15 +10,7 @@ public class Building : IEntity<int>
 	public int Id { get; set; }
 
 	[Required]
-	[StringLength(256)]
-	public string Name { get; set; }
-
-	[Required]
 	public BuildingType BuildingType { get; set; }
-
-	[Url]
-	[StringLength(320)]
-	public string ImageUrl { get; set; }
 
 	[StringLength(128)]
 	public string VideoId { get; set; }
@@ -40,13 +33,30 @@ public class Building : IEntity<int>
 	public string Address2 { get; set; }
 
 	[Required]
-	[StringLength(3, MinimumLength = 3)]
-	public string CountryCode { get; set; }
-
-	[Required]
 	public int CityId { get; set; }
 
 	[Required]
-	[StringLength(2048)]
+	[StringLength(1024)]
+	public string ShortDescription { get; set; }
+
+	[Required]
+	[StringLength(4096)]
 	public string Description { get; set; }
+
+	[Required]
+	public BuildingAdType AdType { get; set; }
+
+	public byte? Priority { get; set; }
+
+	public DateTime Date { get; set; }
+
+	public DateTime? Expires { get; set; }
+
+	[Phone]
+	public string Phone { get; set; }
+
+	[Phone]
+	public string Mobile { get; set; }
+
+	public long Price { get; set; }
 }

@@ -8,8 +8,4 @@ public class CityToUpdate
 	[Required]
 	[StringLength(256)]
 	public string Name { get; set; }
-	[Display(Name = "البلد")]
-	[Required]
-	[StringLength(3, MinimumLength = 3)]
-	public string CountryCode { get; set; }
 }

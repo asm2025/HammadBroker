@@ -2,10 +2,18 @@
 	"SeedData": {
 		"Users": [
 			{
-				"Email": "super@hammadbroker.com"
+				"FirstName": "Amr",
+				"NickName": "Amr Hammad",
+				"UserName": "hammad",
+				"Password": "ASD!%(,atr9015&vret",
+				"Email": "hammad@aqarathammad.com"
 			},
 			{
-				"Email": "admin@hammadbroker.com"
+				"FirstName": "Administrator",
+				"NickName": "Admin",
+				"UserName": "admin",
+				"Password": "Admin@123",
+				"Email": "admin@aqarathammad.com"
 			}
 		]
 	}

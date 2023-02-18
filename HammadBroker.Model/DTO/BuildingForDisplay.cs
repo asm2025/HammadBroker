@@ -2,7 +2,7 @@
 
 namespace HammadBroker.Model.DTO;
 
-public class BuildingForDisplay : BuildingForList, IBuildingForDisplay, ICountryNameLookup, ICityNameLookup
+public class BuildingForDisplay : BuildingForList, IBuildingForDisplay, ICityNameLookup
 {
 	/// <inheritdoc />
 	[Display(Name = "الدور")]
@@ -22,9 +22,6 @@ public class BuildingForDisplay : BuildingForList, IBuildingForDisplay, ICountry
 	/// <inheritdoc />
 	[Display(Name = "الحي")]
 	public string Address2 { get; set; }
-	/// <inheritdoc />
-	[Display(Name = "البلد")]
-	public string CountryName { get; set; }
 	/// <inheritdoc />
 	[Display(Name = "المدينة")]
 	public string CityName { get; set; }

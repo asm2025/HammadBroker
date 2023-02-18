@@ -7,6 +7,4 @@ public class CityForList
 	public int Id { get; set; }
 	[Display(Name = "المدينة")]
 	public string Name { get; set; }
-	[Display(Name = "البلد")]
-	public string CountryCode { get; set; }
 }

@@ -295,8 +295,8 @@
 		<div class="row g-0 px-2">
 			@if (!string.IsNullOrEmpty(Model.Building.Description))
 			{
-				<div class="col-12">
-					@Html.DisplayFor(e => e.Building.Description)
+				<div class="col-12 linebreaks">
+					@Html.Raw(Html.Encode(Model.Building.Description).Replace("\n", "<br />"))
 				</div>
 			}
 		</div>

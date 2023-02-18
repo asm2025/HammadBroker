@@ -18,8 +18,4 @@ public class City : IEntity<int>
 		get => _name;
 		set => _name = value.ToNullIfEmpty();
 	}
-
-	[Required]
-	[StringLength(3, MinimumLength = 3)]
-	public string CountryCode { get; set; }
 }

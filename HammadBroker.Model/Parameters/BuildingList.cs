@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using essentialMix.Patterns.Pagination;
 
 namespace HammadBroker.Model.Parameters;
@@ -7,8 +8,6 @@ public class BuildingList : SortablePagination
 {
 	[Display(Name = "الرقم")]
 	public int? Id { get; set; }
-	[Display(Name = "البحث")]
-	public string Search { get; set; }
 	[Display(Name = "نوع العقار")]
 	public BuildingType? BuildingType { get; set; }
 	[Display(Name = "نوع التشطيب")]
@@ -31,10 +30,18 @@ public class BuildingList : SortablePagination
 	public long? MaxArea { get; set; }
 	[Display(Name = "العنوان")]
 	public string Address { get; set; }
-	[Display(Name = "البلد")]
-	public string CountryCode { get; set; }
 	[Display(Name = "المدينة")]
 	public int CityId { get; set; }
+	[Display(Name = "نوع الاعلان")]
+	public BuildingAdType? AdType { get; set; }
+	[Display(Name = "التاريخ")]
+	public DateTime? Date { get; set; }
+	[Display(Name = "بحد أقصى")]
+	public DateTime? MaxDate { get; set; }
+	[Display(Name = "السعر")]
+	public long? Price { get; set; }
+	[Display(Name = "بحد أقصى")]
+	public long? MaxPrice { get; set; }
 
 	public virtual bool HasSearch => !string.IsNullOrEmpty(Search)
 							|| BuildingType.HasValue
@@ -48,6 +55,10 @@ public class BuildingList : SortablePagination
 							|| Area.HasValue
 							|| MaxArea.HasValue
 							|| !string.IsNullOrEmpty(Address)
-							|| !string.IsNullOrEmpty(CountryCode)
-							|| CityId > 0;
+							|| CityId > 0
+							|| AdType.HasValue
+							|| Date.HasValue
+							|| MaxDate.HasValue
+							|| Price.HasValue
+							|| MaxPrice.HasValue;
 }

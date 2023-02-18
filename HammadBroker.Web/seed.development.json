@@ -2,9 +2,17 @@
 	"SeedData": {
 		"Users": [
 			{
+				"FirstName": "Super",
+				"NickName": "Super Admin",
+				"UserName": "super",
+				"Password": "Super@123",
 				"Email": "super@localhost"
 			},
 			{
+				"FirstName": "Administrator",
+				"NickName": "Admin",
+				"UserName": "admin",
+				"Password": "Admin@123",
 				"Email": "admin@localhost"
 			}
 		]

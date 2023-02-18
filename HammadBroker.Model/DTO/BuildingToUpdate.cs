@@ -1,32 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
-using essentialMix.Core.Web.Annotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using essentialMix.Extensions;
-using Microsoft.AspNetCore.Http;
 
 namespace HammadBroker.Model.DTO;
 
-public class BuildingToUpdate : IBuilding, IImageUpload
+public class BuildingToUpdate : IBuilding
 {
 	/// <inheritdoc />
 	int IBuildingLookup.Id { get; set; }
-
-	/// <inheritdoc />
-	[Display(Name = "اسم العقار")]
-	[Required]
-	[StringLength(256)]
-	public string Name { get; set; }
-
-	/// <inheritdoc />
-	[Display(Name = "الصورة")]
-	[MaxFileSize(Constants.Images.FileSizeMax)]
-	[DataType(DataType.Upload)]
-	public IFormFile Image { get; set; }
-
-	/// <inheritdoc />
-	[Display(Name = "الصورة")]
-	[StringLength(320)]
-	[DataType(DataType.ImageUrl)]
-	public string ImageUrl { get; set; }
 
 	/// <inheritdoc />
 	[Display(Name = "معرف Youtube")]
@@ -75,12 +56,6 @@ public class BuildingToUpdate : IBuilding, IImageUpload
 	public string Address2 { get; set; }
 
 	/// <inheritdoc />
-	[Display(Name = "البلد")]
-	[Required]
-	[StringLength(3, MinimumLength = 3)]
-	public string CountryCode { get; set; }
-
-	/// <inheritdoc />
 	[Display(Name = "المدينة")]
 	[Required]
 	public int CityId { get; set; }
@@ -90,4 +65,33 @@ public class BuildingToUpdate : IBuilding, IImageUpload
 	[StringLength(2048)]
 	[DataType(DataType.MultilineText)]
 	public string Description { get; set; }
+	[Display(Name = "النوع")]
+	public BuildingAdType AdType { get; set; }
+	public string AdTypeName => AdType.GetDisplayName();
+	[Display(Name = "الاولوية")]
+	public byte Priority { get; set; }
+	[Display(Name = "العقار")]
+	[Required]
+	public int BuildingId { get; set; }
+	[Display(Name = "التاريخ")]
+	[Required]
+	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}")]
+	public DateTime Date { get; set; }
+	[Display(Name = "تاريخ الانتهاء")]
+	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}")]
+	public DateTime? Expires { get; set; }
+	[Display(Name = "التليفون")]
+	[Required]
+	[Phone]
+	[DataType(DataType.PhoneNumber)]
+	public string Phone { get; set; }
+	[Display(Name = "المحمول")]
+	[Phone]
+	[DataType(DataType.PhoneNumber)]
+	public string Mobile { get; set; }
+	[Display(Name = "السعر")]
+	[DisplayFormat(DataFormatString = "{0:#,#.##}")]
+	[Required]
+	[Range(0, 1000000000)]
+	public long Price { get; set; }
 }

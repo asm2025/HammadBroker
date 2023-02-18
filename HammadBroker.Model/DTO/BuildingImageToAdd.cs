@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace HammadBroker.Model.DTO;
 
-public class BuildingImageToAdd
+public class BuildingImageToAdd : IImageUpload
 {
 	[Display(Name = "الصورة")]
 	[Required]
