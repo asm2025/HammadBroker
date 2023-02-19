@@ -4,10 +4,11 @@ using essentialMix.Data.Model;
 
 namespace HammadBroker.Model.Entities;
 
-public class Building : IEntity<int>
+public class Building : IEntity<string>
 {
 	[Key]
-	public int Id { get; set; }
+	[StringLength(Constants.Building.IdentifierLength)]
+	public string Id { get; set; }
 
 	[Required]
 	public BuildingType BuildingType { get; set; }

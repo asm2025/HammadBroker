@@ -35,5 +35,11 @@ public static class Constants
 		public const long FileSizeMax = 0xA00000;
 		public const int DimensionMax = 386;
 		public const string AssetImagesPath = "data/assets/";
+		public const int MaxImagesUpload = 30;
+	}
+
+	public static class Building
+	{
+		public const int IdentifierLength = 10;
 	}
 }

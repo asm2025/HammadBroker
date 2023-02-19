@@ -16,6 +16,13 @@ public interface IBuildingForDisplay : IBuildingLookup
 	byte? Bathrooms { get; set; }
 	[Display(Name = "المساحة")]
 	long? Area { get; set; }
+	[Display(Name = "تليفون")]
+	public string Phone { get; set; }
+	[Display(Name = "محمول")]
+	public string Mobile { get; set; }
+	[Display(Name = "السعر")]
+	[DisplayFormat(DataFormatString = "{0:#,#.##}")]
+	public long Price { get; set; }
 	[Display(Name = "الوصف")]
-	string Description { get; set; }
+	public string ShortDescription { get; set; }
 }

@@ -131,7 +131,7 @@ public class DataContext : IdentityDbContext<User, Role, string,
 			building.HasIndex(e => e.Floor).HasFilter(null);
 			building.HasIndex(e => e.CityId);
 			building.HasIndex(e => e.AdType);
-			building.HasIndex(e => e.Priority);
+			building.HasIndex(e => e.Priority).HasFilter(null);
 			building.HasIndex(e => e.Date);
 			building.HasIndex(e => e.Expires).HasFilter(null);
 			building.HasIndex(e => e.Price);

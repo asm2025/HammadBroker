@@ -61,15 +61,21 @@ public class BuildingToUpdate : IBuilding
 	public int CityId { get; set; }
 
 	/// <inheritdoc />
+	[Display(Name = "الوصف المختصر")]
+	[StringLength(1024)]
+	public string ShortDescription { get; set; }
+
+	/// <inheritdoc />
 	[Display(Name = "الوصف")]
-	[StringLength(2048)]
+	[StringLength(4096)]
 	[DataType(DataType.MultilineText)]
 	public string Description { get; set; }
 	[Display(Name = "النوع")]
 	public BuildingAdType AdType { get; set; }
 	public string AdTypeName => AdType.GetDisplayName();
+
 	[Display(Name = "الاولوية")]
-	public byte Priority { get; set; }
+	public byte? Priority { get; set; }
 	[Display(Name = "العقار")]
 	[Required]
 	public int BuildingId { get; set; }

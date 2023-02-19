@@ -8,8 +8,9 @@ public class BuildingImage : IEntity<int>
 	[Key]
 	public int Id { get; set; }
 	[Required]
-	public int BuildingId { get; set; }
+	public string BuildingId { get; set; }
 	[Required]
 	[StringLength(320)]
 	public string ImageUrl { get; set; }
+	public byte? Priority { get; set; }
 }

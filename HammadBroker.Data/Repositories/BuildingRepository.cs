@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using essentialMix.Core.Data.Entity.Patterns.Repository;
@@ -20,7 +18,7 @@ using Microsoft.Extensions.Logging;
 
 namespace HammadBroker.Data.Repositories;
 
-public class BuildingRepository : Repository<DataContext, Building, int>, IBuildingRepository
+public class BuildingRepository : Repository<DataContext, Building, string>, IBuildingRepository
 {
 	/// <inheritdoc />
 	public BuildingRepository([NotNull] DataContext context, [NotNull] IConfiguration configuration, [NotNull] ILogger<BuildingRepository> logger)
@@ -35,7 +33,7 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	protected override IQueryable<Building> PrepareCountQuery(IQueryable<Building> query, IPagination settings)
 	{
 		if (settings is not BuildingList buildingList) return base.PrepareCountQuery(query, settings);
-		if (buildingList.Id > 0) return query.Where(e => e.Id == buildingList.Id.Value);
+		if (!string.IsNullOrEmpty(buildingList.Id)) return query.Where(e => e.Id.Contains(buildingList.Id));
 		query = PrepareTypes(query, buildingList);
 		query = PrepareNumbers(query, buildingList);
 		query = PrepareDateAndLocation(query, buildingList);
@@ -46,7 +44,7 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	protected override IQueryable<Building> PrepareListQuery(IQueryable<Building> query, IPagination settings)
 	{
 		if (settings is not BuildingList buildingList) return base.PrepareListQuery(query, settings);
-		if (buildingList.Id > 0) return query.Where(e => e.Id == buildingList.Id.Value);
+		if (!string.IsNullOrEmpty(buildingList.Id)) return query.Where(e => e.Id.Contains(buildingList.Id));
 		query = PrepareTypes(query, buildingList);
 		query = PrepareNumbers(query, buildingList);
 		query = PrepareDateAndLocation(query, buildingList);
@@ -54,137 +52,110 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	}
 
 	/// <inheritdoc />
-	public IQueryable<BuildingImage> ListImages(int buildingId, IPagination settings = null)
+	public IQueryable<BuildingImage> ListImages(string buildingId, IPagination settings = null)
 	{
 		ThrowIfDisposed();
 		return PrepareImageListQuery(buildingId, settings);
 	}
 
 	/// <inheritdoc />
-	public Task<IList<BuildingImage>> ListImagesAsync(int buildingId, IPagination settings = null, CancellationToken token = default(CancellationToken))
+	public Task<IList<BuildingImage>> ListImagesAsync(string buildingId, IPagination settings = null, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
-		settings ??= new Pagination();
-		return PrepareImageListQuery(buildingId, settings).Paginate(settings).ToListAsync(token).As<List<BuildingImage>, IList<BuildingImage>>(token);
+		IQueryable<BuildingImage> queryable = ListImages(buildingId, settings)
+			.OrderByDescending(e => e.Priority);
+		if (settings is { PageSize: > 0 }) queryable = queryable.Paginate(settings);
+		return queryable.ToListAsync(token)
+						.As<List<BuildingImage>, IList<BuildingImage>>(token);
 	}
 
 	/// <inheritdoc />
-	public int CountImages(int buildingId, IPagination settings = null)
+	public int CountImages(string buildingId, IPagination settings = null)
 	{
 		ThrowIfDisposed();
 		return PrepareImageCountQuery(buildingId, settings).Count();
 	}
 
 	/// <inheritdoc />
-	public Task<int> CountImagesAsync(int buildingId, IPagination settings = null, CancellationToken token = default(CancellationToken))
+	public Task<int> CountImagesAsync(string buildingId, IPagination settings = null, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
-		settings ??= new Pagination();
 		return PrepareImageCountQuery(buildingId, settings).CountAsync(token);
+	}
+
+	/// <inheritdoc />
+	public BuildingImage GetImage(string buildingId)
+	{
+		ThrowIfDisposed();
+		return Images.Where(e => e.BuildingId == buildingId)
+					.OrderByDescending(e => e.Priority)
+					.FirstOrDefault();
+	}
+
+	/// <inheritdoc />
+	public Task<BuildingImage> GetImageAsync(string buildingId, CancellationToken token = default(CancellationToken))
+	{
+		ThrowIfDisposed();
+		token.ThrowIfCancellationRequested();
+		return Images.Where(e => e.BuildingId == buildingId)
+					.OrderByDescending(e => e.Priority)
+					.FirstOrDefaultAsync(token);
 	}
 
 	/// <inheritdoc />
 	public BuildingImage GetImage(int id)
 	{
 		ThrowIfDisposed();
-		return PrepareImageGetQuery(id).FirstOrDefault();
+		return Images.Find(id);
 	}
 
 	/// <inheritdoc />
-	public Task<BuildingImage> GetImageAsync(int id, CancellationToken token = default(CancellationToken))
+	public ValueTask<BuildingImage> GetImageAsync(int id, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
-		return PrepareImageGetQuery(id).FirstOrDefaultAsync(token);
+		return Images.FindAsync(new object[] { id }, token);
 	}
 
 	/// <inheritdoc />
-	public BuildingImage GetImage(int id, IGetSettings settings)
+	public BuildingImage AddImage(BuildingImage image)
 	{
 		ThrowIfDisposed();
-		return PrepareImageGetQuery(id, settings).FirstOrDefault();
-	}
-
-	/// <inheritdoc />
-	public Task<BuildingImage> GetImageAsync(int id, IGetSettings settings = null, CancellationToken token = default(CancellationToken))
-	{
-		ThrowIfDisposed();
-		token.ThrowIfCancellationRequested();
-		return PrepareImageGetQuery(id, settings).FirstOrDefaultAsync(token);
-	}
-
-	/// <inheritdoc />
-	public void AddImage(int buildingId, string imageUrl)
-	{
-		ThrowIfDisposed();
-		if (string.IsNullOrEmpty(imageUrl)) throw new ArgumentNullException(nameof(imageUrl));
-		Building building = DbSet.Find(buildingId);
-		if (building == null) throw new ArgumentOutOfRangeException(nameof(buildingId));
-		AddImage(building, imageUrl);
-	}
-
-	/// <inheritdoc />
-	public async ValueTask AddImageAsync(int buildingId, string imageUrl, CancellationToken token = default(CancellationToken))
-	{
-		ThrowIfDisposed();
-		token.ThrowIfCancellationRequested();
-		if (string.IsNullOrEmpty(imageUrl)) throw new ArgumentNullException(nameof(imageUrl));
-		Building building = await DbSet.FindAsync(new object[] { buildingId }, token);
-		if (building == null) throw new ArgumentOutOfRangeException(nameof(buildingId));
-		await AddImageAsync(building, imageUrl, token);
-	}
-
-	/// <inheritdoc />
-	public void AddImage(Building building, string imageUrl)
-	{
-		ThrowIfDisposed();
-		if (string.IsNullOrEmpty(imageUrl)) throw new ArgumentNullException(nameof(imageUrl));
-
-		Images.Add(new BuildingImage
-		{
-			BuildingId = building.Id,
-			ImageUrl = imageUrl
-		});
-	}
-
-	/// <inheritdoc />
-	public async ValueTask AddImageAsync(Building building, string imageUrl, CancellationToken token = default(CancellationToken))
-	{
-		ThrowIfDisposed();
-		token.ThrowIfCancellationRequested();
-		if (string.IsNullOrEmpty(imageUrl)) throw new ArgumentNullException(nameof(imageUrl));
-
-		await Images.AddAsync(new BuildingImage
-		{
-			BuildingId = building.Id,
-			ImageUrl = imageUrl
-		}, token);
-	}
-
-	/// <inheritdoc />
-	public BuildingImage UpdateImage(int id, string imageUrl)
-	{
-		ThrowIfDisposed();
-		if (string.IsNullOrEmpty(imageUrl)) throw new ArgumentNullException(nameof(imageUrl));
-		BuildingImage image = Images.Find(id);
-		if (image == null) return null;
-		image.ImageUrl = imageUrl;
-		Context.Entry(image).State = EntityState.Modified;
+		Images.Add(image);
 		return image;
 	}
 
 	/// <inheritdoc />
-	public async ValueTask<BuildingImage> UpdateImageAsync(int id, string imageUrl, CancellationToken token = default(CancellationToken))
+	public async ValueTask<BuildingImage> AddImageAsync(BuildingImage image, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
-		if (string.IsNullOrEmpty(imageUrl)) throw new ArgumentNullException(nameof(imageUrl));
-		BuildingImage image = await Images.FindAsync(new object[] { id }, token);
-		if (image == null) return null;
-		image.ImageUrl = imageUrl;
-		Context.Entry(image).State = EntityState.Modified;
+		await Images.AddAsync(image, token);
+		return image;
+	}
+
+	/// <inheritdoc />
+	public BuildingImage UpdateImage(BuildingImage image)
+	{
+		ThrowIfDisposed();
+
+		if (Context.Entry(image).State == EntityState.Detached) Images.Add(image);
+		else Context.Entry(image).State = EntityState.Modified;
+
+		return image;
+	}
+
+	/// <inheritdoc />
+	public async Task<BuildingImage> UpdateImageAsync(BuildingImage image, CancellationToken token = default(CancellationToken))
+	{
+		ThrowIfDisposed();
+		token.ThrowIfCancellationRequested();
+
+		if (Context.Entry(image).State == EntityState.Detached) await Images.AddAsync(image, token);
+		else Context.Entry(image).State = EntityState.Modified;
+
 		return image;
 	}
 
@@ -199,7 +170,7 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	}
 
 	/// <inheritdoc />
-	public async ValueTask<BuildingImage> DeleteImageAsync(int id, CancellationToken token = default(CancellationToken))
+	public async Task<BuildingImage> DeleteImageAsync(int id, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
@@ -217,14 +188,22 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	}
 
 	/// <inheritdoc />
-	public ValueTask<BuildingImage> DeleteImageAsync(BuildingImage image, CancellationToken token = default(CancellationToken))
+	public Task<BuildingImage> DeleteImageAsync(BuildingImage image, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
-		return new ValueTask<BuildingImage>(DeleteImageInternal(image));
+		return Task.Run(() => DeleteImageInternal(image), token);
 	}
 
-	private IQueryable<BuildingImage> PrepareImageCountQuery(int buildingId, IPagination settings) { return PrepareImageCountQuery(Images.Where(e => e.BuildingId == buildingId), settings); }
+	/// <inheritdoc />
+	public void DeleteImages(string buildingId)
+	{
+		ThrowIfDisposed();
+		IQueryable<BuildingImage> queryable = Images.Where(e => e.BuildingId == buildingId);
+		Images.RemoveRange(queryable);
+	}
+
+	private IQueryable<BuildingImage> PrepareImageCountQuery([NotNull] string buildingId, IPagination settings) { return PrepareImageCountQuery(Images.Where(e => e.BuildingId == buildingId), settings); }
 	private static IQueryable<BuildingImage> PrepareImageCountQuery(IQueryable<BuildingImage> query, IPagination settings)
 	{
 		if (settings is IIncludeSettings { Include.Count: > 0 } includeSettings)
@@ -241,7 +220,7 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 		return query;
 	}
 
-	private IQueryable<BuildingImage> PrepareImageListQuery(int buildingId, IPagination settings) { return PrepareImageListQuery(Images.Where(e => e.BuildingId == buildingId), settings); }
+	private IQueryable<BuildingImage> PrepareImageListQuery([NotNull] string buildingId, IPagination settings) { return PrepareImageListQuery(Images.Where(e => e.BuildingId == buildingId), settings); }
 	private static IQueryable<BuildingImage> PrepareImageListQuery(IQueryable<BuildingImage> query, IPagination settings)
 	{
 		if (settings is IIncludeSettings { Include.Count: > 0 } includeSettings)
@@ -269,42 +248,6 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 			}
 
 			query = query.ThenBy(field.Name, field.Type);
-		}
-
-		return query;
-	}
-
-	[NotNull]
-	private IQueryable<BuildingImage> PrepareImageGetQuery(int id)
-	{
-		IQueryable<BuildingImage> query = Images;
-		StringBuilder filter = new StringBuilder();
-		filter.Append($"({KeyProperty.Name} == ");
-
-		if (KeyProperty.PropertyType.IsNumeric())
-			filter.Append(id);
-		else
-			filter.Append($"\"{id}\"");
-
-		filter.Append(")");
-		query = query.Where(filter.ToString());
-		return query;
-	}
-
-	[NotNull]
-	private IQueryable<BuildingImage> PrepareImageGetQuery(int id, IGetSettings settings)
-	{
-		IQueryable<BuildingImage> query = PrepareImageGetQuery(id);
-
-		if (settings is IIncludeSettings { Include.Count: > 0 } includeSettings)
-		{
-			query = includeSettings.Include.SkipNullOrEmpty()
-									.Aggregate(query, (current, path) => current.Include(path));
-		}
-
-		if (settings is IFilterSettings filterSettings && !string.IsNullOrWhiteSpace(filterSettings.FilterExpression))
-		{
-			query = query.Where(filterSettings.FilterExpression);
 		}
 
 		return query;

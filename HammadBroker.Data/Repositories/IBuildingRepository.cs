@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using essentialMix.Core.Data.Entity.Patterns.Repository;
-using essentialMix.Data.Patterns.Parameters;
 using essentialMix.Patterns.Pagination;
 using HammadBroker.Data.Context;
 using HammadBroker.Model.Entities;
@@ -11,29 +10,35 @@ using JetBrains.Annotations;
 
 namespace HammadBroker.Data.Repositories;
 
-public interface IBuildingRepository : IRepository<DataContext, Building, int>
+public interface IBuildingRepository : IRepository<DataContext, Building, string>
 {
-	IQueryable<BuildingImage> ListImages(int buildingId, IPagination settings = null);
+	IQueryable<BuildingImage> ListImages([NotNull] string buildingId, IPagination settings = null);
 	[NotNull]
-	Task<IList<BuildingImage>> ListImagesAsync(int buildingId, IPagination settings = null, CancellationToken token = default(CancellationToken));
-	int CountImages(int buildingId, IPagination settings = null);
+	Task<IList<BuildingImage>> ListImagesAsync([NotNull] string buildingId, IPagination settings = null, CancellationToken token = default(CancellationToken));
+	int CountImages([NotNull] string buildingId, IPagination settings = null);
 	[NotNull]
-	Task<int> CountImagesAsync(int buildingId, IPagination settings = null, CancellationToken token = default(CancellationToken));
+	Task<int> CountImagesAsync([NotNull] string buildingId, IPagination settings = null, CancellationToken token = default(CancellationToken));
+	BuildingImage GetImage([NotNull] string buildingId);
+	[NotNull]
+	Task<BuildingImage> GetImageAsync([NotNull] string buildingId, CancellationToken token = default(CancellationToken));
 	BuildingImage GetImage(int id);
+	ValueTask<BuildingImage> GetImageAsync(int id, CancellationToken token = default(CancellationToken));
 	[NotNull]
-	Task<BuildingImage> GetImageAsync(int id, CancellationToken token = default(CancellationToken));
-	BuildingImage GetImage(int id, IGetSettings settings);
+	BuildingImage AddImage([NotNull] BuildingImage image);
+	[ItemNotNull]
+	ValueTask<BuildingImage> AddImageAsync([NotNull] BuildingImage image, CancellationToken token = default(CancellationToken));
 	[NotNull]
-	Task<BuildingImage> GetImageAsync(int id, IGetSettings settings = null, CancellationToken token = default(CancellationToken));
-	void AddImage(int buildingId, [NotNull] string imageUrl);
-	ValueTask AddImageAsync(int buildingId, [NotNull] string imageUrl, CancellationToken token = default(CancellationToken));
-	void AddImage([NotNull] Building building, [NotNull] string imageUrl);
-	ValueTask AddImageAsync([NotNull] Building building, [NotNull] string imageUrl, CancellationToken token = default(CancellationToken));
-	BuildingImage UpdateImage(int id, [NotNull] string imageUrl);
-	ValueTask<BuildingImage> UpdateImageAsync(int id, [NotNull] string imageUrl, CancellationToken token = default(CancellationToken));
+	BuildingImage UpdateImage([NotNull] BuildingImage image);
+	[NotNull]
+	[ItemNotNull]
+	Task<BuildingImage> UpdateImageAsync([NotNull] BuildingImage image, CancellationToken token = default(CancellationToken));
 	BuildingImage DeleteImage(int id);
-	ValueTask<BuildingImage> DeleteImageAsync(int id, CancellationToken token = default(CancellationToken));
+	[NotNull]
+	Task<BuildingImage> DeleteImageAsync(int id, CancellationToken token = default(CancellationToken));
 	[NotNull]
 	BuildingImage DeleteImage([NotNull] BuildingImage image);
-	ValueTask<BuildingImage> DeleteImageAsync([NotNull] BuildingImage image, CancellationToken token = default(CancellationToken));
+	[NotNull]
+	[ItemNotNull]
+	Task<BuildingImage> DeleteImageAsync([NotNull] BuildingImage image, CancellationToken token = default(CancellationToken));
+	void DeleteImages([NotNull] string buildingId);
 }

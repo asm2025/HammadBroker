@@ -8,7 +8,7 @@ public class BuildingForList : IBuildingLookup
 {
 	/// <inheritdoc />
 	[Display(Name = "رقم")]
-	public int Id { get; set; }
+	public string Id { get; set; }
 	/// <inheritdoc />
 	[Display(Name = "نوع العقار")]
 	public BuildingType BuildingType { get; set; }
@@ -20,9 +20,6 @@ public class BuildingForList : IBuildingLookup
 	/// <inheritdoc />
 	[Display(Name = "المدينة")]
 	public int CityId { get; set; }
-	/// <inheritdoc />
-	[Display(Name = "الوصف")]
-	public string ShortDescription { get; set; }
 	[Display(Name = "نوع الاعلان")]
 	public BuildingAdType AdType { get; set; }
 	public string AdTypeName => AdType.GetDisplayName();
@@ -34,11 +31,4 @@ public class BuildingForList : IBuildingLookup
 	[Display(Name = "ينتهي في")]
 	[DisplayFormat(DataFormatString = "{0:D}")]
 	public DateTime? Expires { get; set; }
-	[Display(Name = "تليفون")]
-	public string Phone { get; set; }
-	[Display(Name = "محمول")]
-	public string Mobile { get; set; }
-	[Display(Name = "السعر")]
-	[DisplayFormat(DataFormatString = "{0:#,#.##}")]
-	public long Price { get; set; }
 }

@@ -7,7 +7,7 @@ namespace HammadBroker.Model.Parameters;
 public class BuildingList : SortablePagination
 {
 	[Display(Name = "الرقم")]
-	public int? Id { get; set; }
+	public string Id { get; set; }
 	[Display(Name = "نوع العقار")]
 	public BuildingType? BuildingType { get; set; }
 	[Display(Name = "نوع التشطيب")]
@@ -43,7 +43,7 @@ public class BuildingList : SortablePagination
 	[Display(Name = "بحد أقصى")]
 	public long? MaxPrice { get; set; }
 
-	public virtual bool HasSearch => !string.IsNullOrEmpty(Search)
+	public virtual bool HasSearch => !string.IsNullOrEmpty(Id)
 							|| BuildingType.HasValue
 							|| FinishingType.HasValue
 							|| Floor.HasValue
