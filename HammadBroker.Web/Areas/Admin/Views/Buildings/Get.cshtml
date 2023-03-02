@@ -2,8 +2,8 @@
 @model BuildingForDetails
 
 @{
-	ViewData["Title"] = Model.Name;
-	int id = Context.Request.Query["id"].To(0);
+	string id = Context.Request.Query["id"];
+	ViewData["Title"] = $"#{id} {Model.BuildingTypeName} {Model.AdTypeName} {Model.FinishingTypeName}";
 }
 
 <div class="row mb-1">

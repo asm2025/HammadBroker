@@ -1,0 +1,11 @@
+Development:
+	Users:
+		UserName: admin
+		Email: admin@localhost
+		Password: Admin@123
+Production:
+	Users:
+		UserName: admin
+		Email: admin@aqarathammad.com
+		Password: Admin@123
+		

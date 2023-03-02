@@ -7,11 +7,17 @@ using essentialMix.Patterns.Pagination;
 using HammadBroker.Data.Context;
 using HammadBroker.Model.Entities;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace HammadBroker.Data.Repositories;
 
 public interface IBuildingRepository : IRepository<DataContext, Building, string>
 {
+	public DbSet<BuildingImage> Images { get; }
+
+	IDictionary<string, string> GetMainImages([NotNull] ICollection<string> ids);
+	[NotNull]
+	Task<IDictionary<string, string>> GetMainImagesAsync([NotNull] ICollection<string> ids, CancellationToken token = default(CancellationToken));
 	IQueryable<BuildingImage> ListImages([NotNull] string buildingId, IPagination settings = null);
 	[NotNull]
 	Task<IList<BuildingImage>> ListImagesAsync([NotNull] string buildingId, IPagination settings = null, CancellationToken token = default(CancellationToken));
@@ -40,5 +46,4 @@ public interface IBuildingRepository : IRepository<DataContext, Building, string
 	[NotNull]
 	[ItemNotNull]
 	Task<BuildingImage> DeleteImageAsync([NotNull] BuildingImage image, CancellationToken token = default(CancellationToken));
-	void DeleteImages([NotNull] string buildingId);
 }

@@ -2,13 +2,6 @@
 	"SeedData": {
 		"Users": [
 			{
-				"FirstName": "Amr",
-				"NickName": "Amr Hammad",
-				"UserName": "hammad",
-				"Password": "ASD!%(,atr9015&vret",
-				"Email": "hammad@aqarathammad.com"
-			},
-			{
 				"FirstName": "Administrator",
 				"NickName": "Admin",
 				"UserName": "admin",

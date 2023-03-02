@@ -249,31 +249,17 @@ public class Program
 			.AddTransient<ICityRepository, CityRepository>()
 			.AddTransient<IIdentityRepository, IdentityRepository>()
 			.AddTransient<IBuildingRepository, BuildingRepository>()
-			.AddTransient<IBuildingAdRepository, BuildingAdRepository>()
 			// Services
 			.AddTransient<IUploaderService, UploaderService>()
 			.AddTransient<ILookupService, LookupService>()
 			.AddTransient<ICityService, CityService>()
 			.AddTransient<IIdentityService, IdentityService>()
 			.AddTransient<IBuildingService, BuildingService>()
-			.AddTransient<IBuildingAdService, BuildingAdService>()
 			// Authorization
 			.AddAuthorization(options =>
 			{
-				options.AddPolicy(Constants.Authorization.MemberPolicy, policy =>
-				{
-					policy.RequireRole(Role.System, Role.Administrators, Role.Members);
-				});
-
-				options.AddPolicy(Constants.Authorization.AdministrationPolicy, policy =>
-				{
-					policy.RequireRole(Role.System, Role.Administrators);
-				});
-
-				options.AddPolicy(Constants.Authorization.SystemPolicy, policy =>
-				{
-					policy.RequireRole(Role.System);
-				});
+				options.AddPolicy(Constants.Authorization.MemberPolicy, policy => policy.RequireRole(Role.Administrators, Role.Members));
+				options.AddPolicy(Constants.Authorization.AdministrationPolicy, policy => policy.RequireRole(Role.Administrators));
 			})
 			// MVC
 			.AddControllersWithViews(options =>

@@ -3,14 +3,13 @@
 public class BuildingModel
 {
 	private bool _canEdit;
-	private bool _canUpload;
 
 	public BuildingModel(IBuilding building)
 	{
 		Building = building;
 	}
 
-	public int Id { get; set; }
+	public string Id { get; set; }
 
 	public bool ReadOnly { get; set; }
 
@@ -20,11 +19,7 @@ public class BuildingModel
 		set => _canEdit = value;
 	}
 
-	public bool CanUpload
-	{
-		get => Id > 0 && _canUpload;
-		set => _canUpload = value;
-	}
+	public bool CanUpload { get; set; }
 
 	public IBuilding Building { get; }
 }

@@ -1,14 +1,10 @@
 ﻿@using HammadBroker.Model.DTO
 @using Microsoft.AspNetCore.Antiforgery
-@using Microsoft.AspNetCore.Authorization
-@using HammadBroker.Model
 @inject IAntiforgery Antiforgery
-@inject IAuthorizationService AuthorizationService
 @model CitiesPaginated
+
 @{
 	ViewData["Title"] = "المدن";
-	bool isSystem = (await AuthorizationService.AuthorizeAsync(User, Constants.Authorization.SystemPolicy)).Succeeded;
-	bool showCountry = string.IsNullOrEmpty(Model.Pagination.CountryCode);
 	bool hasSearch = Model.Pagination.HasSearch;
 }
 
@@ -17,23 +13,13 @@
 		aria-expanded="@(hasSearch ? "true" : "false")" aria-controls="searchForm">البحث</h5>
 	<div id="searchForm" v-scope class="card-body @(hasSearch ? null : "collapse")">
 		<form method="get" asp-area="Admin" asp-controller="Cities" asp-action="Index">
-			<div v-if="errors && errors.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="error of errors">
-				{{ error }}
-				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-			</div>
-
 			<div class="row g-0 mb-1">
-				<div class="col-sm-12 col-md-6">
-					<input type="hidden" name="@nameof(CitiesPaginated.Pagination.CountryCode)" asp-for="Pagination.CountryCode" :value="countryCode" />
-					<autocomplete class="w-100" input-class="w-100" :suggestions="countries" option-label="name" placeholder="@Html.DisplayNameFor(e => e.Pagination.CountryCode)" 
-								v-model="selectedCountry" data-key="id" dropdown v-on:complete="fetchCountries($event.query)">
-					</autocomplete>
-				</div>
-				<div class="col-sm-12 col-md-6">
-					<input class="form-control" name="@nameof(CitiesPaginated.Pagination.Search)" asp-for="Pagination.Search" placeholder="@Html.DisplayNameFor(e => e.Pagination.Search)" />
+				<div class="col-12">
+					<label asp-for="Pagination.Search" class="form-label"></label>
+					<input class="form-control" asp-for="Pagination.Search" />
 				</div>
 			</div>
-			<div class="g-0 my-1">
+			<div class="row g-0 px-2 my-1">
 				<button type="submit" class="btn btn-outline-secondary btn-sm me-1"><span class="fa fa-magnifying-glass"></span></button>
 				<button type="reset" class="btn btn-outline-secondary btn-sm border-0" v-on:click="onReset"><span class="fa fa-times"></span></button>
 			</div>
@@ -42,21 +28,14 @@
 </div>
 <div class="row mb-1">
 	<div class="col-12">
-		<a href="#" onclick="JavaScript:addCity();" class="btn btn-outline-primary border-0"><i class="fa fa-plus"></i> إضافة مدينة</a>
+		<a asp-area="Admin" asp-controller="Cities" asp-action="Add" class="btn btn-outline-primary border-0"><i class="fa fa-plus"></i> إضافة مدينة</a>
 	</div>
 </div>
 <div class="table-responsive">
 	<table class="table table-borderless table-hover">
 		<thead>
 			<tr>
-				@if (isSystem)
-				{
-					<th scope="col" class="auto-cell"></th>
-				}
-				@if (showCountry)
-				{
-					<th scope="col" class="auto-cell">@Html.DisplayNameForInnerType((CityForList e) => e.CountryCode)</th>
-				}
+				<th scope="col" class="auto-cell"></th>
 				<th scope="col">@Html.DisplayNameForInnerType((CityForList e) => e.Name)</th>
 			</tr>
 		</thead>
@@ -64,17 +43,10 @@
 			@foreach (CityForList city in Model.Result)
 			{
 				<tr>
-					@if (isSystem)
-					{
-						<th scope="row" class="text-nowrap">
-							<a class="btn btn-outline-secondary btn-sm border-0 mb-1" asp-area="Admin" asp-controller="Cities" asp-action="Edit" asp-route-id="@city.Id"><i class="fa fa-pen"></i></a>
-							<a class="btn btn-outline-danger btn-sm border-0 mb-1" onclick="JavaScript:deleteCity(@city.Id, '@city.Name');"><i class="fa fa-xmark"></i></a>
-						</th>
-					}
-					@if (showCountry)
-					{
-						<td>@city.CountryCode</td>
-					}
+					<th scope="row" class="text-nowrap">
+						<a class="btn btn-outline-secondary btn-sm border-0 mb-1" asp-area="Admin" asp-controller="Cities" asp-action="Edit" asp-route-id="@city.Id"><i class="fa fa-pen"></i></a>
+						<a class="btn btn-outline-danger btn-sm border-0 mb-1" onclick="JavaScript:deleteCity(@city.Id, '@city.Name');"><i class="fa fa-xmark"></i></a>
+					</th>
 					<td>@city.Name</td>
 				</tr>
 			}
@@ -84,20 +56,8 @@
 <partial name="_PaginationPartial" model="Model.Pagination" />
 
 @section scripts
-	{
+{
 	<script type="text/javascript">
-		function addCity() {
-			const countryCode = $("input[name='@nameof(CitiesPaginated.Pagination.CountryCode)']").val() || "";
-			const url = '@Url.Action("Add", "Cities", new
-			             {
-							 area = "Admin"
-			             })';
-			const params = new URLSearchParams({
-				countryCode
-			});
-			window.location.href = url + '?' + params.toString();
-		}
-
 		async function deleteCity(id, name) {
 			if (!confirm(`هل تريد حذف مدينة '${name}'?`)) return;
 
@@ -122,75 +82,5 @@
 				alert(ex.message || ex);
 			} 
 		}
-	</script>
-	<script type="text/javascript" defer>
-		const { createApp, nextTick } = Vue;
-
-		const DELAY = 300;
-		
-		createApp({
-			data() {
-				return {
-					loading: false,
-					selectedCountry: null,
-					countryCode: "@Model.Pagination.CountryCode",
-					countries: [],
-					errors: []
-				}
-			},
-			watch: {
-				selectedCountry(newValue) {
-					if (newValue && newValue.id)
-						this.countryCode = newValue.id;
-					else
-						this.countryCode = "";
-				}
-			},
-			methods: {
-				async fetchData() {
-					this.errors.length = 0;
-					await this.fetchCountries();
-				},
-				async fetchCountries(search) {
-					this.loading = true;
-					search = search && search.trim();
-					
-					try {
-						const url = `@Url.Action("Countries", "Cities", new
-									 {
-										 area = "Admin"
-									 })`;
-						const params = new URLSearchParams({
-							countryCode: this.countryCode,
-							search: search ? encodeURIComponent(search) : ""
-						});
-						const response = await window.fetch(url + "?" + params);
-
-						if (!response.ok) {
-							const error = await getResponseError(response);
-							throw error;
-						}
-						
-						this.countries = await response.json();
-						this.selectedCountry = this.countries.find(e => e.id === this.countryCode);
-					} catch (e) {
-						this.selectedCountry = null;
-						alert(e.message || e);
-					} finally {
-						this.loading = false;
-					}
-				},
-				onReset() {
-					this.errors.length = 0;
-					this.selectedCountry = null;
-				}
-			},
-			mounted() {
-				this.fetchData();
-			}
-		})
-		.use(primevue.config.default)
-		.component("autocomplete", primevue.autocomplete)
-		.mount("#searchForm");
 	</script>
 }

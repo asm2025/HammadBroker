@@ -1,21 +1,19 @@
 ﻿@using Microsoft.AspNetCore.Antiforgery
 @using HammadBroker.Model
 @using HammadBroker.Model.DTO
-@using HammadBroker.Model.Configuration
 @using HammadBroker.Model.VirtualPath
 @using System.Configuration
 @using Microsoft.Extensions.Configuration
 @inject IAntiforgery Antiforgery
-@inject CompanyInfo CompanyInfo
 @inject VirtualPathSettings VirtualPathSettings
 @inject IConfiguration Configuration
 @model BuildingModel
 
 @{
 	string action = Model.CanEdit
-						? Url.Action(Model.Id > 0
-										? "Edit"
-										: "Add", "Buildings", new
+						? Url.Action(string.IsNullOrEmpty(Model.Id)
+										? "Add"
+										: "Edit", "Buildings", new
 										{
 											area = "Admin",
 											id = Model.Id
@@ -50,7 +48,7 @@
 		<div class="card card-body position-relative">
 			@if (string.IsNullOrEmpty(Model.Building.VideoId))
 			{
-				<img class="img-fluid" :src="`@Context.Request.Scheme://@Context.Request.Host/@basePath/${images[0].imageUrl || '@placeholderImage'}`" alt=""
+				<img class="img-fluid" :src="`@Context.Request.Scheme://@Context.Request.Host/@basePath/${(images && images.length && images[0].imageUrl ? images[0].imageUrl : '@placeholderImage')}`" alt=""
 					v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host/@basePath/@placeholderImage'`"/>
 				<div class="position-absolute bottom-0 mb-3 mx-3 d-flex align-items-center z-3">
 					@if (Model.CanUpload)
@@ -157,87 +155,132 @@
 
 	@if (Model.CanEdit)
 	{
-		<div class="row px-2">
+		<div class="row g-0 px-2">
 			<div class="col-12">
-				<input class="form-control" asp-for="Building.VideoId" placeholder="@Html.DisplayNameFor(e => e.Building.VideoId)" title="@Html.DisplayNameFor(e => e.Building.VideoId)"/>
+				<label asp-for="Building.VideoId" class="form-label"></label>
+				<input class="form-control" asp-for="Building.VideoId" />
 				<span asp-validation-for="Building.VideoId" class="text-danger"></span>
 			</div>
 		</div>
-		<div class="row px-2">
-			<div class="col-sm-12 col-md-6">
-				<select asp-for="Building.BuildingType" class="form-select" asp-items="Html.GetEnumSelectList<BuildingType>()" title="@Html.DisplayNameFor(e => e.Building.BuildingType)">
+		<div class="row g-0 px-2">
+			<div class="col-sm-12 col-md-4">
+				<label asp-for="Building.BuildingType" class="form-label"></label>
+				<select asp-for="Building.BuildingType" class="form-select" asp-items="Html.GetEnumSelectList<BuildingType>()">
 					<option value="">@Html.DisplayNameFor(e => e.Building.BuildingType)</option>
 				</select>
 				<span asp-validation-for="Building.BuildingType" class="text-danger"></span>
 			</div>
-			<div class="col-sm-12 col-md-6">
-				<select asp-for="Building.FinishingType" class="form-select" asp-items="Html.GetEnumSelectList<FinishingType>()" title="@Html.DisplayNameFor(e => e.Building.FinishingType)">
+			<div class="col-sm-12 col-md-4">
+				<label asp-for="Building.FinishingType" class="form-label"></label>
+				<select asp-for="Building.FinishingType" class="form-select" asp-items="Html.GetEnumSelectList<FinishingType>()">
 					<option value="">@Html.DisplayNameFor(e => e.Building.FinishingType)</option>
 				</select>
 				<span asp-validation-for="Building.FinishingType" class="text-danger"></span>
 			</div>
+			<div class="col-sm-12 col-md-4">
+				<label asp-for="Building.AdType" class="form-label"></label>
+				<select asp-for="Building.AdType" class="form-select" asp-items="Html.GetEnumSelectList<BuildingAdType>()">
+					<option value="">@Html.DisplayNameFor(e => e.Building.AdType)</option>
+				</select>
+				<span asp-validation-for="Building.AdType" class="text-danger"></span>
+			</div>
 		</div>
-		<div class="row px-2">
-			<div class="col-sm-12 col-md-6">
-				<input class="form-control" asp-for="Building.Floor" placeholder="@Html.DisplayNameFor(e => e.Building.Floor)" title="@Html.DisplayNameFor(e => e.Building.Floor)"/>
+		<div class="row g-0 px-2">
+			<div class="col-sm-12 col-md-3">
+				<label asp-for="Building.Rooms" class="form-label"></label>
+				<input class="form-control" asp-for="Building.Rooms" />
+				<span asp-validation-for="Building.Rooms" class="text-danger"></span>
+			</div>
+			<div class="col-sm-12 col-md-3">
+				<label asp-for="Building.Bathrooms" class="form-label"></label>
+				<input class="form-control" asp-for="Building.Bathrooms" />
+				<span asp-validation-for="Building.Bathrooms" class="text-danger"></span>
+			</div>
+			<div class="col-sm-12 col-md-3">
+				<label asp-for="Building.Floor" class="form-label"></label>
+				<input class="form-control" asp-for="Building.Floor" />
 				<span asp-validation-for="Building.Floor" class="text-danger"></span>
 			</div>
-			<div class="col-sm-12 col-md-6">
-				<input class="form-control" asp-for="Building.Area" placeholder="@Html.DisplayNameFor(e => e.Building.Area)" title="@Html.DisplayNameFor(e => e.Building.Area)"/>
+			<div class="col-sm-12 col-md-3">
+				<label asp-for="Building.Area" class="form-label"></label>
+				<input class="form-control" asp-for="Building.Area" />
 				<span asp-validation-for="Building.Area" class="text-danger"></span>
 			</div>
 		</div>
-		<div class="row px-2">
-			<div class="col-sm-12 col-md-6">
-				<input class="form-control" asp-for="Building.Rooms" placeholder="@Html.DisplayNameFor(e => e.Building.Rooms)" title="@Html.DisplayNameFor(e => e.Building.Rooms)"/>
-				<span asp-validation-for="Building.Rooms" class="text-danger"></span>
-			</div>
-			<div class="col-sm-12 col-md-6">
-				<input class="form-control" asp-for="Building.Bathrooms" placeholder="@Html.DisplayNameFor(e => e.Building.Bathrooms)" title="@Html.DisplayNameFor(e => e.Building.Bathrooms)"/>
-				<span asp-validation-for="Building.Bathrooms" class="text-danger"></span>
-			</div>
-		</div>
-		<div class="row px-2">
+		<div class="row g-0 px-2">
 			<div class="col-12">
-				<input class="form-control" asp-for="Building.Address" placeholder="@Html.DisplayNameFor(e => e.Building.Address)" title="@Html.DisplayNameFor(e => e.Building.Address)"/>
+				<label asp-for="Building.Address" class="form-label"></label>
+				<input class="form-control" asp-for="Building.Address" />
 				<span asp-validation-for="Building.Address" class="text-danger"></span>
 			</div>
 		</div>
-		<div class="row px-2">
-			<div class="col-12">
-				<input class="form-control" asp-for="Building.Address2" placeholder="@Html.DisplayNameFor(e => e.Building.Address2)" title="@Html.DisplayNameFor(e => e.Building.Address2)"/>
+		<div class="row g-0 px-2">
+			<div class="col-sm-12 col-md-6">
+				<label asp-for="Building.Address2" class="form-label"></label>
+				<input class="form-control" asp-for="Building.Address2" />
 				<span asp-validation-for="Building.Address2" class="text-danger"></span>
 			</div>
-		</div>
-		<div class="row px-2">
-			<div class="col-12">
-				<input type="hidden" asp-for="Building.CityId" :value="cityId"/>
+			<div class="col-sm-12 col-md-6">
+				<label asp-for="Building.CityId" class="form-label"></label>
+				<input type="hidden" asp-for="Building.CityId" :value="cityId" />
 				<autocomplete class="w-100" input-class="w-100" :suggestions="cities" option-label="name"
-							placeholder="@Html.DisplayNameFor(e => e.Building.CityId)"
-							title="@Html.DisplayNameFor(e => e.Building.CityId)" :min-length="0" v-model="selectedCity" 
-							data-key="id" dropdown v-on:complete="fetchCities(countryCode, $event.query)">
+							:min-length="0" v-model="selectedCity" data-key="id" dropdown 
+							v-on:complete="fetchCities(countryCode, $event.query)">
 				</autocomplete>
 				<span asp-validation-for="Building.CityId" class="text-danger"></span>
 			</div>
 		</div>
-		<div class="row px-2">
+		<div class="row g-0 px-2">
 			<div class="col-12">
-				<input class="form-control" asp-for="Building.ShortDescription" placeholder="@Html.DisplayNameFor(e => e.Building.ShortDescription)" title="@Html.DisplayNameFor(e => e.Building.ShortDescription)"/>
+				<label asp-for="Building.ShortDescription" class="form-label"></label>
+				<input class="form-control" asp-for="Building.ShortDescription" />
 				<span asp-validation-for="Building.ShortDescription" class="text-danger"></span>
 			</div>
 		</div>
-		<div class="row px-2">
+		<div class="row g-0 px-2">
 			<div class="col-12">
-				<textarea class="form-control" asp-for="Building.Description" rows="5" 
-					placeholder="@Html.DisplayNameFor(e => e.Building.Description)"
-					title="@Html.DisplayNameFor(e => e.Building.Description)">
-					</textarea>
+				<label asp-for="Building.Description" class="form-label"></label>
+				<textarea class="form-control" asp-for="Building.Description" rows="5">
+				</textarea>
 				<span asp-validation-for="Building.Description" class="text-danger"></span>
 			</div>
 		</div>
-		<div class="g-0 my-1">
+		<div class="row g-0 px-2">
+			<div class="col-sm-12 col-md-6">
+				<label asp-for="Building.Date" class="form-label"></label>
+				<input type="hidden" name="@($"{nameof(Model.Building)}.{nameof(Model.Building.Date)}")" :value="date"/>
+				<calendar class="w-100" v-model="date" selection-mode="single" date-format="yy/mm/dd">
+				</calendar>
+				<span asp-validation-for="Building.Date" class="text-danger"></span>
+			</div>
+			<div class="col-sm-12 col-md-6">
+				<label asp-for="Building.Expires" class="form-label"></label>
+				<input type="hidden" name="@($"{nameof(Model.Building)}.{nameof(Model.Building.Expires)}")" :value="expires"/>
+				<calendar class="w-100" v-model="expires" selection-mode="single" date-format="yy/mm/dd">
+				</calendar>
+				<span asp-validation-for="Building.Expires" class="text-danger"></span>
+			</div>
+		</div>
+		<div class="row g-0 px-2">
+			<div class="col-sm-12 col-md-4">
+				<label asp-for="Building.Phone" class="form-label"></label>
+				<input class="form-control" asp-for="Building.Phone" dir="ltr" />
+				<span asp-validation-for="Building.Phone" class="text-danger"></span>
+			</div>
+			<div class="col-sm-12 col-md-4">
+				<label asp-for="Building.Mobile" class="form-label"></label>
+				<input class="form-control" asp-for="Building.Mobile" dir="ltr" />
+				<span asp-validation-for="Building.Mobile" class="text-danger"></span>
+			</div>
+			<div class="col-sm-12 col-md-4">
+				<label asp-for="Building.Price" class="form-label"></label>
+				<input class="form-control" asp-for="Building.Price" />
+				<span asp-validation-for="Building.Price" class="text-danger"></span>
+			</div>
+		</div>
+		<div class="row g-0 px-2 my-1">
 			<button type="submit" class="btn btn-primary border-0 me-1">حفظ</button>
-			@if (Model.Id > 0)
+			@if (string.IsNullOrEmpty(Model.Id))
 			{
 				<a class="btn btn-outline-primary border-0 me-1" asp-area="Admin" asp-controller="Buildings" asp-action="Get" asp-route-id="@Model.Id">الغاء</a>
 			}
@@ -250,7 +293,13 @@
 	}
 	else
 	{
-		<div class="row g-0">
+		<div class="row g-0 px-2">
+			<div class="col-12">
+				<small class="text-muted">#@Model.Building.Id</small>
+				<h5>@Model.Building.BuildingTypeName @Model.Building.AdTypeName @Model.Building.FinishingTypeName</h5>
+			</div>
+		</div>
+		<div class="row g-0 px-2">
 			<div class="col-12">
 				<i class="fa fa-location-dot"></i>
 				@Html.DisplayFor(e => e.Building.Address)
@@ -262,6 +311,40 @@
 					@Html.DisplayFor(e => cityNameLookup.CityName)
 				}
 			</div>
+		</div>
+		<div class="row g-0 px-2">
+			@if (Model.Building.Floor > 0)
+			{
+				<div class="col">
+					<i class="fa fa-building"></i>
+					<label asp-for="Building.Floor" class="form-label"></label>&nbsp;
+					@Html.DisplayFor(e => e.Building.Floor)
+				</div>
+			}
+			@if (Model.Building.Rooms > 0)
+			{
+				<div class="col">
+					<i class="fa fa-person-shelter"></i>
+					@Html.DisplayFor(e => e.Building.Rooms)
+					<label asp-for="Building.Rooms" class="form-label"></label>&nbsp;
+				</div>
+			}
+			@if (Model.Building.Bathrooms > 0)
+			{
+				<div class="col">
+					<i class="fa fa-restroom"></i>
+					@Html.DisplayFor(e => e.Building.Bathrooms)
+					<label asp-for="Building.Bathrooms" class="form-label"></label>:&nbsp;
+				</div>
+			}
+			@if (Model.Building.Area > 0)
+			{
+				<div class="col">
+					<i class="fa fa-square"></i>
+					@Html.DisplayFor(e => e.Building.Area) م
+					<label asp-for="Building.Area" class="form-label"></label>:&nbsp;
+				</div>
+			}
 		</div>
 		@if (!string.IsNullOrEmpty(Model.Building.ShortDescription))
 		{
@@ -279,45 +362,30 @@
 				</div>
 			</div>
 		}
-		<div class="row g-0">
-			@if (Model.Building.Floor > 0)
+		<div class="row g-0 px-2">
+			@if (!string.IsNullOrEmpty(Model.Building.Phone))
 			{
 				<div class="col">
-					<i class="fa fa-building"></i>
-					<label asp-for="Building.Floor"></label>&nbsp;
-					@Html.DisplayFor(e => e.Building.Floor)
+					<label asp-for="Building.Phone" class="form-label"></label>
+					@Html.DisplayFor(e => e.Building.Phone)
 				</div>
 			}
-			@if (Model.Building.Rooms > 0)
+			@if (!string.IsNullOrEmpty(Model.Building.Mobile))
 			{
 				<div class="col">
-					<i class="fa fa-person-shelter"></i>
-					@Html.DisplayFor(e => e.Building.Rooms)
-					<label asp-for="Building.Rooms"></label>&nbsp;
+					<label asp-for="Building.Mobile" class="form-label"></label>
+					@Html.DisplayFor(e => e.Building.Mobile)
 				</div>
 			}
-			@if (Model.Building.Bathrooms > 0)
-			{
-				<div class="col">
-					<i class="fa fa-restroom"></i>
-					@Html.DisplayFor(e => e.Building.Bathrooms)
-					<label asp-for="Building.Bathrooms"></label>:&nbsp;
-				</div>
-			}
-			@if (Model.Building.Area > 0)
-			{
-				<div class="col">
-					<i class="fa fa-square"></i>
-					@Html.DisplayFor(e => e.Building.Area) م
-					<label asp-for="Building.Area"></label>:&nbsp;
-				</div>
-			}
+			<div class="col">
+				<label asp-for="Building.Price" class="form-label"></label>
+				@Html.DisplayFor(e => e.Building.Price) جنيه
+			</div>
 		</div>
 		@if (!Model.ReadOnly)
 		{
 			<div class="g-0 my-4">
 				<a asp-area="Admin" asp-controller="Buildings" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary border-0 me-1">تعديل</a>
-				<a asp-area="Admin" asp-controller="Ads" asp-action="Add" asp-route-buildingId="@Model.Id" class="btn btn-outline-primary border-0 me-1">إضافة إعلان</a>
 			</div>
 		}
 	}
@@ -338,20 +406,19 @@
 
 		return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + _FILE_SIZES[i];
 	};
-
 	const _fetchCities = _.debounce(async (self, search) => {
 		self.loading = true;
 		search = search && search.trim();
 
 		try {
-			const url = `@Url.Action("List", "Cities", new
-			             {
-				             area = "Admin"
-			             })`;
 			const params = new URLSearchParams({
 				search: search ? encodeURIComponent(search) : ""
 			});
-			const response = await window.fetch(url + "?" + params);
+			const url = `@Url.Action("List", "Cities", new
+			             {
+				             area = "Admin"
+			             })?${params}`;
+			const response = await window.fetch(url);
 
 			if (!response.ok) {
 				const error = await getResponseError(response);
@@ -367,15 +434,49 @@
 		} finally {
 			self.loading = false;
 		}
-		},
-		DELAY,
-		{ leading: true });
+		}, DELAY, { leading: true });
+	const _fetchImages = _.debounce(async (self) => {
+		self.errors.length = 0;
+		
+		const id = "@Model.Id";
+
+		if (!id) {
+			self.images = [];
+			return;
+		}
+
+		self.loading = true;
+
+		try {
+			const params = new URLSearchParams({
+				id
+			});
+			const url = `@Url.Action("ListImages", "Buildings", new
+			             {
+				             area = "Admin"
+			             })?${params}`;
+			const response = await window.fetch(url + "?" + params);
+
+			if (!response.ok) {
+				const error = await getResponseError(response);
+				throw error;
+			}
+
+			self.images = await response.json();
+		} catch (e) {
+			self.images = [];
+			alert(e.message || e);
+		} finally {
+			self.loading = false;
+		}
+	}, DELAY, { trailing: true });
 
 	createApp({
 			data() {
 				return {
 					loading: false,
-					selectedCountry: null,
+					date: '@Model.Building.Date.ToString("yyyy/MM/dd")',
+					expires: '@Model.Building.Expires?.ToString("yyyy/MM/dd")',
 					selectedCity: null,
 					cityId: @Model.Building.CityId,
 					cities: [],
@@ -400,40 +501,20 @@
 				}
 			},
 			methods: {
-				async fetchData() {
+				fetchData() {
 					this.errors.length = 0;
-					this.fetchCities();
-					await this.fetchImages();
+					@if(Model.CanEdit)
+					{
+						@:this.fetchCities();
+					}
+
+					this.fetchImages();
 				},
 				fetchCities(search) {
 					_fetchCities(this, search);
 				},
-				async fetchImages() {
-					this.errors.length = 0;
-					this.loading = true;
-
-					try {
-						const url = `@Url.Action("ListImages", "Buildings", new
-						             {
-							             area = "Admin"
-						             })`;
-						const params = new URLSearchParams({
-							id: @Model.Id
-						});
-						const response = await window.fetch(url + "?" + params);
-
-						if (!response.ok) {
-							const error = await getResponseError(response);
-							throw error;
-						}
-
-						this.images = await response.json();
-					} catch (e) {
-						this.images = [];
-						alert(e.message || e);
-					} finally {
-						this.loading = false;
-					}
+				fetchImages() {
+					_fetchImages(this);
 				},
 				onFilesSelected(event) {
 					this.uploadedSize = 0;
@@ -461,11 +542,13 @@
 					this.uploadedSize = 0;
 					this.uploadProgress = 0;
 
-					const url = "@Url.Action("AddImage", "Buildings", new
+					const params = new URLSearchParams({
+						id: "@Model.Id"
+					})
+					const url = `@Url.Action("AddImage", "Buildings", new
 					             {
 						             area = "Admin",
-						             Model.Id
-					             })";
+					             })?${params}`;
 					const files = event.files;
 
 					for (const file of files) {
@@ -511,7 +594,7 @@
 				onError(event) {
 					if (event.files && event.files.length) {
 						for (const file of event.files) {
-							this.errors.push("حدث خطأ أثناء تحميل الملف: " + file.name);
+							this.errors.push(`حدث خطأ أثناء تحميل الملف ${file.name}.`);
 						}
 					} else {
 						this.errors.push("حدث خطأ أثناء التحميل.");
@@ -590,6 +673,7 @@
 		.use(primevue.config.default)
 		.use(primevue.toastservice)
 		.component("autocomplete", primevue.autocomplete)
+		.component("calendar", primevue.calendar)
 		.component("galleria", primevue.galleria)
 		.component("fileupload", primevue.fileupload)
 		.component("progressbar", primevue.progressbar)

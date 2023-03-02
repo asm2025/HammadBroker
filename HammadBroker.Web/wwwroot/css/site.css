@@ -323,7 +323,7 @@ a {
 	white-space: nowrap !important;
 }
 
-.row > .btn-sm {
+.row > .btn {
 	width: auto;
 }
 
@@ -524,6 +524,12 @@ span.oi {
 
 .overflow-y-visible {
 	overflow-y: visible !important;
+}
+
+.validation-summary-errors ul,
+.validation-summary-errors ol {
+	list-style-type: none;
+	padding: 0;
 }
 
 .multiselect-tags .tag {

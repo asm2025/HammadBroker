@@ -23,6 +23,6 @@ public interface IBuildingForDisplay : IBuildingLookup
 	[Display(Name = "السعر")]
 	[DisplayFormat(DataFormatString = "{0:#,#.##}")]
 	public long Price { get; set; }
-	[Display(Name = "الوصف")]
+	[Display(Name = "الوصف المختصر")]
 	public string ShortDescription { get; set; }
 }

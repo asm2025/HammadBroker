@@ -4,7 +4,7 @@ namespace HammadBroker.Model;
 
 public static class Constants
 {
-	public const string ApplicationName = "HammadBroker";
+	public const string ApplicationName = "AqaratHammad";
 
 	public static readonly TimeSpan MigrationTimeout = TimeSpan.FromMinutes(2);
 
@@ -16,16 +16,13 @@ public static class Constants
 
 	public static class Authorization
 	{
-		public const string SystemPolicy = "RequireSystemRole";
 		public const string AdministrationPolicy = "RequireAdministratorRole";
 		public const string MemberPolicy = "RequireMemberRole";
 
 #if DEBUG
-		public const string SystemId = "super@localhost";
 		public const string AdministratorId = "admin@localhost";
 #else
-		public const string SystemId = "super@hammadBroker.com";
-		public const string AdministratorId = "admin@hammadBroker.com";
+		public const string AdministratorId = "admin@aqarathammad.com";
 #endif
 	}
 
@@ -38,8 +35,8 @@ public static class Constants
 		public const int MaxImagesUpload = 30;
 	}
 
-	public static class Building
+	public static class Buildings
 	{
-		public const int IdentifierLength = 10;
+		public const int IdentifierLength = 40;
 	}
 }

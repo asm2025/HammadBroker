@@ -7,7 +7,10 @@ namespace HammadBroker.Model.DTO;
 public class BuildingToUpdate : IBuilding
 {
 	/// <inheritdoc />
-	int IBuildingLookup.Id { get; set; }
+	string IBuildingLookup.Id { get; set; }
+
+	/// <inheritdoc />
+	string IBuildingLookup.ImageUrl { get; set; }
 
 	/// <inheritdoc />
 	[Display(Name = "معرف Youtube")]
@@ -70,31 +73,34 @@ public class BuildingToUpdate : IBuilding
 	[StringLength(4096)]
 	[DataType(DataType.MultilineText)]
 	public string Description { get; set; }
+
 	[Display(Name = "النوع")]
 	public BuildingAdType AdType { get; set; }
 	public string AdTypeName => AdType.GetDisplayName();
 
 	[Display(Name = "الاولوية")]
 	public byte? Priority { get; set; }
-	[Display(Name = "العقار")]
-	[Required]
-	public int BuildingId { get; set; }
+
 	[Display(Name = "التاريخ")]
 	[Required]
 	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}")]
 	public DateTime Date { get; set; }
+
 	[Display(Name = "تاريخ الانتهاء")]
 	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}")]
 	public DateTime? Expires { get; set; }
+
 	[Display(Name = "التليفون")]
 	[Required]
 	[Phone]
 	[DataType(DataType.PhoneNumber)]
 	public string Phone { get; set; }
+
 	[Display(Name = "المحمول")]
 	[Phone]
 	[DataType(DataType.PhoneNumber)]
 	public string Mobile { get; set; }
+
 	[Display(Name = "السعر")]
 	[DisplayFormat(DataFormatString = "{0:#,#.##}")]
 	[Required]

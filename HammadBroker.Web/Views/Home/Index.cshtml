@@ -1,10 +1,8 @@
 ﻿@using HammadBroker.Model.DTO
 @using HammadBroker.Model
-@using HammadBroker.Model.Configuration
 @using Humanizer
 @using System.Globalization
-@inject CompanyInfo CompanyInfo
-@model BuildingAdsForDisplayPaginated
+@model BuildingsPaginated<BuildingForDisplay>
 @{
 	ViewData["Title"] = string.Empty;
 	bool hasSearch = Model.Pagination.HasSearch;
@@ -24,94 +22,98 @@
 			</div>
 
 			<div class="row g-0 mb-1">
-				<div class="col-sm-12 col-md-6">
-					<input class="form-control" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.Id)" asp-for="Pagination.Id" placeholder="@Html.DisplayNameFor(e => e.Pagination.Id)" />
+				<div class="col-sm-12 col-md-4">
+					<label asp-for="Pagination.Id" class="form-label"></label>
+					<input class="form-control" name="@nameof(Model.Pagination.Id)" asp-for="Pagination.Id" />
 				</div>
-				<div class="col-sm-12 col-md-6">
-					<input class="form-control" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.Search)" asp-for="Pagination.Search" placeholder="@Html.DisplayNameFor(e => e.Pagination.Search)" />
-				</div>
-			</div>
-			<div class="row g-0 mb-1">
-				<div class="col-sm-12 col-md-6">
-					<select class="form-select" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.AdType)" asp-for="Pagination.AdType" asp-items="Html.GetEnumSelectList<BuildingAdType>()" placeholder="@Html.DisplayNameFor(e => e.Pagination.AdType)">
-						<option value="">@Html.DisplayNameFor(e => e.Pagination.AdType)</option>
-					</select>
-				</div>
-				<div class="col-sm-12 col-md-6">
-					<input type="hidden" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.Date)" :value="date" />
-					<input type="hidden" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.MaxDate)" :value="maxDate" />
-					<calendar class="w-100" placeholder="@Html.DisplayNameFor(e => e.Pagination.Date)"
-							  v-model="dateRange" selection-mode="range" date-format="yy/mm/dd">
-					</calendar>
-				</div>
-			</div>
-			<div class="row g-0 mb-1">
-				<div class="col-sm-12 col-md-6">
-					<input class="form-control" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.Price)" asp-for="Pagination.Price" placeholder="@Html.DisplayNameFor(e => e.Pagination.Price)" />
-				</div>
-				<div class="col-sm-12 col-md-6">
-					<input class="form-control" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.MaxPrice)" asp-for="Pagination.MaxPrice" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxPrice)" />
-				</div>
-			</div>
-			<div class="row g-0 mb-1">
-				<div class="col-sm-12 col-md-6">
-					<select class="form-select" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.BuildingType)" asp-for="Pagination.BuildingType" asp-items="Html.GetEnumSelectList<BuildingType>()" placeholder="@Html.DisplayNameFor(e => e.Pagination.BuildingType)">
+				<div class="col-sm-12 col-md-4">
+					<label asp-for="Pagination.BuildingType" class="form-label"></label>
+					<select class="form-select" name="@nameof(Model.Pagination.BuildingType)" asp-for="Pagination.BuildingType" asp-items="Html.GetEnumSelectList<BuildingType>()">
 						<option value="">@Html.DisplayNameFor(e => e.Pagination.BuildingType)</option>
 					</select>
 				</div>
-				<div class="col-sm-12 col-md-6">
-					<select class="form-select" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.FinishingType)" asp-for="Pagination.FinishingType" asp-items="Html.GetEnumSelectList<FinishingType>()" placeholder="@Html.DisplayNameFor(e => e.Pagination.FinishingType)">
+				<div class="col-sm-12 col-md-4">
+					<label asp-for="Pagination.FinishingType" class="form-label"></label>
+					<select class="form-select" name="@nameof(Model.Pagination.FinishingType)" asp-for="Pagination.FinishingType" asp-items="Html.GetEnumSelectList<FinishingType>()">
 						<option value="">@Html.DisplayNameFor(e => e.Pagination.FinishingType)</option>
 					</select>
 				</div>
 			</div>
 			<div class="row g-0 mb-1">
 				<div class="col-sm-12 col-md-6">
-					<input class="form-control" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.Floor)" asp-for="Pagination.Floor" placeholder="@Html.DisplayNameFor(e => e.Pagination.Floor)" />
+					<label asp-for="Pagination.AdType" class="form-label"></label>
+					<select class="form-select" name="@nameof(Model.Pagination.AdType)" asp-for="Pagination.AdType" asp-items="Html.GetEnumSelectList<BuildingAdType>()">
+						<option value="">@Html.DisplayNameFor(e => e.Pagination.AdType)</option>
+					</select>
 				</div>
 				<div class="col-sm-12 col-md-6">
-					<input class="form-control" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.MaxFloor)" asp-for="Pagination.MaxFloor" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxFloor)" />
-				</div>
-			</div>
-			<div class="row g-0 mb-1">
-				<div class="col-sm-12 col-md-6">
-					<input class="form-control" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.Rooms)" asp-for="Pagination.Rooms" placeholder="@Html.DisplayNameFor(e => e.Pagination.Rooms)" />
-				</div>
-				<div class="col-sm-12 col-md-6">
-					<input class="form-control" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.MaxRooms)" asp-for="Pagination.MaxRooms" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxRooms)" />
-				</div>
-			</div>
-			<div class="row g-0 mb-1">
-				<div class="col-sm-12 col-md-6">
-					<input class="form-control" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.Bathrooms)" asp-for="Pagination.Bathrooms" placeholder="@Html.DisplayNameFor(e => e.Pagination.Bathrooms)" />
-				</div>
-				<div class="col-sm-12 col-md-6">
-					<input class="form-control" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.MaxBathrooms)" asp-for="Pagination.MaxBathrooms" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxBathrooms)" />
+					<label asp-for="Pagination.Date" class="form-label"></label>
+					<input type="hidden" name="@nameof(Model.Pagination.Date)" :value="date"/>
+					<input type="hidden" name="@nameof(Model.Pagination.MaxDate)" :value="maxDate"/>
+					<calendar class="w-100" v-model="dateRange" selection-mode="range" date-format="yy/mm/dd">
+					</calendar>
 				</div>
 			</div>
 			<div class="row g-0 mb-1">
-				<div class="col-sm-12 col-md-6">
-					<input class="form-control" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.Area)" asp-for="Pagination.Area" placeholder="@Html.DisplayNameFor(e => e.Pagination.Area)" />
+				<div class="col-sm-12 col-md-8">
+					<label asp-for="Pagination.Address" class="form-label"></label>
+					<input class="form-control" name="@nameof(Model.Pagination.Address)" asp-for="Pagination.Address" />
 				</div>
-				<div class="col-sm-12 col-md-6">
-					<input class="form-control" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.MaxArea)" asp-for="Pagination.MaxArea" placeholder="@Html.DisplayNameFor(e => e.Pagination.MaxArea)" />
-				</div>
-			</div>
-			<div class="row g-0 mb-1">
-				<div class="col-sm-12 col-md-6">
-					<input type="hidden" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.CountryCode)" asp-for="Pagination.CountryCode" :value="countryCode" />
-					<autocomplete class="w-100" input-class="w-100" :suggestions="countries" option-label="name" placeholder="@Html.DisplayNameFor(e => e.Pagination.CountryCode)"
-								  v-model="selectedCountry" data-key="id" dropdown v-on:complete="fetchCountries($event.query)" v-on:change="fetchCities($event.value)">
-					</autocomplete>
-				</div>
-				<div class="col-sm-12 col-md-6">
-					<input type="hidden" name="@nameof(BuildingAdsForDisplayPaginated.Pagination.CityId)" asp-for="Pagination.CityId" :value="cityId" />
-					<autocomplete class="w-100" input-class="w-100" :suggestions="cities" option-label="name" placeholder="@Html.DisplayNameFor(e => e.Pagination.CityId)"
-								  v-model="selectedCity" data-key="id" dropdown v-on:complete="fetchCities(countryCode, $event.query)">
+				<div class="col-sm-12 col-md-4">
+					<label asp-for="Pagination.CityId" class="form-label"></label>
+					<input type="hidden" name="@nameof(Model.Pagination.CityId)" asp-for="Pagination.CityId" :value="cityId" />
+					<autocomplete class="w-100" input-class="w-100" :suggestions="cities" option-label="name"
+								v-model="selectedCity" data-key="id" dropdown v-on:complete="fetchCities($event.query)">
 					</autocomplete>
 				</div>
 			</div>
-			<div class="g-0 my-1">
+			<div class="row g-0 mb-1">
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Pagination.Rooms" class="form-label"></label>
+					<input class="form-control" name="@nameof(Model.Pagination.Rooms)" asp-for="Pagination.Rooms" />
+				</div>
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Pagination.MaxRooms" class="form-label"></label>
+					<input class="form-control" name="@nameof(Model.Pagination.MaxRooms)" asp-for="Pagination.MaxRooms" />
+				</div>
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Pagination.Bathrooms" class="form-label"></label>
+					<input class="form-control" name="@nameof(Model.Pagination.Bathrooms)" asp-for="Pagination.Bathrooms" />
+				</div>
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Pagination.MaxBathrooms" class="form-label"></label>
+					<input class="form-control" name="@nameof(Model.Pagination.MaxBathrooms)" asp-for="Pagination.MaxBathrooms" />
+				</div>
+			</div>
+			<div class="row g-0 mb-1">
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Pagination.Floor" class="form-label"></label>
+					<input class="form-control" name="@nameof(Model.Pagination.Floor)" asp-for="Pagination.Floor" />
+				</div>
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Pagination.MaxFloor" class="form-label"></label>
+					<input class="form-control" name="@nameof(Model.Pagination.MaxFloor)" asp-for="Pagination.MaxFloor" />
+				</div>
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Pagination.Area" class="form-label"></label>
+					<input class="form-control" name="@nameof(Model.Pagination.Area)" asp-for="Pagination.Area" />
+				</div>
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Pagination.MaxArea" class="form-label"></label>
+					<input class="form-control" name="@nameof(Model.Pagination.MaxArea)" asp-for="Pagination.MaxArea" />
+				</div>
+			</div>
+			<div class="row g-0 mb-1">
+				<div class="col-sm-12 col-md-6">
+					<label asp-for="Pagination.Price" class="form-label"></label>
+					<input class="form-control" name="@nameof(Model.Pagination.Price)" asp-for="Pagination.Price" />
+				</div>
+				<div class="col-sm-12 col-md-6">
+					<label asp-for="Pagination.MaxPrice" class="form-label"></label>
+					<input class="form-control" name="@nameof(Model.Pagination.MaxPrice)" asp-for="Pagination.MaxPrice" />
+				</div>
+			</div>
+			<div class="row g-0 px-2 my-1">
 				<button type="submit" class="btn btn-outline-secondary btn-sm me-1"><span class="fa fa-magnifying-glass"></span></button>
 				<button type="reset" class="btn btn-outline-secondary btn-sm border-0" v-on:click="onReset"><span class="fa fa-times"></span></button>
 			</div>
@@ -119,72 +121,70 @@
 	</div>
 </div>
 
-@foreach (BuildingAdForDisplay ad in Model.Result)
+@foreach (BuildingForDisplay building in Model.Result)
 {
 <div class="card mb-2">
-	<div class="row g-0" role="button" onclick="window.location = '@Url.Action("Get", "Home", new { area = "", id = ad.Id })'">
+	<div class="row g-0" role="button" onclick="window.location = '@Url.Action("Get", "Home", new { area = "", id = building.Id })'">
 		<div class="col-md-4 p-0 overflow-hidden">
-			<img-asset src="@ad.ImageUrl" readonly imageclass="img-fluid rounded-top-right mw-100" />
+			<img-asset src="@building.ImageUrl" readonly imageclass="img-fluid rounded-top-right mw-100" />
 		</div>
 		<div class="col-md-8">
 			<div class="card-body px-2 h-100">
-				<div class="d-flex flex-column h-100" role="button" onclick="window.location = '@Url.Action("Get", "Home", new { area = "", id = ad.Id })'">
-					<small class="text-muted">#@ad.BuildingId @ad.BuildingTypeName @ad.FinishingTypeName @ad.AdTypeName</small>
-					<h5 class="card-title">@Html.DisplayFor(e => ad.Price) جنيه</h5>
-					<div class="row g-0">
-						<div class="col-12">@ad.Name</div>
-					</div>
+				<div class="d-flex flex-column h-100" role="button" onclick="window.location = '@Url.Action("Get", "Home", new { area = "", id = building.Id })'">
+					<small class="text-muted">#@building.Id @building.BuildingTypeName @building.FinishingTypeName @building.AdTypeName</small>
+					<h5 class="card-title">@Html.DisplayFor(e => building.Price) جنيه</h5>
 					<div class="row g-0 flex-grow-1">
 						<div class="col-12">
-							@Html.DisplayFor(e => ad.Description)
+							@Html.DisplayFor(e => building.ShortDescription)
 						</div>
 					</div>
 					<div class="row g-0">
 						<div class="col-12">
-							<i class="fa fa-location-dot"></i>
-							@Html.DisplayFor(e => ad.Address)
-							&nbsp;
-							@Html.DisplayFor(e => ad.Address2)
-							&nbsp;
-							@Html.DisplayFor(e => ad.CityName)
-							&nbsp;
-							@if (ad.CountryCode != CompanyInfo.CountryCode && !string.IsNullOrEmpty(ad.CountryName))
-							{
-								@Html.DisplayFor(e => ad.CountryName)
-							}
+							<p>
+								<i class="fa fa-location-dot"></i>
+								@Html.DisplayFor(e => building.Address)
+							</p>
+							<p>
+								@if (!string.IsNullOrEmpty(building.Address2))
+								{
+									@Html.DisplayFor(e => building.Address2)
+									@:&nbsp;
+								}
+								@Html.DisplayFor(e => building.CityName)
+							</p>
 						</div>
 					</div>
 					<div class="row g-0">
-						@if (ad.Floor > 0)
+						@if (building.Floor > 0)
 						{
 							<div class="col">
 								<i class="fa fa-building"></i>
-								<label for="@nameof(BuildingAdForDisplay.Floor)">@Html.DisplayNameFor(e => ad.Floor) </label>
-								@Html.DisplayFor(e => ad.Floor)
+								<label for="@nameof(building.Floor)">@Html.DisplayNameFor(e => building.Floor) </label>
+								@Html.DisplayFor(e => building.Floor)
 							</div>
 						}
-						@if (ad.Rooms > 0)
+						@if (building.Rooms > 0)
 						{
 							<div class="col">
 								<i class="fa fa-person-shelter"></i>
-								@Html.DisplayFor(e => ad.Rooms)
-								<label for="@nameof(BuildingAdForDisplay.Rooms)">@Html.DisplayNameFor(e => ad.Rooms) </label>
+								@Html.DisplayFor(e => building.Rooms)
+								<label for="@nameof(building.Rooms)">@Html.DisplayNameFor(e => building.Rooms) </label>
 							</div>
 						}
-						@if (ad.Bathrooms > 0)
+						@if (building.Bathrooms > 0)
 						{
 							<div class="col">
 								<i class="fa fa-restroom"></i>
-								@Html.DisplayFor(e => ad.Bathrooms)
-								<label for="@nameof(BuildingAdForDisplay.Bathrooms)">@Html.DisplayNameFor(e => ad.Bathrooms) </label>
+								@Html.DisplayFor(e => building.Bathrooms)
+								<label for="@nameof(building.Bathrooms)">@Html.DisplayNameFor(e => building.Bathrooms) </label>
 							</div>
 						}
-						@if (ad.Area > 0)
+						@if (building.Area > 0)
 						{
 							<div class="col">
 								<i class="fa fa-square"></i>
-								@Html.DisplayFor(e => ad.Area)
-								<label for="@nameof(BuildingAdForDisplay.Area)">@Html.DisplayNameFor(e => ad.Area) </label>
+								@Html.DisplayFor(e => building.Area)
+								<label for="@nameof(building.Area)">@Html.DisplayNameFor(e => building.Area) </label>
 							</div>
 						}
 					</div>
@@ -194,21 +194,21 @@
 	</div>
 	<div class="card-footer d-flex align-items-center">
 		<div class="flex-grow-1">
-			نشر @ad.Date.Humanize(culture: ciar)
+			نشر @building.Date.Humanize(culture: ciar)
 		</div>
 		<div class="d-inline-flex">
-			@if (!string.IsNullOrEmpty(ad.Phone))
+			@if (!string.IsNullOrEmpty(building.Phone))
 			{
 				<div class="btn-contact">
 					<i class="fa fa-phone fa-xl"></i>
-					@Html.DisplayFor(e => ad.Phone)
+					@Html.DisplayFor(e => building.Phone)
 				</div>
 			}
-			@if (!string.IsNullOrEmpty(ad.Mobile))
+			@if (!string.IsNullOrEmpty(building.Mobile))
 			{
 				<div class="btn-contact">
 					<i class="fa fa-mobile-screen fa-xl"></i>
-					@Html.DisplayFor(e => ad.Mobile)
+					@Html.DisplayFor(e => building.Mobile)
 				</div>
 			}
 			<div class="btn-contact btn-whatsApp">
@@ -234,6 +234,7 @@
 		const DATE = "@Model.Pagination.Date?.ToString("yyyy/MM/dd")";
 		const MAX_DATE = "@Model.Pagination.MaxDate?.ToString("yyyy/MM/dd")";
 		const DATE_RANGE = "@string.Join(" - ", Model.Pagination.Date?.ToString("yyyy/MM/dd"), Model.Pagination.MaxDate?.ToString("yyyy/MM/dd")).Trim('-', ' ')";
+		
 		createApp({
 			data() {
 				return {
@@ -241,9 +242,6 @@
 					date: DATE,
 					maxDate: MAX_DATE,
 					dateRange: DATE_RANGE,
-					selectedCountry: null,
-					countryCode: "@Model.Pagination.CountryCode",
-					countries: [],
 					selectedCity: null,
 					cityId: @Model.Pagination.CityId,
 					cities: [],
@@ -251,12 +249,6 @@
 				}
 			},
 			watch: {
-				selectedCountry(newValue) {
-					if (newValue && newValue.id)
-						this.countryCode = newValue.id;
-					else
-						this.countryCode = "";
-				},
 				selectedCity(newValue) {
 					if (newValue && newValue.id)
 						this.cityId = newValue.id;
@@ -283,58 +275,22 @@
 			methods: {
 				async fetchData() {
 					this.errors.length = 0;
-					await this.fetchCountries();
-					await this.fetchCities(this.countryCode);
+					await this.fetchCities();
 				},
-				async fetchCountries(search) {
+				async fetchCities(search) {
 					this.loading = true;
 					search = search && search.trim();
-					
+
 					try {
-						const url = `@Url.Action("Countries", "Home", new
-									 {
-										 area = ""
-									 })`;
 						const params = new URLSearchParams({
 							countryCode: this.countryCode,
 							search: search ? encodeURIComponent(search) : ""
 						});
-						const response = await window.fetch(url + "?" + params);
-
-						if (!response.ok) {
-							const error = await getResponseError(response);
-							throw error;
-						}
-						
-						this.countries = await response.json();
-						this.selectedCountry = this.countries.find(e => e.id === this.countryCode);
-					} catch (e) {
-						this.selectedCountry = null;
-						alert(e.message || e);
-					} finally {
-						this.loading = false;
-					}
-				},
-				async fetchCities(countryCode, search) {
-					if (!countryCode) {
-						this.selectedCity = null;
-						this.cities = [];
-						return;
-					}
-					
-					this.loading = true;
-					search = search && search.trim();
-
-					try {
 						const url = `@Url.Action("Cities", "Home", new
 									 {
 										 area = ""
-									 })`;
-						const params = new URLSearchParams({
-							countryCode: this.countryCode,
-							search: search ? encodeURIComponent(search) : ""
-						});
-						const response = await window.fetch(url + "?" + params);
+									 })?${params}`;
+						const response = await window.fetch(url);
 
 						if (!response.ok) {
 							const error = await getResponseError(response);

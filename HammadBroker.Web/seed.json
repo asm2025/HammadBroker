@@ -5,13 +5,6 @@
 				"EmailConfirmed": true,
 				"Genders": "Unspecified",
 				"Roles": [
-					"System"
-				]
-			},
-			{
-				"EmailConfirmed": true,
-				"Genders": "Unspecified",
-				"Roles": [
 					"Admin"
 				]
 			}

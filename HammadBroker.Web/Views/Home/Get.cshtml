@@ -1,12 +1,12 @@
 ﻿@using HammadBroker.Model.DTO
-@model BuildingAdForDetails
+@model BuildingForDetails
 
 @{
-	ViewData["Title"] = Model.Name;
-	int id = Context.Request.Query["id"].To(0);
+	string id = Context.Request.Query["id"];
+	ViewData["Title"] = $"#{id} {Model.BuildingTypeName} {Model.AdTypeName} {Model.FinishingTypeName}";
 }
 
-@await Component.InvokeAsync(typeof(BuildingAdViewComponent), new BuildingAdModel(Model, Model)
+@await Component.InvokeAsync(typeof(BuildingViewComponent), new BuildingModel(Model)
 	   {
 		   Id = id,
 		   CanEdit = false,

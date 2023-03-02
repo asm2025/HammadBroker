@@ -29,10 +29,7 @@ public class BuildingForDisplay : BuildingForList, IBuildingForDisplay, ICityNam
 	public string Phone { get; set; }
 	[Display(Name = "محمول")]
 	public string Mobile { get; set; }
-	[Display(Name = "السعر")]
-	[DisplayFormat(DataFormatString = "{0:#,#.##}")]
-	public long Price { get; set; }
 	/// <inheritdoc />
-	[Display(Name = "الوصف")]
+	[Display(Name = "الوصف المختصر")]
 	public string ShortDescription { get; set; }
 }

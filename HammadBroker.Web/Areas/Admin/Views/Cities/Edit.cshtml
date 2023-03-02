@@ -6,9 +6,9 @@
 
 <form asp-area="Admin" asp-controller="Cities" asp-action="Edit" asp-route-id="@Context.Request.Query["id"]" Method="post" enctype="multipart/form-data">
 	<div asp-validation-summary="ModelOnly"></div>
-	<input type="hidden" asp-for="CountryCode" />
 	<div class="mb-1">
-		<input class="form-control" asp-for="Name" placeholder="@Html.DisplayNameFor(e => e.Name)" title="@Html.DisplayNameFor(e => e.Name)" />
+		<label asp-for="Name" class="form-label"></label>
+		<input class="form-control" asp-for="Name" />
 		<span asp-validation-for="Name" class="text-danger"></span>
 	</div>
 	<div class="mb-1">

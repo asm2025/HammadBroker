@@ -70,21 +70,12 @@
 								<a class="nav-link btn border-0 rounded-0" menu-route asp-area="" asp-page="/About">من نحن</a>
 							</li>
 							<li class="nav-item btn-group" policy="@Constants.Authorization.AdministrationPolicy">
-								<a class="nav-link btn border-0 rounded-0" menu-route asp-area="Admin" asp-controller="Ads" asp-action="Index">الاعلانات</a>
+								<a class="nav-link btn border-0 rounded-0" asp-area="Admin" asp-controller="Buildings" asp-action="Index">الاعلانات</a>
 								<a class="nav-link btn border-0 rounded-0 dropdown-toggle dropdown-toggle-split" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 									<span class="visually-hidden">Toggle Dropdown</span>
 								</a>
 								<ul class="dropdown-menu">
-									<li><a class="dropdown-item" asp-area="Admin" asp-controller="Ads" asp-action="Add">اضافة اعلان</a></li>
-								</ul>
-							</li>
-							<li class="nav-item btn-group" policy="@Constants.Authorization.AdministrationPolicy">
-								<a class="nav-link btn border-0 rounded-0" asp-area="Admin" asp-controller="Buildings" asp-action="Index">العقارات</a>
-								<a class="nav-link btn border-0 rounded-0 dropdown-toggle dropdown-toggle-split" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-									<span class="visually-hidden">Toggle Dropdown</span>
-								</a>
-								<ul class="dropdown-menu">
-									<li><a class="dropdown-item" asp-area="Admin" asp-controller="Buildings" asp-action="Add">اضافة عقار</a></li>
+									<li><a class="dropdown-item" asp-area="Admin" asp-controller="Buildings" asp-action="Add">اضافة اعلان</a></li>
 								</ul>
 							</li>
 							<li class="nav-item btn-group" policy="@Constants.Authorization.AdministrationPolicy">

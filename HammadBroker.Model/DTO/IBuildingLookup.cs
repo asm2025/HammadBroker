@@ -7,6 +7,8 @@ public interface IBuildingLookup
 {
 	[Display(Name = "رقم")]
 	public string Id { get; set; }
+	[Display(Name = "الصورة")]
+	public string ImageUrl { get; set; }
 	[Display(Name = "نوع العقار")]
 	BuildingType BuildingType { get; set; }
 	string BuildingTypeName { get; }

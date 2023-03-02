@@ -8,17 +8,15 @@ namespace HammadBroker.Model.Entities;
 
 public class Role : IdentityRole<string>
 {
-    public const string System = "System";
     public const string Administrators = "Admin";
     public const string Members = "Member";
 
-    public const int AdministratorsRank = int.MaxValue - 1;
+    public const int AdministratorsRank = int.MaxValue;
 
     public static readonly IReadOnlyDictionary<string, int> Roles = new ReadOnlyDictionary<string, int>(new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
     {
         {Members, 0},
-        {Administrators, AdministratorsRank},
-        {System, AdministratorsRank + 1}
+        {Administrators, AdministratorsRank}
     });
 
     /// <inheritdoc />
@@ -42,8 +40,10 @@ public class Role : IdentityRole<string>
     public static int GetHighestRank(IEnumerable<string> roles)
     {
         if (roles == null) return -1;
-        return roles.Max(e => Roles.TryGetValue(e, out int r)
-                                ? r
-                                : -1);
+        return roles
+                .DefaultIfEmpty()
+                .Max(e => string.IsNullOrEmpty(e) || !Roles.TryGetValue(e, out int r)
+                            ? -1
+                            : r);
     }
 }

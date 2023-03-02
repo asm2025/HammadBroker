@@ -10,6 +10,9 @@ public class BuildingForList : IBuildingLookup
 	[Display(Name = "رقم")]
 	public string Id { get; set; }
 	/// <inheritdoc />
+	[Display(Name = "الصورة")]
+	public string ImageUrl { get; set; }
+	/// <inheritdoc />
 	[Display(Name = "نوع العقار")]
 	public BuildingType BuildingType { get; set; }
 	public string BuildingTypeName => BuildingType.GetDisplayName();
@@ -31,4 +34,7 @@ public class BuildingForList : IBuildingLookup
 	[Display(Name = "ينتهي في")]
 	[DisplayFormat(DataFormatString = "{0:D}")]
 	public DateTime? Expires { get; set; }
+	[Display(Name = "السعر")]
+	[DisplayFormat(DataFormatString = "{0:#,#.##}")]
+	public long Price { get; set; }
 }

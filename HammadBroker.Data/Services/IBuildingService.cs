@@ -14,10 +14,17 @@ namespace HammadBroker.Data.Services;
 public interface IBuildingService : IService<DataContext, IBuildingRepository, Building, string>
 {
 	[NotNull]
-	IList<T> List<T>(BuildingList settings);
+	BuildingsPaginated<T> List<T>(BuildingList settings = null)
+		where T : class, IBuildingLookup;
 	[NotNull]
 	[ItemNotNull]
-	Task<IList<T>> ListAsync<T>(BuildingList settings, CancellationToken token = default(CancellationToken));
+	Task<BuildingsPaginated<T>> ListAsync<T>(BuildingList settings = null, CancellationToken token = default(CancellationToken))
+		where T : class, IBuildingLookup;
+	[NotNull]
+	IList<T> Lookup<T>(BuildingList settings = null);
+	[NotNull]
+	[ItemNotNull]
+	Task<IList<T>> LookupAsync<T>(BuildingList settings = null, CancellationToken token = default(CancellationToken));
 	[NotNull]
 	IList<BuildingImageForList> ListImages([NotNull] string buildingId);
 	[NotNull]
@@ -32,10 +39,8 @@ public interface IBuildingService : IService<DataContext, IBuildingRepository, B
 	BuildingImage AddImage([NotNull] BuildingImage image);
 	[ItemNotNull]
 	ValueTask<BuildingImage> AddImageAsync([NotNull] BuildingImage image, CancellationToken token = default(CancellationToken));
-	[NotNull]
 	BuildingImage UpdateImage([NotNull] BuildingImage image);
 	[NotNull]
-	[ItemNotNull]
 	Task<BuildingImage> UpdateImageAsync([NotNull] BuildingImage image, CancellationToken token = default(CancellationToken));
 	BuildingImage DeleteImage(int id);
 	[NotNull]

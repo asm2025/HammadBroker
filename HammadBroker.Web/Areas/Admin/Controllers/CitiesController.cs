@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading;
@@ -10,7 +9,6 @@ using essentialMix.Patterns.Pagination;
 using essentialMix.Patterns.Sorting;
 using HammadBroker.Data.Services;
 using HammadBroker.Model;
-using HammadBroker.Model.Configuration;
 using HammadBroker.Model.DTO;
 using HammadBroker.Model.Entities;
 using HammadBroker.Model.Parameters;
@@ -25,25 +23,22 @@ namespace HammadBroker.Web.Areas.Admin.Controllers;
 
 [Area(nameof(Admin))]
 [Route("[area]/[controller]")]
-[Authorize(Policy = Constants.Authorization.SystemPolicy)]
+[Authorize(Policy = Constants.Authorization.AdministrationPolicy)]
 public class CitiesController : MvcController
 {
 	private readonly ICityService _cityService;
 	private readonly ILookupService _lookupService;
-	private readonly CompanyInfo _companyInfo;
 	private readonly IMapper _mapper;
 
 	/// <inheritdoc />
-	public CitiesController([NotNull] ICityService cityService, [NotNull] ILookupService lookupService, [NotNull] CompanyInfo companyInfo, [NotNull] IMapper mapper, [NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, [NotNull] ILogger<CitiesController> logger)
+	public CitiesController([NotNull] ICityService cityService, [NotNull] ILookupService lookupService, [NotNull] IMapper mapper, [NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, [NotNull] ILogger<CitiesController> logger)
 		: base(configuration, environment, logger)
 	{
 		_cityService = cityService;
 		_lookupService = lookupService;
-		_companyInfo = companyInfo;
 		_mapper = mapper;
 	}
 
-	[Authorize(Policy = Constants.Authorization.AdministrationPolicy)]
 	[NotNull]
 	[ItemNotNull]
 	[HttpGet]
@@ -54,8 +49,7 @@ public class CitiesController : MvcController
 
 		if (pagination.OrderBy == null || pagination.OrderBy.Count == 0)
 		{
-			pagination.OrderBy ??= new List<SortField>(2);
-			if (string.IsNullOrEmpty(pagination.CountryCode)) pagination.OrderBy.Add(new SortField(nameof(City.CountryCode)));
+			pagination.OrderBy ??= new List<SortField>(1);
 			pagination.OrderBy.Add(new SortField(nameof(City.Name)));
 		}
 
@@ -66,34 +60,17 @@ public class CitiesController : MvcController
 		return View(result);
 	}
 
-	[Authorize(Policy = Constants.Authorization.AdministrationPolicy)]
-	[NotNull]
-	[ItemNotNull]
-	[HttpGet("[action]")]
-	public async Task<IActionResult> Countries(string search, CancellationToken token)
-	{
-		token.ThrowIfCancellationRequested();
-		if (!string.IsNullOrEmpty(search)) search = WebUtility.UrlDecode(search);
-		IList<CountryForList> result = await _lookupService.ListCountriesAsync(search, token);
-		token.ThrowIfCancellationRequested();
-		return Ok(result);
-	}
-
-	[Authorize(Policy = Constants.Authorization.AdministrationPolicy)]
 	[NotNull]
 	[ItemNotNull]
 	[HttpGet("[action]")]
 	public async Task<IActionResult> List([FromQuery(Name = "")] CitiesList pagination, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
-		if (string.IsNullOrEmpty(pagination.CountryCode)) pagination.CountryCode = _companyInfo.CountryCode;
-		if (string.IsNullOrEmpty(pagination.CountryCode)) return Ok(Array.Empty<CityForList>());
 		if (!string.IsNullOrEmpty(pagination.Search)) pagination.Search = WebUtility.UrlDecode(pagination.Search);
 
 		if (pagination.OrderBy == null || pagination.OrderBy.Count == 0)
 		{
-			pagination.OrderBy ??= new List<SortField>(2);
-			if (string.IsNullOrEmpty(pagination.CountryCode)) pagination.OrderBy.Add(new SortField(nameof(City.CountryCode)));
+			pagination.OrderBy ??= new List<SortField>(1);
 			pagination.OrderBy.Add(new SortField(nameof(City.Name)));
 		}
 
@@ -108,12 +85,7 @@ public class CitiesController : MvcController
 	public IActionResult Add(string countryCode, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
-		if (string.IsNullOrEmpty(countryCode)) countryCode = _companyInfo.CountryCode;
-		CityToUpdate cityToUpdate = new CityToUpdate
-		{
-			CountryCode = countryCode
-		};
-		return View(cityToUpdate);
+		return View(new CityToUpdate());
 	}
 
 	[NotNull]
@@ -127,10 +99,7 @@ public class CitiesController : MvcController
 		City city = await _cityService.AddAsync(_mapper.Map<City>(cityToAdd), token);
 		token.ThrowIfCancellationRequested();
 		if (city == null) return BadRequest();
-		return RedirectToAction(nameof(Index), new
-		{
-			countryCode = cityToAdd.CountryCode,
-		});
+		return RedirectToAction(nameof(Index));
 	}
 
 	[NotNull]
@@ -160,10 +129,7 @@ public class CitiesController : MvcController
 		city = await _cityService.UpdateAsync(city, token);
 		token.ThrowIfCancellationRequested();
 		if (city == null) return BadRequest();
-		return RedirectToAction(nameof(Index), new
-		{
-			countryCode = city.CountryCode,
-		});
+		return RedirectToAction(nameof(Index));
 	}
 
 	[NotNull]

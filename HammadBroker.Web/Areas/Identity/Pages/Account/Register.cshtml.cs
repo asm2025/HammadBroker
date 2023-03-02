@@ -23,7 +23,7 @@ using Microsoft.Extensions.Logging;
 
 namespace HammadBroker.Web.Areas.Identity.Pages.Account;
 
-[Authorize(Policy = Role.System)]
+[Authorize(Policy = Role.Administrators)]
 public class RegisterModel : PageModel
 {
 	private readonly SignInManager _signInManager;

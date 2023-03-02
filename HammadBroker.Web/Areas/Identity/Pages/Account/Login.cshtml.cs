@@ -66,8 +66,7 @@ public class LoginModel : PageModel
 		///     directly from your code. This API may change or be removed in future releases.
 		/// </summary>
 		[Required]
-		[EmailAddress]
-		[Display(Name = "البريد الالكتروني")]
+		[Display(Name = "اسم المستخدم")]
 		public string Email { get; set; }
 
 		/// <summary>
@@ -89,11 +88,7 @@ public class LoginModel : PageModel
 
 	public async Task OnGetAsync(string returnUrl = null)
 	{
-		if (!string.IsNullOrEmpty(ErrorMessage))
-		{
-			ModelState.AddModelError(string.Empty, ErrorMessage);
-		}
-
+		if (!string.IsNullOrEmpty(ErrorMessage)) ModelState.AddModelError(string.Empty, ErrorMessage);
 		returnUrl ??= Url.Content("~/");
 
 		// Clear the existing external cookie to ensure a clean login process

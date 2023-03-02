@@ -1,6 +1,6 @@
 1. Make sure the projects are rebuilded to reflect latest changes
 2. cd /d "[REPO_LOCATION]\HammadBroker.Model"
-3. dotnet-ef migrations add [Migration Name] --context HammadBroker.Data.Context.[DbContext] --project ../HammadBroker.Data --startup-project ../HammadBroker.Web
+3. dotnet-ef migrations add [Migration Name] --context HammadBroker.Data.Context.[DbContext] --project ../HammadBroker.Data --startup-project ../HammadBroker.Web --no-build
 
 To Remove the last migration:
 	dotnet-ef migrations remove --context HammadBroker.Data.Context.[DbContext] --project ../HammadBroker.Data --startup-project ../HammadBroker.Web --no-build

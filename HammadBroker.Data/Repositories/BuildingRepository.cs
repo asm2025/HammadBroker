@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading;
@@ -27,7 +28,30 @@ public class BuildingRepository : Repository<DataContext, Building, string>, IBu
 		Images = Context.BuildingImages;
 	}
 
-	protected DbSet<BuildingImage> Images { get; }
+	public DbSet<BuildingImage> Images { get; }
+
+	public IDictionary<string, string> GetMainImages(ICollection<string> ids)
+	{
+		if (ids.Count == 0) return null;
+		return Images.Where(e => ids.Contains(e.BuildingId))
+					.DefaultIfEmpty()
+					.GroupBy(e => e.BuildingId)
+					.Select(g => g.OrderByDescending(e => e.Priority ?? 0).Take(1))
+					.SelectMany(g => g)
+					.ToDictionary(k => k.BuildingId, v => v.ImageUrl, StringComparer.OrdinalIgnoreCase);
+	}
+
+	public Task<IDictionary<string, string>> GetMainImagesAsync(ICollection<string> ids, CancellationToken token = default(CancellationToken))
+	{
+		if (ids.Count == 0) return Task.FromResult<IDictionary<string, string>>(null);
+		return Images.Where(e => ids.Contains(e.BuildingId))
+					.DefaultIfEmpty()
+					.GroupBy(e => e.BuildingId)
+					.Select(g => g.OrderByDescending(e => e.Priority ?? 0).Take(1))
+					.SelectMany(g => g)
+					.ToDictionaryAsync(k => k.BuildingId, v => v.ImageUrl, StringComparer.OrdinalIgnoreCase, token)
+					.As<Dictionary<string, string>, IDictionary<string, string>>(token);
+	}
 
 	/// <inheritdoc />
 	protected override IQueryable<Building> PrepareCountQuery(IQueryable<Building> query, IPagination settings)
@@ -192,15 +216,8 @@ public class BuildingRepository : Repository<DataContext, Building, string>, IBu
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
-		return Task.Run(() => DeleteImageInternal(image), token);
-	}
-
-	/// <inheritdoc />
-	public void DeleteImages(string buildingId)
-	{
-		ThrowIfDisposed();
-		IQueryable<BuildingImage> queryable = Images.Where(e => e.BuildingId == buildingId);
-		Images.RemoveRange(queryable);
+		image = DeleteImageInternal(image);
+		return Task.FromResult(image);
 	}
 
 	private IQueryable<BuildingImage> PrepareImageCountQuery([NotNull] string buildingId, IPagination settings) { return PrepareImageCountQuery(Images.Where(e => e.BuildingId == buildingId), settings); }

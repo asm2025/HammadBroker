@@ -20,8 +20,7 @@ public class RoleManager : RoleManager<Role>
 	/// <inheritdoc />
 	public override Task<IdentityResult> SetRoleNameAsync(Role role, string name)
 	{
-		if ((IsSystemRole(role) && !IsSystemRole(name))
-			|| (IsAdminRole(role) && !IsAdminRole(name))) return Task.FromResult(FailedAdminRole());
+		if (IsAdminRole(role) && !IsAdminRole(name)) return Task.FromResult(FailedAdminRole());
 		return base.SetRoleNameAsync(role, name);
 	}
 
@@ -29,8 +28,7 @@ public class RoleManager : RoleManager<Role>
 	public override async Task<IdentityResult> UpdateAsync(Role role)
 	{
 		Role roleFromDb = await FindByIdAsync(role.Id);
-		if ((IsSystemRole(roleFromDb) && !IsSystemRole(Role.System))
-			|| (IsAdminRole(roleFromDb) && !IsAdminRole(Role.Administrators))) return FailedAdminRole();
+		if (IsAdminRole(roleFromDb) && !IsAdminRole(Role.Administrators)) return FailedAdminRole();
 		return await base.UpdateAsync(role);
 	}
 
@@ -38,10 +36,9 @@ public class RoleManager : RoleManager<Role>
 	protected override async Task<IdentityResult> UpdateRoleAsync(Role role)
 	{
 		Role roleFromDb = await FindByIdAsync(role.Id);
-		if (roleFromDb != null
-			&& ((IsSystemRole(roleFromDb) && !IsSystemRole(role.Name))
-			|| (IsAdminRole(roleFromDb) && !IsAdminRole(role.Name)))) return FailedAdminRole();
-		return await base.UpdateRoleAsync(role);
+		return roleFromDb != null && IsAdminRole(roleFromDb) && !IsAdminRole(role.Name)
+					? FailedAdminRole()
+					: await base.UpdateRoleAsync(role);
 	}
 
 	/// <inheritdoc />
@@ -50,16 +47,6 @@ public class RoleManager : RoleManager<Role>
 		return Role.Roles.ContainsKey(role.Name)
 					? Task.FromResult(FailedAdminRole())
 					: base.DeleteAsync(role);
-	}
-
-	private static bool IsSystemRole(Role role)
-	{
-		return role != null && role.Name.IsSame(Role.System);
-	}
-
-	private static bool IsSystemRole(string role)
-	{
-		return role.IsSame(Role.System);
 	}
 
 	private static bool IsAdminRole(Role role)

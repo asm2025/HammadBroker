@@ -12,7 +12,6 @@ using essentialMix.Core.Web.Controllers;
 using essentialMix.Drawing.Helpers;
 using essentialMix.Extensions;
 using essentialMix.Helpers;
-using essentialMix.Patterns.Pagination;
 using essentialMix.Patterns.Sorting;
 using HammadBroker.Data.Services;
 using HammadBroker.Model;
@@ -34,7 +33,7 @@ namespace HammadBroker.Web.Areas.Admin.Controllers;
 
 [Area(nameof(Admin))]
 [Route("[area]/[controller]")]
-[Authorize(Policy = Constants.Authorization.SystemPolicy)]
+[Authorize(Policy = Constants.Authorization.AdministrationPolicy)]
 public class BuildingsController : MvcController
 {
 	private readonly IBuildingService _buildingService;
@@ -60,7 +59,6 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpGet]
-	[Authorize(Policy = Constants.Authorization.AdministrationPolicy)]
 	public async Task<IActionResult> Index([FromQuery(Name = "")] BuildingList pagination, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
@@ -68,15 +66,15 @@ public class BuildingsController : MvcController
 
 		if (pagination.OrderBy == null || pagination.OrderBy.Count == 0)
 		{
-			pagination.OrderBy ??= new List<SortField>(3);
-			pagination.OrderBy.Add(new SortField(nameof(Building.CityId)));
-			pagination.OrderBy.Add(new SortField(nameof(Building.BuildingType)));
-			pagination.OrderBy.Add(new SortField(nameof(Building.FinishingType)));
+			pagination.OrderBy ??= new List<SortField>();
+			if (pagination.CityId < 1) pagination.OrderBy.Add(new SortField(nameof(Building.CityId)));
+			if (!pagination.Date.HasValue) pagination.OrderBy.Add(new SortField(nameof(Building.Date), SortType.Descending));
+			if (!pagination.AdType.HasValue) pagination.OrderBy.Add(new SortField(nameof(Building.AdType)));
+			if (!pagination.BuildingType.HasValue) pagination.OrderBy.Add(new SortField(nameof(Building.BuildingType)));
+			if (!pagination.FinishingType.HasValue) pagination.OrderBy.Add(new SortField(nameof(Building.FinishingType)));
 		}
 
-		IPaginated<BuildingForList> paginated = await _buildingService.ListAsync<BuildingForList>(pagination, token);
-		token.ThrowIfCancellationRequested();
-		BuildingsPaginated result = new BuildingsPaginated(paginated.Result, (BuildingList)paginated.Pagination);
+		BuildingsPaginated<BuildingForList> result = await _buildingService.ListAsync<BuildingForList>(pagination, token);
 		token.ThrowIfCancellationRequested();
 		return View(result);
 	}
@@ -88,7 +86,7 @@ public class BuildingsController : MvcController
 	public async Task<IActionResult> List([FromQuery(Name = "")] BuildingList settings, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
-		IList<BuildingForList> result = await _buildingService.ListAsync(settings, token);
+		IList<BuildingForList> result = await _buildingService.LookupAsync<BuildingForList>(settings, token);
 		token.ThrowIfCancellationRequested();
 		return Ok(result);
 	}
@@ -96,46 +94,30 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpGet("[action]")]
-	public async Task<IActionResult> Get(int id, CancellationToken token)
+	public async Task<IActionResult> Get([Required] string id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		BuildingForDetails building = await _buildingService.GetAsync<BuildingForDetails>(id, token);
 		token.ThrowIfCancellationRequested();
 		if (building == null) return NotFound();
-		await _lookupService.FillCountryNameAsync(building, token);
-		token.ThrowIfCancellationRequested();
 		await _lookupService.FillCityNameAsync(building, token);
 		token.ThrowIfCancellationRequested();
 		return View(building);
 	}
 
 	[NotNull]
-	[ItemNotNull]
 	[HttpGet("[action]")]
-	public async Task<IActionResult> GetById(int id, CancellationToken token)
+	public IActionResult Add(CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
-		BuildingForDetails building = await _buildingService.GetAsync<BuildingForDetails>(id, token);
-		token.ThrowIfCancellationRequested();
-		if (building == null) return NotFound();
-		await _lookupService.FillCountryNameAsync(building, token);
-		token.ThrowIfCancellationRequested();
-		await _lookupService.FillCityNameAsync(building, token);
-		token.ThrowIfCancellationRequested();
-		return Ok(building);
-	}
-
-	[NotNull]
-	[HttpGet("[action]")]
-	public IActionResult Add(string countryCode, CancellationToken token)
-	{
-		token.ThrowIfCancellationRequested();
-		if (string.IsNullOrEmpty(countryCode)) countryCode = _companyInfo.CountryCode;
-		BuildingToUpdate buildingToUpdate = new BuildingToUpdate
+		DateTime today = DateTime.Now;
+		return View(new BuildingToUpdate
 		{
-			CountryCode = countryCode
-		};
-		return View(buildingToUpdate);
+			Date = today,
+			Expires = today.AddMonths(1).AddDays(-1),
+			Phone = _companyInfo.Phone,
+			Mobile = _companyInfo.Mobile,
+		});
 	}
 
 	[NotNull]
@@ -149,55 +131,17 @@ public class BuildingsController : MvcController
 		Building building = await _buildingService.AddAsync(_mapper.Map<Building>(buildingToUpdate), token);
 		token.ThrowIfCancellationRequested();
 		if (building == null) return BadRequest();
-
-		bool update = false;
-		IFormFile formFile = buildingToUpdate.Image;
-
-		if (formFile is { Length: > 0 })
-		{
-			Stream stream = null;
-			Image image = null;
-			Image thumb = null;
-			string fileName = Path.Combine(_assetImagesPath, $"{building.Id}{Path.GetExtension(formFile.FileName).Prefix('.')}");
-
-			try
-			{
-				stream = formFile.OpenReadStream();
-				image = Image.FromStream(stream);
-				thumb = image.Width > Constants.Images.DimensionMax || image.Height > Constants.Images.DimensionMax
-							? ImageHelper.Resize(image, Constants.Images.DimensionMax, image.Width >= image.Height)
-							: image;
-				if (!string.IsNullOrEmpty(building.ImageUrl)) FileHelper.Delete(Path.Combine(_assetImagesPath, building.ImageUrl));
-				fileName = ImageHelper.Save(thumb, fileName);
-			}
-			catch (Exception ex)
-			{
-				Logger.LogError(ex.CollectMessages());
-				fileName = null;
-			}
-			finally
-			{
-				ObjectHelper.Dispose(ref thumb);
-				ObjectHelper.Dispose(ref image);
-				ObjectHelper.Dispose(ref stream);
-			}
-
-			update = !string.IsNullOrEmpty(fileName);
-			if (!update) return BadRequest();
-			building.ImageUrl = Path.GetFileName(fileName);
-		}
-
-		if (update && await _buildingService.UpdateAsync(building, token) == null) return Problem("تعذر حفظ الصورة بعد حفظ العقار");
 		return RedirectToAction(nameof(Index));
 	}
 
 	[NotNull]
 	[ItemNotNull]
 	[HttpGet("[action]")]
-	public async Task<IActionResult> Edit([Required] int id, CancellationToken token)
+	public async Task<IActionResult> Edit([Required] string id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return BadRequest(ModelState);
+
 		BuildingToUpdate buildingToUpdate = await _buildingService.GetAsync<BuildingToUpdate>(id, token);
 		token.ThrowIfCancellationRequested();
 		if (buildingToUpdate == null) return NotFound();
@@ -207,7 +151,7 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	public async Task<IActionResult> Edit([Required, FromQuery] int id, [NotNull, FromForm(Name = nameof(BuildingModel.Building))] BuildingToUpdate buildingToUpdate, CancellationToken token)
+	public async Task<IActionResult> Edit([Required, FromQuery] string id, [NotNull, FromForm(Name = nameof(BuildingModel.Building))] BuildingToUpdate buildingToUpdate, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return View(buildingToUpdate);
@@ -219,45 +163,6 @@ public class BuildingsController : MvcController
 		building = await _buildingService.UpdateAsync(building, token);
 		token.ThrowIfCancellationRequested();
 		if (building == null) return BadRequest();
-
-		bool update = false;
-		IFormFile formFile = buildingToUpdate.Image;
-
-		if (formFile is { Length: > 0 })
-		{
-			Stream stream = null;
-			Image image = null;
-			Image thumb = null;
-			string fileName = Path.Combine(_assetImagesPath, $"{building.Id}{Path.GetExtension(formFile.FileName).Prefix('.')}");
-
-			try
-			{
-				stream = formFile.OpenReadStream();
-				image = Image.FromStream(stream);
-				thumb = image.Width > Constants.Images.DimensionMax || image.Height > Constants.Images.DimensionMax
-							? ImageHelper.Resize(image, Constants.Images.DimensionMax, image.Width >= image.Height)
-							: image;
-				if (!string.IsNullOrEmpty(building.ImageUrl)) FileHelper.Delete(Path.Combine(_assetImagesPath, building.ImageUrl));
-				fileName = ImageHelper.Save(thumb, fileName);
-			}
-			catch (Exception ex)
-			{
-				Logger.LogError(ex.CollectMessages());
-				fileName = null;
-			}
-			finally
-			{
-				ObjectHelper.Dispose(ref thumb);
-				ObjectHelper.Dispose(ref image);
-				ObjectHelper.Dispose(ref stream);
-			}
-
-			update = !string.IsNullOrEmpty(fileName);
-			if (!update) return BadRequest();
-			building.ImageUrl = Path.GetFileName(fileName);
-		}
-
-		if (update && await _buildingService.UpdateAsync(building, token) == null) return Problem("تعذر حفظ الصورة بعد حفظ العقار");
 		return RedirectToAction(nameof(Get), new
 		{
 			id
@@ -267,29 +172,30 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	public async Task<IActionResult> Delete([Required] int id, CancellationToken token)
+	public async Task<IActionResult> Delete([Required] string id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return BadRequest(ModelState);
+
 		Building building = await _buildingService.DeleteAsync(id, token);
 		token.ThrowIfCancellationRequested();
 		if (building == null) return NotFound();
-		if (!string.IsNullOrEmpty(building.ImageUrl)) FileHelper.Delete(Path.Combine(_assetImagesPath, building.ImageUrl));
 		return Ok();
 	}
 
 	[NotNull]
 	[ItemNotNull]
 	[HttpGet("[action]")]
-	public async Task<IActionResult> ListImages([Required] int id, CancellationToken token)
+	public async Task<IActionResult> ListImages([Required] string id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return BadRequest(ModelState);
-		IList<string> images = await _buildingService.ListImagesAsync(id, token);
 
-		for (int i = 0; i < images.Count; i++)
+		IList<BuildingImageForList> images = await _buildingService.ListImagesAsync(id, token);
+
+		foreach (BuildingImageForList img in images)
 		{
-			images[i] = _assetImagesBaseUrl + images[i];
+			img.ImageUrl = _assetImagesBaseUrl + img.ImageUrl;
 		}
 
 		return Ok(images);
@@ -298,9 +204,10 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	public async Task<IActionResult> AddImage([Required, FromQuery] int id, [NotNull] BuildingImageToAdd imageToAdd, CancellationToken token)
+	public async Task<IActionResult> AddImage([Required, FromQuery] string id, [NotNull] BuildingImageToAdd imageToAdd, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
+
 		if (imageToAdd.Image == null) ModelState.AddModelError(string.Empty, "لم يتم اختيار صورة للتحميل");
 		else if (imageToAdd.Image.Length == 0) ModelState.AddModelError(string.Empty, $"الصورة '{imageToAdd.Image.FileName}' غير صالحة للتحميل.");
 
@@ -314,7 +221,12 @@ public class BuildingsController : MvcController
 
 			string fileName = UploadBuildingImage(_assetImagesPath, building.Id, imageToAdd.Image);
 			if (string.IsNullOrEmpty(fileName)) return Problem($"حدث خطأ أثناء تحميل الصورة '{imageToAdd.Image.FileName}'.");
-			await _buildingService.AddImageAsync(building, Path.GetFileName(fileName), token);
+			await _buildingService.AddImageAsync(new BuildingImage
+			{
+				BuildingId = id,
+				ImageUrl = Path.GetFileName(fileName),
+				Priority = imageToAdd.Priority,
+			}, token);
 		}
 		catch (Exception ex)
 		{
@@ -328,19 +240,15 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	public async Task<IActionResult> DeleteImage([Required, FromQuery] int id, [Required, FromQuery] int imageId, CancellationToken token)
+	public async Task<IActionResult> DeleteImage([Required, FromQuery] int id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return BadRequest(ModelState);
 
 		try
 		{
-			Building building = await _buildingService.GetAsync(id, token);
-			token.ThrowIfCancellationRequested();
-			if (building == null) return NotFound();
-
-			BuildingImage buildingImage = await _buildingService.DeleteBuildingImageAsync(imageId, token);
-			if (buildingImage == null) return Problem($"Building image with id {imageId} is not found.");
+			BuildingImage buildingImage = await _buildingService.DeleteImageAsync(id, token);
+			if (buildingImage == null) return Problem($"Building image with id {id} is not found.");
 
 			string fileName = Path.Combine(_assetImagesPath, buildingImage.ImageUrl);
 			if (SysFile.Exists(fileName)) FileHelper.Delete(fileName);
@@ -354,7 +262,7 @@ public class BuildingsController : MvcController
 		return Ok();
 	}
 
-	private static string UploadBuildingImage(string path, int id, [NotNull] IFormFile formFile)
+	private static string UploadBuildingImage(string path, string id, [NotNull] IFormFile formFile)
 	{
 		Stream stream = null;
 		Image image = null;

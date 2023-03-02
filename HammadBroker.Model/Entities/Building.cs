@@ -7,7 +7,7 @@ namespace HammadBroker.Model.Entities;
 public class Building : IEntity<string>
 {
 	[Key]
-	[StringLength(Constants.Building.IdentifierLength)]
+	[StringLength(Constants.Buildings.IdentifierLength)]
 	public string Id { get; set; }
 
 	[Required]
