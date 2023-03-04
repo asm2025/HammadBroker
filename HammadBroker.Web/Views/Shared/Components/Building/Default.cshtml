@@ -163,26 +163,31 @@
 			</div>
 		</div>
 		<div class="row g-0 px-2">
-			<div class="col-sm-12 col-md-4">
+			<div class="col-sm-12 col-md-3">
 				<label asp-for="Building.BuildingType" class="form-label"></label>
 				<select asp-for="Building.BuildingType" class="form-select" asp-items="Html.GetEnumSelectList<BuildingType>()">
 					<option value="">@Html.DisplayNameFor(e => e.Building.BuildingType)</option>
 				</select>
 				<span asp-validation-for="Building.BuildingType" class="text-danger"></span>
 			</div>
-			<div class="col-sm-12 col-md-4">
+			<div class="col-sm-12 col-md-3">
 				<label asp-for="Building.FinishingType" class="form-label"></label>
 				<select asp-for="Building.FinishingType" class="form-select" asp-items="Html.GetEnumSelectList<FinishingType>()">
 					<option value="">@Html.DisplayNameFor(e => e.Building.FinishingType)</option>
 				</select>
 				<span asp-validation-for="Building.FinishingType" class="text-danger"></span>
 			</div>
-			<div class="col-sm-12 col-md-4">
+			<div class="col-sm-12 col-md-3">
 				<label asp-for="Building.AdType" class="form-label"></label>
 				<select asp-for="Building.AdType" class="form-select" asp-items="Html.GetEnumSelectList<BuildingAdType>()">
 					<option value="">@Html.DisplayNameFor(e => e.Building.AdType)</option>
 				</select>
 				<span asp-validation-for="Building.AdType" class="text-danger"></span>
+			</div>
+			<div class="col-sm-12 col-md-3">
+				<label asp-for="Building.Priority" class="form-label"></label>
+				<input class="form-control" asp-for="Building.Priority" />
+				<span asp-validation-for="Building.Priority" class="text-danger"></span>
 			</div>
 		</div>
 		<div class="row g-0 px-2">
@@ -197,14 +202,14 @@
 				<span asp-validation-for="Building.Bathrooms" class="text-danger"></span>
 			</div>
 			<div class="col-sm-12 col-md-3">
-				<label asp-for="Building.Floor" class="form-label"></label>
-				<input class="form-control" asp-for="Building.Floor" />
-				<span asp-validation-for="Building.Floor" class="text-danger"></span>
-			</div>
-			<div class="col-sm-12 col-md-3">
 				<label asp-for="Building.Area" class="form-label"></label>
 				<input class="form-control" asp-for="Building.Area" />
 				<span asp-validation-for="Building.Area" class="text-danger"></span>
+			</div>
+			<div class="col-sm-12 col-md-3">
+				<label asp-for="Building.Floor" class="form-label"></label>
+				<input class="form-control" asp-for="Building.Floor" />
+				<span asp-validation-for="Building.Floor" class="text-danger"></span>
 			</div>
 		</div>
 		<div class="row g-0 px-2">
@@ -225,7 +230,7 @@
 				<input type="hidden" asp-for="Building.CityId" :value="cityId" />
 				<autocomplete class="w-100" input-class="w-100" :suggestions="cities" option-label="name"
 							:min-length="0" v-model="selectedCity" data-key="id" dropdown 
-							v-on:complete="fetchCities(countryCode, $event.query)">
+							v-on:complete="fetchCities($event.query)">
 				</autocomplete>
 				<span asp-validation-for="Building.CityId" class="text-danger"></span>
 			</div>

@@ -91,12 +91,12 @@ public class BuildingToUpdate : IBuilding
 	public DateTime? Expires { get; set; }
 
 	[Display(Name = "التليفون")]
-	[Required]
 	[Phone]
 	[DataType(DataType.PhoneNumber)]
 	public string Phone { get; set; }
 
 	[Display(Name = "المحمول")]
+	[Required]
 	[Phone]
 	[DataType(DataType.PhoneNumber)]
 	public string Mobile { get; set; }

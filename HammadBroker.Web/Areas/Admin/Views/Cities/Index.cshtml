@@ -8,24 +8,28 @@
 	bool hasSearch = Model.Pagination.HasSearch;
 }
 
-<div class="card mb-1">
-	<h5 class="card-header @(hasSearch ? null : "collapsed")" data-bs-toggle="collapse" data-bs-target="#searchForm" 
+@if (Model.Pagination.Count > Model.Pagination.PageSize || hasSearch)
+{
+	<div class="card mb-1">
+		<h5 class="card-header @(hasSearch ? null : "collapsed")" data-bs-toggle="collapse" data-bs-target="#searchForm" 
 		aria-expanded="@(hasSearch ? "true" : "false")" aria-controls="searchForm">البحث</h5>
-	<div id="searchForm" v-scope class="card-body @(hasSearch ? null : "collapse")">
-		<form method="get" asp-area="Admin" asp-controller="Cities" asp-action="Index">
-			<div class="row g-0 mb-1">
-				<div class="col-12">
-					<label asp-for="Pagination.Search" class="form-label"></label>
-					<input class="form-control" asp-for="Pagination.Search" />
+		<div id="searchForm" v-scope class="card-body @(hasSearch ? null : "collapse")">
+			<form method="get" asp-area="Admin" asp-controller="Cities" asp-action="Index">
+				<div class="row g-0 mb-1">
+					<div class="col-12">
+						<label asp-for="Pagination.Search" class="form-label"></label>
+						<input class="form-control" asp-for="Pagination.Search" />
+					</div>
 				</div>
-			</div>
-			<div class="row g-0 px-2 my-1">
-				<button type="submit" class="btn btn-outline-secondary btn-sm me-1"><span class="fa fa-magnifying-glass"></span></button>
-				<button type="reset" class="btn btn-outline-secondary btn-sm border-0" v-on:click="onReset"><span class="fa fa-times"></span></button>
-			</div>
-		</form>
+				<div class="row g-0 px-2 my-1">
+					<button type="submit" class="btn btn-outline-secondary btn-sm me-1"><span class="fa fa-magnifying-glass"></span></button>
+					<button type="reset" class="btn btn-outline-secondary btn-sm border-0" v-on:click="onReset"><span class="fa fa-times"></span></button>
+				</div>
+			</form>
+		</div>
 	</div>
-</div>
+}
+
 <div class="row mb-1">
 	<div class="col-12">
 		<a asp-area="Admin" asp-controller="Cities" asp-action="Add" class="btn btn-outline-primary border-0"><i class="fa fa-plus"></i> إضافة مدينة</a>

@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using essentialMix.Core.Data.Entity.Patterns.Repository;
 using essentialMix.Data.Patterns.Parameters;
 using essentialMix.Extensions;
+using essentialMix.Helpers;
 using essentialMix.Patterns.Pagination;
 using essentialMix.Patterns.Sorting;
 using HammadBroker.Data.Context;
@@ -21,6 +23,8 @@ namespace HammadBroker.Data.Repositories;
 
 public class BuildingRepository : Repository<DataContext, Building, string>, IBuildingRepository
 {
+	private static readonly Regex __youtubeId = new Regex(@"(?<=v=|v\/|vi=|vi\/|embed\/|youtu.be\/)?(?<id>[a-zA-Z0-9_-]{11})", RegexHelper.OPTIONS_I);
+
 	/// <inheritdoc />
 	public BuildingRepository([NotNull] DataContext context, [NotNull] IConfiguration configuration, [NotNull] ILogger<BuildingRepository> logger)
 		: base(context, configuration, logger)
@@ -29,6 +33,27 @@ public class BuildingRepository : Repository<DataContext, Building, string>, IBu
 	}
 
 	public DbSet<BuildingImage> Images { get; }
+
+	/// <inheritdoc />
+	protected override Building AddInternal(Building entity)
+	{
+		if (entity == null || string.IsNullOrEmpty(entity.VideoId)) return base.AddInternal(entity);
+		Match match = __youtubeId.Match(entity.VideoId);
+		entity.VideoId = match.Success ? match.Groups["id"].Value : null;
+		return base.AddInternal(entity);
+	}
+
+	/// <inheritdoc />
+	protected override Building UpdateInternal(Building entity)
+	{
+		if (entity == null || string.IsNullOrEmpty(entity.VideoId)) return base.UpdateInternal(entity);
+		Match match = __youtubeId.Match(entity.VideoId);
+		string videoId = match.Success ? match.Groups["id"].Value : null;
+		if (videoId == entity.VideoId) return base.UpdateInternal(entity);
+		entity.VideoId = videoId;
+		Context.Entry(entity).State = EntityState.Modified;
+		return base.UpdateInternal(entity);
+	}
 
 	public IDictionary<string, string> GetMainImages(ICollection<string> ids)
 	{

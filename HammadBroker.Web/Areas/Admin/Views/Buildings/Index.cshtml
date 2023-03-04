@@ -11,115 +11,118 @@
 	bool hasSearch = Model.Pagination.HasSearch;
 }
 
-<div class="card mb-1">
-	<h5 class="card-header @(hasSearch ? null : "collapsed")" data-bs-toggle="collapse" data-bs-target="#searchForm" 
+@if (Model.Pagination.Count > Model.Pagination.PageSize || hasSearch)
+{
+	<div class="card mb-1">
+		<h5 class="card-header @(hasSearch ? null : "collapsed")" data-bs-toggle="collapse" data-bs-target="#searchForm" 
 		aria-expanded="@(hasSearch ? "true" : "false")" aria-controls="searchForm">البحث</h5>
-	<div id="searchForm" v-scope class="card-body @(hasSearch ? null : "collapse")">
-		<form method="get" asp-area="Admin" asp-controller="Buildings" asp-action="Index">
-			<div v-if="errors && errors.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="error of errors">
-				{{ error }}
-				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-			</div>
+		<div id="searchForm" v-scope class="card-body @(hasSearch ? null : "collapse")">
+			<form method="get" asp-area="Admin" asp-controller="Buildings" asp-action="Index">
+				<div v-if="errors && errors.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="error of errors">
+					{{ error }}
+					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+				</div>
 
-			<div class="row g-0 mb-1">
-				<div class="col-sm-12 col-md-4">
-					<label asp-for="Pagination.Id" class="form-label"></label>
-					<input class="form-control" name="@nameof(Model.Pagination.Id)" asp-for="Pagination.Id" />
+				<div class="row g-0 mb-1">
+					<div class="col-sm-12 col-md-4">
+						<label asp-for="Pagination.Id" class="form-label"></label>
+						<input class="form-control" name="@nameof(Model.Pagination.Id)" asp-for="Pagination.Id" />
+					</div>
+					<div class="col-sm-12 col-md-4">
+						<label asp-for="Pagination.BuildingType" class="form-label"></label>
+						<select class="form-select" name="@nameof(Model.Pagination.BuildingType)" asp-for="Pagination.BuildingType" asp-items="Html.GetEnumSelectList<BuildingType>()">
+							<option value="">@Html.DisplayNameFor(e => e.Pagination.BuildingType)</option>
+						</select>
+					</div>
+					<div class="col-sm-12 col-md-4">
+						<label asp-for="Pagination.FinishingType" class="form-label"></label>
+						<select class="form-select" name="@nameof(Model.Pagination.FinishingType)" asp-for="Pagination.FinishingType" asp-items="Html.GetEnumSelectList<FinishingType>()">
+							<option value="">@Html.DisplayNameFor(e => e.Pagination.FinishingType)</option>
+						</select>
+					</div>
 				</div>
-				<div class="col-sm-12 col-md-4">
-					<label asp-for="Pagination.BuildingType" class="form-label"></label>
-					<select class="form-select" name="@nameof(Model.Pagination.BuildingType)" asp-for="Pagination.BuildingType" asp-items="Html.GetEnumSelectList<BuildingType>()">
-						<option value="">@Html.DisplayNameFor(e => e.Pagination.BuildingType)</option>
-					</select>
+				<div class="row g-0 mb-1">
+					<div class="col-sm-12 col-md-6">
+						<label asp-for="Pagination.AdType" class="form-label"></label>
+						<select class="form-select" name="@nameof(Model.Pagination.AdType)" asp-for="Pagination.AdType" asp-items="Html.GetEnumSelectList<BuildingAdType>()">
+							<option value="">@Html.DisplayNameFor(e => e.Pagination.AdType)</option>
+						</select>
+					</div>
+					<div class="col-sm-12 col-md-6">
+						<label asp-for="Pagination.Date" class="form-label"></label>
+						<input type="hidden" name="@nameof(Model.Pagination.Date)" :value="date"/>
+						<input type="hidden" name="@nameof(Model.Pagination.MaxDate)" :value="maxDate"/>
+						<calendar class="w-100" v-model="dateRange" selection-mode="range" date-format="yy/mm/dd">
+						</calendar>
+					</div>
 				</div>
-				<div class="col-sm-12 col-md-4">
-					<label asp-for="Pagination.FinishingType" class="form-label"></label>
-					<select class="form-select" name="@nameof(Model.Pagination.FinishingType)" asp-for="Pagination.FinishingType" asp-items="Html.GetEnumSelectList<FinishingType>()">
-						<option value="">@Html.DisplayNameFor(e => e.Pagination.FinishingType)</option>
-					</select>
+				<div class="row g-0 mb-1">
+					<div class="col-sm-12 col-md-8">
+						<label asp-for="Pagination.Address" class="form-label"></label>
+						<input class="form-control" name="@nameof(Model.Pagination.Address)" asp-for="Pagination.Address" />
+					</div>
+					<div class="col-sm-12 col-md-4">
+						<label asp-for="Pagination.CityId" class="form-label"></label>
+						<input type="hidden" name="@nameof(Model.Pagination.CityId)" asp-for="Pagination.CityId" :value="cityId" />
+						<autocomplete class="w-100" input-class="w-100" :suggestions="cities" option-label="name"
+						v-model="selectedCity" data-key="id" dropdown v-on:complete="fetchCities($event.query)">
+						</autocomplete>
+					</div>
 				</div>
-			</div>
-			<div class="row g-0 mb-1">
-				<div class="col-sm-12 col-md-6">
-					<label asp-for="Pagination.AdType" class="form-label"></label>
-					<select class="form-select" name="@nameof(Model.Pagination.AdType)" asp-for="Pagination.AdType" asp-items="Html.GetEnumSelectList<BuildingAdType>()">
-						<option value="">@Html.DisplayNameFor(e => e.Pagination.AdType)</option>
-					</select>
+				<div class="row g-0 mb-1">
+					<div class="col-sm-12 col-md-3">
+						<label asp-for="Pagination.Rooms" class="form-label"></label>
+						<input class="form-control" name="@nameof(Model.Pagination.Rooms)" asp-for="Pagination.Rooms" />
+					</div>
+					<div class="col-sm-12 col-md-3">
+						<label asp-for="Pagination.MaxRooms" class="form-label"></label>
+						<input class="form-control" name="@nameof(Model.Pagination.MaxRooms)" asp-for="Pagination.MaxRooms" />
+					</div>
+					<div class="col-sm-12 col-md-3">
+						<label asp-for="Pagination.Bathrooms" class="form-label"></label>
+						<input class="form-control" name="@nameof(Model.Pagination.Bathrooms)" asp-for="Pagination.Bathrooms" />
+					</div>
+					<div class="col-sm-12 col-md-3">
+						<label asp-for="Pagination.MaxBathrooms" class="form-label"></label>
+						<input class="form-control" name="@nameof(Model.Pagination.MaxBathrooms)" asp-for="Pagination.MaxBathrooms" />
+					</div>
 				</div>
-				<div class="col-sm-12 col-md-6">
-					<label asp-for="Pagination.Date" class="form-label"></label>
-					<input type="hidden" name="@nameof(Model.Pagination.Date)" :value="date"/>
-					<input type="hidden" name="@nameof(Model.Pagination.MaxDate)" :value="maxDate"/>
-					<calendar class="w-100" v-model="dateRange" selection-mode="range" date-format="yy/mm/dd">
-					</calendar>
+				<div class="row g-0 mb-1">
+					<div class="col-sm-12 col-md-3">
+						<label asp-for="Pagination.Floor" class="form-label"></label>
+						<input class="form-control" name="@nameof(Model.Pagination.Floor)" asp-for="Pagination.Floor" />
+					</div>
+					<div class="col-sm-12 col-md-3">
+						<label asp-for="Pagination.MaxFloor" class="form-label"></label>
+						<input class="form-control" name="@nameof(Model.Pagination.MaxFloor)" asp-for="Pagination.MaxFloor" />
+					</div>
+					<div class="col-sm-12 col-md-3">
+						<label asp-for="Pagination.Area" class="form-label"></label>
+						<input class="form-control" name="@nameof(Model.Pagination.Area)" asp-for="Pagination.Area" />
+					</div>
+					<div class="col-sm-12 col-md-3">
+						<label asp-for="Pagination.MaxArea" class="form-label"></label>
+						<input class="form-control" name="@nameof(Model.Pagination.MaxArea)" asp-for="Pagination.MaxArea" />
+					</div>
 				</div>
-			</div>
-			<div class="row g-0 mb-1">
-				<div class="col-sm-12 col-md-8">
-					<label asp-for="Pagination.Address" class="form-label"></label>
-					<input class="form-control" name="@nameof(Model.Pagination.Address)" asp-for="Pagination.Address" />
+				<div class="row g-0 mb-1">
+					<div class="col-sm-12 col-md-6">
+						<label asp-for="Pagination.Price" class="form-label"></label>
+						<input class="form-control" name="@nameof(Model.Pagination.Price)" asp-for="Pagination.Price" />
+					</div>
+					<div class="col-sm-12 col-md-6">
+						<label asp-for="Pagination.MaxPrice" class="form-label"></label>
+						<input class="form-control" name="@nameof(Model.Pagination.MaxPrice)" asp-for="Pagination.MaxPrice" />
+					</div>
 				</div>
-				<div class="col-sm-12 col-md-4">
-					<label asp-for="Pagination.CityId" class="form-label"></label>
-					<input type="hidden" name="@nameof(Model.Pagination.CityId)" asp-for="Pagination.CityId" :value="cityId" />
-					<autocomplete class="w-100" input-class="w-100" :suggestions="cities" option-label="name"
-								v-model="selectedCity" data-key="id" dropdown v-on:complete="fetchCities($event.query)">
-					</autocomplete>
+				<div class="row g-0 px-2 my-1">
+					<button type="submit" class="btn btn-outline-secondary btn-sm me-1"><span class="fa fa-magnifying-glass"></span></button>
+					<button type="reset" class="btn btn-outline-secondary btn-sm border-0" v-on:click="onReset"><span class="fa fa-times"></span></button>
 				</div>
-			</div>
-			<div class="row g-0 mb-1">
-				<div class="col-sm-12 col-md-3">
-					<label asp-for="Pagination.Rooms" class="form-label"></label>
-					<input class="form-control" name="@nameof(Model.Pagination.Rooms)" asp-for="Pagination.Rooms" />
-				</div>
-				<div class="col-sm-12 col-md-3">
-					<label asp-for="Pagination.MaxRooms" class="form-label"></label>
-					<input class="form-control" name="@nameof(Model.Pagination.MaxRooms)" asp-for="Pagination.MaxRooms" />
-				</div>
-				<div class="col-sm-12 col-md-3">
-					<label asp-for="Pagination.Bathrooms" class="form-label"></label>
-					<input class="form-control" name="@nameof(Model.Pagination.Bathrooms)" asp-for="Pagination.Bathrooms" />
-				</div>
-				<div class="col-sm-12 col-md-3">
-					<label asp-for="Pagination.MaxBathrooms" class="form-label"></label>
-					<input class="form-control" name="@nameof(Model.Pagination.MaxBathrooms)" asp-for="Pagination.MaxBathrooms" />
-				</div>
-			</div>
-			<div class="row g-0 mb-1">
-				<div class="col-sm-12 col-md-3">
-					<label asp-for="Pagination.Floor" class="form-label"></label>
-					<input class="form-control" name="@nameof(Model.Pagination.Floor)" asp-for="Pagination.Floor" />
-				</div>
-				<div class="col-sm-12 col-md-3">
-					<label asp-for="Pagination.MaxFloor" class="form-label"></label>
-					<input class="form-control" name="@nameof(Model.Pagination.MaxFloor)" asp-for="Pagination.MaxFloor" />
-				</div>
-				<div class="col-sm-12 col-md-3">
-					<label asp-for="Pagination.Area" class="form-label"></label>
-					<input class="form-control" name="@nameof(Model.Pagination.Area)" asp-for="Pagination.Area" />
-				</div>
-				<div class="col-sm-12 col-md-3">
-					<label asp-for="Pagination.MaxArea" class="form-label"></label>
-					<input class="form-control" name="@nameof(Model.Pagination.MaxArea)" asp-for="Pagination.MaxArea" />
-				</div>
-			</div>
-			<div class="row g-0 mb-1">
-				<div class="col-sm-12 col-md-6">
-					<label asp-for="Pagination.Price" class="form-label"></label>
-					<input class="form-control" name="@nameof(Model.Pagination.Price)" asp-for="Pagination.Price" />
-				</div>
-				<div class="col-sm-12 col-md-6">
-					<label asp-for="Pagination.MaxPrice" class="form-label"></label>
-					<input class="form-control" name="@nameof(Model.Pagination.MaxPrice)" asp-for="Pagination.MaxPrice" />
-				</div>
-			</div>
-			<div class="row g-0 px-2 my-1">
-				<button type="submit" class="btn btn-outline-secondary btn-sm me-1"><span class="fa fa-magnifying-glass"></span></button>
-				<button type="reset" class="btn btn-outline-secondary btn-sm border-0" v-on:click="onReset"><span class="fa fa-times"></span></button>
-			</div>
-		</form>
+			</form>
+		</div>
 	</div>
-</div>
+}
 
 <div class="row mb-1">
 	<div class="col-12">
