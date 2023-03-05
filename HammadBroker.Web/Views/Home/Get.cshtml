@@ -3,7 +3,7 @@
 
 @{
 	string id = Context.Request.Query["id"];
-	ViewData["Title"] = $"#{id} {Model.BuildingTypeName} {Model.AdTypeName} {Model.FinishingTypeName}";
+	ViewData["Title"] = $"{Model.BuildingTypeName} {Model.AdTypeName} {Model.FinishingTypeName} #{Model.Id}".Replace("  ", " ").Trim();
 }
 
 @await Component.InvokeAsync(typeof(BuildingViewComponent), new BuildingModel(Model)

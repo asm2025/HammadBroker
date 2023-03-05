@@ -1,11 +1,14 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using essentialMix.Extensions;
+using HammadBroker.Model.DataAnnotations;
 
 namespace HammadBroker.Model.DTO;
 
 public class BuildingToUpdate : IBuilding
 {
+	private const string PHONE_OR_MOBILE_REQUIRED = "Any of the fields '{0}' is required.";
+
 	/// <inheritdoc />
 	string IBuildingLookup.Id { get; set; }
 
@@ -92,12 +95,13 @@ public class BuildingToUpdate : IBuilding
 
 	[Display(Name = "التليفون")]
 	[Phone]
+	[RequireAnyOf(nameof(Phone), nameof(Mobile), ErrorMessage = PHONE_OR_MOBILE_REQUIRED)]
 	[DataType(DataType.PhoneNumber)]
 	public string Phone { get; set; }
 
 	[Display(Name = "المحمول")]
-	[Required]
 	[Phone]
+	[RequireAnyOf(nameof(Phone), nameof(Mobile), ErrorMessage = PHONE_OR_MOBILE_REQUIRED)]
 	[DataType(DataType.PhoneNumber)]
 	public string Mobile { get; set; }
 

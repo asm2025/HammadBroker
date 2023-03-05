@@ -3,6 +3,7 @@
 @using HammadBroker.Model.DTO
 @using HammadBroker.Model.VirtualPath
 @using System.Configuration
+@using essentialMix.Helpers
 @using Microsoft.Extensions.Configuration
 @inject IAntiforgery Antiforgery
 @inject VirtualPathSettings VirtualPathSettings
@@ -19,6 +20,7 @@
 											id = Model.Id
 										})
 						: null;
+	string newId = Model.CanEdit && string.IsNullOrEmpty(Model.Id) ? StringHelper.RandomKey(Constants.Buildings.IdentifierLength) : null;
 	PathContent assetsPath = VirtualPathSettings.PathContents?.FirstOrDefault(e => e.Alias.IsSame("AssetImages")) ?? throw new ConfigurationErrorsException($"{nameof(VirtualPathSettings)} does not contain a definition for AssetImages.");
 	string basePath = assetsPath.RequestPath.Trim('/');
 	string placeholderImage = Configuration.GetValue("Images:AssetPlaceholder", string.Empty);
@@ -67,7 +69,7 @@
 				<vid-asset VideoId="@Model.Building.VideoId" Class="ratio ratio-16x9"/>
 			}
 		</div>
-		<div class="card card-body position-relative">
+		<div v-if="@Model.CanUpload.ToString().ToLowerInvariant() || images && images.length" class="card card-body position-relative">
 			<div :class="'drop-zone'">
 				<div v-if="images && images.length > 1" :class="['zone-item d-flex flex-row', { active: !uploading }]">
 					<div>
@@ -156,7 +158,21 @@
 	@if (Model.CanEdit)
 	{
 		<div class="row g-0 px-2">
-			<div class="col-12">
+			<div class="col-sm-12 col-md-6">
+				<label asp-for="Building.Id" class="form-label"></label>
+
+				@if (string.IsNullOrEmpty(newId))
+				{
+					<input class="form-control" asp-for="Building.Id" />
+				}
+				else
+				{
+					<input class="form-control" asp-for="Building.Id" value="@newId" />
+				}
+
+				<span asp-validation-for="Building.Id" class="text-danger"></span>
+			</div>
+			<div class="col-sm-12 col-md-6">
 				<label asp-for="Building.VideoId" class="form-label"></label>
 				<input class="form-control" asp-for="Building.VideoId" />
 				<span asp-validation-for="Building.VideoId" class="text-danger"></span>
@@ -301,7 +317,7 @@
 		<div class="row g-0 px-2">
 			<div class="col-12">
 				<small class="text-muted">#@Model.Building.Id</small>
-				<h5>@Model.Building.BuildingTypeName @Model.Building.AdTypeName @Model.Building.FinishingTypeName</h5>
+				<h5 class="mt-3">@Model.Building.BuildingTypeName @Model.Building.AdTypeName @Model.Building.FinishingTypeName</h5>
 			</div>
 		</div>
 		<div class="row g-0 px-2">
@@ -320,76 +336,78 @@
 		<div class="row g-0 px-2">
 			@if (Model.Building.Floor > 0)
 			{
-				<div class="col">
-					<i class="fa fa-building"></i>
+				<div class="col mt-2">
+					<i class="fa fa-building"></i>&nbsp;
 					<label asp-for="Building.Floor" class="form-label"></label>&nbsp;
 					@Html.DisplayFor(e => e.Building.Floor)
 				</div>
 			}
 			@if (Model.Building.Rooms > 0)
 			{
-				<div class="col">
-					<i class="fa fa-person-shelter"></i>
-					@Html.DisplayFor(e => e.Building.Rooms)
+				<div class="col mt-2">
+					<i class="fa fa-person-shelter"></i>&nbsp;
 					<label asp-for="Building.Rooms" class="form-label"></label>&nbsp;
+					@Html.DisplayFor(e => e.Building.Rooms)
 				</div>
 			}
 			@if (Model.Building.Bathrooms > 0)
 			{
-				<div class="col">
-					<i class="fa fa-restroom"></i>
+				<div class="col mt-2">
+					<i class="fa fa-restroom"></i>&nbsp;
+					<label asp-for="Building.Bathrooms" class="form-label"></label>&nbsp;
 					@Html.DisplayFor(e => e.Building.Bathrooms)
-					<label asp-for="Building.Bathrooms" class="form-label"></label>:&nbsp;
 				</div>
 			}
 			@if (Model.Building.Area > 0)
 			{
-				<div class="col">
-					<i class="fa fa-square"></i>
+				<div class="col mt-2">
+					<i class="fa fa-square"></i>&nbsp;
+					<label asp-for="Building.Area" class="form-label"></label>&nbsp;
 					@Html.DisplayFor(e => e.Building.Area) م
-					<label asp-for="Building.Area" class="form-label"></label>:&nbsp;
 				</div>
 			}
 		</div>
 		@if (!string.IsNullOrEmpty(Model.Building.ShortDescription))
 		{
 			<div class="row g-0 px-2">
-				<div class="col-12">
+				<div class="col-12 mt-2">
 					@Html.DisplayFor(e => Model.Building.ShortDescription)
 				</div>
 			</div>
 		}
 		@if (!string.IsNullOrEmpty(Model.Building.Description))
 		{
-			<div class="row g-0 px-2">
+			<div class="row g-0 px-2 mt-2">
 				<div class="col-12 linebreaks">
-					@Html.Raw(Html.Encode(Model.Building.Description))
+					<pre>
+						@Model.Building.Description
+					</pre>
 				</div>
 			</div>
 		}
 		<div class="row g-0 px-2">
 			@if (!string.IsNullOrEmpty(Model.Building.Phone))
 			{
-				<div class="col">
-					<label asp-for="Building.Phone" class="form-label"></label>
-					@Html.DisplayFor(e => e.Building.Phone)
+				<div class="col mt-3 fw-bold">
+					<label asp-for="Building.Phone" class="form-label"></label>&nbsp;
+					<span dir="ltr">@Html.DisplayFor(e => e.Building.Phone)</span>
 				</div>
 			}
 			@if (!string.IsNullOrEmpty(Model.Building.Mobile))
 			{
-				<div class="col">
-					<label asp-for="Building.Mobile" class="form-label"></label>
-					@Html.DisplayFor(e => e.Building.Mobile)
+				<div class="col mt-3 fw-bold">
+					<label asp-for="Building.Mobile" class="form-label"></label>&nbsp;
+					<span dir="ltr">@Html.DisplayFor(e => e.Building.Mobile)</span>
 				</div>
 			}
-			<div class="col">
-				<label asp-for="Building.Price" class="form-label"></label>
+			<div class="col mt-3 fw-bold">
+				<label asp-for="Building.Price" class="form-label"></label>&nbsp;
 				@Html.DisplayFor(e => e.Building.Price) جنيه
 			</div>
 		</div>
 		@if (!Model.ReadOnly)
 		{
-			<div class="g-0 my-4">
+			<div class="g-0 my-4 mt-3">
 				<a asp-area="Admin" asp-controller="Buildings" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary border-0 me-1">تعديل</a>
 			</div>
 		}

@@ -409,8 +409,8 @@ span.oi {
 }
 
 .img-list {
-	min-width: 24px;
-	width: 40px;
+	min-width: 64px;
+	width: 96px;
 	height: auto;
 }
 

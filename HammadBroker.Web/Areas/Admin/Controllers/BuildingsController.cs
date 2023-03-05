@@ -128,7 +128,9 @@ public class BuildingsController : MvcController
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return View(buildingToUpdate);
 
-		Building building = await _buildingService.AddAsync(_mapper.Map<Building>(buildingToUpdate), token);
+		Building building = _mapper.Map<Building>(buildingToUpdate);
+		if (string.IsNullOrEmpty(building.Id)) building.Id = StringHelper.RandomKey(Constants.Buildings.IdentifierLength);
+		building = await _buildingService.AddAsync(building, token);
 		token.ThrowIfCancellationRequested();
 		if (building == null) return BadRequest();
 		return RedirectToAction(nameof(Index));

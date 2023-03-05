@@ -12,12 +12,14 @@ using essentialMix.Helpers;
 using essentialMix.Patterns.Pagination;
 using essentialMix.Patterns.Sorting;
 using HammadBroker.Data.Context;
+using HammadBroker.Model;
 using HammadBroker.Model.Entities;
 using HammadBroker.Model.Parameters;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using StringHelper = essentialMix.Helpers.StringHelper;
 
 namespace HammadBroker.Data.Repositories;
 
@@ -38,6 +40,7 @@ public class BuildingRepository : Repository<DataContext, Building, string>, IBu
 	protected override Building AddInternal(Building entity)
 	{
 		if (entity == null || string.IsNullOrEmpty(entity.VideoId)) return base.AddInternal(entity);
+		if (string.IsNullOrEmpty(entity.Id)) entity.Id = StringHelper.RandomKey(Constants.Buildings.IdentifierLength);
 		Match match = __youtubeId.Match(entity.VideoId);
 		entity.VideoId = match.Success ? match.Groups["id"].Value : null;
 		return base.AddInternal(entity);
@@ -61,8 +64,8 @@ public class BuildingRepository : Repository<DataContext, Building, string>, IBu
 		return Images.Where(e => ids.Contains(e.BuildingId))
 					.DefaultIfEmpty()
 					.GroupBy(e => e.BuildingId)
-					.Select(g => g.OrderByDescending(e => e.Priority ?? 0).Take(1))
-					.SelectMany(g => g)
+					.Select(g => g.OrderByDescending(e => e.Priority ?? 0).FirstOrDefault())
+					.Where(e => e != null)
 					.ToDictionary(k => k.BuildingId, v => v.ImageUrl, StringComparer.OrdinalIgnoreCase);
 	}
 
@@ -70,10 +73,8 @@ public class BuildingRepository : Repository<DataContext, Building, string>, IBu
 	{
 		if (ids.Count == 0) return Task.FromResult<IDictionary<string, string>>(null);
 		return Images.Where(e => ids.Contains(e.BuildingId))
-					.DefaultIfEmpty()
 					.GroupBy(e => e.BuildingId)
-					.Select(g => g.OrderByDescending(e => e.Priority ?? 0).Take(1))
-					.SelectMany(g => g)
+					.Select(g => g.OrderByDescending(e => e.Priority ?? 0).FirstOrDefault())
 					.ToDictionaryAsync(k => k.BuildingId, v => v.ImageUrl, StringComparer.OrdinalIgnoreCase, token)
 					.As<Dictionary<string, string>, IDictionary<string, string>>(token);
 	}

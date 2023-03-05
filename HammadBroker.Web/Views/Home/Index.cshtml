@@ -161,7 +161,7 @@
 						@if (building.Floor > 0)
 						{
 							<div class="col">
-								<i class="fa fa-building"></i>
+								<i class="fa fa-building"></i>&nbsp;
 								<label for="@nameof(building.Floor)">@Html.DisplayNameFor(e => building.Floor) </label>
 								@Html.DisplayFor(e => building.Floor)
 							</div>
@@ -169,7 +169,7 @@
 						@if (building.Rooms > 0)
 						{
 							<div class="col">
-								<i class="fa fa-person-shelter"></i>
+								<i class="fa fa-person-shelter"></i>&nbsp;
 								@Html.DisplayFor(e => building.Rooms)
 								<label for="@nameof(building.Rooms)">@Html.DisplayNameFor(e => building.Rooms) </label>
 							</div>
@@ -177,7 +177,7 @@
 						@if (building.Bathrooms > 0)
 						{
 							<div class="col">
-								<i class="fa fa-restroom"></i>
+								<i class="fa fa-restroom"></i>&nbsp;
 								@Html.DisplayFor(e => building.Bathrooms)
 								<label for="@nameof(building.Bathrooms)">@Html.DisplayNameFor(e => building.Bathrooms) </label>
 							</div>
@@ -185,7 +185,7 @@
 						@if (building.Area > 0)
 						{
 							<div class="col">
-								<i class="fa fa-square"></i>
+								<i class="fa fa-square"></i>&nbsp;
 								@Html.DisplayFor(e => building.Area)
 								<label for="@nameof(building.Area)">@Html.DisplayNameFor(e => building.Area) </label>
 							</div>

@@ -73,7 +73,7 @@ namespace HammadBroker.Data.Migrations
                 name: "Buildings",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
+                    Id = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     BuildingType = table.Column<int>(type: "int", nullable: false),
                     VideoId = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: true),
                     FinishingType = table.Column<int>(type: "int", nullable: false),
@@ -217,7 +217,7 @@ namespace HammadBroker.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    BuildingId = table.Column<string>(type: "nvarchar(40)", nullable: false),
+                    BuildingId = table.Column<string>(type: "nvarchar(10)", nullable: false),
                     ImageUrl = table.Column<string>(type: "nvarchar(320)", maxLength: 320, nullable: false),
                     Priority = table.Column<byte>(type: "tinyint", nullable: true)
                 },

@@ -50,8 +50,8 @@
 	@await RenderSectionAsync("styles", false)
 	@await RenderSectionAsync("header", false)
 </head>
-<body>
-	<header>
+<body class="d-flex flex-column">
+	<header class="container py-1">
 		<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-4">
 			<div class="container">
 				<a class="navbar-brand py-0 m-0" menu-route asp-area="" asp-controller="Home" asp-action="Index">
@@ -94,13 +94,13 @@
 			</div>
 		</nav>
 	</header>
-	<div class="container pb-3">
+	<div class="container flex-grow-1 pb-3">
 		<main role="main">
 			@RenderBody()
 		</main>
 	</div>
 
-	<footer class="container py-3 mt-2 border-top footer text-muted">
+	<footer class="container-fluid py-3 mt-2 border-top footer text-muted">
 		<small class="d-inline-block mb-1 text-muted">@CompanyInfo.Title &copy;@DateTime.Today.Year</small>
 	</footer>
 

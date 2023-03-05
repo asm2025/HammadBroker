@@ -29,12 +29,12 @@ public class BuildingForList : IBuildingLookup
 	[Display(Name = "الاولوية")]
 	public byte? Priority { get; set; }
 	[Display(Name = "التاريخ")]
-	[DisplayFormat(DataFormatString = "{0:D}")]
+	[DisplayFormat(DataFormatString = "{0:D}", ApplyFormatInEditMode = true)]
 	public DateTime Date { get; set; }
 	[Display(Name = "ينتهي في")]
-	[DisplayFormat(DataFormatString = "{0:D}")]
+	[DisplayFormat(DataFormatString = "{0:D}", ApplyFormatInEditMode = true)]
 	public DateTime? Expires { get; set; }
 	[Display(Name = "السعر")]
-	[DisplayFormat(DataFormatString = "{0:#,#.##}")]
+	[DisplayFormat(DataFormatString = "{0:#,#.##}", ApplyFormatInEditMode = true)]
 	public long Price { get; set; }
 }

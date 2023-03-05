@@ -51,7 +51,8 @@
 						<a class="btn btn-outline-secondary btn-sm border-0 mb-1" asp-area="Admin" asp-controller="Cities" asp-action="Edit" asp-route-id="@city.Id"><i class="fa fa-pen"></i></a>
 						<a class="btn btn-outline-danger btn-sm border-0 mb-1" onclick="JavaScript:deleteCity(@city.Id, '@city.Name');"><i class="fa fa-xmark"></i></a>
 					</th>
-					<td>@city.Name</td>
+					<td>
+						@Html.DisplayFor(e => city.Name)</td>
 				</tr>
 			}
 		</tbody>

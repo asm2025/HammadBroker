@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HammadBroker.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230302204144_Initial")]
+    [Migration("20230305142256_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,8 +27,8 @@ namespace HammadBroker.Data.Migrations
             modelBuilder.Entity("HammadBroker.Model.Entities.Building", b =>
                 {
                     b.Property<string>("Id")
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<int>("AdType")
                         .HasColumnType("int");
@@ -127,7 +127,7 @@ namespace HammadBroker.Data.Migrations
 
                     b.Property<string>("BuildingId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(40)");
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()

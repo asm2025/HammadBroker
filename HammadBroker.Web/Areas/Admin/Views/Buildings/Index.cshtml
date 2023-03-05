@@ -161,12 +161,12 @@
 					<td>
 						<img-asset src="@building.ImageUrl" readonly imageclass="img-fluid img-list mx-auto d-block" />
 					</td>
-					<td>@building.Id</td>
-					<td>@building.Date</td>
-					<td class="text-nowrap">@building.BuildingTypeName</td>
-					<td class="text-nowrap">@building.AdTypeName</td>
-					<td class="text-nowrap">@building.FinishingTypeName</td>
-					<td class="text-nowrap">@building.Price</td>
+					<td>@Html.DisplayFor(e => building.Id)</td>
+					<td>@Html.DisplayFor(e => building.Date)</td>
+					<td class="text-nowrap">@Html.DisplayFor(e => building.BuildingTypeName)</td>
+					<td class="text-nowrap">@Html.DisplayFor(e => building.AdTypeName)</td>
+					<td class="text-nowrap">@Html.DisplayFor(e => building.FinishingTypeName)</td>
+					<td class="text-nowrap">@Html.DisplayFor(e => building.Price)</td>
 				</tr>
 			}
 		</tbody>

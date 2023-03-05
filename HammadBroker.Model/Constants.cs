@@ -37,6 +37,6 @@ public static class Constants
 
 	public static class Buildings
 	{
-		public const int IdentifierLength = 40;
+		public const int IdentifierLength = 10;
 	}
 }
