@@ -187,6 +187,8 @@ public class BuildingsController : MvcController
 
 	[NotNull]
 	[ItemNotNull]
+	[AllowAnonymous]
+	[Authorize(Policy = Constants.Authorization.MemberPolicy)]
 	[HttpGet("[action]")]
 	public async Task<IActionResult> ListImages([Required] string id, CancellationToken token)
 	{

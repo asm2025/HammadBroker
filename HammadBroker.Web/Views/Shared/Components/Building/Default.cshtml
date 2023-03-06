@@ -4,13 +4,24 @@
 @using HammadBroker.Model.VirtualPath
 @using System.Configuration
 @using essentialMix.Helpers
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.Extensions.Configuration
 @inject IAntiforgery Antiforgery
+@inject IAuthorizationService AuthorizationService
 @inject VirtualPathSettings VirtualPathSettings
 @inject IConfiguration Configuration
 @model BuildingModel
 
 @{
+	bool isAdmin = (await AuthorizationService.AuthorizeAsync(User, Constants.Authorization.AdministrationPolicy)).Succeeded;
+
+	if (!isAdmin)
+	{
+		Model.CanEdit = false;
+		Model.CanUpload = false;
+		Model.ReadOnly = true;
+	}
+
 	string action = Model.CanEdit
 						? Url.Action(string.IsNullOrEmpty(Model.Id)
 										? "Add"
@@ -20,10 +31,11 @@
 											id = Model.Id
 										})
 						: null;
-	string newId = Model.CanEdit && string.IsNullOrEmpty(Model.Id) ? StringHelper.RandomKey(Constants.Buildings.IdentifierLength) : null;
+	string newId = Model.CanEdit && string.IsNullOrEmpty(Model.Id) ? StringHelper.RandomKey(Constants.Buildings.IdentifierLength) : Model.Id;
 	PathContent assetsPath = VirtualPathSettings.PathContents?.FirstOrDefault(e => e.Alias.IsSame("AssetImages")) ?? throw new ConfigurationErrorsException($"{nameof(VirtualPathSettings)} does not contain a definition for AssetImages.");
-	string basePath = assetsPath.RequestPath.Trim('/');
 	string placeholderImage = Configuration.GetValue("Images:AssetPlaceholder", string.Empty);
+	if (string.IsNullOrEmpty(placeholderImage)) throw new ConfigurationErrorsException("Images:AssetPlaceholder is missing.");
+	placeholderImage = assetsPath.RequestPath.Trim('/') + placeholderImage;
 }
 
 <div id="buildingForm" v-scope class="card card-body mt-3">
@@ -38,20 +50,19 @@
 		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 	</div>
 
-	<galleria ref="galleria" :container-class="'galleria'" :value="images" :show-thumbnails="false" 
-			show-item-navigators show-item-navigators-on-hover show-indicators change-item-on-indicator-hover 
-			show-indicators-on-item circular auto-play :transition-interval="3000">
+	<galleria ref="galleria" :container-class="'galleria'" :value="images" :show-thumbnails="false" circular full-screen
+			show-item-navigators show-item-navigators-on-hover change-item-on-indicator-hover v-model:visible="fullScreen">
 		<template #item="{ item }">
-			<img :src="item" alt="" class="img-fluid" v-on:click="toggleFullScreen"/>
+			<img :src="item.imageUrl" alt="" class="img-fluid" v-on:click="fullScreen = false" />
 		</template>
 	</galleria>
 
-	<div class="card-deck2 align-items-end mb-2">
-		<div class="card card-body position-relative">
+	<div class="card-deck2 align-items-stretch mb-2">
+		<div class="card card-body">
 			@if (string.IsNullOrEmpty(Model.Building.VideoId))
 			{
-				<img class="img-fluid" :src="`@Context.Request.Scheme://@Context.Request.Host/@basePath/${(images && images.length && images[0].imageUrl ? images[0].imageUrl : '@placeholderImage')}`" alt=""
-					v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host/@basePath/@placeholderImage'`"/>
+				<img class="img-fluid" :src="`@Context.Request.Scheme://@Context.Request.Host${(images && images.length && images[0].imageUrl ? images[0].imageUrl : '@placeholderImage')}`" alt=""
+					v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host@placeholderImage'`"/>
 				<div class="position-absolute bottom-0 mb-3 mx-3 d-flex align-items-center z-3">
 					@if (Model.CanUpload)
 					{
@@ -69,16 +80,16 @@
 				<vid-asset VideoId="@Model.Building.VideoId" Class="ratio ratio-16x9"/>
 			}
 		</div>
-		<div v-if="@Model.CanUpload.ToString().ToLowerInvariant() || images && images.length" class="card card-body position-relative">
+		<div v-if="@Model.CanUpload.ToString().ToLowerInvariant() || images && images.length" class="card card-body">
 			<div :class="'drop-zone'">
-				<div v-if="images && images.length > 1" :class="['zone-item d-flex flex-row', { active: !uploading }]">
-					<div>
-						<img class="img-fluid" :src="`@Context.Request.Scheme://@Context.Request.Host/@basePath/${images[1].imageUrl}`" alt=""
-							v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host/@basePath/@placeholderImage'`"/>
+				<div v-if="images && images.length > 1" :class="['zone-item d-flex flex-column', { active: !uploading }]">
+					<div class="tile">
+						<img class="img-fluid" :src="`@Context.Request.Scheme://@Context.Request.Host${images[1].imageUrl}`" alt=""
+							v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host@placeholderImage'`"/>
 					</div>
-					<div v-if="images.length > 2">
-						<img class="img-fluid" :src="`@Context.Request.Scheme://@Context.Request.Host/@basePath/${images[2].imageUrl}`" alt=""
-							v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host/@basePath/@placeholderImage'`"/>
+					<div v-if="images.length > 2" class="tile">
+						<img class="img-fluid" :src="`@Context.Request.Scheme://@Context.Request.Host${images[2].imageUrl}`" alt=""
+							v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host@placeholderImage'`"/>
 					</div>
 				</div>
 				@if (Model.CanUpload)
@@ -95,6 +106,12 @@
 									</div>
 									<ProgressBar v-show="uploadProgress > 0" :value="uploadProgress" :show-value="false" :class="['md:w-10rem h-1rem w-full md:mr-auto', {'exceeded-progress-bar': (uploadProgress > 100)}]">
 									</ProgressBar>
+								</div>
+							</template>
+							<template #empty>
+								<div class="d-flex align-items-center justify-content-center flex-column">
+									<i class="fa fa-cloud-upload border-2 border-circle p-5 lead text-200 border-200"></i>
+									<div class="position-absolute">اسحب الملفات الى هنا للتحميل.</div>
 								</div>
 							</template>
 							<template #content="{ files, uploadedFiles, messages, onUploadedFileRemove, onFileRemove }">
@@ -131,17 +148,11 @@
 									</div>
 								</div>
 							</template>
-							<template #empty>
-								<div class="d-flex align-items-center justify-content-center flex-column">
-									<i class="fa fa-cloud-upload border-2 border-circle p-5 lead text-200 border-200"></i>
-									<p class="mt-4 mb-0">اسحب الملفات الى هنا للتحميل.</p>
-								</div>
-							</template>
 						</fileupload>
 					</div>
 				}
-				<div ref="zoneFooter" class="zone-footer mb-2" dir="ltr">
-					<button type="button" v-if="!uploading && images && images.length" class="btn btn-light btn-sm border-0 me-1" v-on:click="toggleFullScreen">
+				<div v-if="images && images.length" ref="zoneFooter" class="zone-footer mb-2" dir="ltr">
+					<button type="button" v-if="!uploading" class="btn btn-light btn-sm border-0 me-1" v-on:click="fullScreen = true">
 						<i :class="['fa', fullScreen ? 'fa-minimize' : 'fa-maximize']"></i>
 					</button>
 					@if (Model.CanUpload)
@@ -379,9 +390,7 @@
 		{
 			<div class="row g-0 px-2 mt-2">
 				<div class="col-12 linebreaks">
-					<pre>
-						@Model.Building.Description
-					</pre>
+					<pre>@Model.Building.Description</pre>
 				</div>
 			</div>
 		}
@@ -407,7 +416,7 @@
 		</div>
 		@if (!Model.ReadOnly)
 		{
-			<div class="g-0 my-4 mt-3">
+			<div class="row g-0 px-2 mt-3">
 				<a asp-area="Admin" asp-controller="Buildings" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary border-0 me-1">تعديل</a>
 			</div>
 		}
@@ -465,6 +474,7 @@
 
 		if (!id) {
 			self.images = [];
+			self.uploading = true;
 			return;
 		}
 
@@ -478,7 +488,7 @@
 			             {
 				             area = "Admin"
 			             })?${params}`;
-			const response = await window.fetch(url + "?" + params);
+			const response = await window.fetch(url);
 
 			if (!response.ok) {
 				const error = await getResponseError(response);
@@ -492,6 +502,8 @@
 		} finally {
 			self.loading = false;
 		}
+
+		self.uploading = Boolean(!self.images || !self.images.length);
 	}, DELAY, { trailing: true });
 
 	createApp({
@@ -633,64 +645,10 @@
 				},
 				formatSize(bytes) {
 					_formatSize(bytes);
-				},
-				toggleFullScreen() {
-					if (this.fullScreen) {
-						this.closeFullScreen();
-					} else {
-						this.openFullScreen();
-					}
-				},
-				onFullScreenChange() {
-					if (document.fullscreenElement) {
-						this.fullScreen = true;
-					} else {
-						this.fullScreen = false;
-					}
-				},
-				openFullScreen() {
-					const elem = this.$refs.galleria.$el;
-
-					if (elem.requestFullscreen) {
-						elem.requestFullscreen();
-					} else if (elem.mozRequestFullScreen) { /* Firefox */
-						elem.mozRequestFullScreen();
-					} else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
-						elem.webkitRequestFullscreen();
-					} else if (elem.msRequestFullscreen) { /* IE/Edge */
-						elem.msRequestFullscreen();
-					}
-				},
-				closeFullScreen() {
-					if (document.exitFullscreen) {
-						document.exitFullscreen();
-					} else if (document.mozCancelFullScreen) {
-						document.mozCancelFullScreen();
-					} else if (document.webkitExitFullscreen) {
-						document.webkitExitFullscreen();
-					} else if (document.msExitFullscreen) {
-						document.msExitFullscreen();
-					}
-				},
-				bindDocumentListeners() {
-					document.addEventListener("fullscreenchange", this.onFullScreenChange);
-					document.addEventListener("mozfullscreenchange", this.onFullScreenChange);
-					document.addEventListener("webkitfullscreenchange", this.onFullScreenChange);
-					document.addEventListener("msfullscreenchange", this.onFullScreenChange);
-				},
-				unbindDocumentListeners() {
-					document.removeEventListener("fullscreenchange", this.onFullScreenChange);
-					document.removeEventListener("mozfullscreenchange", this.onFullScreenChange);
-					document.removeEventListener("webkitfullscreenchange", this.onFullScreenChange);
-					document.removeEventListener("msfullscreenchange", this.onFullScreenChange);
 				}
 			},
 			mounted() {
-				this.bindDocumentListeners();
 				this.fetchData();
-			},
-			unmounted() {
-				this.unbindDocumentListeners();
 			}
 		})
 		.use(primevue.config.default)

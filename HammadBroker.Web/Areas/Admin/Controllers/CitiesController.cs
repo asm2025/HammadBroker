@@ -62,6 +62,8 @@ public class CitiesController : MvcController
 
 	[NotNull]
 	[ItemNotNull]
+	[AllowAnonymous]
+	[Authorize(Policy = Constants.Authorization.MemberPolicy)]
 	[HttpGet("[action]")]
 	public async Task<IActionResult> List([FromQuery(Name = "")] CitiesList pagination, CancellationToken token)
 	{

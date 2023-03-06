@@ -204,14 +204,14 @@
 			{
 				<div class="btn-contact">
 					<i class="fa fa-phone fa-xl"></i>
-					@Html.DisplayFor(e => building.Phone)
+					<span dir="ltr">@Html.DisplayFor(e => building.Phone)</span>
 				</div>
 			}
 			@if (!string.IsNullOrEmpty(building.Mobile))
 			{
 				<div class="btn-contact">
 					<i class="fa fa-mobile-screen fa-xl"></i>
-					@Html.DisplayFor(e => building.Mobile)
+					<span dir="ltr">@Html.DisplayFor(e => building.Mobile)</span>
 				</div>
 			}
 			<div class="btn-contact btn-whatsApp">
