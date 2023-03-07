@@ -12,7 +12,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 	<link rel="icon" type="image/x-icon" href="@Url.Content("~/favicon.ico")" />
 	<link rel="shortcut icon" type="image/x-icon" href="@Url.Content("~/favicon.ico")" />
-	<title>@string.Join(" - ", ViewData["Title"], CompanyInfo.Title).Trim(' ', '-')</title>
+	<title>@string.Join(" - ", ViewData["Title"], CompanyInfo.Name).Trim(' ', '-')</title>
 
 	<link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.rtl.min.css" />
 	<link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
@@ -55,8 +55,8 @@
 		<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-4">
 			<div class="container">
 				<a class="navbar-brand py-0 m-0" menu-route asp-area="" asp-controller="Home" asp-action="Index">
-					<img src="@Url.Content("~/images/logo.jpg")" alt="@CompanyInfo.Title" class="img-fluid" style="max-width: 4rem;" />
-					<span class="p-1">@CompanyInfo.Title</span>
+					<img src="@Url.Content("~/images/logo.jpg")" alt="@CompanyInfo.Name" class="img-fluid" style="max-width: 4rem;" />
+					<span class="p-1">@CompanyInfo.Name</span>
 				</a>
 				@if (!hideMenu)
 				{
@@ -101,7 +101,7 @@
 	</div>
 
 	<footer class="container-fluid py-3 mt-2 border-top footer text-muted">
-		<small class="d-inline-block mb-1 text-muted">@CompanyInfo.Title &copy;@DateTime.Today.Year</small>
+		<small class="d-inline-block mb-1 text-muted">@CompanyInfo.Name &copy;@DateTime.Today.Year</small>
 	</footer>
 
 	<script src="~/lib/jquery/jquery.min.js"></script>

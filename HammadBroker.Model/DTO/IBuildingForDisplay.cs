@@ -9,7 +9,8 @@ public interface IBuildingForDisplay : IBuildingLookup
 	[Display(Name = "الحي")]
 	string Address2 { get; set; }
 	[Display(Name = "الدور")]
-	byte? Floor { get; set; }
+	Floors? Floor { get; set; }
+	string FloorName { get; }
 	[Display(Name = "الغرف")]
 	byte? Rooms { get; set; }
 	[Display(Name = "الحمامات")]

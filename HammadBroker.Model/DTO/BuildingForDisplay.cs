@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using essentialMix.Extensions;
 
 namespace HammadBroker.Model.DTO;
 
@@ -6,7 +7,8 @@ public class BuildingForDisplay : BuildingForList, IBuildingForDisplay, ICityNam
 {
 	/// <inheritdoc />
 	[Display(Name = "الدور")]
-	public byte? Floor { get; set; }
+	public Floors? Floor { get; set; }
+	public string FloorName => Floor?.GetDisplayName();
 	/// <inheritdoc />
 	[Display(Name = "غرفة")]
 	public byte? Rooms { get; set; }

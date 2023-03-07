@@ -82,8 +82,8 @@ public class Program
 		// Configuration
 		WebApplicationBuilder builder = CreateHostBuilder(args);
 		IConfiguration configuration = builder.Configuration;
-		AppName = configuration.GetValue("name", AppName);
-		AppTitle = configuration.GetValue("title", AppTitle);
+		AppName = configuration.GetValue("AppName", AppName);
+		AppTitle = configuration.GetValue("Name", AppTitle);
 
 		// Logging
 		LoggerConfiguration loggerConfiguration = new LoggerConfiguration();
@@ -169,7 +169,6 @@ public class Program
 		IWebHostEnvironment environment = builder.Environment;
 		SmtpConfiguration smtpConfiguration = configuration.GetSection(nameof(SmtpConfiguration)).Get<SmtpConfiguration>();
 		CompanyInfo companyInfo = configuration.Get<CompanyInfo>() ?? new CompanyInfo();
-		if (companyInfo.CountryCode != null) companyInfo.CountryCode = companyInfo.CountryCode.ToUpperInvariant();
 		services
 			// config
 			.AddSingleton(configuration)

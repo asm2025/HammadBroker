@@ -19,7 +19,7 @@ public class Building : IEntity<string>
 	[Required]
 	public FinishingType? FinishingType { get; set; }
 
-	public byte? Floor { get; set; }
+	public Floors? Floor { get; set; }
 
 	public byte? Rooms { get; set; }
 

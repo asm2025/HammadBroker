@@ -36,7 +36,9 @@ public class BuildingToUpdate : IBuilding
 
 	/// <inheritdoc />
 	[Display(Name = "الدور")]
-	public byte? Floor { get; set; }
+	public Floors? Floor { get; set; }
+
+	public string FloorName => Floor?.GetDisplayName();
 
 	/// <inheritdoc />
 	[Display(Name = "الغرف")]

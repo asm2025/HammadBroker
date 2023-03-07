@@ -76,6 +76,11 @@ a {
 	text-decoration: none;
 }
 
+i {
+	padding-left: 0.25rem;
+	padding-right: 0.25rem;
+}
+
 .fs-s1 {
 	font-size: 0.75rem !important;
 }
@@ -237,14 +242,20 @@ a {
 	}
 }
 
+.card .card-footer {
+	background-color: #f7f7f7;
+}
+
 .card .img-fluid {
-	min-height: 256px;
-	max-height: 320px;
-	max-width: none;
-	width: auto;
 	-webkit-object-fit: cover;
 	object-fit: cover;
 	margin: 0 auto;
+}
+
+.card .img-h-100 {
+	min-height: 100%;
+	max-width: none;
+	width: auto;
 }
 
 .list-deck .list-group-item {
@@ -842,4 +853,14 @@ span.oi {
 	width: 41px;
 	height: 50px;
 	stroke: none;
+}
+
+.pane {
+	background-color: #fff;
+	border-bottom: 0.3rem solid #dedede;
+	margin-bottom: 1rem !important;
+}
+
+.pane-active {
+	border-top: 0.3rem solid #ef5e4e;
 }

@@ -13,9 +13,9 @@ public class BuildingList : SortablePagination
 	[Display(Name = "نوع التشطيب")]
 	public FinishingType? FinishingType { get; set; }
 	[Display(Name = "الدور")]
-	public byte? Floor { get; set; }
+	public Floors? Floor { get; set; }
 	[Display(Name = "بحد أقصى")]
-	public byte? MaxFloor { get; set; }
+	public Floors? MaxFloor { get; set; }
 	[Display(Name = "الغرف")]
 	public byte? Rooms { get; set; }
 	[Display(Name = "بحد أقصى")]

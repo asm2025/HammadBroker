@@ -2,6 +2,9 @@
 @using HammadBroker.Model
 @using Humanizer
 @using System.Globalization
+@using System.Net
+@using HammadBroker.Model.Configuration
+@inject CompanyInfo CompanyInfo
 @model BuildingsPaginated<BuildingForDisplay>
 @{
 	ViewData["Title"] = string.Empty;
@@ -9,14 +12,71 @@
 	CultureInfo ciar = CultureInfo.GetCultureInfo("ar");
 }
 
-@if (Model.Pagination.Count > Model.Pagination.PageSize || hasSearch)
-{
-	<div class="card mb-1">
+<div class="card pane mb-1">
+	<div class="row g-0">
+		<div class="col-4 p-0">
+			<img src="@Url.Content("~/images/logo.jpg")" alt="@CompanyInfo.Name" class="img-fluid rounded-start" />
+		</div>
+		<div class="col-8">
+			<div class="card-body">
+				<h3 class="card-title mb-3">@CompanyInfo.Name</h3>
+				<div>
+					<label class="col-form-label">العقارات المتوفرة:</label>
+					@Model.Pagination.Count عقار
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="card-footer bg-white">
+		<h5 class="pt-3">نبذة عن @CompanyInfo.Name</h5>
+		@if (!string.IsNullOrEmpty(CompanyInfo.Description))
+		{
+			<div>@CompanyInfo.Description</div>
+		}
+		<div class="py-3">
+			<label class="form-label">المكتب الرئيسي:</label>
+			@CompanyInfo.Address @string.Join(" - ", CompanyInfo.Address2, CompanyInfo.City)
+		</div>
+	</div>
+</div>
+
+<div class="card card-body pane mb-1">
+	<h5 class="card-title mb-3">تواصل مع الوسيط</h5>
+	<div class="row g-0">
+		@if (!string.IsNullOrEmpty(CompanyInfo.Phone))
+		{
+			<button type="button" class="btn btn-danger w-100 mb-2" dir="ltr" onclick="this.firstChild.textContent = '@CompanyInfo.Phone'">
+				إتصل بالوسيط العقاري
+				<i class="fa fa-phone fa-xl"></i>
+			</button>
+		}
+		@if (!string.IsNullOrEmpty(CompanyInfo.Mobile))
+		{
+			<button type="button" class="btn btn-danger w-100 mb-2" dir="ltr" onclick="this.firstChild.textContent = '@CompanyInfo.Mobile'">
+				إتصل بالوسيط العقاري
+				<i class="fa fa-mobile-screen fa-xl"></i>
+			</button>
+		}
+		@if (!string.IsNullOrEmpty(CompanyInfo.Email))
+		{
+			<a class="btn btn-danger w-100 mb-2" dir="ltr" href="mailto:@CompanyInfo.Email?subject=@WebUtility.UrlEncode("معلومات حول")">
+				راسل الوسيط 
+				<i class="fa fa-envelope fa-xl"></i>
+			</a>
+		}
+	</div>
+</div>
+
+<div class="card px-4 mb-1 pane-active">
+	<h5 class="card-title text-center py-3">عقاراتي (@Model.Pagination.Count)</h5>
+
+	@if (Model.Pagination.Count > Model.Pagination.PageSize || hasSearch)
+	{
 		<h5 class="card-header @(hasSearch ? null : "collapsed")" data-bs-toggle="collapse" data-bs-target="#searchForm"
-		aria-expanded="@(hasSearch ? "true" : "false")" aria-controls="searchForm">
+			aria-expanded="@(hasSearch ? "true" : "false")" aria-controls="searchForm">
 			البحث
 		</h5>
-		<div id="searchForm" v-scope class="card-body @(hasSearch ? null : "collapse")">
+		<div id="searchForm" v-scope class="@(hasSearch ? null : "collapse")">
 			<form method="get" asp-area="" asp-controller="Home" asp-action="Index">
 				<div v-if="errors && errors.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="error of errors">
 					{{ error }}
@@ -90,11 +150,15 @@
 				<div class="row g-0 mb-1">
 					<div class="col-sm-12 col-md-3">
 						<label asp-for="Pagination.Floor" class="form-label"></label>
-						<input class="form-control" name="@nameof(Model.Pagination.Floor)" asp-for="Pagination.Floor" />
+						<select class="form-select" name="@nameof(Model.Pagination.Floor)" asp-for="Pagination.Floor" asp-items="Html.GetEnumSelectList<Floors>()">
+							<option value="">@Html.DisplayNameFor(e => e.Pagination.Floor)</option>
+						</select>
 					</div>
 					<div class="col-sm-12 col-md-3">
 						<label asp-for="Pagination.MaxFloor" class="form-label"></label>
-						<input class="form-control" name="@nameof(Model.Pagination.MaxFloor)" asp-for="Pagination.MaxFloor" />
+						<select class="form-select" name="@nameof(Model.Pagination.MaxFloor)" asp-for="Pagination.MaxFloor" asp-items="Html.GetEnumSelectList<Floors>()">
+							<option value="">@Html.DisplayNameFor(e => e.Pagination.Floor)</option>
+						</select>
 					</div>
 					<div class="col-sm-12 col-md-3">
 						<label asp-for="Pagination.Area" class="form-label"></label>
@@ -121,112 +185,121 @@
 				</div>
 			</form>
 		</div>
-	</div>
-}
+	}
 
-@foreach (BuildingForDisplay building in Model.Result)
-{
-<div class="card mb-2">
-	<div class="row g-0" role="button" onclick="window.location = '@Url.Action("Get", "Home", new { area = "", id = building.Id })'">
-		<div class="col-md-4 p-0 overflow-hidden">
-			<img-asset src="@building.ImageUrl" readonly imageclass="img-fluid rounded-top-right mw-100" />
-		</div>
-		<div class="col-md-8">
-			<div class="card-body px-2 h-100">
-				<div class="d-flex flex-column h-100" role="button" onclick="window.location = '@Url.Action("Get", "Home", new { area = "", id = building.Id })'">
-					<small class="text-muted">#@building.Id @building.BuildingTypeName @building.FinishingTypeName @building.AdTypeName</small>
-					<h5 class="card-title">@Html.DisplayFor(e => building.Price) جنيه</h5>
-					<div class="row g-0 flex-grow-1">
-						<div class="col-12">
-							@Html.DisplayFor(e => building.ShortDescription)
-						</div>
-					</div>
-					<div class="row g-0">
-						<div class="col-12">
-							<p>
-								<i class="fa fa-location-dot"></i>
-								@Html.DisplayFor(e => building.Address)
-							</p>
-							<p>
-								@if (!string.IsNullOrEmpty(building.Address2))
+	@foreach (BuildingForDisplay building in Model.Result)
+	{
+		<div class="card mb-2">
+			<div class="row g-0" role="button" onclick="window.location = '@Url.Action("Get", "Home", new { area = "", id = building.Id })'">
+				<div class="col-md-4 p-0 overflow-hidden">
+					<img-asset src="@building.ImageUrl" readonly imageclass="img-fluid img-h-100 rounded-top-right mw-100" />
+				</div>
+				<div class="col-md-8">
+					<div class="card-body px-2 h-100">
+						<div class="d-flex flex-column h-100" role="button" onclick="window.location = '@Url.Action("Get", "Home", new { area = "", id = building.Id })'">
+							<small class="text-muted">#@building.Id @building.BuildingTypeName @building.FinishingTypeName @building.AdTypeName</small>
+							<h5 class="card-title">@Html.DisplayFor(e => building.Price) جنيه</h5>
+							<div class="row g-0 flex-grow-1">
+								<div class="col-12">
+									@Html.DisplayFor(e => building.ShortDescription)
+								</div>
+							</div>
+							<div class="row g-0">
+								<div class="col-12">
+									<p>
+										<i class="fa fa-location-dot"></i>
+										@Html.DisplayFor(e => building.Address)
+									</p>
+									<p>
+										@if (!string.IsNullOrEmpty(building.Address2))
+										{
+											@Html.DisplayFor(e => building.Address2)
+											@:&nbsp;
+										}
+										@Html.DisplayFor(e => building.CityName)
+									</p>
+								</div>
+							</div>
+							<div class="row g-0">
+								@if (building.Floor.HasValue)
 								{
-									@Html.DisplayFor(e => building.Address2)
-									@:&nbsp;
+									<div class="col">
+										<i class="fa fa-building"></i>&nbsp;
+										<label for="@nameof(building.Floor)">@Html.DisplayNameFor(e => building.Floor) </label>
+										@Html.DisplayFor(e => building.FloorName)
+									</div>
 								}
-								@Html.DisplayFor(e => building.CityName)
-							</p>
+								@if (building.Rooms > 0)
+								{
+									<div class="col">
+										<i class="fa fa-person-shelter"></i>&nbsp;
+										@Html.DisplayFor(e => building.Rooms)
+										<label for="@nameof(building.Rooms)">@Html.DisplayNameFor(e => building.Rooms) </label>
+									</div>
+								}
+								@if (building.Bathrooms > 0)
+								{
+									<div class="col">
+										<i class="fa fa-restroom"></i>&nbsp;
+										@Html.DisplayFor(e => building.Bathrooms)
+										<label for="@nameof(building.Bathrooms)">@Html.DisplayNameFor(e => building.Bathrooms) </label>
+									</div>
+								}
+								@if (building.Area > 0)
+								{
+									<div class="col">
+										<i class="fa fa-square"></i>&nbsp;
+										@Html.DisplayFor(e => building.Area)
+										<label for="@nameof(building.Area)">@Html.DisplayNameFor(e => building.Area) </label>
+									</div>
+								}
+							</div>
 						</div>
 					</div>
-					<div class="row g-0">
-						@if (building.Floor > 0)
-						{
-							<div class="col">
-								<i class="fa fa-building"></i>&nbsp;
-								<label for="@nameof(building.Floor)">@Html.DisplayNameFor(e => building.Floor) </label>
-								@Html.DisplayFor(e => building.Floor)
-							</div>
-						}
-						@if (building.Rooms > 0)
-						{
-							<div class="col">
-								<i class="fa fa-person-shelter"></i>&nbsp;
-								@Html.DisplayFor(e => building.Rooms)
-								<label for="@nameof(building.Rooms)">@Html.DisplayNameFor(e => building.Rooms) </label>
-							</div>
-						}
-						@if (building.Bathrooms > 0)
-						{
-							<div class="col">
-								<i class="fa fa-restroom"></i>&nbsp;
-								@Html.DisplayFor(e => building.Bathrooms)
-								<label for="@nameof(building.Bathrooms)">@Html.DisplayNameFor(e => building.Bathrooms) </label>
-							</div>
-						}
-						@if (building.Area > 0)
-						{
-							<div class="col">
-								<i class="fa fa-square"></i>&nbsp;
-								@Html.DisplayFor(e => building.Area)
-								<label for="@nameof(building.Area)">@Html.DisplayNameFor(e => building.Area) </label>
-							</div>
-						}
+				</div>
+			</div>
+			<div class="card-footer d-flex align-items-center">
+				<div class="flex-grow-1">
+					نشر @building.Date.Humanize(culture: ciar)
+				</div>
+				<div class="d-inline-flex">
+					@if (!string.IsNullOrEmpty(building.Phone))
+					{
+						<div class="btn-contact" dir="ltr" onclick="this.firstChild.textContent = '@building.Phone'">
+							إتصل
+							<i class="fa fa-phone fa-xl"></i>
+						</div>
+					}
+					@if (!string.IsNullOrEmpty(building.Mobile))
+					{
+						<div class="btn-contact" dir="ltr" onclick="this.firstChild.textContent = '@building.Mobile'">
+							إتصل
+							<i class="fa fa-mobile-screen fa-xl"></i>
+						</div>
+					}
+					@if (!string.IsNullOrEmpty(CompanyInfo.Email))
+					{
+						<div class="btn-contact" dir="ltr">
+							<a href="mailto:@CompanyInfo.Email?subject=@WebUtility.UrlEncode($"معلومات حول العقار {building.Id}")">
+								إيميل
+								<i class="fa fa-envelope fa-xl"></i>
+							</a>
+						</div>
+					}
+					<div class="btn-contact btn-whatsApp">
+						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+							viewBox="0 0 32 32" class="whatsApp-svg-icon">
+							<path d=" M19.11 17.205c-.372 0-1.088 1.39-1.518 1.39a.63.63 0 0 1-.315-.1c-.802-.402-1.504-.817-2.163-1.447-.545-.516-1.146-1.29-1.46-1.963a.426.426 0 0 1-.073-.215c0-.33.99-.945.99-1.49 0-.143-.73-2.09-.832-2.335-.143-.372-.214-.487-.6-.487-.187 0-.36-.043-.53-.043-.302 0-.53.115-.746.315-.688.645-1.032 1.318-1.06 2.264v.114c-.015.99.472 1.977 1.017 2.78 1.23 1.82 2.506 3.41 4.554 4.34.616.287 2.035.888 2.722.888.817 0 2.15-.515 2.478-1.318.13-.33.244-.73.244-1.088 0-.058 0-.144-.03-.215-.1-.172-2.434-1.39-2.678-1.39zm-2.908 7.593c-1.747 0-3.48-.53-4.942-1.49L7.793 24.41l1.132-3.337a8.955 8.955 0 0 1-1.72-5.272c0-4.955 4.04-8.995 8.997-8.995S25.2 10.845 25.2 15.8c0 4.958-4.04 8.998-8.998 8.998zm0-19.798c-5.96 0-10.8 4.842-10.8 10.8 0 1.964.53 3.898 1.546 5.574L5 27.176l5.974-1.92a10.807 10.807 0 0 0 16.03-9.455c0-5.958-4.842-10.8-10.802-10.8z" fill-rule="evenodd"></path>
+						</svg>
+						واتس آب
 					</div>
 				</div>
 			</div>
 		</div>
-	</div>
-	<div class="card-footer d-flex align-items-center">
-		<div class="flex-grow-1">
-			نشر @building.Date.Humanize(culture: ciar)
-		</div>
-		<div class="d-inline-flex">
-			@if (!string.IsNullOrEmpty(building.Phone))
-			{
-				<div class="btn-contact">
-					<i class="fa fa-phone fa-xl"></i>
-					<span dir="ltr">@Html.DisplayFor(e => building.Phone)</span>
-				</div>
-			}
-			@if (!string.IsNullOrEmpty(building.Mobile))
-			{
-				<div class="btn-contact">
-					<i class="fa fa-mobile-screen fa-xl"></i>
-					<span dir="ltr">@Html.DisplayFor(e => building.Mobile)</span>
-				</div>
-			}
-			<div class="btn-contact btn-whatsApp">
-				<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-					viewBox="0 0 32 32" class="whatsApp-svg-icon">
-					<path d=" M19.11 17.205c-.372 0-1.088 1.39-1.518 1.39a.63.63 0 0 1-.315-.1c-.802-.402-1.504-.817-2.163-1.447-.545-.516-1.146-1.29-1.46-1.963a.426.426 0 0 1-.073-.215c0-.33.99-.945.99-1.49 0-.143-.73-2.09-.832-2.335-.143-.372-.214-.487-.6-.487-.187 0-.36-.043-.53-.043-.302 0-.53.115-.746.315-.688.645-1.032 1.318-1.06 2.264v.114c-.015.99.472 1.977 1.017 2.78 1.23 1.82 2.506 3.41 4.554 4.34.616.287 2.035.888 2.722.888.817 0 2.15-.515 2.478-1.318.13-.33.244-.73.244-1.088 0-.058 0-.144-.03-.215-.1-.172-2.434-1.39-2.678-1.39zm-2.908 7.593c-1.747 0-3.48-.53-4.942-1.49L7.793 24.41l1.132-3.337a8.955 8.955 0 0 1-1.72-5.272c0-4.955 4.04-8.995 8.997-8.995S25.2 10.845 25.2 15.8c0 4.958-4.04 8.998-8.998 8.998zm0-19.798c-5.96 0-10.8 4.842-10.8 10.8 0 1.964.53 3.898 1.546 5.574L5 27.176l5.974-1.92a10.807 10.807 0 0 0 16.03-9.455c0-5.958-4.842-10.8-10.802-10.8z" fill-rule="evenodd"></path>
-				</svg>
-				إتصل بنا
-			</div>
-		</div>
-	</div>
-</div>
-}
+	}
 
-<partial name="_PaginationPartial" model="Model.Pagination" />
+	<partial name="_PaginationPartial" model="Model.Pagination" />
+</div>
 
 @section scripts
 {

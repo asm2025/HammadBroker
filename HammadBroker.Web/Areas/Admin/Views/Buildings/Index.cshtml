@@ -90,11 +90,15 @@
 				<div class="row g-0 mb-1">
 					<div class="col-sm-12 col-md-3">
 						<label asp-for="Pagination.Floor" class="form-label"></label>
-						<input class="form-control" name="@nameof(Model.Pagination.Floor)" asp-for="Pagination.Floor" />
+						<select class="form-select" name="@nameof(Model.Pagination.Floor)" asp-for="Pagination.Floor" asp-items="Html.GetEnumSelectList<Floors>()">
+							<option value="">@Html.DisplayNameFor(e => e.Pagination.Floor)</option>
+						</select>
 					</div>
 					<div class="col-sm-12 col-md-3">
 						<label asp-for="Pagination.MaxFloor" class="form-label"></label>
-						<input class="form-control" name="@nameof(Model.Pagination.MaxFloor)" asp-for="Pagination.MaxFloor" />
+						<select class="form-select" name="@nameof(Model.Pagination.MaxFloor)" asp-for="Pagination.MaxFloor" asp-items="Html.GetEnumSelectList<Floors>()">
+							<option value="">@Html.DisplayNameFor(e => e.Pagination.Floor)</option>
+						</select>
 					</div>
 					<div class="col-sm-12 col-md-3">
 						<label asp-for="Pagination.Area" class="form-label"></label>

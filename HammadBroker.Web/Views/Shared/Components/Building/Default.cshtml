@@ -224,7 +224,9 @@
 			</div>
 			<div class="col-sm-12 col-md-3">
 				<label asp-for="Building.Floor" class="form-label"></label>
-				<input class="form-control" asp-for="Building.Floor" />
+				<select class="form-select" asp-for="Building.Floor" asp-items="Html.GetEnumSelectList<Floors>()">
+					<option value="">@Html.DisplayNameFor(e => e.Building.Floor)</option>
+				</select>
 				<span asp-validation-for="Building.Floor" class="text-danger"></span>
 			</div>
 		</div>
@@ -334,12 +336,12 @@
 			</div>
 		</div>
 		<div class="row g-0 px-2">
-			@if (Model.Building.Floor > 0)
+			@if (Model.Building.Floor.HasValue)
 			{
 				<div class="col mt-2">
 					<i class="fa fa-building"></i>&nbsp;
 					<label asp-for="Building.Floor" class="form-label"></label>&nbsp;
-					@Html.DisplayFor(e => e.Building.Floor)
+					@Html.DisplayFor(e => e.Building.FloorName)
 				</div>
 			}
 			@if (Model.Building.Rooms > 0)
