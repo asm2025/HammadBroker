@@ -133,7 +133,10 @@ public class BuildingsController : MvcController
 		building = await _buildingService.AddAsync(building, token);
 		token.ThrowIfCancellationRequested();
 		if (building == null) return BadRequest();
-		return RedirectToAction(nameof(Index));
+		return RedirectToAction(nameof(Get), new
+		{
+			building.Id
+		});
 	}
 
 	[NotNull]

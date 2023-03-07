@@ -532,7 +532,7 @@ span.oi {
 			}
 
 	.drop-zone .active {
-		display: block;
+		display: flex;
 	}
 
 	.drop-zone .zone-footer {
@@ -665,11 +665,6 @@ span.oi {
 	background: none !important;
 }
 
-.p-fileupload-buttonbar {
-	background: none !important;
-	padding: 0.5rem !important;
-}
-
 .p-galleria .p-galleria-close {
 	z-index: 1100;
 	outline: 0;
@@ -734,10 +729,30 @@ span.oi {
 		border-radius: 50%;
 	}
 
+.p-fileupload {
+	-o-flex-grow: 1;
+	-webkit-flex-grow: 1;
+	flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+	-webkit-flex: 1;
+	-ms-flex: 1;
+	-o-flex: 1;
+	flex: 1;
+}
+
 .p-fileupload .p-fileupload-content {
 	padding: 0.5rem;
 	overflow: auto;
-	max-height: 100vh;
+	max-height: 100%;
+	-o-flex-grow: 1;
+	-webkit-flex-grow: 1;
+	flex-grow: 1;
+}
+
+.p-fileupload-buttonbar {
+	background: none !important;
+	padding: 0.5rem !important;
 }
 
 .simple-typeahead > input {

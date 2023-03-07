@@ -3,7 +3,6 @@
 @using HammadBroker.Model.DTO
 @using HammadBroker.Model.VirtualPath
 @using System.Configuration
-@using essentialMix.Helpers
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.Extensions.Configuration
 @inject IAntiforgery Antiforgery
@@ -31,7 +30,6 @@
 											id = Model.Id
 										})
 						: null;
-	string newId = Model.CanEdit && string.IsNullOrEmpty(Model.Id) ? StringHelper.RandomKey(Constants.Buildings.IdentifierLength) : Model.Id;
 	PathContent assetsPath = VirtualPathSettings.PathContents?.FirstOrDefault(e => e.Alias.IsSame("AssetImages")) ?? throw new ConfigurationErrorsException($"{nameof(VirtualPathSettings)} does not contain a definition for AssetImages.");
 	string placeholderImage = Configuration.GetValue("Images:AssetPlaceholder", string.Empty);
 	if (string.IsNullOrEmpty(placeholderImage)) throw new ConfigurationErrorsException("Images:AssetPlaceholder is missing.");
@@ -70,7 +68,7 @@
 							<i class="fa fa-plus"></i>
 						</button>
 					}
-					<button v-if="images && images.length" type="button" :title="`تصفح ال ${images.length} صور`" class="btn btn-light me-1" v-on:click="toggleFullScreen">
+					<button v-if="images && images.length" type="button" :title="`تصفح ال ${images.length} صور`" class="btn btn-light me-1" v-on:click="fullScreen = true">
 						<i class="fa fa-camera"></i>
 					</button>
 				</div>
@@ -82,7 +80,7 @@
 		</div>
 		<div v-if="@Model.CanUpload.ToString().ToLowerInvariant() || images && images.length" class="card card-body">
 			<div :class="'drop-zone'">
-				<div v-if="images && images.length > 1" :class="['zone-item d-flex flex-column', { active: !uploading }]">
+				<div v-if="images && images.length > 1" :class="['zone-item flex-column', { active: !uploading }]">
 					<div class="tile">
 						<img class="img-fluid" :src="`@Context.Request.Scheme://@Context.Request.Host${images[1].imageUrl}`" alt=""
 							v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host@placeholderImage'`"/>
@@ -171,16 +169,7 @@
 		<div class="row g-0 px-2">
 			<div class="col-sm-12 col-md-6">
 				<label asp-for="Building.Id" class="form-label"></label>
-
-				@if (string.IsNullOrEmpty(newId))
-				{
-					<input class="form-control" asp-for="Building.Id" />
-				}
-				else
-				{
-					<input class="form-control" asp-for="Building.Id" value="@newId" />
-				}
-
+				<input class="form-control" asp-for="Building.Id" value="@Model.Id" />
 				<span asp-validation-for="Building.Id" class="text-danger"></span>
 			</div>
 			<div class="col-sm-12 col-md-6">
