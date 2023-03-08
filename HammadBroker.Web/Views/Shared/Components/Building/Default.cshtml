@@ -3,11 +3,16 @@
 @using HammadBroker.Model.DTO
 @using HammadBroker.Model.VirtualPath
 @using System.Configuration
+@using System.Globalization
+@using System.Net
+@using HammadBroker.Model.Configuration
+@using Humanizer
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.Extensions.Configuration
 @inject IAntiforgery Antiforgery
 @inject IAuthorizationService AuthorizationService
 @inject VirtualPathSettings VirtualPathSettings
+@inject CompanyInfo CompanyInfo
 @inject IConfiguration Configuration
 @model BuildingModel
 
@@ -34,19 +39,16 @@
 	string placeholderImage = Configuration.GetValue("Images:AssetPlaceholder", string.Empty);
 	if (string.IsNullOrEmpty(placeholderImage)) throw new ConfigurationErrorsException("Images:AssetPlaceholder is missing.");
 	placeholderImage = assetsPath.RequestPath.Trim('/') + placeholderImage;
+	CultureInfo ciar = CultureInfo.GetCultureInfo("ar");
 }
 
-<div id="buildingForm" v-scope class="card card-body mt-3">
+<div id="buildingForm" v-scope>
 	@if (Model.CanEdit)
 	{
 		@:<form action="@action" Method="post" enctype="multipart/form-data">
 		<div asp-validation-summary="ModelOnly"></div>
 		@Html.AntiForgeryToken()
 	}
-	<div v-if="errors && errors.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="error of errors">
-		{{ error }}
-		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-	</div>
 
 	<galleria ref="galleria" :container-class="'galleria'" :value="images" :show-thumbnails="false" circular full-screen
 			show-item-navigators show-item-navigators-on-hover change-item-on-indicator-hover v-model:visible="fullScreen">
@@ -55,362 +57,439 @@
 		</template>
 	</galleria>
 
-	<div class="card-deck2 align-items-stretch mb-2">
-		<div class="card card-body">
-			@if (string.IsNullOrEmpty(Model.Building.VideoId))
-			{
-				<img class="img-fluid img-wh-100" :src="`@Context.Request.Scheme://@Context.Request.Host${(images && images.length && images[0].imageUrl ? images[0].imageUrl : '@placeholderImage')}`" alt=""
-					v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host@placeholderImage'`"/>
-				<div class="position-absolute bottom-0 mb-3 mx-3 d-flex align-items-center z-3">
-					@if (Model.CanUpload)
-					{
-						<button v-if="!fullScreen" type="button" title="إضافة صور" class="btn btn-light me-1" v-on:click="uploading = !uploading">
-							<i class="fa fa-plus"></i>
-						</button>
-					}
-					<button v-if="images && images.length" type="button" :title="`تصفح ال ${images.length} صور`" class="btn btn-light me-1" v-on:click="fullScreen = true">
-						<i class="fa fa-camera"></i>
-					</button>
-				</div>
-			}
-			else
-			{
-				<vid-asset VideoId="@Model.Building.VideoId" Class="ratio ratio-16x9"/>
-			}
+	<div class="card card-body mt-3">
+		<div v-if="errors && errors.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="error of errors">
+			{{ error }}
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 		</div>
-		<div v-if="@Model.CanUpload.ToString().ToLowerInvariant() || images && images.length" class="card card-body">
-			<div :class="'drop-zone'">
-				<div v-if="images && images.length > 1" :class="['zone-item flex-column', { active: !uploading }]">
-					<div class="tile">
-						<img class="img-fluid img-wh-100" :src="`@Context.Request.Scheme://@Context.Request.Host${images[1].imageUrl}`" alt=""
-							v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host@placeholderImage'`"/>
-					</div>
-					<div v-if="images.length > 2" class="tile">
-						<img class="img-fluid img-wh-100" :src="`@Context.Request.Scheme://@Context.Request.Host${images[2].imageUrl}`" alt=""
-							v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host@placeholderImage'`"/>
-					</div>
-				</div>
-				@if (Model.CanUpload)
+
+		<div class="card-deck2 align-items-stretch mb-2">
+			<div class="card card-body">
+				@if (string.IsNullOrEmpty(Model.Building.VideoId))
 				{
-					<div :class="['zone-item', { active: uploading }]">
-						<fileupload accept="@Constants.Images.Extensions" multiple :file-limit="@Constants.Images.MaxImagesUpload" :max-file-size="@Constants.Images.FileSizeMax"
-									:custom-upload="true" v-on:select="onFilesSelected" v-on:uploader="onUpload" v-on:upload="onFilesUploaded" v-on:error="onError">
-							<template #header="{ chooseCallback, uploadCallback, clearCallback, files }">
-								<div class="w-100 d-flex flex-wrap align-items-center gap-2">
-									<div class="d-flex flex-grow-1 gap-2">
-										<button type="button" class="btn btn-outline-secondary btn-sm" title="اختيار ملفات" v-on:click="chooseCallback()"><i class="fa fa-images"></i></button>
-										<button v-if="files && files.length" type="button" class="btn btn-outline-secondary btn-sm" title="تحميل" v-on:click="uploadCallback()"><i class="fa fa-cloud-upload"></i></button>
-										<button v-if="files && files.length" type="button" class="btn btn-outline-secondary btn-sm" title="حذف" v-on:click="clearCallback()"><i class="fa fa-times"></i></button>
-									</div>
-									<ProgressBar v-show="uploadProgress > 0" :value="uploadProgress" :show-value="false" :class="['md:w-10rem h-1rem w-full md:mr-auto', {'exceeded-progress-bar': (uploadProgress > 100)}]">
-									</ProgressBar>
-								</div>
-							</template>
-							<template #empty>
-								<div class="d-flex align-items-center justify-content-center flex-column">
-									<i class="fa fa-cloud-upload border-2 border-circle p-5 lead text-200 border-200"></i>
-									<div class="position-absolute">اسحب الملفات الى هنا للتحميل.</div>
-								</div>
-							</template>
-							<template #content="{ files, uploadedFiles, messages, onUploadedFileRemove, onFileRemove }">
-								<div v-if="messages && messages.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="message of messages">
-									{{ message }}
-									<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-								</div>
-								<div v-if="files && files.length > 0">
-									<h5>التحميل</h5>
-									<div v-for="(file, index) of files" :key="file.name + file.type + file.size" class="card m-0">
-										<span class="position-absolute top-0 start-0 border border-light p-1 m-1 badge rounded-pill text-bg-warning"><span class="visually-hidden">في انتظار التحميل</span></span>
-										<img class="card-img-top" role="presentation" :alt="file.name" :src="file.objectURL"/>
-										<div class="card-body">
-											<div class="card-title text-truncate">{{ file.name }}</div>
-											<div class="d-flex align-items-center">
-												<div class="card-text flex-grow-1">{{ formatSize(file.size) }}</div>
-												<button type="button" class="btn btn-outline-danger btn-sm" v-on:click="onRemoveFile(file, onFileRemove, index)"><i class="fa fa-times"></i></button>
-											</div>
-										</div>
-									</div>
-								</div>
-								<div v-if="uploadedFiles && uploadedFiles.length > 0">
-									<h5>إكتمل</h5>
-									<div v-for="(file, index) of uploadedFiles" :key="file.name + file.type + file.size" class="card m-0">
-										<span class="position-absolute top-0 start-0 border border-light p-1 m-1 badge rounded-pill text-bg-success"><span class="visually-hidden">في انتظار التحميل</span></span>
-										<img class="card-img-top" role="presentation" :alt="file.name" :src="file.objectURL"/>
-										<div class="card-body">
-											<div class="card-title text-truncate">{{ file.name }}</div>
-											<div class="d-flex align-items-center">
-												<div class="card-text flex-grow-1">{{ formatSize(file.size) }}</div>
-												<button type="button" class="btn btn-outline-danger btn-sm" v-on:click="onUploadedFileRemove(index)"><i class="fa fa-times"></i></button>
-											</div>
-										</div>
-									</div>
-								</div>
-							</template>
-						</fileupload>
+					<img class="img-fluid img-wh-100" :src="`@Context.Request.Scheme://@Context.Request.Host${(images && images.length && images[0].imageUrl ? images[0].imageUrl : '@placeholderImage')}`" alt=""
+						v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host@placeholderImage'`"/>
+					<div class="position-absolute bottom-0 mb-3 mx-3 d-flex align-items-center z-3">
+						@if (Model.CanUpload)
+						{
+							<button v-if="!fullScreen" type="button" class="btn btn-light me-1" v-on:click="uploading = !uploading">
+								<i class="fa fa-plus"></i>
+								إضافة صور
+							</button>
+						}
+						<button v-if="images && images.length" type="button" class="btn btn-light me-1" v-on:click="fullScreen = true">
+							<i class="fa fa-camera"></i>
+							تصفح ال {{ images.length }} صورة
+						</button>
 					</div>
 				}
-				<div v-if="images && images.length" ref="zoneFooter" class="zone-footer mb-2" dir="ltr">
-					<button type="button" v-if="!uploading" class="btn btn-light btn-sm border-0 me-1" v-on:click="fullScreen = true">
-						<i :class="['fa', fullScreen ? 'fa-minimize' : 'fa-maximize']"></i>
-					</button>
+				else
+				{
+					<vid-asset VideoId="@Model.Building.VideoId" Class="ratio ratio-16x9"/>
+				}
+			</div>
+			<div v-if="@Model.CanUpload.ToString().ToLowerInvariant() || images && images.length" class="card card-body">
+				<div :class="'drop-zone'">
+					<div v-if="images && images.length > 1" :class="['zone-item flex-column', { active: !uploading }]">
+						<div class="tile">
+							<img class="img-fluid img-wh-100" :src="`@Context.Request.Scheme://@Context.Request.Host${images[1].imageUrl}`" alt=""
+								v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host@placeholderImage'`"/>
+						</div>
+						<div v-if="images.length > 2" class="tile">
+							<img class="img-fluid img-wh-100" :src="`@Context.Request.Scheme://@Context.Request.Host${images[2].imageUrl}`" alt=""
+								v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host@placeholderImage'`"/>
+						</div>
+					</div>
 					@if (Model.CanUpload)
 					{
-						<button type="button" v-if="!fullScreen" class="btn btn-light btn-sm border-0 me-1" v-on:click="uploading = !uploading">
-							<i :class="['fa', uploading ? 'fa-image' : 'fa-cloud-arrow-up']"></i>
-						</button>
+						<div :class="['zone-item', { active: uploading }]">
+							<fileupload accept="@Constants.Images.Extensions" multiple :file-limit="@Constants.Images.MaxImagesUpload" :max-file-size="@Constants.Images.FileSizeMax"
+										:custom-upload="true" v-on:select="onFilesSelected" v-on:uploader="onUpload" v-on:upload="onFilesUploaded" v-on:error="onError">
+								<template #header="{ chooseCallback, uploadCallback, clearCallback, files }">
+									<div class="w-100 d-flex flex-wrap align-items-center gap-2">
+										<div class="d-flex flex-grow-1 gap-2">
+											<button type="button" class="btn btn-outline-secondary btn-sm" title="اختيار ملفات" v-on:click="chooseCallback()"><i class="fa fa-images"></i></button>
+											<button v-if="files && files.length" type="button" class="btn btn-outline-secondary btn-sm" title="تحميل" v-on:click="uploadCallback()"><i class="fa fa-cloud-upload"></i></button>
+											<button v-if="files && files.length" type="button" class="btn btn-outline-secondary btn-sm" title="حذف" v-on:click="clearCallback()"><i class="fa fa-times"></i></button>
+										</div>
+										<ProgressBar v-show="uploadProgress > 0" :value="uploadProgress" :show-value="false" :class="['md:w-10rem h-1rem w-full md:mr-auto', {'exceeded-progress-bar': (uploadProgress > 100)}]">
+										</ProgressBar>
+									</div>
+								</template>
+								<template #empty>
+									<div class="d-flex align-items-center justify-content-center flex-column">
+										<i class="fa fa-cloud-upload border-2 border-circle p-5 lead text-200 border-200"></i>
+										<div class="position-absolute">اسحب الملفات الى هنا للتحميل.</div>
+									</div>
+								</template>
+								<template #content="{ files, uploadedFiles, messages, onUploadedFileRemove, onFileRemove }">
+									<div v-if="messages && messages.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="message of messages">
+										{{ message }}
+										<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+									</div>
+									<div v-if="files && files.length > 0">
+										<h5>التحميل</h5>
+										<div v-for="(file, index) of files" :key="file.name + file.type + file.size" class="card m-0">
+											<span class="position-absolute top-0 start-0 border border-light p-1 m-1 badge rounded-pill text-bg-warning"><span class="visually-hidden">في انتظار التحميل</span></span>
+											<img class="card-img-top" role="presentation" :alt="file.name" :src="file.objectURL"/>
+											<div class="card-body">
+												<div class="card-title text-truncate">{{ file.name }}</div>
+												<div class="d-flex align-items-center">
+													<div class="card-text flex-grow-1">{{ formatSize(file.size) }}</div>
+													<button type="button" class="btn btn-outline-danger btn-sm" v-on:click="onRemoveFile(file, onFileRemove, index)"><i class="fa fa-times"></i></button>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div v-if="uploadedFiles && uploadedFiles.length > 0">
+										<h5>إكتمل</h5>
+										<div v-for="(file, index) of uploadedFiles" :key="file.name + file.type + file.size" class="card m-0">
+											<span class="position-absolute top-0 start-0 border border-light p-1 m-1 badge rounded-pill text-bg-success"><span class="visually-hidden">في انتظار التحميل</span></span>
+											<img class="card-img-top" role="presentation" :alt="file.name" :src="file.objectURL"/>
+											<div class="card-body">
+												<div class="card-title text-truncate">{{ file.name }}</div>
+												<div class="d-flex align-items-center">
+													<div class="card-text flex-grow-1">{{ formatSize(file.size) }}</div>
+													<button type="button" class="btn btn-outline-danger btn-sm" v-on:click="onUploadedFileRemove(index)"><i class="fa fa-times"></i></button>
+												</div>
+											</div>
+										</div>
+									</div>
+								</template>
+							</fileupload>
+						</div>
 					}
+					<div v-if="images && images.length" ref="zoneFooter" class="zone-footer mb-2" dir="ltr">
+						<button type="button" v-if="!uploading" class="btn btn-light btn-sm border-0 me-1" v-on:click="fullScreen = true">
+							<i :class="['fa', fullScreen ? 'fa-minimize' : 'fa-maximize']"></i>
+						</button>
+						@if (Model.CanUpload)
+						{
+							<button type="button" v-if="!fullScreen" class="btn btn-light btn-sm border-0 me-1" v-on:click="uploading = !uploading">
+								<i :class="['fa', uploading ? 'fa-image' : 'fa-cloud-arrow-up']"></i>
+							</button>
+						}
+					</div>
 				</div>
 			</div>
 		</div>
+
+		@if (Model.CanEdit)
+		{
+			<div class="row g-0 px-2">
+				<div class="col-sm-12 col-md-6">
+					<label asp-for="Building.Date" class="form-label"></label>
+					<input type="hidden" name="@($"{nameof(Model.Building)}.{nameof(Model.Building.Date)}")" :value="date"/>
+					<calendar class="w-100" v-model="date" selection-mode="single" date-format="yy/mm/dd">
+					</calendar>
+					<span asp-validation-for="Building.Date" class="text-danger"></span>
+				</div>
+				<div class="col-sm-12 col-md-6">
+					<label asp-for="Building.Expires" class="form-label"></label>
+					<input type="hidden" name="@($"{nameof(Model.Building)}.{nameof(Model.Building.Expires)}")" :value="expires"/>
+					<calendar class="w-100" v-model="expires" selection-mode="single" date-format="yy/mm/dd">
+					</calendar>
+					<span asp-validation-for="Building.Expires" class="text-danger"></span>
+				</div>
+			</div>
+			<div class="row g-0 px-2">
+				<div class="col-sm-12 col-md-6">
+					<label asp-for="Building.Id" class="form-label"></label>
+					<input class="form-control" asp-for="Building.Id" value="@Model.Id" />
+					<span asp-validation-for="Building.Id" class="text-danger"></span>
+				</div>
+				<div class="col-sm-12 col-md-6">
+					<label asp-for="Building.VideoId" class="form-label"></label>
+					<input class="form-control" asp-for="Building.VideoId" />
+					<span asp-validation-for="Building.VideoId" class="text-danger"></span>
+				</div>
+			</div>
+			<div class="row g-0 px-2">
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Building.BuildingType" class="form-label"></label>
+					<select asp-for="Building.BuildingType" class="form-select" asp-items="Html.GetEnumSelectList<BuildingType>()">
+						<option value="">@Html.DisplayNameFor(e => e.Building.BuildingType)</option>
+					</select>
+					<span asp-validation-for="Building.BuildingType" class="text-danger"></span>
+				</div>
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Building.FinishingType" class="form-label"></label>
+					<select asp-for="Building.FinishingType" class="form-select" asp-items="Html.GetEnumSelectList<FinishingType>()">
+						<option value="">@Html.DisplayNameFor(e => e.Building.FinishingType)</option>
+					</select>
+					<span asp-validation-for="Building.FinishingType" class="text-danger"></span>
+				</div>
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Building.AdType" class="form-label"></label>
+					<select asp-for="Building.AdType" class="form-select" asp-items="Html.GetEnumSelectList<BuildingAdType>()">
+						<option value="">@Html.DisplayNameFor(e => e.Building.AdType)</option>
+					</select>
+					<span asp-validation-for="Building.AdType" class="text-danger"></span>
+				</div>
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Building.Priority" class="form-label"></label>
+					<input class="form-control" asp-for="Building.Priority" />
+					<span asp-validation-for="Building.Priority" class="text-danger"></span>
+				</div>
+			</div>
+			<div class="row g-0 px-2">
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Building.Rooms" class="form-label"></label>
+					<input class="form-control" asp-for="Building.Rooms" />
+					<span asp-validation-for="Building.Rooms" class="text-danger"></span>
+				</div>
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Building.Bathrooms" class="form-label"></label>
+					<input class="form-control" asp-for="Building.Bathrooms" />
+					<span asp-validation-for="Building.Bathrooms" class="text-danger"></span>
+				</div>
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Building.Area" class="form-label"></label>
+					<input class="form-control" asp-for="Building.Area" />
+					<span asp-validation-for="Building.Area" class="text-danger"></span>
+				</div>
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Building.Floor" class="form-label"></label>
+					<select class="form-select" asp-for="Building.Floor" asp-items="Html.GetEnumSelectList<Floors>()">
+						<option value="">@Html.DisplayNameFor(e => e.Building.Floor)</option>
+					</select>
+					<span asp-validation-for="Building.Floor" class="text-danger"></span>
+				</div>
+			</div>
+		}
+		else
+		{
+			<div class="row g-0 px-2">
+				<div class="col-12">
+					<h5 class="mt-3">@Model.Building.BuildingTypeName @Model.Building.AdTypeName @Model.Building.FinishingTypeName</h5>
+				</div>
+			</div>
+			<div class="row g-0 px-2">
+				@if (Model.Building.Floor.HasValue)
+				{
+					<div class="col mt-2">
+						<i class="fa fa-building"></i>&nbsp;
+						<label asp-for="Building.Floor" class="form-label"></label>&nbsp;
+						@Html.DisplayFor(e => e.Building.FloorName)
+					</div>
+				}
+				@if (Model.Building.Rooms > 0)
+				{
+					<div class="col mt-2">
+						<i class="fa fa-person-shelter"></i>&nbsp;
+						<label asp-for="Building.Rooms" class="form-label"></label>&nbsp;
+						@Html.DisplayFor(e => e.Building.Rooms)
+					</div>
+				}
+				@if (Model.Building.Bathrooms > 0)
+				{
+					<div class="col mt-2">
+						<i class="fa fa-restroom"></i>&nbsp;
+						<label asp-for="Building.Bathrooms" class="form-label"></label>&nbsp;
+						@Html.DisplayFor(e => e.Building.Bathrooms)
+					</div>
+				}
+				@if (Model.Building.Area > 0)
+				{
+					<div class="col mt-2">
+						<i class="fa fa-square"></i>&nbsp;
+						<label asp-for="Building.Area" class="form-label"></label>&nbsp;
+						@Html.DisplayFor(e => e.Building.Area) م
+					</div>
+				}
+			</div>
+		}
+	</div>
+
+	<div class="card card-body mt-3">
+		@if (Model.CanEdit)
+		{
+			<div class="row g-0 px-2">
+				<div class="col-sm-12 col-md-4">
+					<label asp-for="Building.Price" class="form-label"></label>
+					<input class="form-control" asp-for="Building.Price" />
+					<span asp-validation-for="Building.Price" class="text-danger"></span>
+				</div>
+				<div class="col-sm-12 col-md-4">
+					<label asp-for="Building.Phone" class="form-label"></label>
+					<input class="form-control" asp-for="Building.Phone" dir="ltr" />
+					<span asp-validation-for="Building.Phone" class="text-danger"></span>
+				</div>
+				<div class="col-sm-12 col-md-4">
+					<label asp-for="Building.Mobile" class="form-label"></label>
+					<input class="form-control" asp-for="Building.Mobile" dir="ltr" />
+					<span asp-validation-for="Building.Mobile" class="text-danger"></span>
+				</div>
+			</div>
+		}
+		else
+		{
+			<div class="d-flex g-0 align-items-center mt-3 px-2">
+				<div class="flex-grow-1 fw-bold">
+					<label asp-for="Building.Price" class="form-label"></label>&nbsp;
+					@Html.DisplayFor(e => e.Building.Price) جنيه
+				</div>
+				<div class="d-inline-flex">
+					@if (!string.IsNullOrEmpty(Model.Building.Phone))
+					{
+						<button type="button" class="btn btn-danger btn-lg" dir="ltr" onclick="this.firstChild.textContent = '@Model.Building.Phone'">
+							إتصل
+							<i class="fa fa-phone fa-xl"></i>
+						</button>
+					}
+					@if (!string.IsNullOrEmpty(Model.Building.Mobile))
+					{
+						<button type="button" class="btn btn-danger btn-lg mr-1" dir="ltr" onclick="this.firstChild.textContent = '@Model.Building.Mobile'">
+							إتصل
+							<i class="fa fa-mobile-screen fa-xl"></i>
+						</button>
+					}
+					@if (!string.IsNullOrEmpty(CompanyInfo.Email))
+					{
+						<a class="btn btn-danger btn-lg mr-1" href="mailto:@CompanyInfo.Email?subject=@WebUtility.UrlEncode($"معلومات حول العقار {Model.Building.Id}")" dir="ltr">
+							إيميل
+							<i class="fa fa-envelope fa-xl"></i>
+						</a>
+					}
+					<div class="btn-contact btn-whatsApp">
+						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+							viewBox="0 0 32 32" class="whatsApp-svg-icon">
+							<path d=" M19.11 17.205c-.372 0-1.088 1.39-1.518 1.39a.63.63 0 0 1-.315-.1c-.802-.402-1.504-.817-2.163-1.447-.545-.516-1.146-1.29-1.46-1.963a.426.426 0 0 1-.073-.215c0-.33.99-.945.99-1.49 0-.143-.73-2.09-.832-2.335-.143-.372-.214-.487-.6-.487-.187 0-.36-.043-.53-.043-.302 0-.53.115-.746.315-.688.645-1.032 1.318-1.06 2.264v.114c-.015.99.472 1.977 1.017 2.78 1.23 1.82 2.506 3.41 4.554 4.34.616.287 2.035.888 2.722.888.817 0 2.15-.515 2.478-1.318.13-.33.244-.73.244-1.088 0-.058 0-.144-.03-.215-.1-.172-2.434-1.39-2.678-1.39zm-2.908 7.593c-1.747 0-3.48-.53-4.942-1.49L7.793 24.41l1.132-3.337a8.955 8.955 0 0 1-1.72-5.272c0-4.955 4.04-8.995 8.997-8.995S25.2 10.845 25.2 15.8c0 4.958-4.04 8.998-8.998 8.998zm0-19.798c-5.96 0-10.8 4.842-10.8 10.8 0 1.964.53 3.898 1.546 5.574L5 27.176l5.974-1.92a10.807 10.807 0 0 0 16.03-9.455c0-5.958-4.842-10.8-10.802-10.8z" fill-rule="evenodd"></path>
+						</svg>
+						واتس آب
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+	
+	<div class="card card-body mt-3">
+		<h5 class="py-3">الموقع</h5>
+
+		@if (Model.CanEdit)
+		{
+			<div class="row g-0 px-2">
+				<div class="col-12">
+					<label asp-for="Building.Address" class="form-label"></label>
+					<input class="form-control" asp-for="Building.Address" />
+					<span asp-validation-for="Building.Address" class="text-danger"></span>
+				</div>
+			</div>
+			<div class="row g-0 px-2">
+				<div class="col-sm-12 col-md-6">
+					<label asp-for="Building.Address2" class="form-label"></label>
+					<input class="form-control" asp-for="Building.Address2" />
+					<span asp-validation-for="Building.Address2" class="text-danger"></span>
+				</div>
+				<div class="col-sm-12 col-md-6">
+					<label asp-for="Building.CityId" class="form-label"></label>
+					<input type="hidden" asp-for="Building.CityId" :value="cityId" />
+					<autocomplete class="w-100" input-class="w-100" :suggestions="cities" option-label="name"
+								:min-length="0" v-model="selectedCity" data-key="id" dropdown 
+								v-on:complete="fetchCities($event.query)">
+					</autocomplete>
+					<span asp-validation-for="Building.CityId" class="text-danger"></span>
+				</div>
+			</div>
+			
+		}
+		else
+		{
+			<div class="row g-0 px-2">
+				<div class="col-12">
+					<i class="fa fa-location-dot"></i>
+					@Html.DisplayFor(e => e.Building.Address)
+					&nbsp;
+					@Html.DisplayFor(e => e.Building.Address2)
+					&nbsp;
+					@if (Model.Building is ICityNameLookup cityNameLookup && !string.IsNullOrEmpty(cityNameLookup.CityName))
+					{
+						@Html.DisplayFor(e => cityNameLookup.CityName)
+					}
+				</div>
+			</div>
+		}
+	</div>
+	
+	<div class="card card-body mt-3">
+		<h5 class="py-3">تفاصيل العقار</h5>
+
+		@if (Model.CanEdit)
+		{
+			<div class="row g-0 px-2">
+				<div class="col-12">
+					<label asp-for="Building.ShortDescription" class="form-label"></label>
+					<input class="form-control" asp-for="Building.ShortDescription" />
+					<span asp-validation-for="Building.ShortDescription" class="text-danger"></span>
+				</div>
+			</div>
+			<div class="row g-0 px-2">
+				<div class="col-12">
+					<label asp-for="Building.Description" class="form-label"></label>
+					<textarea class="form-control" asp-for="Building.Description" rows="5">
+					</textarea>
+					<span asp-validation-for="Building.Description" class="text-danger"></span>
+				</div>
+			</div>
+			<div class="row g-0 px-2 my-1">
+				<button type="submit" class="btn btn-primary border-0 me-1">حفظ</button>
+				@if (!string.IsNullOrEmpty(Model.Id))
+				{
+					<a class="btn btn-outline-primary border-0 me-1" asp-area="Admin" asp-controller="Buildings" asp-action="Get" asp-route-id="@Model.Id">الغاء</a>
+				}
+				else
+				{
+					<a class="btn btn-outline-primary border-0 me-1" asp-area="Admin" asp-controller="Buildings" asp-action="Index">الغاء</a>
+				}
+			</div>
+		}
+		else
+		{
+			@if (!string.IsNullOrEmpty(Model.Building.ShortDescription))
+			{
+				<div class="row g-0 px-2">
+					<div class="col-12 mt-2">
+						@Html.DisplayFor(e => Model.Building.ShortDescription)
+					</div>
+				</div>
+			}
+			@if (!string.IsNullOrEmpty(Model.Building.Description))
+			{
+				<div class="row g-0 px-2 mt-2">
+					<a type="button" class="btn btn-light collapsible collapsed" data-bs-toggle="collapse" 
+						href="#buildingDescription" role="button" aria-expanded="false" 
+						aria-controls="buildingDescription">
+						إقرأ المزيد
+					</a>
+					<div id="buildingDescription" class="col-12 linebreaks collapse">
+						<pre>@Model.Building.Description</pre>
+					</div>
+				</div>
+			}
+
+			<div class="row g-0 px-2 mt-2">
+				<hr />
+				<div class="col-sm-12 col-md-6">
+					<label asp-for="Building.Id" class="form-label"></label>&nbsp;
+					@Html.DisplayFor(e => e.Building.Id)
+				</div>
+				<div class="col-sm-12 col-md-6">
+					<label class="form-label">نشر</label>&nbsp;
+					@Model.Building.Date.Humanize(culture: ciar)
+				</div>
+			</div>
+		}
 	</div>
 
 	@if (Model.CanEdit)
 	{
-		<div class="row g-0 px-2">
-			<div class="col-sm-12 col-md-6">
-				<label asp-for="Building.Id" class="form-label"></label>
-				<input class="form-control" asp-for="Building.Id" value="@Model.Id" />
-				<span asp-validation-for="Building.Id" class="text-danger"></span>
-			</div>
-			<div class="col-sm-12 col-md-6">
-				<label asp-for="Building.VideoId" class="form-label"></label>
-				<input class="form-control" asp-for="Building.VideoId" />
-				<span asp-validation-for="Building.VideoId" class="text-danger"></span>
-			</div>
-		</div>
-		<div class="row g-0 px-2">
-			<div class="col-sm-12 col-md-3">
-				<label asp-for="Building.BuildingType" class="form-label"></label>
-				<select asp-for="Building.BuildingType" class="form-select" asp-items="Html.GetEnumSelectList<BuildingType>()">
-					<option value="">@Html.DisplayNameFor(e => e.Building.BuildingType)</option>
-				</select>
-				<span asp-validation-for="Building.BuildingType" class="text-danger"></span>
-			</div>
-			<div class="col-sm-12 col-md-3">
-				<label asp-for="Building.FinishingType" class="form-label"></label>
-				<select asp-for="Building.FinishingType" class="form-select" asp-items="Html.GetEnumSelectList<FinishingType>()">
-					<option value="">@Html.DisplayNameFor(e => e.Building.FinishingType)</option>
-				</select>
-				<span asp-validation-for="Building.FinishingType" class="text-danger"></span>
-			</div>
-			<div class="col-sm-12 col-md-3">
-				<label asp-for="Building.AdType" class="form-label"></label>
-				<select asp-for="Building.AdType" class="form-select" asp-items="Html.GetEnumSelectList<BuildingAdType>()">
-					<option value="">@Html.DisplayNameFor(e => e.Building.AdType)</option>
-				</select>
-				<span asp-validation-for="Building.AdType" class="text-danger"></span>
-			</div>
-			<div class="col-sm-12 col-md-3">
-				<label asp-for="Building.Priority" class="form-label"></label>
-				<input class="form-control" asp-for="Building.Priority" />
-				<span asp-validation-for="Building.Priority" class="text-danger"></span>
-			</div>
-		</div>
-		<div class="row g-0 px-2">
-			<div class="col-sm-12 col-md-3">
-				<label asp-for="Building.Rooms" class="form-label"></label>
-				<input class="form-control" asp-for="Building.Rooms" />
-				<span asp-validation-for="Building.Rooms" class="text-danger"></span>
-			</div>
-			<div class="col-sm-12 col-md-3">
-				<label asp-for="Building.Bathrooms" class="form-label"></label>
-				<input class="form-control" asp-for="Building.Bathrooms" />
-				<span asp-validation-for="Building.Bathrooms" class="text-danger"></span>
-			</div>
-			<div class="col-sm-12 col-md-3">
-				<label asp-for="Building.Area" class="form-label"></label>
-				<input class="form-control" asp-for="Building.Area" />
-				<span asp-validation-for="Building.Area" class="text-danger"></span>
-			</div>
-			<div class="col-sm-12 col-md-3">
-				<label asp-for="Building.Floor" class="form-label"></label>
-				<select class="form-select" asp-for="Building.Floor" asp-items="Html.GetEnumSelectList<Floors>()">
-					<option value="">@Html.DisplayNameFor(e => e.Building.Floor)</option>
-				</select>
-				<span asp-validation-for="Building.Floor" class="text-danger"></span>
-			</div>
-		</div>
-		<div class="row g-0 px-2">
-			<div class="col-12">
-				<label asp-for="Building.Address" class="form-label"></label>
-				<input class="form-control" asp-for="Building.Address" />
-				<span asp-validation-for="Building.Address" class="text-danger"></span>
-			</div>
-		</div>
-		<div class="row g-0 px-2">
-			<div class="col-sm-12 col-md-6">
-				<label asp-for="Building.Address2" class="form-label"></label>
-				<input class="form-control" asp-for="Building.Address2" />
-				<span asp-validation-for="Building.Address2" class="text-danger"></span>
-			</div>
-			<div class="col-sm-12 col-md-6">
-				<label asp-for="Building.CityId" class="form-label"></label>
-				<input type="hidden" asp-for="Building.CityId" :value="cityId" />
-				<autocomplete class="w-100" input-class="w-100" :suggestions="cities" option-label="name"
-							:min-length="0" v-model="selectedCity" data-key="id" dropdown 
-							v-on:complete="fetchCities($event.query)">
-				</autocomplete>
-				<span asp-validation-for="Building.CityId" class="text-danger"></span>
-			</div>
-		</div>
-		<div class="row g-0 px-2">
-			<div class="col-12">
-				<label asp-for="Building.ShortDescription" class="form-label"></label>
-				<input class="form-control" asp-for="Building.ShortDescription" />
-				<span asp-validation-for="Building.ShortDescription" class="text-danger"></span>
-			</div>
-		</div>
-		<div class="row g-0 px-2">
-			<div class="col-12">
-				<label asp-for="Building.Description" class="form-label"></label>
-				<textarea class="form-control" asp-for="Building.Description" rows="5">
-				</textarea>
-				<span asp-validation-for="Building.Description" class="text-danger"></span>
-			</div>
-		</div>
-		<div class="row g-0 px-2">
-			<div class="col-sm-12 col-md-6">
-				<label asp-for="Building.Date" class="form-label"></label>
-				<input type="hidden" name="@($"{nameof(Model.Building)}.{nameof(Model.Building.Date)}")" :value="date"/>
-				<calendar class="w-100" v-model="date" selection-mode="single" date-format="yy/mm/dd">
-				</calendar>
-				<span asp-validation-for="Building.Date" class="text-danger"></span>
-			</div>
-			<div class="col-sm-12 col-md-6">
-				<label asp-for="Building.Expires" class="form-label"></label>
-				<input type="hidden" name="@($"{nameof(Model.Building)}.{nameof(Model.Building.Expires)}")" :value="expires"/>
-				<calendar class="w-100" v-model="expires" selection-mode="single" date-format="yy/mm/dd">
-				</calendar>
-				<span asp-validation-for="Building.Expires" class="text-danger"></span>
-			</div>
-		</div>
-		<div class="row g-0 px-2">
-			<div class="col-sm-12 col-md-4">
-				<label asp-for="Building.Phone" class="form-label"></label>
-				<input class="form-control" asp-for="Building.Phone" dir="ltr" />
-				<span asp-validation-for="Building.Phone" class="text-danger"></span>
-			</div>
-			<div class="col-sm-12 col-md-4">
-				<label asp-for="Building.Mobile" class="form-label"></label>
-				<input class="form-control" asp-for="Building.Mobile" dir="ltr" />
-				<span asp-validation-for="Building.Mobile" class="text-danger"></span>
-			</div>
-			<div class="col-sm-12 col-md-4">
-				<label asp-for="Building.Price" class="form-label"></label>
-				<input class="form-control" asp-for="Building.Price" />
-				<span asp-validation-for="Building.Price" class="text-danger"></span>
-			</div>
-		</div>
-		<div class="row g-0 px-2 my-1">
-			<button type="submit" class="btn btn-primary border-0 me-1">حفظ</button>
-			@if (string.IsNullOrEmpty(Model.Id))
-			{
-				<a class="btn btn-outline-primary border-0 me-1" asp-area="Admin" asp-controller="Buildings" asp-action="Get" asp-route-id="@Model.Id">الغاء</a>
-			}
-			else
-			{
-				<a class="btn btn-outline-primary border-0 me-1" asp-area="Admin" asp-controller="Buildings" asp-action="Index">الغاء</a>
-			}
-		</div>
 		@:</form>
 	}
-	else
+	else if (!Model.ReadOnly)
 	{
-		<div class="row g-0 px-2">
-			<div class="col-12">
-				<small class="text-muted">#@Model.Building.Id</small>
-				<h5 class="mt-3">@Model.Building.BuildingTypeName @Model.Building.AdTypeName @Model.Building.FinishingTypeName</h5>
-			</div>
+		<div class="row g-0 px-2 mt-3">
+			<a asp-area="Admin" asp-controller="Buildings" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary border-0 me-1">تعديل</a>
 		</div>
-		<div class="row g-0 px-2">
-			<div class="col-12">
-				<i class="fa fa-location-dot"></i>
-				@Html.DisplayFor(e => e.Building.Address)
-				&nbsp;
-				@Html.DisplayFor(e => e.Building.Address2)
-				&nbsp;
-				@if (Model.Building is ICityNameLookup cityNameLookup && !string.IsNullOrEmpty(cityNameLookup.CityName))
-				{
-					@Html.DisplayFor(e => cityNameLookup.CityName)
-				}
-			</div>
-		</div>
-		<div class="row g-0 px-2">
-			@if (Model.Building.Floor.HasValue)
-			{
-				<div class="col mt-2">
-					<i class="fa fa-building"></i>&nbsp;
-					<label asp-for="Building.Floor" class="form-label"></label>&nbsp;
-					@Html.DisplayFor(e => e.Building.FloorName)
-				</div>
-			}
-			@if (Model.Building.Rooms > 0)
-			{
-				<div class="col mt-2">
-					<i class="fa fa-person-shelter"></i>&nbsp;
-					<label asp-for="Building.Rooms" class="form-label"></label>&nbsp;
-					@Html.DisplayFor(e => e.Building.Rooms)
-				</div>
-			}
-			@if (Model.Building.Bathrooms > 0)
-			{
-				<div class="col mt-2">
-					<i class="fa fa-restroom"></i>&nbsp;
-					<label asp-for="Building.Bathrooms" class="form-label"></label>&nbsp;
-					@Html.DisplayFor(e => e.Building.Bathrooms)
-				</div>
-			}
-			@if (Model.Building.Area > 0)
-			{
-				<div class="col mt-2">
-					<i class="fa fa-square"></i>&nbsp;
-					<label asp-for="Building.Area" class="form-label"></label>&nbsp;
-					@Html.DisplayFor(e => e.Building.Area) م
-				</div>
-			}
-		</div>
-		@if (!string.IsNullOrEmpty(Model.Building.ShortDescription))
-		{
-			<div class="row g-0 px-2">
-				<div class="col-12 mt-2">
-					@Html.DisplayFor(e => Model.Building.ShortDescription)
-				</div>
-			</div>
-		}
-		@if (!string.IsNullOrEmpty(Model.Building.Description))
-		{
-			<div class="row g-0 px-2 mt-2">
-				<div class="col-12 linebreaks">
-					<pre>@Model.Building.Description</pre>
-				</div>
-			</div>
-		}
-		<div class="row g-0 px-2">
-			@if (!string.IsNullOrEmpty(Model.Building.Phone))
-			{
-				<div class="col mt-3 fw-bold">
-					<label asp-for="Building.Phone" class="form-label"></label>&nbsp;
-					<span dir="ltr">@Html.DisplayFor(e => e.Building.Phone)</span>
-				</div>
-			}
-			@if (!string.IsNullOrEmpty(Model.Building.Mobile))
-			{
-				<div class="col mt-3 fw-bold">
-					<label asp-for="Building.Mobile" class="form-label"></label>&nbsp;
-					<span dir="ltr">@Html.DisplayFor(e => e.Building.Mobile)</span>
-				</div>
-			}
-			<div class="col mt-3 fw-bold">
-				<label asp-for="Building.Price" class="form-label"></label>&nbsp;
-				@Html.DisplayFor(e => e.Building.Price) جنيه
-			</div>
-		</div>
-		@if (!Model.ReadOnly)
-		{
-			<div class="row g-0 px-2 mt-3">
-				<a asp-area="Admin" asp-controller="Buildings" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary border-0 me-1">تعديل</a>
-			</div>
-		}
 	}
 </div>
 

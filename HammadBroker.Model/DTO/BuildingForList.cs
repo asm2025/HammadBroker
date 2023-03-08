@@ -7,7 +7,7 @@ namespace HammadBroker.Model.DTO;
 public class BuildingForList : IBuildingLookup
 {
 	/// <inheritdoc />
-	[Display(Name = "رقم")]
+	[Display(Name = "مرجع")]
 	public string Id { get; set; }
 	/// <inheritdoc />
 	[Display(Name = "الصورة")]

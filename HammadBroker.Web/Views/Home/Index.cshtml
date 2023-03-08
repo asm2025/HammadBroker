@@ -47,21 +47,21 @@
 		{
 			<button type="button" class="btn btn-danger btn-lg w-100 mb-2" dir="ltr" onclick="this.firstChild.textContent = '@CompanyInfo.Phone'">
 				إتصل بالوسيط العقاري
-				<i class="fa fa-phone fa-xl"></i>
+				<i class="fa fa-phone"></i>
 			</button>
 		}
 		@if (!string.IsNullOrEmpty(CompanyInfo.Mobile))
 		{
 			<button type="button" class="btn btn-danger btn-lg w-100 mb-2" dir="ltr" onclick="this.firstChild.textContent = '@CompanyInfo.Mobile'">
 				إتصل بالوسيط العقاري
-				<i class="fa fa-mobile-screen fa-xl"></i>
+				<i class="fa fa-mobile-screen"></i>
 			</button>
 		}
 		@if (!string.IsNullOrEmpty(CompanyInfo.Email))
 		{
 			<a class="btn btn-danger btn-lg w-100 mb-2" dir="ltr" href="mailto:@CompanyInfo.Email?subject=@WebUtility.UrlEncode("معلومات حول")">
 				راسل الوسيط 
-				<i class="fa fa-envelope fa-xl"></i>
+				<i class="fa fa-envelope"></i>
 			</a>
 		}
 	</div>

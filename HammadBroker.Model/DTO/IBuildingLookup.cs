@@ -5,7 +5,7 @@ namespace HammadBroker.Model.DTO;
 
 public interface IBuildingLookup
 {
-	[Display(Name = "رقم")]
+	[Display(Name = "مرجع")]
 	public string Id { get; set; }
 	[Display(Name = "الصورة")]
 	public string ImageUrl { get; set; }

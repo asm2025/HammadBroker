@@ -76,11 +76,6 @@ a {
 	text-decoration: none;
 }
 
-i {
-	padding-left: 0.25rem;
-	padding-right: 0.25rem;
-}
-
 .fs-s1 {
 	font-size: 0.75rem !important;
 }
@@ -96,6 +91,19 @@ i {
 .auto-cell {
 	width: 1px;
 	white-space: nowrap;
+}
+
+.collapsible:after {
+	font-family: 'FontAwesome';
+	color: #dc3545;
+	content: "\f077";
+	padding-left: 0.375rem;
+	padding-right: 0.375rem;
+	float: right;
+}
+
+.collapsible.collapsed:after {
+	content: "\f078";
 }
 
 .card-deck {
@@ -518,6 +526,7 @@ span.oi {
 		-ms-flex: 1;
 		-o-flex: 1;
 		flex: 1;
+		gap: 4px;
 	}
 
 		.drop-zone .zone-item .tile {
@@ -812,7 +821,6 @@ span.oi {
 }
 
 .btn-contact {
-	font-size: 1rem;
 	text-align: center !important;
 	color: #47a3c2;
 	min-width: 50px;
