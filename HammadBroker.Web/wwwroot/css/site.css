@@ -258,6 +258,20 @@ i {
 	width: auto;
 }
 
+.card .img-w-100 {
+	min-width: 100%;
+	max-height: none;
+	height: auto;
+}
+
+.card .img-wh-100 {
+	min-width: 100%;
+	min-height: 100%;
+	max-width: none;
+	max-height: none;
+	width: auto;
+}
+
 .list-deck .list-group-item {
 	-webkit-flex: 25%;
 	-ms-flex: 25%;

@@ -51,7 +51,7 @@
 	<galleria ref="galleria" :container-class="'galleria'" :value="images" :show-thumbnails="false" circular full-screen
 			show-item-navigators show-item-navigators-on-hover change-item-on-indicator-hover v-model:visible="fullScreen">
 		<template #item="{ item }">
-			<img :src="item.imageUrl" alt="" class="img-fluid" v-on:click="fullScreen = false" />
+			<img :src="item.imageUrl" alt="" class="img-fluid img-h-100" v-on:click="fullScreen = false" />
 		</template>
 	</galleria>
 
@@ -59,7 +59,7 @@
 		<div class="card card-body">
 			@if (string.IsNullOrEmpty(Model.Building.VideoId))
 			{
-				<img class="img-fluid" :src="`@Context.Request.Scheme://@Context.Request.Host${(images && images.length && images[0].imageUrl ? images[0].imageUrl : '@placeholderImage')}`" alt=""
+				<img class="img-fluid img-wh-100" :src="`@Context.Request.Scheme://@Context.Request.Host${(images && images.length && images[0].imageUrl ? images[0].imageUrl : '@placeholderImage')}`" alt=""
 					v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host@placeholderImage'`"/>
 				<div class="position-absolute bottom-0 mb-3 mx-3 d-flex align-items-center z-3">
 					@if (Model.CanUpload)
@@ -82,11 +82,11 @@
 			<div :class="'drop-zone'">
 				<div v-if="images && images.length > 1" :class="['zone-item flex-column', { active: !uploading }]">
 					<div class="tile">
-						<img class="img-fluid" :src="`@Context.Request.Scheme://@Context.Request.Host${images[1].imageUrl}`" alt=""
+						<img class="img-fluid img-wh-100" :src="`@Context.Request.Scheme://@Context.Request.Host${images[1].imageUrl}`" alt=""
 							v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host@placeholderImage'`"/>
 					</div>
 					<div v-if="images.length > 2" class="tile">
-						<img class="img-fluid" :src="`@Context.Request.Scheme://@Context.Request.Host${images[2].imageUrl}`" alt=""
+						<img class="img-fluid img-wh-100" :src="`@Context.Request.Scheme://@Context.Request.Host${images[2].imageUrl}`" alt=""
 							v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host@placeholderImage'`"/>
 					</div>
 				</div>

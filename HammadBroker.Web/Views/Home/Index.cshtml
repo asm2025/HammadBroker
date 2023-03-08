@@ -45,21 +45,21 @@
 	<div class="row g-0">
 		@if (!string.IsNullOrEmpty(CompanyInfo.Phone))
 		{
-			<button type="button" class="btn btn-danger w-100 mb-2" dir="ltr" onclick="this.firstChild.textContent = '@CompanyInfo.Phone'">
+			<button type="button" class="btn btn-danger btn-lg w-100 mb-2" dir="ltr" onclick="this.firstChild.textContent = '@CompanyInfo.Phone'">
 				إتصل بالوسيط العقاري
 				<i class="fa fa-phone fa-xl"></i>
 			</button>
 		}
 		@if (!string.IsNullOrEmpty(CompanyInfo.Mobile))
 		{
-			<button type="button" class="btn btn-danger w-100 mb-2" dir="ltr" onclick="this.firstChild.textContent = '@CompanyInfo.Mobile'">
+			<button type="button" class="btn btn-danger btn-lg w-100 mb-2" dir="ltr" onclick="this.firstChild.textContent = '@CompanyInfo.Mobile'">
 				إتصل بالوسيط العقاري
 				<i class="fa fa-mobile-screen fa-xl"></i>
 			</button>
 		}
 		@if (!string.IsNullOrEmpty(CompanyInfo.Email))
 		{
-			<a class="btn btn-danger w-100 mb-2" dir="ltr" href="mailto:@CompanyInfo.Email?subject=@WebUtility.UrlEncode("معلومات حول")">
+			<a class="btn btn-danger btn-lg w-100 mb-2" dir="ltr" href="mailto:@CompanyInfo.Email?subject=@WebUtility.UrlEncode("معلومات حول")">
 				راسل الوسيط 
 				<i class="fa fa-envelope fa-xl"></i>
 			</a>
@@ -192,7 +192,7 @@
 		<div class="card mb-2">
 			<div class="row g-0" role="button" onclick="window.location = '@Url.Action("Get", "Home", new { area = "", id = building.Id })'">
 				<div class="col-md-4 p-0 overflow-hidden">
-					<img-asset src="@building.ImageUrl" readonly imageclass="img-fluid img-h-100 rounded-top-right mw-100" />
+					<img-asset src="@building.ImageUrl" readonly imageclass="img-fluid img-wh-100 rounded-top-right mw-100" />
 				</div>
 				<div class="col-md-8">
 					<div class="card-body px-2 h-100">
