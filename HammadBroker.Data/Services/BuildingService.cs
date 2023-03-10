@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using essentialMix.Core.Data.Entity.AutoMapper.Patterns.Services;
+using essentialMix.Data.Patterns.Parameters;
 using essentialMix.Extensions;
 using essentialMix.Helpers;
 using HammadBroker.Data.Context;
@@ -120,6 +121,38 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 														.ToListAsync(token)
 														.ConfigureAwait();
 		return result;
+	}
+
+	/// <inheritdoc />
+	public override T Get<T>(string key)
+	{
+		T entity = base.Get<T>(key);
+		if (entity is IBuildingLookup buildingLookup) buildingLookup.ImageUrl = Repository.GetMainImage(key);
+		return entity;
+	}
+
+	/// <inheritdoc />
+	public override T Get<T>(string key, IGetSettings settings)
+	{
+		T entity = base.Get<T>(key, settings);
+		if (entity is IBuildingLookup buildingLookup) buildingLookup.ImageUrl = Repository.GetMainImage(key);
+		return entity;
+	}
+
+	/// <inheritdoc />
+	public override async Task<T> GetAsync<T>(string key, CancellationToken token = default(CancellationToken))
+	{
+		T entity = await base.GetAsync<T>(key, token);
+		if (entity is IBuildingLookup buildingLookup) buildingLookup.ImageUrl = await Repository.GetMainImageAsync(key, token);
+		return entity;
+	}
+
+	/// <inheritdoc />
+	public override async Task<T> GetAsync<T>(string key, IGetSettings settings, CancellationToken token = new CancellationToken())
+	{
+		T entity = await base.GetAsync<T>(key, settings, token);
+		if (entity is IBuildingLookup buildingLookup) buildingLookup.ImageUrl = await Repository.GetMainImageAsync(key, token);
+		return entity;
 	}
 
 	/// <inheritdoc />

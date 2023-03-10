@@ -80,6 +80,26 @@ public class BuildingRepository : Repository<DataContext, Building, string>, IBu
 	}
 
 	/// <inheritdoc />
+	public string GetMainImage(string buildingId)
+	{
+		BuildingImage image = Images.Where(e => e.BuildingId == buildingId)
+									.DefaultIfEmpty()
+									.OrderByDescending(e => e.Priority ?? 0)
+									.FirstOrDefault(e => e != null);
+		return image?.ImageUrl;
+	}
+
+	/// <inheritdoc />
+	public async Task<string> GetMainImageAsync(string buildingId, CancellationToken token = default(CancellationToken))
+	{
+		BuildingImage image = await Images.Where(e => e.BuildingId == buildingId)
+									.DefaultIfEmpty()
+									.OrderByDescending(e => e.Priority ?? 0)
+									.FirstOrDefaultAsync(e => e != null, token);
+		return image?.ImageUrl;
+	}
+
+	/// <inheritdoc />
 	protected override IQueryable<Building> PrepareCountQuery(IQueryable<Building> query, IPagination settings)
 	{
 		if (settings is not BuildingList buildingList) return base.PrepareCountQuery(query, settings);

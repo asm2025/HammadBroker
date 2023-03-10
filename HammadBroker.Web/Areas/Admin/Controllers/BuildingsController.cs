@@ -202,6 +202,7 @@ public class BuildingsController : MvcController
 
 		foreach (BuildingImageForList img in images)
 		{
+			if (string.IsNullOrEmpty(img.ImageUrl)) continue;
 			img.ImageUrl = _assetImagesBaseUrl + img.ImageUrl;
 		}
 

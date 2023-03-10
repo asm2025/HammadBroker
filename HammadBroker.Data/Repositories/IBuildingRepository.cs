@@ -18,6 +18,9 @@ public interface IBuildingRepository : IRepository<DataContext, Building, string
 	IDictionary<string, string> GetMainImages([NotNull] ICollection<string> ids);
 	[NotNull]
 	Task<IDictionary<string, string>> GetMainImagesAsync([NotNull] ICollection<string> ids, CancellationToken token = default(CancellationToken));
+	string GetMainImage([NotNull] string buildingId);
+	[NotNull]
+	Task<string> GetMainImageAsync([NotNull] string buildingId, CancellationToken token = default(CancellationToken));
 	IQueryable<BuildingImage> ListImages([NotNull] string buildingId, IPagination settings = null);
 	[NotNull]
 	Task<IList<BuildingImage>> ListImagesAsync([NotNull] string buildingId, IPagination settings = null, CancellationToken token = default(CancellationToken));

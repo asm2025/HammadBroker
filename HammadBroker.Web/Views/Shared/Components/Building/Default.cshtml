@@ -39,8 +39,16 @@
 	PathContent assetsPath = VirtualPathSettings.PathContents?.FirstOrDefault(e => e.Alias.IsSame("AssetImages")) ?? throw new ConfigurationErrorsException($"{nameof(VirtualPathSettings)} does not contain a definition for AssetImages.");
 	string placeholderImage = Configuration.GetValue("Images:AssetPlaceholder", string.Empty);
 	if (string.IsNullOrEmpty(placeholderImage)) throw new ConfigurationErrorsException("Images:AssetPlaceholder is missing.");
-	placeholderImage = assetsPath.RequestPath.Trim('/') + placeholderImage;
+	string assetsBasePath = assetsPath.RequestPath.Trim('/');
+	placeholderImage = assetsBasePath + placeholderImage;
 	CultureInfo ciar = CultureInfo.GetCultureInfo("ar");
+
+	if (!string.IsNullOrEmpty(Model.Building.ImageUrl))
+	{
+		TempData["Image"] = $"{Context.Request.Scheme}://{Context.Request.Host}/{assetsBasePath}/{Model.Building.ImageUrl}";
+	}
+
+	TempData["Type"] = "article";
 }
 
 <div id="buildingForm" v-scope>

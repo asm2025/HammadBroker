@@ -1,8 +1,12 @@
 ﻿@using HammadBroker.Model.Configuration
 @using HammadBroker.Model
+@using Microsoft.AspNetCore.Http.Extensions
 @inject CompanyInfo CompanyInfo
 @{
 	bool hideMenu = Convert.ToBoolean(ViewBag.HideMenu ?? false);
+	string title = string.Join(" - ", ViewData["Title"], CompanyInfo.Name).Trim(' ', '-');
+	string image = TempData["Image"]?.ToString();
+	string type = TempData["Type"]?.ToString() ?? "website";
 }
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -12,7 +16,21 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 	<link rel="icon" type="image/x-icon" href="@Url.Content("~/favicon.ico")" />
 	<link rel="shortcut icon" type="image/x-icon" href="@Url.Content("~/favicon.ico")" />
-	<title>@string.Join(" - ", ViewData["Title"], CompanyInfo.Name).Trim(' ', '-')</title>
+	<title>@title</title>
+	<meta name="description" content="@CompanyInfo.Description" />
+
+	<!--Social media-->
+	<meta property="og:title" content="@title" />
+	<meta property="og:description" content="@CompanyInfo.Description" />
+	<meta property="og:url" content="@Context.Request.GetDisplayUrl()" />
+	
+	@if (!string.IsNullOrEmpty(image))
+	{
+		<meta property="og:image" content="@image" />
+	}
+
+	<meta property="og:type" content="@type" />
+	<meta property="og:locale" content="ar_EG" />
 
 	<link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.rtl.min.css" />
 	<link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
