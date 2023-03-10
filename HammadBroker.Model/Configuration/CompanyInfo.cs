@@ -4,6 +4,8 @@ namespace HammadBroker.Model.Configuration;
 
 public class CompanyInfo
 {
+	private string _whatsAppNumber;
+
 	[Display(Name = "الشركة")]
 	public string Name { get; set; }
 	[Display(Name = "الوصف")]
@@ -14,6 +16,14 @@ public class CompanyInfo
 	public string Phone { get; set; }
 	[Display(Name = "المحمول")]
 	public string Mobile { get; set; }
+
+	[Display(Name = "واتس آب")]
+	public string WhatsAppNumber
+	{
+		get => _whatsAppNumber;
+		set => _whatsAppNumber = value?.Trim('+', '0', ' ');
+	}
+
 	[Display(Name = "العنوان")]
 	public string Address { get; set; }
 	[Display(Name = "الحي")]
