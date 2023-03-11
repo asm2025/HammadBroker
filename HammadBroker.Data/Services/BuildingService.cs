@@ -156,24 +156,43 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	}
 
 	/// <inheritdoc />
-	public IList<BuildingImageForList> ListImages(string buildingId)
+	public IList<BuildingImage> ListImages(string buildingId)
 	{
 		ThrowIfDisposed();
-		IList<BuildingImageForList> result = Repository.ListImages(buildingId)
-														.ProjectTo<BuildingImageForList>(Mapper.ConfigurationProvider)
+		IList<BuildingImage> result = Repository.ListImages(buildingId)
+												.ToList();
+		return result;
+	}
+
+	/// <inheritdoc />
+	public Task<IList<BuildingImage>> ListImagesAsync(string buildingId, CancellationToken token = default(CancellationToken))
+	{
+		ThrowIfDisposed();
+		token.ThrowIfCancellationRequested();
+		return Repository.ListImages(buildingId)
+						.ToListAsync(token)
+						.As<List<BuildingImage>, IList<BuildingImage>>(token);
+	}
+
+	/// <inheritdoc />
+	public IList<T> ListImages<T>(string buildingId)
+	{
+		ThrowIfDisposed();
+		IList<T> result = Repository.ListImages(buildingId)
+														.ProjectTo<T>(Mapper.ConfigurationProvider)
 														.ToList();
 		return result;
 	}
 
 	/// <inheritdoc />
-	public Task<IList<BuildingImageForList>> ListImagesAsync(string buildingId, CancellationToken token = default(CancellationToken))
+	public Task<IList<T>> ListImagesAsync<T>(string buildingId, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
 		return Repository.ListImages(buildingId)
-						.ProjectTo<BuildingImageForList>(Mapper.ConfigurationProvider)
+						.ProjectTo<T>(Mapper.ConfigurationProvider)
 						.ToListAsync(token)
-						.As<List<BuildingImageForList>, IList<BuildingImageForList>>(token);
+						.As<List<T>, IList<T>>(token);
 	}
 
 	/// <inheritdoc />
@@ -329,6 +348,26 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 		{
 			FileHelper.Delete(GetImagePath(fileName));
 		}
+	}
+
+	/// <inheritdoc />
+	public IList<BuildingImage> DeleteImages(int[] id)
+	{
+		ThrowIfDisposed();
+		IList<BuildingImage> images = Repository.DeleteImages(id);
+		if (images.Count > 0) Context.SaveChanges();
+		return images;
+	}
+
+	/// <inheritdoc />
+	public async Task<IList<BuildingImage>> DeleteImagesAsync(int[] id, CancellationToken token = default(CancellationToken))
+	{
+		ThrowIfDisposed();
+		token.ThrowIfCancellationRequested();
+		IList<BuildingImage> images = await Repository.DeleteImagesAsync(id, token);
+		token.ThrowIfCancellationRequested();
+		if (images.Count > 0) await Context.SaveChangesAsync(token);
+		return images;
 	}
 
 	private string GetImagePath(string fileName)

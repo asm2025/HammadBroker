@@ -49,4 +49,9 @@ public interface IBuildingRepository : IRepository<DataContext, Building, string
 	[NotNull]
 	[ItemNotNull]
 	Task<BuildingImage> DeleteImageAsync([NotNull] BuildingImage image, CancellationToken token = default(CancellationToken));
+	[NotNull]
+	IList<BuildingImage> DeleteImages([NotNull] int[] id);
+	[NotNull]
+	[ItemNotNull]
+	Task<IList<BuildingImage>> DeleteImagesAsync([NotNull] int[] id, CancellationToken token = default(CancellationToken));
 }

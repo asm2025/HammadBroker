@@ -266,6 +266,32 @@ public class BuildingRepository : Repository<DataContext, Building, string>, IBu
 		return Task.FromResult(image);
 	}
 
+	/// <inheritdoc />
+	public IList<BuildingImage> DeleteImages(int[] id)
+	{
+		ThrowIfDisposed();
+		if (id.Length == 0) throw new ArgumentException("Image id is required.", nameof(id));
+
+		IList<BuildingImage> images = Images.Where(e => id.Contains(e.Id))
+													.ToList();
+		if (images.Count > 0) Images.RemoveRange(images);
+		return images;
+	}
+
+	/// <inheritdoc />
+	public async Task<IList<BuildingImage>> DeleteImagesAsync(int[] id, CancellationToken token = default(CancellationToken))
+	{
+		ThrowIfDisposed();
+		token.ThrowIfCancellationRequested();
+		if (id.Length == 0) throw new ArgumentException("Image id is required.", nameof(id));
+
+		IList<BuildingImage> images = await Images.Where(e => id.Contains(e.Id))
+													.ToListAsync(token);
+		token.ThrowIfCancellationRequested();
+		if (images.Count > 0) Images.RemoveRange(images);
+		return images;
+	}
+
 	private IQueryable<BuildingImage> PrepareImageCountQuery([NotNull] string buildingId, IPagination settings) { return PrepareImageCountQuery(Images.Where(e => e.BuildingId == buildingId), settings); }
 	private static IQueryable<BuildingImage> PrepareImageCountQuery(IQueryable<BuildingImage> query, IPagination settings)
 	{

@@ -59,56 +59,75 @@
 		@Html.AntiForgeryToken()
 	}
 
-	<galleria ref="galleria" :container-class="'galleria'" :value="images" :show-thumbnails="false" circular full-screen
-			show-item-navigators show-item-navigators-on-hover change-item-on-indicator-hover v-model:visible="fullScreen">
-		<template #item="{ item }">
-			<img :src="item.imageUrl" alt="" class="img-fluid img-h-100" v-on:click="fullScreen = false" />
-		</template>
-	</galleria>
-
 	<div class="card card-body mt-3">
-		<div v-if="errors && errors.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="error of errors">
-			{{ error }}
-			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-		</div>
-
-		<div class="card-deck2 align-items-stretch mb-2">
-			<div class="card card-body">
-				@if (string.IsNullOrEmpty(Model.Building.VideoId))
-				{
-					<img class="img-fluid img-wh-100" :src="`@Context.Request.Scheme://@Context.Request.Host${(images && images.length && images[0].imageUrl ? images[0].imageUrl : '@placeholderImage')}`" alt=""
-						v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host@placeholderImage'`"/>
-					<div class="position-absolute bottom-0 mb-3 mx-3 d-flex align-items-center z-3">
-						@if (Model.CanUpload)
-						{
-							<button v-if="!fullScreen" type="button" class="btn btn-light me-1" v-on:click="uploading = !uploading">
-								<i class="fa fa-plus"></i>
-								إضافة صور
-							</button>
-						}
-						<button v-if="images && images.length" type="button" class="btn btn-light me-1" v-on:click="fullScreen = true">
-							<i class="fa fa-camera"></i>
-							تصفح ال {{ images.length }} صورة
-						</button>
+		@if (Model.CanEdit)
+		{
+			<galleria v-show="!uploading" ref="galleria" :container-class="'galleria'" :value="images" show-thumbnails 
+				:full-screen="fullScreen" :num-visible="5" show-item-navigators show-item-navigators-on-hover>
+				<template #item="{ item }">
+					<img :src="item.imageUrl" alt="" class="img-fluid img-mh-100p img-h-512" v-on:click="fullScreen = false" />
+				</template>
+				<template #thumbnail="{ item }">
+					<img :src="item.imageUrl" alt="" class="img-fluid img-w-64" />
+					<div class="actions gap-1" dir="rtl">
+						<input class="form-check-input" type="checkbox" :value="item.id" v-on:change="onThumbSelection" />
+						<a class="btn btn-outline-danger btn-sm border-0 mb-1" v-on:click="deleteImage(item.id)" title="حذف الصورة"><i class="fa fa-xmark"></i></a>
 					</div>
-				}
-				else
-				{
-					<vid-asset VideoId="@Model.Building.VideoId" Class="ratio ratio-16x9"/>
-				}
-			</div>
+				</template>
+			</galleria>
+		}
+		else
+		{
+			<galleria ref="galleria" :container-class="'galleria no-thumbs'" :value="images" :show-thumbnails="false" circular full-screen
+					show-item-navigators show-item-navigators-on-hover change-item-on-indicator-hover v-model:visible="fullScreen">
+				<template #item="{ item }">
+					<img :src="item.imageUrl" alt="" class="img-fluid img-mh-100p" v-on:click="fullScreen = false" />
+				</template>
+			</galleria>
+		}
+		<div class="card-deck2 align-items-stretch mb-2">
+			@if (!Model.CanEdit)
+			{
+				<div class="card card-body">
+					@if (string.IsNullOrEmpty(Model.Building.VideoId))
+					{
+						<img class="img-fluid img-wh-100" :src="`@Context.Request.Scheme://@Context.Request.Host${(images && images.length && images[0].imageUrl ? images[0].imageUrl : '@placeholderImage')}`" alt=""
+						v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host@placeholderImage'`"/>
+						<div class="position-absolute bottom-0 mb-3 mx-3 d-flex align-items-center z-3">
+							@if (Model.CanUpload)
+							{
+								<button v-if="!fullScreen" type="button" class="btn btn-light me-1" v-on:click="uploading = !uploading">
+									<i class="fa fa-plus"></i>
+									إضافة صور
+								</button>
+							}
+							<button v-if="images && images.length" type="button" class="btn btn-light me-1" v-on:click="fullScreen = true">
+								<i class="fa fa-camera"></i>
+								تصفح ال {{ images.length }} صورة
+							</button>
+						</div>
+					}
+					else
+					{
+						<vid-asset VideoId="@Model.Building.VideoId" Class="ratio ratio-16x9"/>
+					}
+				</div>
+			}
 			<div v-if="@Model.CanUpload.ToString().ToLowerInvariant() || images && images.length" class="card card-body">
 				<div :class="'drop-zone'">
-					<div v-if="images && images.length > 1" :class="['zone-item flex-column', { active: !uploading }]">
-						<div class="tile">
-							<img class="img-fluid img-wh-100" :src="`@Context.Request.Scheme://@Context.Request.Host${images[1].imageUrl}`" alt=""
+					@if (!Model.CanEdit)
+					{
+						<div v-if="images && images.length > 1" :class="['zone-item flex-column', { active: !uploading }]">
+							<div class="tile">
+								<img class="img-fluid img-wh-100" :src="`@Context.Request.Scheme://@Context.Request.Host${images[1].imageUrl}`" alt=""
 								v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host@placeholderImage'`"/>
-						</div>
-						<div v-if="images.length > 2" class="tile">
-							<img class="img-fluid img-wh-100" :src="`@Context.Request.Scheme://@Context.Request.Host${images[2].imageUrl}`" alt=""
+							</div>
+							<div v-if="images.length > 2" class="tile">
+								<img class="img-fluid img-wh-100" :src="`@Context.Request.Scheme://@Context.Request.Host${images[2].imageUrl}`" alt=""
 								v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host@placeholderImage'`"/>
+							</div>
 						</div>
-					</div>
+					}
 					@if (Model.CanUpload)
 					{
 						<div :class="['zone-item', { active: uploading }]">
@@ -181,6 +200,29 @@
 					</div>
 				</div>
 			</div>
+		</div>
+		@if (Model.CanEdit)
+		{
+			<div class="d-flex gap-1 align-items-center py-1">
+				@if (Model.CanUpload)
+				{
+					<button type="button" v-if="!fullScreen" class="btn btn-light mb-1" v-on:click="uploading = !uploading">
+						<i :class="['fa', uploading ? 'fa-image' : 'fa-cloud-arrow-up']"></i>
+						{{ uploading ? "الصور" : "تحميل" }}
+					</button>
+				}
+				<a v-if="!uploading" class="btn btn-danger mb-1" v-on:click="deleteImages()" title="حذف الصور" :disabled="!selectedImages || !selectedImages.length">
+					<i class="fa fa-xmark"></i>
+					حذف
+				</a>
+			</div>
+		}
+	</div>
+
+	<div class="card card-body mt-3">
+		<div v-if="errors && errors.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="error of errors">
+			{{ error }}
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 		</div>
 
 		@if (Model.CanEdit)
@@ -596,6 +638,7 @@
 					cities: [],
 					fullScreen: false,
 					images: [],
+					selectedImages: [],
 					uploading: false,
 					files: [],
 					uploadedFiles: [],
@@ -629,6 +672,93 @@
 				},
 				fetchImages() {
 					_fetchImages(this);
+				},
+				onThumbSelection(event) {
+					const { checked } = event.target;
+					const value = parseInt(event.target.value);
+
+					if (checked) {
+						this.selectedImages.push(value);
+						return;
+					}
+
+					const ndx = this.selectedImages.findIndex(e => e === value);
+					if (ndx < 0) return;
+					this.selectedImages.splice(ndx, 1);
+				},
+				async deleteImage(id) {
+					this.errors.length = 0;
+					if (!id) return;
+					this.loading = true;
+
+					try {
+						const url = "@Url.Action("DeleteImage", "Buildings", new
+						             {
+							             area = "Admin"
+						             })";
+						const formData = new FormData();
+						formData.append("id", id);
+
+						const response = await window.fetch(url,
+						{
+							method: "post",
+							body: formData,
+							headers: {
+								RequestVerificationToken: "@Antiforgery.GetAndStoreTokens(Context).RequestToken"
+							},
+							credentials: "same-origin"
+						});
+
+						if (!response.ok) {
+							const error = await getResponseError(response);
+							throw error;
+						}
+
+						this.fetchImages();
+					} catch (e) {
+						alert(e.message || e);
+					} finally {
+						this.loading = false;
+					}
+				},
+				async deleteImages() {
+					this.errors.length = 0;
+					if (!this.selectedImages || !this.selectedImages.length) return;
+					this.loading = true;
+
+					try {
+						const url = "@Url.Action("DeleteImages", "Buildings", new
+						             {
+							             area = "Admin"
+						             })";
+						const formData = new FormData();
+
+						for (let i = 0; i < this.selectedImages.length; i++) {
+							formData.append(`id[${i}]`, this.selectedImages[i]);
+						}
+
+						const response = await window.fetch(url,
+						{
+							method: "post",
+							body: formData,
+							headers: {
+								RequestVerificationToken: "@Antiforgery.GetAndStoreTokens(Context).RequestToken"
+							},
+							credentials: "same-origin"
+						});
+
+						if (!response.ok) {
+							const error = await getResponseError(response);
+							throw error;
+						}
+
+						this.selectedImages.length = 0;
+						this.fetchImages();
+					} catch (e) {
+						alert(e.message || e);
+					} finally {
+						this.loading = false;
+					}
 				},
 				onFilesSelected(event) {
 					this.uploadedSize = 0;
@@ -696,7 +826,7 @@
 
 					if (this.errors.length) return;
 					this.uploading = false;
-					await this.fetchImages();
+					this.fetchImages();
 				},
 				onFilesUploaded(event) {
 					this.uploadedFiles = event.files;

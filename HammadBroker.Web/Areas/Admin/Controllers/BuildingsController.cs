@@ -198,9 +198,9 @@ public class BuildingsController : MvcController
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return BadRequest(ModelState);
 
-		IList<BuildingImageForList> images = await _buildingService.ListImagesAsync(id, token);
+		IList<BuildingImage> images = await _buildingService.ListImagesAsync(id, token);
 
-		foreach (BuildingImageForList img in images)
+		foreach (BuildingImage img in images)
 		{
 			if (string.IsNullOrEmpty(img.ImageUrl)) continue;
 			img.ImageUrl = _assetImagesBaseUrl + img.ImageUrl;
@@ -260,6 +260,34 @@ public class BuildingsController : MvcController
 
 			string fileName = Path.Combine(_assetImagesPath, buildingImage.ImageUrl);
 			if (SysFile.Exists(fileName)) FileHelper.Delete(fileName);
+		}
+		catch (Exception ex)
+		{
+			Logger.LogError(ex.CollectMessages());
+			return Problem(ex.Unwrap());
+		}
+
+		return Ok();
+	}
+
+	[NotNull]
+	[ItemNotNull]
+	[HttpPost("[action]")]
+	public async Task<IActionResult> DeleteImages([Required] int[] id, CancellationToken token)
+	{
+		token.ThrowIfCancellationRequested();
+		if (!ModelState.IsValid) return BadRequest(ModelState);
+
+		try
+		{
+			IList<BuildingImage> images = await _buildingService.DeleteImagesAsync(id, token);
+			if (images.Count == 0) return Ok();
+
+			foreach (BuildingImage image in images)
+			{
+				string fileName = Path.Combine(_assetImagesPath, image.ImageUrl);
+				if (SysFile.Exists(fileName)) FileHelper.Delete(fileName);
+			}
 		}
 		catch (Exception ex)
 		{
