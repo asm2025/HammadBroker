@@ -248,7 +248,7 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	public async Task<IActionResult> DeleteImage([Required, FromQuery] int id, CancellationToken token)
+	public async Task<IActionResult> DeleteImage([Required] int id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return BadRequest(ModelState);
