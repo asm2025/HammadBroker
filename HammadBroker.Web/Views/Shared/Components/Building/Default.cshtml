@@ -63,7 +63,7 @@
 		@if (Model.CanEdit)
 		{
 			<galleria v-show="!uploading" ref="galleria" :container-class="'galleria'" :value="images" show-thumbnails 
-				:full-screen="fullScreen" :num-visible="5" show-item-navigators show-item-navigators-on-hover>
+				circular :full-screen="fullScreen" :num-visible="5" show-item-navigators show-item-navigators-on-hover>
 				<template #item="{ item }">
 					<img :src="item.imageUrl" alt="" class="img-fluid img-mh-100p img-h-512" v-on:click="fullScreen = false" />
 				</template>
@@ -204,6 +204,10 @@
 		@if (Model.CanEdit)
 		{
 			<div class="d-flex gap-1 align-items-center py-1">
+				<button type="button" v-if="!uploading" class="btn btn-light mb-1" v-on:click="fullScreen = true">
+					<i :class="['fa', fullScreen ? 'fa-minimize' : 'fa-maximize']"></i>
+					تكبير الشاشة
+				</button>
 				@if (Model.CanUpload)
 				{
 					<button type="button" v-if="!fullScreen" class="btn btn-light mb-1" v-on:click="uploading = !uploading">

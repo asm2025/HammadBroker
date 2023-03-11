@@ -781,42 +781,33 @@ span.oi {
 		border-radius: 50%;
 	}
 
-.p-galleria-thumbnail-item {
-	-o-flex-grow: 0 !important;
-	-webkit-flex-grow: 0 !important;
-	flex-grow: 0 !important;
-	-o-flex-shrink: 1 !important;
-	-webkit-flex-shrink: 1 !important;
-	flex-shrink: 1 !important;
+.p-galleria-thumbnail-item .p-galleria-thumbnail-item-content {
+	position: relative;
 }
 
-	.p-galleria-thumbnail-item .p-galleria-thumbnail-item-content {
+	.p-galleria-thumbnail-item .p-galleria-thumbnail-item-content .actions {
 		position: relative;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		margin: 0.375rem;
+		display: flex;
+		-ms-align-items: center;
+		-o-align-items: center;
+		-webkit-align-items: center;
+		align-items: center;
+		-moz-align-content: center;
+		-o-align-content: center;
+		-webkit-align-content: center;
+		align-content: center;
+		-webkit-flex: 1;
+		-ms-flex: 1;
+		-o-flex: 1;
 	}
 
-		.p-galleria-thumbnail-item .p-galleria-thumbnail-item-content .actions {
-			position: relative;
-			left: 0;
-			right: 0;
-			bottom: 0;
-			margin: 0.375rem;
-			display: flex;
-			-ms-align-items: center;
-			-o-align-items: center;
-			-webkit-align-items: center;
-			align-items: center;
-			-moz-align-content: center;
-			-o-align-content: center;
-			-webkit-align-content: center;
-			align-content: center;
-			-webkit-flex: 1;
-			-ms-flex: 1;
-			-o-flex: 1;
+		.p-galleria-thumbnail-item .p-galleria-thumbnail-item-content .actions > * {
+			margin: 0 !important;
 		}
-
-			.p-galleria-thumbnail-item .p-galleria-thumbnail-item-content .actions > * {
-				margin: 0 !important;
-			}
 
 .p-fileupload {
 	-o-flex-grow: 1;
