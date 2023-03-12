@@ -8,6 +8,8 @@ public class BuildingProfile : Profile
 {
 	public BuildingProfile()
 	{
+		CreateMap<Building, Building>();
+
 		CreateMap<Building, BuildingForList>()
 			.ForMember(d => d.Date, m => m.MapFrom(s => s.Date.ToLocalTime()))
 			.ForMember(d => d.Expires, m =>

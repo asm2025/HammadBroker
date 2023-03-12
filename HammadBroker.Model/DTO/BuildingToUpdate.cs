@@ -10,7 +10,7 @@ public class BuildingToUpdate : IBuilding
 	private const string PHONE_OR_MOBILE_REQUIRED = "Any of the fields '{0}' is required.";
 
 	/// <inheritdoc />
-	string IBuildingLookup.Id { get; set; }
+	public string Id { get; set; }
 
 	/// <inheritdoc />
 	string IBuildingLookup.ImageUrl { get; set; }

@@ -156,21 +156,17 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	public async Task<IActionResult> Edit([Required, FromQuery] string id, [NotNull, FromForm(Name = nameof(BuildingModel.Building))] BuildingToUpdate buildingToUpdate, CancellationToken token)
+	public async Task<IActionResult> Edit([NotNull, FromForm(Name = nameof(BuildingModel.Building))] BuildingToUpdate buildingToUpdate, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return View(buildingToUpdate);
 
-		Building building = await _buildingService.GetAsync(id, token);
-		token.ThrowIfCancellationRequested();
-		if (building == null) return NotFound();
-		_mapper.Map(buildingToUpdate, building);
-		building = await _buildingService.UpdateAsync(building, token);
+		Building building = await _buildingService.UpdateAsync(_mapper.Map<Building>(buildingToUpdate), token);
 		token.ThrowIfCancellationRequested();
 		if (building == null) return BadRequest();
 		return RedirectToAction(nameof(Get), new
 		{
-			id
+			building.Id
 		});
 	}
 
