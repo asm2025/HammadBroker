@@ -160,6 +160,7 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	{
 		ThrowIfDisposed();
 		IList<BuildingImage> result = Repository.ListImages(buildingId)
+												.OrderByDescending(e => e.Priority)
 												.ToList();
 		return result;
 	}
@@ -170,6 +171,7 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
 		return Repository.ListImages(buildingId)
+						.OrderByDescending(e => e.Priority)
 						.ToListAsync(token)
 						.As<List<BuildingImage>, IList<BuildingImage>>(token);
 	}
@@ -179,8 +181,9 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	{
 		ThrowIfDisposed();
 		IList<T> result = Repository.ListImages(buildingId)
-														.ProjectTo<T>(Mapper.ConfigurationProvider)
-														.ToList();
+									.OrderByDescending(e => e.Priority)
+									.ProjectTo<T>(Mapper.ConfigurationProvider)
+									.ToList();
 		return result;
 	}
 
@@ -190,6 +193,7 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
 		return Repository.ListImages(buildingId)
+						.OrderByDescending(e => e.Priority)
 						.ProjectTo<T>(Mapper.ConfigurationProvider)
 						.ToListAsync(token)
 						.As<List<T>, IList<T>>(token);

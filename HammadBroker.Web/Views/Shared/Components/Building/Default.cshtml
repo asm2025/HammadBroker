@@ -62,24 +62,44 @@
 	<div class="card card-body mt-3">
 		@if (Model.CanEdit)
 		{
-			<galleria v-show="!uploading" ref="galleria" :container-class="'galleria'" :value="images" show-thumbnails 
-				circular :full-screen="fullScreen" :num-visible="5" show-item-navigators show-item-navigators-on-hover>
+			<galleria v-show="!uploading" ref="galleria" :container-class="['galleria', {'no-thumbs': fullScreen}]" :value="images" :show-thumbnails="!fullScreen"
+				circular :full-screen="fullScreen" v-model:visible="galVisible" :num-visible="5" show-item-navigators show-item-navigators-on-hover>
 				<template #item="{ item }">
 					<img :src="item.imageUrl" alt="" class="img-fluid img-mh-100p img-h-512" v-on:click="fullScreen = false" />
+					<span v-if="item.priority" class="position-absolute top-0 end-0 m-1 badge rounded-pill bg-danger">
+						{{ item.priority }}
+						<span class="visually-hidden">priority</span>
+					</span>
 				</template>
 				<template #thumbnail="{ item }">
 					<img :src="item.imageUrl" alt="" class="img-fluid img-w-64" />
+					<span v-if="item.priority" class="position-absolute top-0 end-0 m-1 badge rounded-pill bg-danger">
+						{{ item.priority }}
+						<span class="visually-hidden">priority</span>
+					</span>
 					<div class="actions gap-1" dir="rtl">
 						<input class="form-check-input" type="checkbox" :value="item.id" v-on:change="onThumbSelection" />
-						<a class="btn btn-outline-danger btn-sm border-0 mb-1" v-on:click="deleteImage(item.id)" title="حذف الصورة"><i class="fa fa-xmark"></i></a>
+						<button type="button" class="btn btn-outline-secondary btn-sm border-0 mb-1" v-on:click="setImagePriorityValue($event, item.id, item.priority)" title="تعيين أولوية الصورة"><i class="fa fa-sort"></i></button>
+						<button type="button" class="btn btn-outline-danger btn-sm border-0 mb-1" v-on:click="deleteImage(item.id)" title="حذف الصورة"><i class="fa fa-xmark"></i></button>
 					</div>
 				</template>
 			</galleria>
+			<overlaypanel ref="op">
+				<div class="row g-0 px-1">
+					<label class="form-label col-sm-4 col-md-12">@Html.DisplayNameForInnerType((BuildingImageToAdd e) => e.Priority)</label>
+					<input type="number" class="form-control col-sm-8 col-md-12" v-model="imagePriority.priority" />
+				</div>
+				<div class="row g-0 px-1">
+					<button type="button" class="btn btn-primary" v-on:click="setImagePriority">
+						تعيين
+					</button>
+				</div>
+			</overlaypanel>
 		}
 		else
 		{
 			<galleria ref="galleria" :container-class="'galleria no-thumbs'" :value="images" :show-thumbnails="false" circular full-screen
-					show-item-navigators show-item-navigators-on-hover change-item-on-indicator-hover v-model:visible="fullScreen">
+					v-model:visible="fullScreen" show-item-navigators show-item-navigators-on-hover change-item-on-indicator-hover>
 				<template #item="{ item }">
 					<img :src="item.imageUrl" alt="" class="img-fluid img-mh-100p" v-on:click="fullScreen = false" />
 				</template>
@@ -221,9 +241,7 @@
 				</a>
 			</div>
 		}
-	</div>
 
-	<div class="card card-body mt-3">
 		<div v-if="errors && errors.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="error of errors">
 			{{ error }}
 			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -641,8 +659,10 @@
 					cityId: @Model.Building.CityId,
 					cities: [],
 					fullScreen: false,
+					galVisible: true,
 					images: [],
 					selectedImages: [],
+					imagePriority: null,
 					uploading: false,
 					files: [],
 					uploadedFiles: [],
@@ -655,10 +675,15 @@
 			},
 			watch: {
 				selectedCity(newValue) {
-					if (newValue && newValue.id)
+					if (newValue)
 						this.cityId = newValue.id;
 					else
 						this.cityId = 0;
+				},
+				galVisible(newValue) {
+					if (newValue) return;
+					this.fullScreen = false;
+					this.galVisible = true;
 				}
 			},
 			methods: {
@@ -676,6 +701,62 @@
 				},
 				fetchImages() {
 					_fetchImages(this);
+				},
+				setImagePriorityValue(event, id, priority) {
+					if (!id) return;
+
+					const value = priority ? parseInt(priority) : null;
+					
+					if (value) {
+						if (value < 0) value = 0;
+						if (value > 255) value = 255;
+					}
+
+					this.imagePriority = {
+						id,
+						priority: value
+					};
+					this.$refs.op.toggle(event);
+				},
+				async setImagePriority(event) {
+					this.errors.length = 0;
+					this.$refs.op.toggle(event);
+					if (!this.imagePriority || !this.imagePriority.id) return;
+
+					const { id, priority } = this.imagePriority;
+					this.imagePriority = null;
+					this.loading = true;
+
+					try {
+						const url = "@Url.Action("SetImagePriority", "Buildings", new
+						             {
+							             area = "Admin"
+						             })";
+						const formData = new FormData();
+						formData.append("id", id);
+						formData.append("priority", priority);
+
+						const response = await window.fetch(url,
+						{
+							method: "post",
+							body: formData,
+							headers: {
+								RequestVerificationToken: "@Antiforgery.GetAndStoreTokens(Context).RequestToken"
+							},
+							credentials: "same-origin"
+						});
+
+						if (!response.ok) {
+							const error = await getResponseError(response);
+							throw error;
+						}
+
+						this.fetchImages();
+					} catch (e) {
+						alert(e.message || e);
+					} finally {
+						this.loading = false;
+					}
 				},
 				onThumbSelection(event) {
 					const { checked } = event.target;
@@ -869,6 +950,7 @@
 		.component("autocomplete", primevue.autocomplete)
 		.component("calendar", primevue.calendar)
 		.component("galleria", primevue.galleria)
+		.component("overlaypanel", primevue.overlaypanel)
 		.component("fileupload", primevue.fileupload)
 		.component("progressbar", primevue.progressbar)
 		.component("toast", primevue.toast)

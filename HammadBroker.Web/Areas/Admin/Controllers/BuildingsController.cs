@@ -298,6 +298,30 @@ public class BuildingsController : MvcController
 		return Ok();
 	}
 
+	[NotNull]
+	[ItemNotNull]
+	[HttpPost("[action]")]
+	public async Task<IActionResult> SetImagePriority([Required] int id, byte? priority, CancellationToken token)
+	{
+		token.ThrowIfCancellationRequested();
+		if (!ModelState.IsValid) return BadRequest(ModelState);
+
+		try
+		{
+			BuildingImage image = await _buildingService.GetImageAsync(id, token);
+			if (image == null) return BadRequest();
+			image.Priority = priority;
+			if (await _buildingService.UpdateImageAsync(image, token) == null) return BadRequest();
+		}
+		catch (Exception ex)
+		{
+			Logger.LogError(ex.CollectMessages());
+			return Problem(ex.Unwrap());
+		}
+
+		return Ok();
+	}
+
 	private static string UploadBuildingImage(string path, string id, [NotNull] IFormFile formFile)
 	{
 		Stream stream = null;

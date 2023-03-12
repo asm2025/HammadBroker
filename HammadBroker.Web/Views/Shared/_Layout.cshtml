@@ -59,6 +59,7 @@
 	<script type="text/javascript" src="@Url.Content("~/lib/primevue/listbox/listbox.min.js")"></script>
 	<script type="text/javascript" src="@Url.Content("~/lib/primevue/galleria/galleria.min.js")"></script>
 	<script type="text/javascript" src="@Url.Content("~/lib/primevue/fileupload/fileupload.min.js")"></script>
+	<script type="text/javascript" src="@Url.Content("~/lib/primevue/overlaypanel/overlaypanel.min.js")"></script>
 	<script type="text/javascript" src="@Url.Content("~/lib/primevue/toast/toast.min.js")"></script>
 	<script type="text/javascript" src="@Url.Content("~/lib/primevue/toastservice/toastservice.min.js")"></script>
 
@@ -68,7 +69,7 @@
 	@await RenderSectionAsync("styles", false)
 	@await RenderSectionAsync("header", false)
 </head>
-<body class="d-flex flex-column bg-light">
+<body class="d-flex flex-column bg-light overflow-auto">
 	<header class="container py-1">
 		<nav class="navbar navbar-expand-sm bg-light border-bottom box-shadow mb-4">
 			<div class="container-fluid">

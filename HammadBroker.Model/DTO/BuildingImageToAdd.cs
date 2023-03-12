@@ -11,5 +11,6 @@ public class BuildingImageToAdd : IImageUpload
 	[MaxFileSize(Constants.Images.FileSizeMax)]
 	[DataType(DataType.Upload)]
 	public IFormFile Image { get; set; }
+	[Display(Name = "الأولوية")]
 	public byte? Priority { get; set; }
 }
