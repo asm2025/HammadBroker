@@ -25,8 +25,8 @@
 
 				<div class="row g-0 mb-1">
 					<div class="col-sm-12 col-md-4">
-						<label asp-for="Pagination.Id" class="form-label"></label>
-						<input class="form-control" name="@nameof(Model.Pagination.Id)" asp-for="Pagination.Id" />
+						<label asp-for="Pagination.Reference" class="form-label"></label>
+						<input class="form-control" name="@nameof(Model.Pagination.Reference)" asp-for="Pagination.Reference" />
 					</div>
 					<div class="col-sm-12 col-md-4">
 						<label asp-for="Pagination.BuildingType" class="form-label"></label>
@@ -143,8 +143,9 @@
 					<th scope="col" class="auto-cell"></th>
 				}
 				<th scope="col" class="auto-cell"></th>
-				<th scope="col" class="auto-cell">@Html.DisplayNameForInnerType((BuildingForList e) => e.Id)</th>
-				<th scope="col" class="auto-cell">@Html.DisplayNameForInnerType((BuildingForList e) => e.Date)</th>
+				<th scope="col" class="text-nowrap auto-cell">@Html.DisplayNameForInnerType((BuildingForList e) => e.Reference)</th>
+				<th scope="col" class="text-nowrap auto-cell">@Html.DisplayNameForInnerType((BuildingForList e) => e.Date)</th>
+				<th scope="col" class="text-nowrap auto-cell">@Html.DisplayNameForInnerType((BuildingForList e) => e.Expires)</th>
 				<th scope="col" class="text-nowrap">@Html.DisplayNameForInnerType((BuildingForList e) => e.BuildingType)</th>
 				<th scope="col" class="text-nowrap">@Html.DisplayNameForInnerType((BuildingForList e) => e.AdType)</th>
 				<th scope="col" class="text-nowrap auto-cell">@Html.DisplayNameForInnerType((BuildingForList e) => e.FinishingType)</th>
@@ -159,14 +160,15 @@
 					{
 						<th scope="row" class="text-nowrap">
 							<a class="btn btn-outline-secondary btn-sm border-0 mb-1" asp-area="Admin" asp-controller="Buildings" asp-action="Edit" asp-route-id="@building.Id" title="تعديل"><i class="fa fa-pen"></i></a>
-							<a class="btn btn-outline-danger btn-sm border-0 mb-1" onclick="JavaScript:deleteBuilding(event, '@building.Id');" title="حذف العقار"><i class="fa fa-xmark"></i></a>
+							<a class="btn btn-outline-danger btn-sm border-0 mb-1" onclick="JavaScript:deleteBuilding(event, @building.Id, '@building.Reference');" title="حذف الاعلان"><i class="fa fa-xmark"></i></a>
 						</th>
 					}
 					<td>
 						<img-asset src="@building.ImageUrl" readonly imageclass="img-fluid img-list mx-auto d-block" />
 					</td>
-					<td>@Html.DisplayFor(e => building.Id)</td>
+					<td class="text-nowrap">@Html.DisplayFor(e => building.Reference)</td>
 					<td class="text-nowrap">@Html.DisplayFor(e => building.Date)</td>
+					<td class="text-nowrap">@Html.DisplayFor(e => building.Expires)</td>
 					<td class="text-nowrap">@Html.DisplayFor(e => building.BuildingTypeName)</td>
 					<td class="text-nowrap">@Html.DisplayFor(e => building.AdTypeName)</td>
 					<td class="text-nowrap">@Html.DisplayFor(e => building.FinishingTypeName)</td>
@@ -181,9 +183,9 @@
 @section scripts
 {
 	<script type="text/javascript">
-		async function deleteBuilding(evt, id) {
+		async function deleteBuilding(evt, id, reference) {
 			evt.stopPropagation();
-			if (!confirm(`هل تريد حذف العقار '${id}'؟`)) return;
+			if (!confirm(`هل تريد حذف الاعلان '${reference}'؟`)) return;
 
 			try
 			{

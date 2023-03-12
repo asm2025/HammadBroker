@@ -46,21 +46,21 @@
 	<div class="row g-0">
 		@if (!string.IsNullOrEmpty(CompanyInfo.Phone))
 		{
-			<button type="button" class="btn btn-danger w-100 mb-2" dir="ltr" onclick="this.firstChild.textContent = '@CompanyInfo.Phone'">
-				إتصل بالوسيط العقاري
+			<button type="button" class="btn btn-danger w-100 mb-2 text-nowrap" dir="ltr" onclick="this.firstChild.textContent = '@CompanyInfo.Phone'">
+				تليفون
 				<i class="fa fa-phone"></i>
 			</button>
 		}
 		@if (!string.IsNullOrEmpty(CompanyInfo.Mobile))
 		{
-			<button type="button" class="btn btn-danger w-100 mb-2" dir="ltr" onclick="this.firstChild.textContent = '@CompanyInfo.Mobile'">
-				إتصل بالوسيط العقاري
+			<button type="button" class="btn btn-danger w-100 mb-2 text-nowrap" dir="ltr" onclick="this.firstChild.textContent = '@CompanyInfo.Mobile'">
+				جوال
 				<i class="fa fa-mobile-screen"></i>
 			</button>
 		}
 		@if (!string.IsNullOrEmpty(CompanyInfo.Email))
 		{
-			<a class="btn btn-danger w-100 mb-2" dir="ltr" href="mailto:@CompanyInfo.Email?subject=@WebUtility.UrlEncode("معلومات حول")">
+			<a class="btn btn-danger w-100 mb-2 text-nowrap" dir="ltr" href="mailto:@CompanyInfo.Email?subject=@WebUtility.UrlEncode("معلومات حول")">
 				راسل الوسيط 
 				<i class="fa fa-envelope"></i>
 			</a>
@@ -86,8 +86,8 @@
 
 				<div class="row g-0 mb-1">
 					<div class="col-sm-12 col-md-4">
-						<label asp-for="Pagination.Id" class="form-label"></label>
-						<input class="form-control" name="@nameof(Model.Pagination.Id)" asp-for="Pagination.Id" />
+						<label asp-for="Pagination.Reference" class="form-label"></label>
+						<input class="form-control" name="@nameof(Model.Pagination.Reference)" asp-for="Pagination.Reference" />
 					</div>
 					<div class="col-sm-12 col-md-4">
 						<label asp-for="Pagination.BuildingType" class="form-label"></label>
@@ -198,7 +198,7 @@
 				<div class="col-md-8">
 					<div class="card-body px-2 h-100">
 						<div class="d-flex flex-column h-100" role="button" onclick="window.location = '@Url.Action("Get", "Home", new { area = "", id = building.Id })'">
-							<small class="text-muted">#@building.Id @building.BuildingTypeName @building.FinishingTypeName @building.AdTypeName</small>
+							<small class="text-muted">#@building.Reference @building.BuildingTypeName @building.FinishingTypeName @building.AdTypeName</small>
 							<h5 class="card-title">@Html.DisplayFor(e => building.Price) جنيه</h5>
 							<div class="row g-0 flex-grow-1">
 								<div class="col-12">
@@ -261,20 +261,23 @@
 			</div>
 			<div class="card-footer d-flex align-items-center">
 				<div class="flex-grow-1">
-					نشر @building.Date.Humanize(culture: ciar)
+					<small class="text-muted">
+						@Html.DisplayNameForInnerType((IBuildingLookup e) => e.CreatedOn) @building.CreatedOn.Humanize(culture: ciar)<br />
+						@Html.DisplayNameForInnerType((IBuildingLookup e) => e.UpdatedOn) @building.UpdatedOn.Humanize(culture: ciar)
+					</small>
 				</div>
 				<div class="d-inline-flex">
 					@if (!string.IsNullOrEmpty(building.Phone))
 					{
 						<div class="btn-contact" dir="ltr" onclick="this.firstChild.textContent = '@building.Phone'">
-							إتصل
+							تليفون
 							<i class="fa fa-phone"></i>
 						</div>
 					}
 					@if (!string.IsNullOrEmpty(building.Mobile))
 					{
 						<div class="btn-contact" dir="ltr" onclick="this.firstChild.textContent = '@building.Mobile'">
-							إتصل
+							جوال
 							<i class="fa fa-mobile-screen"></i>
 						</div>
 					}
@@ -417,7 +420,7 @@
 			}, Context.Request.Scheme);
 			string location = string.Join(" - ", building.Address, building.Address2, building.CityName).Trim('-', ' ');
 			string message = $@"مرحبًا، أود الحصول على المزيد من المعلومات حول هذا العقار للبيع، المنشور على موقع {Context.Request.Host}
-المرجع: {building.Id} نوع العقار: {building.BuildingTypeName} السعر: {building.Price} جنيه الموقع: {location}
+المرجع: {building.Reference} نوع العقار: {building.BuildingTypeName} السعر: {building.Price} جنيه الموقع: {location}
 الرابط: {targetUrl}";
 			return $"https://wa.me/{CompanyInfo.WhatsAppNumber}?text={WebUtility.UrlEncode(message)}";
 	}

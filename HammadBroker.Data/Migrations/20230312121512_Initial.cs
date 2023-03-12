@@ -73,11 +73,13 @@ namespace HammadBroker.Data.Migrations
                 name: "Buildings",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Reference = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     BuildingType = table.Column<int>(type: "int", nullable: false),
                     VideoId = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: true),
                     FinishingType = table.Column<int>(type: "int", nullable: false),
-                    Floor = table.Column<byte>(type: "tinyint", nullable: true),
+                    Floor = table.Column<int>(type: "int", nullable: true),
                     Rooms = table.Column<byte>(type: "tinyint", nullable: true),
                     Bathrooms = table.Column<byte>(type: "tinyint", nullable: true),
                     Area = table.Column<long>(type: "bigint", nullable: true),
@@ -88,6 +90,8 @@ namespace HammadBroker.Data.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", maxLength: 4096, nullable: false),
                     AdType = table.Column<int>(type: "int", nullable: false),
                     Priority = table.Column<byte>(type: "tinyint", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Expires = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -217,7 +221,7 @@ namespace HammadBroker.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    BuildingId = table.Column<string>(type: "nvarchar(10)", nullable: false),
+                    BuildingId = table.Column<int>(type: "int", nullable: false),
                     ImageUrl = table.Column<string>(type: "nvarchar(320)", maxLength: 320, nullable: false),
                     Priority = table.Column<byte>(type: "tinyint", nullable: true)
                 },
@@ -281,6 +285,12 @@ namespace HammadBroker.Data.Migrations
                 name: "IX_Buildings_Priority",
                 table: "Buildings",
                 column: "Priority");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Buildings_Reference",
+                table: "Buildings",
+                column: "Reference",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Cities_Name",

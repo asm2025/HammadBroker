@@ -3,10 +3,10 @@
 
 @{
 	ViewData["Title"] = "تعديل اعلان";
-	string id = Context.Request.Query["id"];
+	int id = Context.Request.Query["id"].To(0);
 }
 
-@if (!string.IsNullOrEmpty(id))
+@if (id > 0)
 {
 	<div class="row mb-1">
 		<div class="col-12">

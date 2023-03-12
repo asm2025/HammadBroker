@@ -9,7 +9,7 @@ public class BuildingModel
 		Building = building;
 	}
 
-	public string Id { get; set; }
+	public int Id { get; set; }
 
 	public bool ReadOnly { get; set; }
 

@@ -94,7 +94,7 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpGet("[action]")]
-	public async Task<IActionResult> Get([Required] string id, CancellationToken token)
+	public async Task<IActionResult> Get([Required] int id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		BuildingForDetails building = await _buildingService.GetAsync<BuildingForDetails>(id, token);
@@ -128,9 +128,7 @@ public class BuildingsController : MvcController
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return View(buildingToUpdate);
 
-		Building building = _mapper.Map<Building>(buildingToUpdate);
-		if (string.IsNullOrEmpty(building.Id)) building.Id = StringHelper.RandomKey(Constants.Buildings.IdentifierLength);
-		building = await _buildingService.AddAsync(building, token);
+		Building building = await _buildingService.AddAsync(_mapper.Map<Building>(buildingToUpdate), token);
 		token.ThrowIfCancellationRequested();
 		if (building == null) return BadRequest();
 		return RedirectToAction(nameof(Get), new
@@ -142,7 +140,7 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpGet("[action]")]
-	public async Task<IActionResult> Edit([Required] string id, CancellationToken token)
+	public async Task<IActionResult> Edit([Required] int id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -156,12 +154,18 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	public async Task<IActionResult> Edit([NotNull, FromForm(Name = nameof(BuildingModel.Building))] BuildingToUpdate buildingToUpdate, CancellationToken token)
+	public async Task<IActionResult> Edit([Required] int id, [NotNull, FromForm(Name = nameof(BuildingModel.Building))] BuildingToUpdate buildingToUpdate, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return View(buildingToUpdate);
 
-		Building building = await _buildingService.UpdateAsync(_mapper.Map<Building>(buildingToUpdate), token);
+		Building building = await _buildingService.GetAsync(id, token);
+		if (building == null) return BadRequest();
+
+		DateTime createdOn = building.CreatedOn;
+		_mapper.Map(buildingToUpdate, building);
+		building.CreatedOn = createdOn;
+		building = await _buildingService.UpdateAsync(building, token);
 		token.ThrowIfCancellationRequested();
 		if (building == null) return BadRequest();
 		return RedirectToAction(nameof(Get), new
@@ -173,7 +177,7 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	public async Task<IActionResult> Delete([Required] string id, CancellationToken token)
+	public async Task<IActionResult> Delete([Required] int id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -189,7 +193,7 @@ public class BuildingsController : MvcController
 	[AllowAnonymous]
 	[Authorize(Policy = Constants.Authorization.MemberPolicy)]
 	[HttpGet("[action]")]
-	public async Task<IActionResult> ListImages([Required] string id, CancellationToken token)
+	public async Task<IActionResult> ListImages([Required] int id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -208,7 +212,7 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	public async Task<IActionResult> AddImage([Required, FromQuery] string id, [NotNull] BuildingImageToAdd imageToAdd, CancellationToken token)
+	public async Task<IActionResult> AddImage([Required, FromQuery] int id, [NotNull] BuildingImageToAdd imageToAdd, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 
@@ -318,7 +322,7 @@ public class BuildingsController : MvcController
 		return Ok();
 	}
 
-	private static string UploadBuildingImage(string path, string id, [NotNull] IFormFile formFile)
+	private static string UploadBuildingImage([NotNull] string path, int id, [NotNull] IFormFile formFile)
 	{
 		Stream stream = null;
 		Image image = null;

@@ -2,13 +2,13 @@
 @model BuildingForDetails
 
 @{
-	string id = Context.Request.Query["id"];
-	ViewData["Title"] = $"{Model.BuildingTypeName} {Model.AdTypeName} {Model.FinishingTypeName} #{Model.Id}".Replace("  ", " ").Trim();
+	ViewData["Title"] = "إعلان";
+	int id = Context.Request.Query["id"].To(0);
 }
 
 <div class="row mb-1">
 	<div class="col-12">
-		<a asp-area="Admin" asp-controller="Buildings" asp-action="Add" class="btn btn-outline-primary border-0"><i class="fa fa-plus"></i> إضافة عقار</a>
+		<a asp-area="Admin" asp-controller="Buildings" asp-action="Add" class="btn btn-outline-primary border-0"><i class="fa fa-plus"></i> إضافة إعلان</a>
 	</div>
 </div>
 

@@ -11,6 +11,8 @@ public class BuildingProfile : Profile
 		CreateMap<Building, Building>();
 
 		CreateMap<Building, BuildingForList>()
+			.ForMember(d => d.CreatedOn, m => m.MapFrom(s => s.CreatedOn.ToLocalTime()))
+			.ForMember(d => d.UpdatedOn, m => m.MapFrom(s => s.UpdatedOn.ToLocalTime()))
 			.ForMember(d => d.Date, m => m.MapFrom(s => s.Date.ToLocalTime()))
 			.ForMember(d => d.Expires, m =>
 			{
@@ -18,6 +20,8 @@ public class BuildingProfile : Profile
 				m.MapFrom(s => s.Expires.Value.ToLocalTime());
 			});
 		CreateMap<BuildingForList, Building>()
+			.ForMember(d => d.CreatedOn, m => m.MapFrom(s => s.CreatedOn.ToUniversalTime()))
+			.ForMember(d => d.UpdatedOn, m => m.MapFrom(s => s.UpdatedOn.ToUniversalTime()))
 			.ForMember(d => d.Date, m => m.MapFrom(s => s.Date.ToUniversalTime()))
 			.ForMember(d => d.Expires, m =>
 			{
@@ -36,7 +40,23 @@ public class BuildingProfile : Profile
 			.IncludeBase<BuildingForDisplay, Building>();
 
 		CreateMap<Building, BuildingToUpdate>()
-			.ReverseMap();
+			.ForMember(d => d.CreatedOn, m => m.MapFrom(s => s.CreatedOn.ToLocalTime()))
+			.ForMember(d => d.UpdatedOn, m => m.MapFrom(s => s.UpdatedOn.ToLocalTime()))
+			.ForMember(d => d.Date, m => m.MapFrom(s => s.Date.ToLocalTime()))
+			.ForMember(d => d.Expires, m =>
+			{
+				m.PreCondition(c => c.Expires.HasValue);
+				m.MapFrom(s => s.Expires.Value.ToLocalTime());
+			});
+		CreateMap<BuildingToUpdate, Building>()
+			.ForMember(d => d.CreatedOn, m => m.MapFrom(s => s.CreatedOn.ToUniversalTime()))
+			.ForMember(d => d.UpdatedOn, m => m.MapFrom(s => s.UpdatedOn.ToUniversalTime()))
+			.ForMember(d => d.Date, m => m.MapFrom(s => s.Date.ToUniversalTime()))
+			.ForMember(d => d.Expires, m =>
+			{
+				m.PreCondition(c => c.Expires.HasValue);
+				m.MapFrom(s => s.Expires.Value.ToUniversalTime());
+			});
 
 		CreateMap<BuildingImage, BuildingImageForList>()
 			.ReverseMap();

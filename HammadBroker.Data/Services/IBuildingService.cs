@@ -11,33 +11,32 @@ using JetBrains.Annotations;
 
 namespace HammadBroker.Data.Services;
 
-public interface IBuildingService : IService<DataContext, IBuildingRepository, Building, string>
+public interface IBuildingService : IService<DataContext, IBuildingRepository, Building, int>
 {
 	[NotNull]
-	BuildingsPaginated<T> List<T>(BuildingList settings = null)
-		where T : class, IBuildingLookup;
+	BuildingsPaginated<T> List<T>(BuildingList settings = null);
+
 	[NotNull]
 	[ItemNotNull]
-	Task<BuildingsPaginated<T>> ListAsync<T>(BuildingList settings = null, CancellationToken token = default(CancellationToken))
-		where T : class, IBuildingLookup;
+	Task<BuildingsPaginated<T>> ListAsync<T>(BuildingList settings = null, CancellationToken token = default(CancellationToken));
 	[NotNull]
 	IList<T> Lookup<T>(BuildingList settings = null);
 	[NotNull]
 	[ItemNotNull]
 	Task<IList<T>> LookupAsync<T>(BuildingList settings = null, CancellationToken token = default(CancellationToken));
 	[NotNull]
-	IList<BuildingImage> ListImages([NotNull] string buildingId);
+	IList<BuildingImage> ListImages(int buildingId);
 	[NotNull]
 	[ItemNotNull]
-	Task<IList<BuildingImage>> ListImagesAsync([NotNull] string buildingId, CancellationToken token = default(CancellationToken));
+	Task<IList<BuildingImage>> ListImagesAsync(int buildingId, CancellationToken token = default(CancellationToken));
 	[NotNull]
-	IList<T> ListImages<T>([NotNull] string buildingId);
+	IList<T> ListImages<T>(int buildingId);
 	[NotNull]
 	[ItemNotNull]
-	Task<IList<T>> ListImagesAsync<T>([NotNull] string buildingId, CancellationToken token = default(CancellationToken));
-	BuildingImage GetImage([NotNull] string buildingId);
+	Task<IList<T>> ListImagesAsync<T>(int buildingId, CancellationToken token = default(CancellationToken));
+	BuildingImage GetMainImage(int buildingId);
 	[NotNull]
-	Task<BuildingImage> GetImageAsync([NotNull] string buildingId, CancellationToken token = default(CancellationToken));
+	Task<BuildingImage> GetMainImageAsync(int buildingId, CancellationToken token = default(CancellationToken));
 	BuildingImage GetImage(int id);
 	ValueTask<BuildingImage> GetImageAsync(int id, CancellationToken token = default(CancellationToken));
 	[NotNull]
@@ -55,9 +54,9 @@ public interface IBuildingService : IService<DataContext, IBuildingRepository, B
 	[NotNull]
 	[ItemNotNull]
 	Task<BuildingImage> DeleteImageAsync([NotNull] BuildingImage image, CancellationToken token = default(CancellationToken));
-	void DeleteImages([NotNull] string buildingId);
+	void DeleteImages(int buildingId);
 	[NotNull]
-	Task DeleteImagesAsync([NotNull] string buildingId, CancellationToken token = default(CancellationToken));
+	Task DeleteImagesAsync(int buildingId, CancellationToken token = default(CancellationToken));
 	[NotNull]
 	IList<BuildingImage> DeleteImages([NotNull] int[] id);
 	[NotNull]

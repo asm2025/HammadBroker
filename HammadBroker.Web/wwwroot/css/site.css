@@ -278,6 +278,7 @@ a {
 
 .card .img-w-100 {
 	min-width: 100%;
+	max-width: 100%;
 	max-height: none;
 	height: auto;
 }
@@ -285,8 +286,8 @@ a {
 .card .img-wh-100 {
 	min-width: 100%;
 	min-height: 100%;
-	max-width: none;
-	max-height: none;
+	max-width: 100%;
+	max-height: 100%;
 	width: auto;
 }
 
@@ -827,6 +828,25 @@ span.oi {
 		flex-grow: 1;
 	}
 
+	.p-fileupload .p-fileupload-empty {
+		width: 100%;
+		height: 100%;
+	}
+
+	.p-fileupload .p-fileupload-empty .content {
+		display: flex;
+		flex-direction: column;
+		-ms-align-items: center;
+		-o-align-items: center;
+		-webkit-align-items: center;
+		align-items: center;
+		-o-justify-content: center;
+		-webkit-justify-content: center;
+		justify-content: center;
+		width: 100%;
+		height: 100%;
+	}
+
 .p-fileupload-buttonbar {
 	background: none !important;
 	padding: 0.5rem !important;
@@ -865,6 +885,7 @@ span.oi {
 
 .btn-contact {
 	text-align: center !important;
+	white-space: nowrap !important;
 	color: #47a3c2;
 	min-width: 50px;
 	height: 50px;

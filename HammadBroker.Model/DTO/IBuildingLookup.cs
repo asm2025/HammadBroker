@@ -6,9 +6,7 @@ namespace HammadBroker.Model.DTO;
 public interface IBuildingLookup
 {
 	[Display(Name = "مرجع")]
-	public string Id { get; set; }
-	[Display(Name = "الصورة")]
-	public string ImageUrl { get; set; }
+	public string Reference { get; set; }
 	[Display(Name = "نوع العقار")]
 	BuildingType BuildingType { get; set; }
 	string BuildingTypeName { get; }
@@ -22,6 +20,12 @@ public interface IBuildingLookup
 	public string AdTypeName { get; }
 	[Display(Name = "الاولوية")]
 	public byte? Priority { get; set; }
+	[Display(Name = "نشر")]
+	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}", ApplyFormatInEditMode = true)]
+	public DateTime CreatedOn { get; set; }
+	[Display(Name = "حدث")]
+	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}", ApplyFormatInEditMode = true)]
+	public DateTime UpdatedOn { get; set; }
 	[Display(Name = "التاريخ")]
 	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}")]
 	public DateTime Date { get; set; }

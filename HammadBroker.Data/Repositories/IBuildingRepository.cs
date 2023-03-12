@@ -11,25 +11,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HammadBroker.Data.Repositories;
 
-public interface IBuildingRepository : IRepository<DataContext, Building, string>
+public interface IBuildingRepository : IRepository<DataContext, Building, int>
 {
 	public DbSet<BuildingImage> Images { get; }
 
-	IDictionary<string, string> GetMainImages([NotNull] ICollection<string> ids);
+	IDictionary<int, string> GetMainImages([NotNull] ICollection<int> ids);
 	[NotNull]
-	Task<IDictionary<string, string>> GetMainImagesAsync([NotNull] ICollection<string> ids, CancellationToken token = default(CancellationToken));
-	string GetMainImage([NotNull] string buildingId);
+	Task<IDictionary<int, string>> GetMainImagesAsync([NotNull] ICollection<int> ids, CancellationToken token = default(CancellationToken));
+	BuildingImage GetMainImage(int buildingId);
 	[NotNull]
-	Task<string> GetMainImageAsync([NotNull] string buildingId, CancellationToken token = default(CancellationToken));
-	IQueryable<BuildingImage> ListImages([NotNull] string buildingId, IPagination settings = null);
+	Task<BuildingImage> GetMainImageAsync(int buildingId, CancellationToken token = default(CancellationToken));
+	IQueryable<BuildingImage> ListImages(int buildingId, IPagination settings = null);
 	[NotNull]
-	Task<IList<BuildingImage>> ListImagesAsync([NotNull] string buildingId, IPagination settings = null, CancellationToken token = default(CancellationToken));
-	int CountImages([NotNull] string buildingId, IPagination settings = null);
+	Task<IList<BuildingImage>> ListImagesAsync(int buildingId, IPagination settings = null, CancellationToken token = default(CancellationToken));
+	int CountImages(int buildingId, IPagination settings = null);
 	[NotNull]
-	Task<int> CountImagesAsync([NotNull] string buildingId, IPagination settings = null, CancellationToken token = default(CancellationToken));
-	BuildingImage GetImage([NotNull] string buildingId);
-	[NotNull]
-	Task<BuildingImage> GetImageAsync([NotNull] string buildingId, CancellationToken token = default(CancellationToken));
+	Task<int> CountImagesAsync(int buildingId, IPagination settings = null, CancellationToken token = default(CancellationToken));
 	BuildingImage GetImage(int id);
 	ValueTask<BuildingImage> GetImageAsync(int id, CancellationToken token = default(CancellationToken));
 	[NotNull]

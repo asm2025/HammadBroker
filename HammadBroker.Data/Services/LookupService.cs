@@ -30,7 +30,7 @@ public class LookupService : ServiceBase<DataContext>, ILookupService
 	}
 
 	/// <inheritdoc />
-	public Task<IList<string>> ListBuildingImagesAsync(string id, int count, CancellationToken token = default(CancellationToken))
+	public Task<IList<string>> ListBuildingImagesAsync(int id, int count, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();

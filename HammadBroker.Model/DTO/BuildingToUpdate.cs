@@ -10,10 +10,9 @@ public class BuildingToUpdate : IBuilding
 	private const string PHONE_OR_MOBILE_REQUIRED = "Any of the fields '{0}' is required.";
 
 	/// <inheritdoc />
-	public string Id { get; set; }
-
-	/// <inheritdoc />
-	string IBuildingLookup.ImageUrl { get; set; }
+	[Display(Name = "مرجع")]
+	[StringLength(Constants.Buildings.IdentifierLength)]
+	public string Reference { get; set; }
 
 	/// <inheritdoc />
 	[Display(Name = "معرف Youtube")]
@@ -85,6 +84,14 @@ public class BuildingToUpdate : IBuilding
 
 	[Display(Name = "الاولوية")]
 	public byte? Priority { get; set; }
+
+	[Display(Name = "نشر")]
+	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}", ApplyFormatInEditMode = true)]
+	public DateTime CreatedOn { get; set; }
+
+	[Display(Name = "حدث")]
+	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}", ApplyFormatInEditMode = true)]
+	public DateTime UpdatedOn { get; set; }
 
 	[Display(Name = "التاريخ")]
 	[Required]

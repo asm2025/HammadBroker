@@ -12,23 +12,25 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HammadBroker.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230305142256_Initial")]
+    [Migration("20230312121512_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.13")
+                .HasAnnotation("ProductVersion", "6.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
             modelBuilder.Entity("HammadBroker.Model.Entities.Building", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<int>("AdType")
                         .HasColumnType("int");
@@ -53,6 +55,9 @@ namespace HammadBroker.Data.Migrations
                     b.Property<int>("CityId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
@@ -67,8 +72,8 @@ namespace HammadBroker.Data.Migrations
                     b.Property<int>("FinishingType")
                         .HasColumnType("int");
 
-                    b.Property<byte?>("Floor")
-                        .HasColumnType("tinyint");
+                    b.Property<int?>("Floor")
+                        .HasColumnType("int");
 
                     b.Property<string>("Mobile")
                         .HasColumnType("nvarchar(max)");
@@ -82,6 +87,11 @@ namespace HammadBroker.Data.Migrations
                     b.Property<byte?>("Priority")
                         .HasColumnType("tinyint");
 
+                    b.Property<string>("Reference")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
                     b.Property<byte?>("Rooms")
                         .HasColumnType("tinyint");
 
@@ -89,6 +99,9 @@ namespace HammadBroker.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(1024)
                         .HasColumnType("nvarchar(1024)");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("VideoId")
                         .HasMaxLength(128)
@@ -114,6 +127,9 @@ namespace HammadBroker.Data.Migrations
 
                     b.HasIndex("Priority");
 
+                    b.HasIndex("Reference")
+                        .IsUnique();
+
                     b.ToTable("Buildings");
                 });
 
@@ -125,9 +141,8 @@ namespace HammadBroker.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<string>("BuildingId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(10)");
+                    b.Property<int>("BuildingId")
+                        .HasColumnType("int");
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()

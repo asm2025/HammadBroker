@@ -14,7 +14,7 @@ public enum BuildingType
 	Cafeteria,
 	[Display(Name = "تاون هاوس")]
 	TownHouse,
-	[Display(Name = "(بنتهاوس  (روف")]
+	[Display(Name = "بنتهاوس")]
 	Penthouse,
 	[Display(Name = "مجمع سكني")]
 	ApartmentComplex,

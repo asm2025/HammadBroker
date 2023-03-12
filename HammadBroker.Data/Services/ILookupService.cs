@@ -12,7 +12,7 @@ namespace HammadBroker.Data.Services;
 public interface ILookupService : IServiceBase<DataContext>
 {
 	[NotNull]
-	Task<IList<string>> ListBuildingImagesAsync(string id, int count, CancellationToken token = default(CancellationToken));
+	Task<IList<string>> ListBuildingImagesAsync(int id, int count, CancellationToken token = default(CancellationToken));
 
 	[NotNull]
 	Task<IList<CityForList>> ListCitiesAsync([NotNull] CitiesList settings, CancellationToken token = default(CancellationToken));

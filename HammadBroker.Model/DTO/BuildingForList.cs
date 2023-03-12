@@ -4,11 +4,14 @@ using essentialMix.Extensions;
 
 namespace HammadBroker.Model.DTO;
 
-public class BuildingForList : IBuildingLookup
+public class BuildingForList : IBuildingLookup, IBuildingImageLookup
 {
 	/// <inheritdoc />
+	[Display(Name = "مسلسل")]
+	public int Id { get; set; }
+	/// <inheritdoc />
 	[Display(Name = "مرجع")]
-	public string Id { get; set; }
+	public string Reference { get; set; }
 	/// <inheritdoc />
 	[Display(Name = "الصورة")]
 	public string ImageUrl { get; set; }
@@ -28,6 +31,12 @@ public class BuildingForList : IBuildingLookup
 	public string AdTypeName => AdType.GetDisplayName();
 	[Display(Name = "الاولوية")]
 	public byte? Priority { get; set; }
+	[Display(Name = "نشر")]
+	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}", ApplyFormatInEditMode = true)]
+	public DateTime CreatedOn { get; set; }
+	[Display(Name = "حدث")]
+	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}", ApplyFormatInEditMode = true)]
+	public DateTime UpdatedOn { get; set; }
 	[Display(Name = "التاريخ")]
 	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}", ApplyFormatInEditMode = true)]
 	public DateTime Date { get; set; }

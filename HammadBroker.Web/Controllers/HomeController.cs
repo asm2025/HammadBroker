@@ -56,7 +56,7 @@ public class HomeController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpGet("[action]")]
-	public async Task<IActionResult> Get(string id, CancellationToken token)
+	public async Task<IActionResult> Get(int id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		BuildingForDetails building = await _buildingService.GetAsync<BuildingForDetails>(id, token);

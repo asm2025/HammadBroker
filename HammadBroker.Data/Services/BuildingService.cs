@@ -23,7 +23,7 @@ using Microsoft.Extensions.Logging;
 
 namespace HammadBroker.Data.Services;
 
-public class BuildingService : Service<DataContext, IBuildingRepository, Building, string>, IBuildingService
+public class BuildingService : Service<DataContext, IBuildingRepository, Building, int>, IBuildingService
 {
 	private readonly string _assetImagesPath;
 
@@ -36,7 +36,6 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 
 	/// <inheritdoc />
 	public BuildingsPaginated<T> List<T>(BuildingList settings = null)
-		where T : class, IBuildingLookup
 	{
 		ThrowIfDisposed();
 		settings ??= new BuildingList();
@@ -53,11 +52,16 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 									.ToList();
 		if (result.Count == 0) return new BuildingsPaginated<T>(result, settings);
 
-		ICollection<string> ids = result.Select(e => e.Id).ToList();
-		IDictionary<string, string> images = Repository.GetMainImages(ids);
+		Type type = typeof(T);
+		if (!type.IsClass || !typeof(IBuildingImageLookup).IsAssignableFrom(type)) return new BuildingsPaginated<T>(result, settings);
+
+		ICollection<int> ids = result.Cast<IBuildingImageLookup>()
+									.Select(e => e.Id)
+									.ToList();
+		IDictionary<int, string> images = Repository.GetMainImages(ids);
 		if (images == null) return new BuildingsPaginated<T>(result, settings);
 
-		foreach (T building in result)
+		foreach (IBuildingImageLookup building in result.Cast<IBuildingImageLookup>())
 		{
 			if (!images.TryGetValue(building.Id, out string imageUrl)) continue;
 			building.ImageUrl = imageUrl;
@@ -68,7 +72,6 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 
 	/// <inheritdoc />
 	public async Task<BuildingsPaginated<T>> ListAsync<T>(BuildingList settings = null, CancellationToken token = default(CancellationToken))
-		where T : class, IBuildingLookup
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
@@ -87,12 +90,17 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 									.ToListAsync(token);
 		if (result.Count == 0) return new BuildingsPaginated<T>(result, settings);
 
-		ICollection<string> ids = result.Select(e => e.Id).ToList();
-		IDictionary<string, string> images = await Repository.GetMainImagesAsync(ids, token);
+		Type type = typeof(T);
+		if (!type.IsClass || !typeof(IBuildingImageLookup).IsAssignableFrom(type)) return new BuildingsPaginated<T>(result, settings);
+
+		ICollection<int> ids = result.Cast<IBuildingImageLookup>()
+									.Select(e => e.Id)
+									.ToList();
+		IDictionary<int, string> images = await Repository.GetMainImagesAsync(ids, token);
 		token.ThrowIfCancellationRequested();
 		if (images == null) return new BuildingsPaginated<T>(result, settings);
 
-		foreach (T building in result)
+		foreach (IBuildingImageLookup building in result.Cast<IBuildingImageLookup>())
 		{
 			if (!images.TryGetValue(building.Id, out string imageUrl)) continue;
 			building.ImageUrl = imageUrl;
@@ -124,39 +132,67 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	}
 
 	/// <inheritdoc />
-	public override T Get<T>(string key)
+	public override T Get<T>(int key)
 	{
 		T entity = base.Get<T>(key);
-		if (entity is IBuildingLookup buildingLookup) buildingLookup.ImageUrl = Repository.GetMainImage(key);
+		if (entity is IBuildingImageLookup buildingImageLookup) buildingImageLookup.ImageUrl = Repository.GetMainImage(key)?.ImageUrl;
 		return entity;
 	}
 
 	/// <inheritdoc />
-	public override T Get<T>(string key, IGetSettings settings)
+	public override T Get<T>(int key, IGetSettings settings)
 	{
 		T entity = base.Get<T>(key, settings);
-		if (entity is IBuildingLookup buildingLookup) buildingLookup.ImageUrl = Repository.GetMainImage(key);
+		if (entity is IBuildingImageLookup buildingImageLookup) buildingImageLookup.ImageUrl = Repository.GetMainImage(key)?.ImageUrl;
 		return entity;
 	}
 
 	/// <inheritdoc />
-	public override async Task<T> GetAsync<T>(string key, CancellationToken token = default(CancellationToken))
+	public override async Task<T> GetAsync<T>(int key, CancellationToken token = default(CancellationToken))
 	{
 		T entity = await base.GetAsync<T>(key, token);
-		if (entity is IBuildingLookup buildingLookup) buildingLookup.ImageUrl = await Repository.GetMainImageAsync(key, token);
+		if (entity is IBuildingImageLookup buildingImageLookup) buildingImageLookup.ImageUrl = (await Repository.GetMainImageAsync(key, token))?.ImageUrl;
 		return entity;
 	}
 
 	/// <inheritdoc />
-	public override async Task<T> GetAsync<T>(string key, IGetSettings settings, CancellationToken token = new CancellationToken())
+	public override async Task<T> GetAsync<T>(int key, IGetSettings settings, CancellationToken token = new CancellationToken())
 	{
 		T entity = await base.GetAsync<T>(key, settings, token);
-		if (entity is IBuildingLookup buildingLookup) buildingLookup.ImageUrl = await Repository.GetMainImageAsync(key, token);
+		if (entity is IBuildingImageLookup buildingImageLookup) buildingImageLookup.ImageUrl = (await Repository.GetMainImageAsync(key, token))?.ImageUrl;
 		return entity;
 	}
 
 	/// <inheritdoc />
-	public IList<BuildingImage> ListImages(string buildingId)
+	public override Building Delete(int key)
+	{
+		DeleteImages(key);
+		return base.Delete(key);
+	}
+
+	/// <inheritdoc />
+	public override async Task<Building> DeleteAsync(int key, CancellationToken token = default(CancellationToken))
+	{
+		await DeleteImagesAsync(key, token);
+		return await base.DeleteAsync(key, token);
+	}
+
+	/// <inheritdoc />
+	public override Building Delete([NotNull] Building entity)
+	{
+		DeleteImages(entity.Id);
+		return base.Delete(entity);
+	}
+
+	/// <inheritdoc />
+	public override async Task<Building> DeleteAsync([NotNull] Building entity, CancellationToken token = default(CancellationToken))
+	{
+		await DeleteImagesAsync(entity.Id, token);
+		return await base.DeleteAsync(entity, token);
+	}
+
+	/// <inheritdoc />
+	public IList<BuildingImage> ListImages(int buildingId)
 	{
 		ThrowIfDisposed();
 		IList<BuildingImage> result = Repository.ListImages(buildingId)
@@ -166,7 +202,7 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	}
 
 	/// <inheritdoc />
-	public Task<IList<BuildingImage>> ListImagesAsync(string buildingId, CancellationToken token = default(CancellationToken))
+	public Task<IList<BuildingImage>> ListImagesAsync(int buildingId, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
@@ -177,7 +213,7 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	}
 
 	/// <inheritdoc />
-	public IList<T> ListImages<T>(string buildingId)
+	public IList<T> ListImages<T>(int buildingId)
 	{
 		ThrowIfDisposed();
 		IList<T> result = Repository.ListImages(buildingId)
@@ -188,7 +224,7 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	}
 
 	/// <inheritdoc />
-	public Task<IList<T>> ListImagesAsync<T>(string buildingId, CancellationToken token = default(CancellationToken))
+	public Task<IList<T>> ListImagesAsync<T>(int buildingId, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
@@ -200,18 +236,18 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	}
 
 	/// <inheritdoc />
-	public BuildingImage GetImage(string buildingId)
+	public BuildingImage GetMainImage(int buildingId)
 	{
 		ThrowIfDisposed();
-		return Repository.GetImage(buildingId);
+		return Repository.GetMainImage(buildingId);
 	}
 
 	/// <inheritdoc />
-	public Task<BuildingImage> GetImageAsync(string buildingId, CancellationToken token = default(CancellationToken))
+	public Task<BuildingImage> GetMainImageAsync(int buildingId, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
-		return Repository.GetImageAsync(buildingId, token);
+		return Repository.GetMainImageAsync(buildingId, token);
 	}
 
 	/// <inheritdoc />
@@ -322,11 +358,12 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	}
 
 	/// <inheritdoc />
-	public void DeleteImages(string buildingId)
+	public void DeleteImages(int buildingId)
 	{
 		ThrowIfDisposed();
 		IQueryable<BuildingImage> queryable = Repository.Images.Where(e => e.BuildingId == buildingId);
 		IList<string> fileNames = queryable.Select(e => e.ImageUrl).ToList();
+		if (fileNames.Count == 0) return;
 		Repository.Images.RemoveRange(queryable);
 		Context.SaveChanges();
 
@@ -337,13 +374,14 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	}
 
 	/// <inheritdoc />
-	public async Task DeleteImagesAsync(string buildingId, CancellationToken token = default(CancellationToken))
+	public async Task DeleteImagesAsync(int buildingId, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
 		IQueryable<BuildingImage> queryable = Repository.Images.Where(e => e.BuildingId == buildingId);
 		IList<string> fileNames = await queryable.Select(e => e.ImageUrl).ToListAsync(token);
 		token.ThrowIfCancellationRequested();
+		if (fileNames.Count == 0) return;
 		Repository.Images.RemoveRange(queryable);
 		token.ThrowIfCancellationRequested();
 		await Context.SaveChangesAsync(token);

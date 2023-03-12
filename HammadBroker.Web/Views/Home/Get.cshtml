@@ -2,8 +2,8 @@
 @model BuildingForDetails
 
 @{
-	string id = Context.Request.Query["id"];
-	ViewData["Title"] = $"{Model.BuildingTypeName} {Model.AdTypeName} {Model.FinishingTypeName} #{Model.Id}".Replace("  ", " ").Trim();
+	ViewData["Title"] = $"{Model.BuildingTypeName} {Model.AdTypeName} {Model.FinishingTypeName} #{Model.Reference}".Replace("  ", " ").Trim();
+	int id = Context.Request.Query["id"].To(0);
 }
 
 @await Component.InvokeAsync(typeof(BuildingViewComponent), new BuildingModel(Model)
