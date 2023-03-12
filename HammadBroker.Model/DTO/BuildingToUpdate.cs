@@ -28,7 +28,6 @@ public class BuildingToUpdate : IBuilding
 
 	/// <inheritdoc />
 	[Display(Name = "نوع التشطيب")]
-	[Required]
 	public FinishingType? FinishingType { get; set; }
 
 	public string FinishingTypeName => FinishingType?.GetDisplayName();

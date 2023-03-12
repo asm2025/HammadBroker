@@ -19,7 +19,6 @@ public class Building : IEntity<int>
 	[StringLength(128)]
 	public string VideoId { get; set; }
 
-	[Required]
 	public FinishingType? FinishingType { get; set; }
 
 	public Floors? Floor { get; set; }
