@@ -358,12 +358,12 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	}
 
 	/// <inheritdoc />
-	public void DeleteImages(int buildingId)
+	public IList<string> DeleteImages(int buildingId)
 	{
 		ThrowIfDisposed();
 		IQueryable<BuildingImage> queryable = Repository.Images.Where(e => e.BuildingId == buildingId);
 		IList<string> fileNames = queryable.Select(e => e.ImageUrl).ToList();
-		if (fileNames.Count == 0) return;
+		if (fileNames.Count == 0) return Array.Empty<string>();
 		Repository.Images.RemoveRange(queryable);
 		Context.SaveChanges();
 
@@ -371,17 +371,19 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 		{
 			FileHelper.Delete(GetImagePath(fileName));
 		}
+
+		return fileNames;
 	}
 
 	/// <inheritdoc />
-	public async Task DeleteImagesAsync(int buildingId, CancellationToken token = default(CancellationToken))
+	public async Task<IList<string>> DeleteImagesAsync(int buildingId, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
 		IQueryable<BuildingImage> queryable = Repository.Images.Where(e => e.BuildingId == buildingId);
 		IList<string> fileNames = await queryable.Select(e => e.ImageUrl).ToListAsync(token);
 		token.ThrowIfCancellationRequested();
-		if (fileNames.Count == 0) return;
+		if (fileNames.Count == 0) return Array.Empty<string>();
 		Repository.Images.RemoveRange(queryable);
 		token.ThrowIfCancellationRequested();
 		await Context.SaveChangesAsync(token);
@@ -390,6 +392,8 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 		{
 			FileHelper.Delete(GetImagePath(fileName));
 		}
+
+		return fileNames;
 	}
 
 	/// <inheritdoc />
@@ -397,7 +401,14 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	{
 		ThrowIfDisposed();
 		IList<BuildingImage> images = Repository.DeleteImages(id);
-		if (images.Count > 0) Context.SaveChanges();
+		if (images.Count == 0) return images;
+		Context.SaveChanges();
+
+		foreach (BuildingImage image in images)
+		{
+			FileHelper.Delete(GetImagePath(image.ImageUrl));
+		}
+
 		return images;
 	}
 
@@ -409,6 +420,12 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 		IList<BuildingImage> images = await Repository.DeleteImagesAsync(id, token);
 		token.ThrowIfCancellationRequested();
 		if (images.Count > 0) await Context.SaveChangesAsync(token);
+
+		foreach (BuildingImage image in images)
+		{
+			FileHelper.Delete(GetImagePath(image.ImageUrl));
+		}
+
 		return images;
 	}
 

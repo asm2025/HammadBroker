@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AspNetCoreHero.ToastNotification.Abstractions;
 using AutoMapper;
 using essentialMix.Core.Web.Controllers;
 using essentialMix.Drawing.Helpers;
@@ -40,17 +41,19 @@ public class BuildingsController : MvcController
 	private readonly ILookupService _lookupService;
 	private readonly CompanyInfo _companyInfo;
 	private readonly IMapper _mapper;
+	private readonly IToastifyService _toastifyService;
 	private readonly string _assetImagesPath;
 	private readonly string _assetImagesBaseUrl;
 
 	/// <inheritdoc />
-	public BuildingsController([NotNull] IBuildingService buildingService, [NotNull] ILookupService lookupService, [NotNull] CompanyInfo companyInfo, [NotNull] IMapper mapper, [NotNull] VirtualPathSettings virtualPathSettings, [NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, [NotNull] ILogger<BuildingsController> logger)
+	public BuildingsController([NotNull] IBuildingService buildingService, [NotNull] ILookupService lookupService, [NotNull] CompanyInfo companyInfo, [NotNull] IMapper mapper, [NotNull] VirtualPathSettings virtualPathSettings, [NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, [NotNull] IToastifyService toastifyService, [NotNull] ILogger<BuildingsController> logger)
 		: base(configuration, environment, logger)
 	{
 		_buildingService = buildingService;
 		_lookupService = lookupService;
 		_companyInfo = companyInfo;
 		_mapper = mapper;
+		_toastifyService = toastifyService;
 		PathContent assetsPath = virtualPathSettings.PathContents?.FirstOrDefault(e => e.Alias.IsSame("AssetImages")) ?? throw new ConfigurationErrorsException($"{nameof(VirtualPathSettings)} does not contain a definition for AssetImages.");
 		_assetImagesPath = Path.Combine(environment.WebRootPath, assetsPath.PhysicalPath).Suffix(Path.DirectorySeparatorChar);
 		_assetImagesBaseUrl = assetsPath.RequestPath.Suffix(Path.AltDirectorySeparatorChar);
@@ -99,7 +102,7 @@ public class BuildingsController : MvcController
 		token.ThrowIfCancellationRequested();
 		BuildingForDetails building = await _buildingService.GetAsync<BuildingForDetails>(id, token);
 		token.ThrowIfCancellationRequested();
-		if (building == null) return NotFound();
+		if (building == null) return Problem("الاعلان غير موجود.");
 		await _lookupService.FillCityNameAsync(building, token);
 		token.ThrowIfCancellationRequested();
 		return View(building);
@@ -130,7 +133,14 @@ public class BuildingsController : MvcController
 
 		Building building = await _buildingService.AddAsync(_mapper.Map<Building>(buildingToUpdate), token);
 		token.ThrowIfCancellationRequested();
-		if (building == null) return BadRequest();
+
+		if (building == null)
+		{
+			_toastifyService.Error("تعذر اضافة الاعلان. برجاء المحاولة مرة اخرى بعد مراجعة الحقول المطلوبة");
+			return BadRequest();
+		}
+
+		_toastifyService.Success($"تم اضافة الاعلان '{building.Reference}' بنجاح.");
 		return RedirectToAction(nameof(Get), new
 		{
 			building.Id
@@ -147,7 +157,7 @@ public class BuildingsController : MvcController
 
 		BuildingToUpdate buildingToUpdate = await _buildingService.GetAsync<BuildingToUpdate>(id, token);
 		token.ThrowIfCancellationRequested();
-		if (buildingToUpdate == null) return NotFound();
+		if (buildingToUpdate == null) return Problem("الاعلان غير موجود.");
 		return View(buildingToUpdate);
 	}
 
@@ -160,14 +170,26 @@ public class BuildingsController : MvcController
 		if (!ModelState.IsValid) return View(buildingToUpdate);
 
 		Building building = await _buildingService.GetAsync(id, token);
-		if (building == null) return BadRequest();
+
+		if (building == null)
+		{
+			_toastifyService.Error("الاعلان غير موجود.");
+			return BadRequest();
+		}
 
 		DateTime createdOn = building.CreatedOn;
 		_mapper.Map(buildingToUpdate, building);
 		building.CreatedOn = createdOn;
 		building = await _buildingService.UpdateAsync(building, token);
 		token.ThrowIfCancellationRequested();
-		if (building == null) return BadRequest();
+
+		if (building == null)
+		{
+			_toastifyService.Error("تعذر تعديل الاعلان. برجاء المحاولة مرة اخرى بعد مراجعة الحقول المطلوبة");
+			return BadRequest();
+		}
+
+		_toastifyService.Success($"تم تعديل الاعلان '{building.Reference}' بنجاح.");
 		return RedirectToAction(nameof(Get), new
 		{
 			building.Id
@@ -184,7 +206,14 @@ public class BuildingsController : MvcController
 
 		Building building = await _buildingService.DeleteAsync(id, token);
 		token.ThrowIfCancellationRequested();
-		if (building == null) return NotFound();
+
+		if (building == null)
+		{
+			_toastifyService.Error("الاعلان غير موجود.");
+			return Problem("الاعلان غير موجود.");
+		}
+
+		_toastifyService.Success($"تم حذف الاعلان '{building.Reference}' بنجاح.");
 		return Ok();
 	}
 
@@ -225,21 +254,36 @@ public class BuildingsController : MvcController
 		{
 			Building building = await _buildingService.GetAsync(id, token);
 			token.ThrowIfCancellationRequested();
-			if (building == null) return NotFound();
+
+			if (building == null)
+			{
+				_toastifyService.Error("الاعلان غير موجود.");
+				return Problem("الاعلان غير موجود.");
+			}
 
 			string fileName = UploadBuildingImage(_assetImagesPath, building.Id, imageToAdd.Image);
-			if (string.IsNullOrEmpty(fileName)) return Problem($"حدث خطأ أثناء تحميل الصورة '{imageToAdd.Image.FileName}'.");
+
+			if (string.IsNullOrEmpty(fileName))
+			{
+				string msg = $"حدث خطأ أثناء تحميل الصورة '{imageToAdd.Image.FileName}'.";
+				_toastifyService.Error(msg);
+				return Problem(msg);
+			}
+
 			await _buildingService.AddImageAsync(new BuildingImage
 			{
 				BuildingId = id,
 				ImageUrl = Path.GetFileName(fileName),
 				Priority = imageToAdd.Priority,
 			}, token);
+			_toastifyService.Success($"تم اضافة الصورة '{imageToAdd.Image.FileName}' الى الملف '{fileName}' بنجاح.");
 		}
 		catch (Exception ex)
 		{
+			string msg = ex.Unwrap();
 			Logger.LogError(ex.CollectMessages());
-			return Problem(ex.Unwrap());
+			_toastifyService.Error(msg);
+			return Problem(msg);
 		}
 
 		return Ok();
@@ -256,15 +300,22 @@ public class BuildingsController : MvcController
 		try
 		{
 			BuildingImage buildingImage = await _buildingService.DeleteImageAsync(id, token);
-			if (buildingImage == null) return Problem($"Building image with id {id} is not found.");
 
-			string fileName = Path.Combine(_assetImagesPath, buildingImage.ImageUrl);
-			if (SysFile.Exists(fileName)) FileHelper.Delete(fileName);
+			if (buildingImage == null)
+			{
+				string msg = $"Building image with id {id} is not found.";
+				_toastifyService.Error(msg);
+				return Problem(msg);
+			}
+
+			_toastifyService.Success($"تم حذف الصورة '{buildingImage.ImageUrl}' بنجاح.");
 		}
 		catch (Exception ex)
 		{
+			string msg = ex.Unwrap();
 			Logger.LogError(ex.CollectMessages());
-			return Problem(ex.Unwrap());
+			_toastifyService.Error(msg);
+			return Problem(msg);
 		}
 
 		return Ok();
@@ -281,21 +332,35 @@ public class BuildingsController : MvcController
 		try
 		{
 			IList<BuildingImage> images = await _buildingService.DeleteImagesAsync(id, token);
-			if (images.Count == 0) return Ok();
-
-			foreach (BuildingImage image in images)
-			{
-				string fileName = Path.Combine(_assetImagesPath, image.ImageUrl);
-				if (SysFile.Exists(fileName)) FileHelper.Delete(fileName);
-			}
+			if (images.Count > 0) _toastifyService.Success($"تم حذف الصور {string.Join(", ", images.Select(e => e.ImageUrl.SingleQuote()))} بنجاح.");
+			return Ok();
 		}
 		catch (Exception ex)
 		{
 			Logger.LogError(ex.CollectMessages());
 			return Problem(ex.Unwrap());
 		}
+	}
 
-		return Ok();
+	[NotNull]
+	[ItemNotNull]
+	[HttpPost("[action]")]
+	public async Task<IActionResult> DeleteAllImages([Required] int id, CancellationToken token)
+	{
+		token.ThrowIfCancellationRequested();
+		if (!ModelState.IsValid) return BadRequest(ModelState);
+
+		try
+		{
+			IList<string> images = await _buildingService.DeleteImagesAsync(id, token);
+			if (images.Count > 0) _toastifyService.Success($"تم حذف الصور {string.Join(", ", images.Select(e => e.SingleQuote()))} بنجاح.");
+			return Ok();
+		}
+		catch (Exception ex)
+		{
+			Logger.LogError(ex.CollectMessages());
+			return Problem(ex.Unwrap());
+		}
 	}
 
 	[NotNull]

@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using AspNetCoreHero.ToastNotification.Abstractions;
 using AutoMapper;
 using essentialMix.Core.Web.Controllers;
 using essentialMix.Patterns.Pagination;
@@ -29,14 +30,16 @@ public class CitiesController : MvcController
 	private readonly ICityService _cityService;
 	private readonly ILookupService _lookupService;
 	private readonly IMapper _mapper;
+	private readonly IToastifyService _toastifyService;
 
 	/// <inheritdoc />
-	public CitiesController([NotNull] ICityService cityService, [NotNull] ILookupService lookupService, [NotNull] IMapper mapper, [NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, [NotNull] ILogger<CitiesController> logger)
+	public CitiesController([NotNull] ICityService cityService, [NotNull] ILookupService lookupService, [NotNull] IMapper mapper, [NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, [NotNull] IToastifyService toastifyService, [NotNull] ILogger<CitiesController> logger)
 		: base(configuration, environment, logger)
 	{
 		_cityService = cityService;
 		_lookupService = lookupService;
 		_mapper = mapper;
+		_toastifyService = toastifyService;
 	}
 
 	[NotNull]
@@ -100,7 +103,14 @@ public class CitiesController : MvcController
 
 		City city = await _cityService.AddAsync(_mapper.Map<City>(cityToAdd), token);
 		token.ThrowIfCancellationRequested();
-		if (city == null) return BadRequest();
+
+		if (city == null)
+		{
+			_toastifyService.Error("تعذر اضافة المدينة. برجاء المحاولة مرة اخرى بعد مراجعة الحقول المطلوبة");
+			return BadRequest();
+		}
+
+		_toastifyService.Success($"تم اضافة المدينة '{city.Name}' بنجاح.");
 		return RedirectToAction(nameof(Index));
 	}
 
@@ -113,7 +123,7 @@ public class CitiesController : MvcController
 		if (!ModelState.IsValid) return BadRequest(ModelState);
 		CityToUpdate cityToUpdate = await _cityService.GetAsync<CityToUpdate>(id, token);
 		token.ThrowIfCancellationRequested();
-		if (cityToUpdate == null) return NotFound();
+		if (cityToUpdate == null) return Problem("المدينة غير موجودة.");
 		return View(cityToUpdate);
 	}
 
@@ -126,11 +136,24 @@ public class CitiesController : MvcController
 		if (!ModelState.IsValid) return View(cityToUpdate);
 		City city = await _cityService.GetAsync(id, token);
 		token.ThrowIfCancellationRequested();
-		if (city == null) return NotFound();
+
+		if (city == null)
+		{
+			_toastifyService.Error("المدينة غير موجودة.");
+			return Problem("المدينة غير موجودة.");
+		}
+
 		_mapper.Map(cityToUpdate, city);
 		city = await _cityService.UpdateAsync(city, token);
 		token.ThrowIfCancellationRequested();
-		if (city == null) return BadRequest();
+
+		if (city == null)
+		{
+			_toastifyService.Error("تعذر تحديث المدينة. برجاء المحاولة مرة اخرى بعد مراجعة الحقول المطلوبة");
+			return BadRequest();
+		}
+
+		_toastifyService.Success($"تم تحديث المدينة '{city.Name}' بنجاح.");
 		return RedirectToAction(nameof(Index));
 	}
 
@@ -143,8 +166,14 @@ public class CitiesController : MvcController
 		if (!ModelState.IsValid) return BadRequest(ModelState);
 		City city = await _cityService.DeleteAsync(id, token);
 		token.ThrowIfCancellationRequested();
-		return city == null
-					? NotFound()
-					: Ok();
+
+		if (city == null)
+		{
+			_toastifyService.Error("المدينة غير موجودة او تعذر حذفها.");
+			return Problem("المدينة غير موجودة او تعذر حذفها.");
+		}
+
+		_toastifyService.Success($"تم حذف المدينة '{city.Name}' بنجاح.");
+		return Ok();
 	}
 }

@@ -3,6 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AspNetCoreHero.ToastNotification;
+using AspNetCoreHero.ToastNotification.Toastify.Models;
 using essentialMix.Core.Web.Services;
 using essentialMix.Extensions;
 using essentialMix.Helpers;
@@ -12,7 +14,9 @@ using HammadBroker.Data.Context;
 using HammadBroker.Data.Identity;
 using HammadBroker.Data.Repositories;
 using HammadBroker.Data.Services;
+using HammadBroker.Extensions;
 using HammadBroker.Helpers;
+using HammadBroker.Infrastructure.Middleware;
 using HammadBroker.Infrastructure.Services;
 using HammadBroker.Model;
 using HammadBroker.Model.Configuration;
@@ -20,6 +24,7 @@ using HammadBroker.Model.Entities;
 using HammadBroker.Model.Mail;
 using HammadBroker.Model.Mapper;
 using HammadBroker.Model.VirtualPath;
+using HammadBroker.Web.Middleware;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -184,6 +189,7 @@ public class Program
 					.AddSerilog();
 			})
 			.AddSingleton(typeof(ILogger<>), typeof(Logger<>))
+			.AddSingleton<IExceptionHandler, ExceptionHandler>()
 			// FormOptions
 			.Configure<FormOptions>(options =>
 			{
@@ -295,6 +301,8 @@ public class Program
 				.AddSingleton(smtpConfiguration)
 				.AddTransient<IEmailService, SmtpEmailService>();
 		}
+
+		services.AddToastify(options => configuration.GetSection(nameof(ToastifyConfig)).Bind(options));
 	}
 
 	private static void Configure([NotNull] WebApplication app)
@@ -304,6 +312,8 @@ public class Program
 		bool isDevelopmentOrStaging = environment.IsDevelopment() || environment.IsStaging();
 
 		// Configure the HTTP request pipeline.
+		app.UseExceptionMiddleware();
+
 		if (isDevelopmentOrStaging)
 			app.UseMigrationsEndPoint();
 		else

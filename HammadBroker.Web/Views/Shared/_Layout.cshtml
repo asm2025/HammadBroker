@@ -122,6 +122,8 @@
 	<script src="~/lib/jquery/jquery.min.js"></script>
 	<script src="~/lib/bootstrap/js/bootstrap.js"></script>
 	<script src="~/js/site.js" asp-append-version="true"></script>
+	
+	@await Component.InvokeAsync("Toastify");
 
 	@await RenderSectionAsync("Scripts", false)
 	@Html.PageScripts()

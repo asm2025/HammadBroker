@@ -54,9 +54,11 @@ public interface IBuildingService : IService<DataContext, IBuildingRepository, B
 	[NotNull]
 	[ItemNotNull]
 	Task<BuildingImage> DeleteImageAsync([NotNull] BuildingImage image, CancellationToken token = default(CancellationToken));
-	void DeleteImages(int buildingId);
 	[NotNull]
-	Task DeleteImagesAsync(int buildingId, CancellationToken token = default(CancellationToken));
+	IList<string> DeleteImages(int buildingId);
+	[NotNull]
+	[ItemNotNull]
+	Task<IList<string>> DeleteImagesAsync(int buildingId, CancellationToken token = default(CancellationToken));
 	[NotNull]
 	IList<BuildingImage> DeleteImages([NotNull] int[] id);
 	[NotNull]

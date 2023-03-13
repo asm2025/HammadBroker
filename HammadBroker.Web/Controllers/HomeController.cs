@@ -61,7 +61,7 @@ public class HomeController : MvcController
 		token.ThrowIfCancellationRequested();
 		BuildingForDetails building = await _buildingService.GetAsync<BuildingForDetails>(id, token);
 		token.ThrowIfCancellationRequested();
-		if (building == null) return NotFound();
+		if (building == null) return Problem("الاعلان غير موجود.");
 		await _lookupService.FillCityNameAsync(building, token);
 		token.ThrowIfCancellationRequested();
 		return View(building);
