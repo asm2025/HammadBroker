@@ -4,6 +4,7 @@ using HammadBroker.Infrastructure.Middleware;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace HammadBroker.Infrastructure.Middleware
 {
@@ -26,8 +27,8 @@ namespace HammadBroker.Infrastructure.Middleware
 			}
 			catch (Exception ex)
 			{
-				if (_handler.Handle(context, ex)) return;
-				throw;
+				if (!_handler.OnError(context, ex)) throw;
+				context.Response.Redirect(context.Request.GetDisplayUrl());
 			}
 		}
 	}

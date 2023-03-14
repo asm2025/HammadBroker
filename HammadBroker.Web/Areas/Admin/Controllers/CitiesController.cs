@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using AspNetCoreHero.ToastNotification.Abstractions;
 using AutoMapper;
 using essentialMix.Core.Web.Controllers;
 using essentialMix.Patterns.Pagination;
@@ -19,6 +18,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using NToastNotify;
 
 namespace HammadBroker.Web.Areas.Admin.Controllers;
 
@@ -30,16 +30,16 @@ public class CitiesController : MvcController
 	private readonly ICityService _cityService;
 	private readonly ILookupService _lookupService;
 	private readonly IMapper _mapper;
-	private readonly IToastifyService _toastifyService;
+	private readonly IToastNotification _toastNotification;
 
 	/// <inheritdoc />
-	public CitiesController([NotNull] ICityService cityService, [NotNull] ILookupService lookupService, [NotNull] IMapper mapper, [NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, [NotNull] IToastifyService toastifyService, [NotNull] ILogger<CitiesController> logger)
+	public CitiesController([NotNull] ICityService cityService, [NotNull] ILookupService lookupService, [NotNull] IMapper mapper, [NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, [NotNull] IToastNotification toastNotification, [NotNull] ILogger<CitiesController> logger)
 		: base(configuration, environment, logger)
 	{
 		_cityService = cityService;
 		_lookupService = lookupService;
 		_mapper = mapper;
-		_toastifyService = toastifyService;
+		_toastNotification = toastNotification;
 	}
 
 	[NotNull]
@@ -106,11 +106,11 @@ public class CitiesController : MvcController
 
 		if (city == null)
 		{
-			_toastifyService.Error("تعذر اضافة المدينة. برجاء المحاولة مرة اخرى بعد مراجعة الحقول المطلوبة");
+			_toastNotification.AddSuccessToastMessage("تعذر اضافة المدينة. برجاء المحاولة مرة اخرى بعد مراجعة الحقول المطلوبة");
 			return BadRequest();
 		}
 
-		_toastifyService.Success($"تم اضافة المدينة '{city.Name}' بنجاح.");
+		_toastNotification.AddSuccessToastMessage($"تم اضافة المدينة '{city.Name}' بنجاح.");
 		return RedirectToAction(nameof(Index));
 	}
 
@@ -139,7 +139,7 @@ public class CitiesController : MvcController
 
 		if (city == null)
 		{
-			_toastifyService.Error("المدينة غير موجودة.");
+			_toastNotification.AddSuccessToastMessage("المدينة غير موجودة.");
 			return Problem("المدينة غير موجودة.");
 		}
 
@@ -149,11 +149,11 @@ public class CitiesController : MvcController
 
 		if (city == null)
 		{
-			_toastifyService.Error("تعذر تحديث المدينة. برجاء المحاولة مرة اخرى بعد مراجعة الحقول المطلوبة");
+			_toastNotification.AddSuccessToastMessage("تعذر تحديث المدينة. برجاء المحاولة مرة اخرى بعد مراجعة الحقول المطلوبة");
 			return BadRequest();
 		}
 
-		_toastifyService.Success($"تم تحديث المدينة '{city.Name}' بنجاح.");
+		_toastNotification.AddSuccessToastMessage($"تم تحديث المدينة '{city.Name}' بنجاح.");
 		return RedirectToAction(nameof(Index));
 	}
 
@@ -169,11 +169,11 @@ public class CitiesController : MvcController
 
 		if (city == null)
 		{
-			_toastifyService.Error("المدينة غير موجودة او تعذر حذفها.");
+			_toastNotification.AddSuccessToastMessage("المدينة غير موجودة او تعذر حذفها.");
 			return Problem("المدينة غير موجودة او تعذر حذفها.");
 		}
 
-		_toastifyService.Success($"تم حذف المدينة '{city.Name}' بنجاح.");
+		_toastNotification.AddSuccessToastMessage($"تم حذف المدينة '{city.Name}' بنجاح.");
 		return Ok();
 	}
 }

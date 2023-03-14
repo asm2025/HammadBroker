@@ -52,6 +52,7 @@
 		<PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="6.0.14" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.14" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="NWebsec.AspNetCore.Middleware" Version="3.0.0" />
 	</ItemGroup>
 

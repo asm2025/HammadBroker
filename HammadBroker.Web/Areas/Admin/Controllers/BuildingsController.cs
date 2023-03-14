@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AspNetCoreHero.ToastNotification.Abstractions;
 using AutoMapper;
 using essentialMix.Core.Web.Controllers;
 using essentialMix.Drawing.Helpers;
@@ -28,6 +27,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using NToastNotify;
 using SysFile = System.IO.File;
 
 namespace HammadBroker.Web.Areas.Admin.Controllers;
@@ -41,19 +41,19 @@ public class BuildingsController : MvcController
 	private readonly ILookupService _lookupService;
 	private readonly CompanyInfo _companyInfo;
 	private readonly IMapper _mapper;
-	private readonly IToastifyService _toastifyService;
+	private readonly IToastNotification _toastNotification;
 	private readonly string _assetImagesPath;
 	private readonly string _assetImagesBaseUrl;
 
 	/// <inheritdoc />
-	public BuildingsController([NotNull] IBuildingService buildingService, [NotNull] ILookupService lookupService, [NotNull] CompanyInfo companyInfo, [NotNull] IMapper mapper, [NotNull] VirtualPathSettings virtualPathSettings, [NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, [NotNull] IToastifyService toastifyService, [NotNull] ILogger<BuildingsController> logger)
+	public BuildingsController([NotNull] IBuildingService buildingService, [NotNull] ILookupService lookupService, [NotNull] CompanyInfo companyInfo, [NotNull] IMapper mapper, [NotNull] VirtualPathSettings virtualPathSettings, [NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, [NotNull] IToastNotification toastNotification, [NotNull] ILogger<BuildingsController> logger)
 		: base(configuration, environment, logger)
 	{
 		_buildingService = buildingService;
 		_lookupService = lookupService;
 		_companyInfo = companyInfo;
 		_mapper = mapper;
-		_toastifyService = toastifyService;
+		_toastNotification = toastNotification;
 		PathContent assetsPath = virtualPathSettings.PathContents?.FirstOrDefault(e => e.Alias.IsSame("AssetImages")) ?? throw new ConfigurationErrorsException($"{nameof(VirtualPathSettings)} does not contain a definition for AssetImages.");
 		_assetImagesPath = Path.Combine(environment.WebRootPath, assetsPath.PhysicalPath).Suffix(Path.DirectorySeparatorChar);
 		_assetImagesBaseUrl = assetsPath.RequestPath.Suffix(Path.AltDirectorySeparatorChar);
@@ -136,11 +136,11 @@ public class BuildingsController : MvcController
 
 		if (building == null)
 		{
-			_toastifyService.Error("تعذر اضافة الاعلان. برجاء المحاولة مرة اخرى بعد مراجعة الحقول المطلوبة");
+			_toastNotification.AddErrorToastMessage("تعذر اضافة الاعلان. برجاء المحاولة مرة اخرى بعد مراجعة الحقول المطلوبة");
 			return BadRequest();
 		}
 
-		_toastifyService.Success($"تم اضافة الاعلان '{building.Reference}' بنجاح.");
+		_toastNotification.AddSuccessToastMessage($"تم اضافة الاعلان '{building.Reference}' بنجاح.");
 		return RedirectToAction(nameof(Get), new
 		{
 			building.Id
@@ -173,7 +173,7 @@ public class BuildingsController : MvcController
 
 		if (building == null)
 		{
-			_toastifyService.Error("الاعلان غير موجود.");
+			_toastNotification.AddErrorToastMessage("الاعلان غير موجود.");
 			return BadRequest();
 		}
 
@@ -185,11 +185,11 @@ public class BuildingsController : MvcController
 
 		if (building == null)
 		{
-			_toastifyService.Error("تعذر تعديل الاعلان. برجاء المحاولة مرة اخرى بعد مراجعة الحقول المطلوبة");
+			_toastNotification.AddErrorToastMessage("تعذر تعديل الاعلان. برجاء المحاولة مرة اخرى بعد مراجعة الحقول المطلوبة");
 			return BadRequest();
 		}
 
-		_toastifyService.Success($"تم تعديل الاعلان '{building.Reference}' بنجاح.");
+		_toastNotification.AddSuccessToastMessage($"تم تعديل الاعلان '{building.Reference}' بنجاح.");
 		return RedirectToAction(nameof(Get), new
 		{
 			building.Id
@@ -209,11 +209,11 @@ public class BuildingsController : MvcController
 
 		if (building == null)
 		{
-			_toastifyService.Error("الاعلان غير موجود.");
+			_toastNotification.AddErrorToastMessage("الاعلان غير موجود.");
 			return Problem("الاعلان غير موجود.");
 		}
 
-		_toastifyService.Success($"تم حذف الاعلان '{building.Reference}' بنجاح.");
+		_toastNotification.AddSuccessToastMessage($"تم حذف الاعلان '{building.Reference}' بنجاح.");
 		return Ok();
 	}
 
@@ -257,7 +257,7 @@ public class BuildingsController : MvcController
 
 			if (building == null)
 			{
-				_toastifyService.Error("الاعلان غير موجود.");
+				_toastNotification.AddErrorToastMessage("الاعلان غير موجود.");
 				return Problem("الاعلان غير موجود.");
 			}
 
@@ -266,7 +266,7 @@ public class BuildingsController : MvcController
 			if (string.IsNullOrEmpty(fileName))
 			{
 				string msg = $"حدث خطأ أثناء تحميل الصورة '{imageToAdd.Image.FileName}'.";
-				_toastifyService.Error(msg);
+				_toastNotification.AddErrorToastMessage(msg);
 				return Problem(msg);
 			}
 
@@ -276,13 +276,13 @@ public class BuildingsController : MvcController
 				ImageUrl = Path.GetFileName(fileName),
 				Priority = imageToAdd.Priority,
 			}, token);
-			_toastifyService.Success($"تم اضافة الصورة '{imageToAdd.Image.FileName}' الى الملف '{fileName}' بنجاح.");
+			_toastNotification.AddSuccessToastMessage($"تم اضافة الصورة '{imageToAdd.Image.FileName}' الى الملف '{fileName}' بنجاح.");
 		}
 		catch (Exception ex)
 		{
 			string msg = ex.Unwrap();
 			Logger.LogError(ex.CollectMessages());
-			_toastifyService.Error(msg);
+			_toastNotification.AddErrorToastMessage(msg);
 			return Problem(msg);
 		}
 
@@ -304,17 +304,17 @@ public class BuildingsController : MvcController
 			if (buildingImage == null)
 			{
 				string msg = $"Building image with id {id} is not found.";
-				_toastifyService.Error(msg);
+				_toastNotification.AddErrorToastMessage(msg);
 				return Problem(msg);
 			}
 
-			_toastifyService.Success($"تم حذف الصورة '{buildingImage.ImageUrl}' بنجاح.");
+			_toastNotification.AddSuccessToastMessage($"تم حذف الصورة '{buildingImage.ImageUrl}' بنجاح.");
 		}
 		catch (Exception ex)
 		{
 			string msg = ex.Unwrap();
 			Logger.LogError(ex.CollectMessages());
-			_toastifyService.Error(msg);
+			_toastNotification.AddErrorToastMessage(msg);
 			return Problem(msg);
 		}
 
@@ -332,7 +332,7 @@ public class BuildingsController : MvcController
 		try
 		{
 			IList<BuildingImage> images = await _buildingService.DeleteImagesAsync(id, token);
-			if (images.Count > 0) _toastifyService.Success($"تم حذف الصور {string.Join(", ", images.Select(e => e.ImageUrl.SingleQuote()))} بنجاح.");
+			if (images.Count > 0) _toastNotification.AddSuccessToastMessage($"تم حذف الصور {string.Join(", ", images.Select(e => e.ImageUrl.SingleQuote()))} بنجاح.");
 			return Ok();
 		}
 		catch (Exception ex)
@@ -353,7 +353,7 @@ public class BuildingsController : MvcController
 		try
 		{
 			IList<string> images = await _buildingService.DeleteImagesAsync(id, token);
-			if (images.Count > 0) _toastifyService.Success($"تم حذف الصور {string.Join(", ", images.Select(e => e.SingleQuote()))} بنجاح.");
+			if (images.Count > 0) _toastNotification.AddSuccessToastMessage($"تم حذف الصور {string.Join(", ", images.Select(e => e.SingleQuote()))} بنجاح.");
 			return Ok();
 		}
 		catch (Exception ex)

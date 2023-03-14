@@ -58,7 +58,6 @@
 	</Target>
 
 	<ItemGroup>
-		<PackageReference Include="AspNetCoreHero.ToastNotification" Version="1.1.0" />
 		<PackageReference Include="AutoMapper" Version="12.0.1" />
 		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
 		<PackageReference Include="essentialMix" Version="14.0.4" />
@@ -86,6 +85,7 @@
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.11" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="NToastNotify" Version="8.0.0" />
 		<PackageReference Include="NWebsec.AspNetCore.Middleware" Version="3.0.0" />
 		<PackageReference Include="Serilog" Version="2.12.0" />
 		<PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />
@@ -103,6 +103,10 @@
 		<ProjectReference Include="..\HammadBroker.Data\HammadBroker.Data.csproj" />
 		<ProjectReference Include="..\HammadBroker.Infrastructure\HammadBroker.Infrastructure.csproj" />
 		<ProjectReference Include="..\HammadBroker.Model\HammadBroker.Model.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="_logs\" />
 	</ItemGroup>
 
 </Project>

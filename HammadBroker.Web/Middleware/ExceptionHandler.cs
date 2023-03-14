@@ -1,48 +1,32 @@
 ﻿using System;
-using AspNetCoreHero.ToastNotification.Abstractions;
+using System.Collections.Generic;
 using essentialMix.Extensions;
-using essentialMix.Helpers;
+using HammadBroker.Extensions;
 using HammadBroker.Infrastructure.Middleware;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace HammadBroker.Web.Middleware;
 
 public class ExceptionHandler : IExceptionHandler
 {
-	private readonly IServiceScopeFactory _serviceScopeFactory;
 	private readonly ILogger<ExceptionHandler> _logger;
 
-	public ExceptionHandler([NotNull] IServiceScopeFactory serviceScopeFactory, [NotNull] ILogger<ExceptionHandler> logger)
+	public ExceptionHandler([NotNull] ILogger<ExceptionHandler> logger)
 	{
-		_serviceScopeFactory = serviceScopeFactory;
 		_logger = logger;
 	}
 
 	/// <inheritdoc />
-	public bool Handle(HttpContext context, Exception exception)
+	public bool OnError(HttpContext context, Exception exception)
 	{
 		_logger.LogError(exception.CollectMessages());
 
-		IServiceScope scope = null;
-
-		try
-		{
-			scope = _serviceScopeFactory.CreateScope();
-			IToastifyService toastifyService = scope.ServiceProvider.GetRequiredService<IToastifyService>();
-			toastifyService.Error(exception.Unwrap());
-		}
-		catch
-		{
-			return false;
-		}
-		finally
-		{
-			ObjectHelper.Dispose(ref scope);
-		}
-
+		ISession session = context.Session;
+		IList<string> errors = session.FromJson<IList<string>>(nameof(IExceptionHandler)) ?? new List<string>();
+		errors.Add(exception.Unwrap());
+		session.ToJson(nameof(IExceptionHandler), errors);
 		return true;
 	}
 }

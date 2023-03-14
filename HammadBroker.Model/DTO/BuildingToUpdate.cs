@@ -68,11 +68,13 @@ public class BuildingToUpdate : IBuilding
 
 	/// <inheritdoc />
 	[Display(Name = "الوصف المختصر")]
+	[Required]
 	[StringLength(1024)]
 	public string ShortDescription { get; set; }
 
 	/// <inheritdoc />
 	[Display(Name = "الوصف")]
+	[Required]
 	[StringLength(4096)]
 	[DataType(DataType.MultilineText)]
 	public string Description { get; set; }

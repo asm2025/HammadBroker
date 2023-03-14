@@ -3,8 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AspNetCoreHero.ToastNotification;
-using AspNetCoreHero.ToastNotification.Toastify.Models;
 using essentialMix.Core.Web.Services;
 using essentialMix.Extensions;
 using essentialMix.Helpers;
@@ -24,6 +22,7 @@ using HammadBroker.Model.Entities;
 using HammadBroker.Model.Mail;
 using HammadBroker.Model.Mapper;
 using HammadBroker.Model.VirtualPath;
+using HammadBroker.Web.Filters;
 using HammadBroker.Web.Middleware;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -41,6 +40,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using NToastNotify;
 using Serilog;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 using SLogger = Serilog.ILogger;
@@ -189,7 +189,6 @@ public class Program
 					.AddSerilog();
 			})
 			.AddSingleton(typeof(ILogger<>), typeof(Logger<>))
-			.AddSingleton<IExceptionHandler, ExceptionHandler>()
 			// FormOptions
 			.Configure<FormOptions>(options =>
 			{
@@ -210,6 +209,16 @@ public class Program
 				options.HttpOnly = HttpOnlyPolicy.None;
 				options.Secure = CookieSecurePolicy.SameAsRequest;
 			})
+			.AddDistributedMemoryCache()
+			.AddSession(options =>
+			{
+				options.IdleTimeout = TimeSpan.FromMinutes(20);
+				options.Cookie.HttpOnly = true;
+				options.Cookie.IsEssential = true;
+				options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+				options.Cookie.SameSite = SameSiteMode.Lax;
+			})
+			.AddSingleton<IExceptionHandler, ExceptionHandler>()
 			// Authentication
 			.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 			.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
@@ -270,6 +279,7 @@ public class Program
 			.AddControllersWithViews(options =>
 			{
 				options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+				options.Filters.Add(new ToastFilterAttribute());
 			})
 			.ConfigureApiBehaviorOptions(options =>
 			{
@@ -292,7 +302,9 @@ public class Program
 																JsonSerializerSettingsConverters.JavaScriptDateTime |
 																JsonSerializerSettingsConverters.UnixDateTime);
 				options.SerializerSettings.AddConverters(allConverters);
-			});
+			})
+			.AddSessionStateTempDataProvider()
+			.AddNToastNotifyToastr(configuration.GetSection(nameof(ToastrOptions)).Get<ToastrOptions>());
 
 		if (smtpConfiguration != null && !string.IsNullOrWhiteSpace(smtpConfiguration.Host))
 		{
@@ -301,8 +313,6 @@ public class Program
 				.AddSingleton(smtpConfiguration)
 				.AddTransient<IEmailService, SmtpEmailService>();
 		}
-
-		services.AddToastify(options => configuration.GetSection(nameof(ToastifyConfig)).Bind(options));
 	}
 
 	private static void Configure([NotNull] WebApplication app)
@@ -312,8 +322,6 @@ public class Program
 		bool isDevelopmentOrStaging = environment.IsDevelopment() || environment.IsStaging();
 
 		// Configure the HTTP request pipeline.
-		app.UseExceptionMiddleware();
-
 		if (isDevelopmentOrStaging)
 			app.UseMigrationsEndPoint();
 		else
@@ -345,6 +353,9 @@ public class Program
 			//.UseSecurityHeaders(configuration)
 			.UseAuthentication()
 			.UseAuthorization()
+			.UseSession()
+			.UseExceptionMiddleware()
+			.UseNToastNotify()
 			// last
 			.UseVirtualPathEndpoints(environment.WebRootPath)
 			.UseEndpoints(endpoint =>

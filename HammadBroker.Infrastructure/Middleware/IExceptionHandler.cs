@@ -6,5 +6,5 @@ namespace HammadBroker.Infrastructure.Middleware;
 
 public interface IExceptionHandler
 {
-	bool Handle([NotNull] HttpContext context, [NotNull] Exception exception);
+	bool OnError([NotNull] HttpContext context, [NotNull] Exception exception);
 }
