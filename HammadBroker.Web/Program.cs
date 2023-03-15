@@ -174,6 +174,7 @@ public class Program
 		IWebHostEnvironment environment = builder.Environment;
 		SmtpConfiguration smtpConfiguration = configuration.GetSection(nameof(SmtpConfiguration)).Get<SmtpConfiguration>();
 		CompanyInfo companyInfo = configuration.Get<CompanyInfo>() ?? new CompanyInfo();
+		int sessionTimeout = configuration.GetValue("OAuth:timeout", 20).NotBelow(5);
 		services
 			// config
 			.AddSingleton(configuration)
@@ -212,7 +213,7 @@ public class Program
 			.AddDistributedMemoryCache()
 			.AddSession(options =>
 			{
-				options.IdleTimeout = TimeSpan.FromMinutes(20);
+				options.IdleTimeout = TimeSpan.FromMinutes(sessionTimeout);
 				options.Cookie.HttpOnly = true;
 				options.Cookie.IsEssential = true;
 				options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
@@ -223,11 +224,14 @@ public class Program
 			.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 			.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
 			{
-				options.SlidingExpiration = true;
 				options.LoginPath = "/Identity/Account/Login";
 				options.LogoutPath = "/Identity/Account/Logout";
 				options.AccessDeniedPath = "/Identity/Account/AccessDenied";
-				options.ExpireTimeSpan = TimeSpan.FromMinutes(configuration.GetValue("OAuth:timeout", 20).NotBelow(5));
+				options.SlidingExpiration = true;
+				options.ExpireTimeSpan = TimeSpan.FromMinutes(sessionTimeout);
+				options.Cookie.IsEssential = true;
+				options.Cookie.SameSite = SameSiteMode.Lax;
+				options.Cookie.HttpOnly = true;
 			});
 		services
 			// Mapper
@@ -245,7 +249,7 @@ public class Program
 			.AddDbContext<DataContext>(options => DbContextHelper.Setup(options, typeof(DataContext).Assembly.GetName(), configuration, environment), ServiceLifetime.Transient)
 			.AddDatabaseDeveloperPageExceptionFilter()
 			// Identity
-			.AddIdentity<User, Role>(options => configuration.GetSection("IdentityOptions").Bind(options))
+			.AddIdentity<User, Role>(options => configuration.GetSection(nameof(IdentityOptions)).Bind(options))
 			.AddEntityFrameworkStores<DataContext>()
 			.AddDefaultUI()
 			.AddClaimsPrincipalFactory<UserClaimsPrincipalFactory>()
