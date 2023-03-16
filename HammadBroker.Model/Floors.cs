@@ -30,6 +30,8 @@ public enum Floors
 	Eleventh,
 	[Display(Name = "الثاني عشر")]
 	Twelfth,
-	[Display(Name = "الثاني عشر +")]
+	[Display(Name = "الثاني عشر+")]
 	TwelfthPlus,
+	[Display(Name = "الاخير")]
+	Last,
 }

@@ -2,7 +2,7 @@
 
 namespace HammadBroker.Model.DTO;
 
-public class BuildingForDetails : BuildingForDisplay, IBuilding, ICityNameLookup
+public class BuildingForDetails : BuildingForDisplay, IBuilding, IAddressLookup
 {
 	/// <inheritdoc />
 	[Display(Name = "معرف Youtube")]

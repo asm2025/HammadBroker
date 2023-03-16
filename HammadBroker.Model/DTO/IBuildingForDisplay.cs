@@ -6,8 +6,6 @@ public interface IBuildingForDisplay : IBuildingLookup
 {
 	[Display(Name = "العنوان")]
 	string Address { get; set; }
-	[Display(Name = "الحي")]
-	string Address2 { get; set; }
 	[Display(Name = "الدور")]
 	Floors? Floor { get; set; }
 	string FloorName { get; }
@@ -15,6 +13,9 @@ public interface IBuildingForDisplay : IBuildingLookup
 	byte? Rooms { get; set; }
 	[Display(Name = "الحمامات")]
 	byte? Bathrooms { get; set; }
+	[Display(Name = "مساحة المبنى")]
+	[DisplayFormat(DataFormatString = "{0:#,#.##}")]
+	long? BuildingArea { get; set; }
 	[Display(Name = "المساحة")]
 	[DisplayFormat(DataFormatString = "{0:#,#.##}")]
 	long? Area { get; set; }

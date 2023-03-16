@@ -13,6 +13,8 @@ public interface IBuildingLookup
 	[Display(Name = "نوع التشطيب")]
 	FinishingType? FinishingType { get; set; }
 	string FinishingTypeName { get; }
+	[Display(Name = "الحي")]
+	public int? DistrictId { get; set; }
 	[Display(Name = "المدينة")]
 	int CityId { get; set; }
 	[Display(Name = "نوع الاعلان")]

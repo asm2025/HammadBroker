@@ -24,6 +24,9 @@ public class BuildingForList : IBuildingLookup, IBuildingImageLookup
 	public FinishingType? FinishingType { get; set; }
 	public string FinishingTypeName => FinishingType?.GetDisplayName();
 	/// <inheritdoc />
+	[Display(Name = "الحي")]
+	public int? DistrictId { get; set; }
+	/// <inheritdoc />
 	[Display(Name = "المدينة")]
 	public int CityId { get; set; }
 	[Display(Name = "نوع الاعلان")]

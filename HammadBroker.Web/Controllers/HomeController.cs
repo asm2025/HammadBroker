@@ -62,7 +62,7 @@ public class HomeController : MvcController
 		BuildingForDetails building = await _buildingService.GetAsync<BuildingForDetails>(id, token);
 		token.ThrowIfCancellationRequested();
 		if (building == null) return Problem("الاعلان غير موجود.");
-		await _lookupService.FillCityNameAsync(building, token);
+		await _lookupService.FillAddressLookupAsync(building, token);
 		token.ThrowIfCancellationRequested();
 		return View(building);
 	}

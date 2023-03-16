@@ -47,6 +47,11 @@ public class BuildingToUpdate : IBuilding
 	public byte? Bathrooms { get; set; }
 
 	/// <inheritdoc />
+	[Display(Name = "مساحة المبني")]
+	[Range(1, 1000000000)]
+	public long? BuildingArea { get; set; }
+
+	/// <inheritdoc />
 	[Display(Name = "المساحة")]
 	[Range(1, 1000000000)]
 	public long? Area { get; set; }
@@ -57,9 +62,8 @@ public class BuildingToUpdate : IBuilding
 	public string Address { get; set; }
 
 	/// <inheritdoc />
-	[Display(Name = "العنوان 2")]
-	[StringLength(256)]
-	public string Address2 { get; set; }
+	[Display(Name = "الحي")]
+	public int? DistrictId { get; set; }
 
 	/// <inheritdoc />
 	[Display(Name = "المدينة")]
@@ -68,7 +72,6 @@ public class BuildingToUpdate : IBuilding
 
 	/// <inheritdoc />
 	[Display(Name = "الوصف المختصر")]
-	[Required]
 	[StringLength(1024)]
 	public string ShortDescription { get; set; }
 

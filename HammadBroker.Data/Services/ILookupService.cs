@@ -23,5 +23,5 @@ public interface ILookupService : IServiceBase<DataContext>
 	[ItemNotNull]
 	IList<string> ListFinishingTypes();
 	[NotNull]
-	Task FillCityNameAsync([NotNull] ICityNameLookup lookup, CancellationToken token = default(CancellationToken));
+	Task FillAddressLookupAsync([NotNull] IAddressLookup lookup, CancellationToken token = default(CancellationToken));
 }

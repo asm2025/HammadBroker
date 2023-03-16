@@ -103,7 +103,7 @@ public class BuildingsController : MvcController
 		BuildingForDetails building = await _buildingService.GetAsync<BuildingForDetails>(id, token);
 		token.ThrowIfCancellationRequested();
 		if (building == null) return Problem("الاعلان غير موجود.");
-		await _lookupService.FillCityNameAsync(building, token);
+		await _lookupService.FillAddressLookupAsync(building, token);
 		token.ThrowIfCancellationRequested();
 		return View(building);
 	}
@@ -398,8 +398,8 @@ public class BuildingsController : MvcController
 		{
 			stream = formFile.OpenReadStream();
 			image = Image.FromStream(stream);
-			thumb = image.Width > Constants.Images.DimensionMax || image.Height > Constants.Images.DimensionMax
-						? ImageHelper.Resize(image, Constants.Images.DimensionMax, image.Width >= image.Height)
+			thumb = image.Width > Constants.Images.DimensionXMax || image.Height > Constants.Images.DimensionYMax
+						? ImageHelper.Resize(image, Constants.Images.DimensionXMax, Constants.Images.DimensionYMax)
 						: image;
 			if (SysFile.Exists(fileName)) FileHelper.Delete(fileName);
 			fileName = ImageHelper.Save(thumb, fileName);

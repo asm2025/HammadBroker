@@ -3,7 +3,7 @@ using essentialMix.Extensions;
 
 namespace HammadBroker.Model.DTO;
 
-public class BuildingForDisplay : BuildingForList, IBuildingForDisplay, ICityNameLookup
+public class BuildingForDisplay : BuildingForList, IBuildingForDisplay, IAddressLookup
 {
 	/// <inheritdoc />
 	[Display(Name = "الدور")]
@@ -17,13 +17,16 @@ public class BuildingForDisplay : BuildingForList, IBuildingForDisplay, ICityNam
 	public byte? Bathrooms { get; set; }
 	/// <inheritdoc />
 	[Display(Name = "م")]
+	public long? BuildingArea { get; set; }
+	/// <inheritdoc />
+	[Display(Name = "م")]
 	public long? Area { get; set; }
 	/// <inheritdoc />
 	[Display(Name = "العنوان")]
 	public string Address { get; set; }
 	/// <inheritdoc />
 	[Display(Name = "الحي")]
-	public string Address2 { get; set; }
+	public string DistrictName { get; set; }
 	/// <inheritdoc />
 	[Display(Name = "المدينة")]
 	public string CityName { get; set; }

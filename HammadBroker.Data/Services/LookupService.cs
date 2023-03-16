@@ -72,7 +72,7 @@ public class LookupService : ServiceBase<DataContext>, ILookupService
 	}
 
 	/// <inheritdoc />
-	public async Task FillCityNameAsync(ICityNameLookup lookup, CancellationToken token = default(CancellationToken))
+	public async Task FillAddressLookupAsync(IAddressLookup lookup, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();

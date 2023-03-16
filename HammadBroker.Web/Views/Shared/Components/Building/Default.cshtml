@@ -119,10 +119,10 @@
 					{
 						<img class="img-fluid img-wh-100" :src="`@Context.Request.Scheme://@Context.Request.Host${(images && images.length && images[0].imageUrl ? images[0].imageUrl : '@placeholderImage')}`" alt=""
 							v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host@placeholderImage'`"/>
-						<div class="position-absolute bottom-0 mb-3 mx-3 d-flex align-items-center z-3">
+						<div v-if="!fullScreen && !uploading" class="position-absolute bottom-0 mb-3 mx-3 d-flex align-items-center z-3">
 							@if (Model.CanUpload)
 							{
-								<button v-if="!fullScreen" type="button" class="btn btn-light me-1" v-on:click="uploading = !uploading">
+								<button type="button" class="btn btn-light me-1" v-on:click="uploading = !uploading">
 									<i class="fa fa-plus"></i>
 									إضافة صور
 								</button>
@@ -425,23 +425,23 @@
 				<div class="d-inline-flex gap-1">
 					@if (!string.IsNullOrEmpty(Model.Building.Phone))
 					{
-						<button type="button" class="btn btn-danger mb-1 text-nowrap" dir="ltr" onclick="this.firstChild.textContent = '@Model.Building.Phone'">
-							تليفون
+						<a class="btn btn-danger mb-1 text-nowrap" href="tel:@Model.Building.Phone" onclick="this.childNodes[1].innerText = '@Model.Building.Phone'" dir="ltr">
 							<i class="fa fa-phone"></i>
-						</button>
+							تليفون
+						</a>
 					}
 					@if (!string.IsNullOrEmpty(Model.Building.Mobile))
 					{
-						<button type="button" class="btn btn-danger mb-1 text-nowrap" dir="ltr" onclick="this.firstChild.textContent = '@Model.Building.Mobile'">
-							جوال
+						<a class="btn btn-danger mb-1 text-nowrap" href="tel:@Model.Building.Mobile" onclick="this.childNodes[1].innerText = '@Model.Building.Mobile'" dir="ltr">
 							<i class="fa fa-mobile-screen"></i>
-						</button>
+							جوال
+						</a>
 					}
 					@if (!string.IsNullOrEmpty(CompanyInfo.Email))
 					{
 						<a class="btn btn-danger mb-1 text-nowrap" href="mailto:@CompanyInfo.Email?subject=@WebUtility.UrlEncode($"معلومات حول العقار {Model.Building.Reference}")" dir="ltr">
-							إيميل
 							<i class="fa fa-envelope"></i>
+							إيميل
 						</a>
 					}
 					<a href="@GetWhatsAppLink()" class="btn btn-success mb-1 text-nowrap" target="_blank" dir="ltr">
@@ -495,7 +495,7 @@
 					&nbsp;
 					@Html.DisplayFor(e => e.Building.Address2)
 					&nbsp;
-					@if (Model.Building is ICityNameLookup cityNameLookup && !string.IsNullOrEmpty(cityNameLookup.CityName))
+					@if (Model.Building is IAddressLookup cityNameLookup && !string.IsNullOrEmpty(cityNameLookup.CityName))
 					{
 						@Html.DisplayFor(e => cityNameLookup.CityName)
 					}
@@ -519,7 +519,7 @@
 			<div class="row g-0 px-2">
 				<div class="col-12">
 					<label asp-for="Building.Description" class="form-label"></label>
-					<textarea class="form-control" asp-for="Building.Description" rows="5">
+					<textarea class="form-control" asp-for="Building.Description" rows="10">
 					</textarea>
 					<span asp-validation-for="Building.Description" class="text-danger"></span>
 				</div>
@@ -997,7 +997,7 @@
 			area = string.Empty,
 			id = Model.Id
 		}, Context.Request.Scheme);
-		string cityName = building is ICityNameLookup cityNameLookup ? cityNameLookup.CityName : null;
+		string cityName = building is IAddressLookup cityNameLookup ? cityNameLookup.CityName : null;
 		string location = string.Join(" - ", building.Address, building.Address2, cityName).Trim('-', ' ');
 		string message = $@"مرحبًا، أود الحصول على المزيد من المعلومات حول هذا العقار للبيع، المنشور على موقع {Context.Request.Host}
 المرجع: {building.Reference} نوع العقار: {building.BuildingTypeName} السعر: {building.Price} جنيه الموقع: {location}

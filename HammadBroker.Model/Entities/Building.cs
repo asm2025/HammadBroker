@@ -27,18 +27,18 @@ public class Building : IEntity<int>
 
 	public byte? Bathrooms { get; set; }
 
+	public long? BuildingArea { get; set; }
+
 	public long? Area { get; set; }
 
 	[StringLength(256)]
 	public string Address { get; set; }
 
-	[StringLength(256)]
-	public string Address2 { get; set; }
+	public int? DistrictId { get; set; }
 
 	[Required]
 	public int CityId { get; set; }
 
-	[Required]
 	[StringLength(1024)]
 	public string ShortDescription { get; set; }
 

@@ -46,23 +46,23 @@
 	<div class="row g-0">
 		@if (!string.IsNullOrEmpty(CompanyInfo.Phone))
 		{
-			<button type="button" class="btn btn-danger w-100 mb-2 text-nowrap" dir="ltr" onclick="this.firstChild.textContent = '@CompanyInfo.Phone'">
-				تليفون
+			<a class="btn btn-danger w-100 mb-2 text-nowrap" href="tel:@CompanyInfo.Phone" onclick="this.childNodes[1].innerText = '@CompanyInfo.Phone'" dir="ltr">
 				<i class="fa fa-phone"></i>
-			</button>
+				تليفون
+			</a>
 		}
 		@if (!string.IsNullOrEmpty(CompanyInfo.Mobile))
 		{
-			<button type="button" class="btn btn-danger w-100 mb-2 text-nowrap" dir="ltr" onclick="this.firstChild.textContent = '@CompanyInfo.Mobile'">
-				جوال
+			<a class="btn btn-danger w-100 mb-2 text-nowrap" href="tel:@CompanyInfo.Mobile" onclick="this.childNodes[1].innerText = '@CompanyInfo.Mobile'" dir="ltr">
 				<i class="fa fa-mobile-screen"></i>
-			</button>
+				جوال
+			</a>
 		}
 		@if (!string.IsNullOrEmpty(CompanyInfo.Email))
 		{
-			<a class="btn btn-danger w-100 mb-2 text-nowrap" dir="ltr" href="mailto:@CompanyInfo.Email?subject=@WebUtility.UrlEncode("معلومات حول")">
-				راسل الوسيط 
+			<a class="btn btn-danger w-100 mb-2 text-nowrap" href="mailto:@CompanyInfo.Email?subject=@WebUtility.UrlEncode("معلومات حول")" dir="ltr">
 				<i class="fa fa-envelope"></i>
+				راسل الوسيط 
 			</a>
 		}
 	</div>

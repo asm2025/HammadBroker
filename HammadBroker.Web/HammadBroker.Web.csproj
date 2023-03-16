@@ -105,8 +105,4 @@
 		<ProjectReference Include="..\HammadBroker.Model\HammadBroker.Model.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="_logs\" />
-	</ItemGroup>
-
 </Project>
