@@ -1,0 +1,109 @@
+﻿@model HammadBroker.Model.DTO.DistrictToUpdate
+
+@{
+	ViewData["Title"] = "إضافة حي";
+}
+
+<form asp-area="Admin" asp-controller="Cities" asp-action="AddDistrict" Method="post" enctype="multipart/form-data">
+	<div id="districtForm" v-scope class="card card-body mt-3">
+		<div asp-validation-summary="ModelOnly"></div>
+		<div class="row g-0 mb-1">
+			<div class="col-12">
+				<label asp-for="CityId" class="form-label"></label> *
+				<input type="hidden" name="@nameof(Model.CityId)" asp-for="CityId" :value="cityId" />
+				<autocomplete class="w-100" input-class="w-100" :suggestions="cities" option-label="name"
+							v-model="selectedCity" data-key="id" dropdown v-on:complete="fetchCities($event.query)">
+				</autocomplete>
+				<span asp-validation-for="CityId" class="text-danger"></span>
+			</div>
+		</div>
+		<div class="row g-0 mb-1">
+			<div class="col-12">
+				<label asp-for="Name" class="form-label"></label> *
+				<input class="form-control" asp-for="Name" />
+				<span asp-validation-for="Name" class="text-danger"></span>
+			</div>
+		</div>
+		<div class="row g-0 px-2 my-1">
+			<button type="submit" class="btn btn-primary border-0 me-1">إضافة</button>
+			<a class="btn btn-outline-primary border-0 me-1" asp-area="Admin" asp-controller="Cities" asp-action="Districts">الغاء</a>
+		</div>
+	</div>
+</form>
+
+@section scripts
+{
+	<script type="text/javascript" defer>
+		const { createApp } = Vue;
+
+		const DELAY = 300;
+		const _fetchCities = _.debounce(async (self, search) => {
+			self.loading = true;
+			search = search && search.trim();
+
+			try {
+				const params = new URLSearchParams({
+					search: search ? encodeURIComponent(search) : ""
+				});
+				const url = `@Url.Action("List", "Cities", new
+				             {
+					             area = "Admin"
+				             })?${params}`;
+				const response = await window.fetch(url);
+
+				if (!response.ok) {
+					const error = await getResponseError(response);
+					throw error;
+				}
+
+				self.cities = await response.json();
+				if (self.cityId) self.selectedCity = self.cities.find(e => e.id === self.cityId);
+			} catch (e) {
+				self.selectedCity = null;
+				self.cities = [];
+				alert(e.message || e);
+			} finally {
+				self.loading = false;
+			}
+		}, DELAY, { leading: true });
+		
+		createApp({
+			data() {
+				return {
+					loading: false,
+					selectedCity: null,
+					cityId: @Model.CityId,
+					cities: [],
+					errors: []
+				}
+			},
+			watch: {
+				selectedCity(newValue) {
+					if (newValue && newValue.id)
+						this.cityId = newValue.id;
+					else
+						this.cityId = 0;
+				}
+			},
+			methods: {
+				fetchData() {
+					this.errors.length = 0;
+					this.fetchCities();
+				},
+				fetchCities(search) {
+					_fetchCities(this, search);
+				},
+				onReset() {
+					this.errors.length = 0;
+					this.selectedCity = null;
+				}
+			},
+			mounted() {
+				this.fetchData();
+			}
+		})
+		.use(primevue.config.default)
+		.component("autocomplete", primevue.autocomplete)
+		.mount("#districtForm");
+	</script>
+}

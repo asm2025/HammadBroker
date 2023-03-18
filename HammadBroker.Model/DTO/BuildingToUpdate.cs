@@ -40,20 +40,22 @@ public class BuildingToUpdate : IBuilding
 
 	/// <inheritdoc />
 	[Display(Name = "الغرف")]
+	[Range(0, byte.MaxValue)]
 	public byte? Rooms { get; set; }
 
 	/// <inheritdoc />
 	[Display(Name = "الحمامات")]
+	[Range(0, byte.MaxValue)]
 	public byte? Bathrooms { get; set; }
 
 	/// <inheritdoc />
 	[Display(Name = "مساحة المبني")]
-	[Range(1, 1000000000)]
+	[Range(0, long.MaxValue)]
 	public long? BuildingArea { get; set; }
 
 	/// <inheritdoc />
 	[Display(Name = "المساحة")]
-	[Range(1, 1000000000)]
+	[Range(0, long.MaxValue)]
 	public long? Area { get; set; }
 
 	/// <inheritdoc />
@@ -63,11 +65,13 @@ public class BuildingToUpdate : IBuilding
 
 	/// <inheritdoc />
 	[Display(Name = "الحي")]
+	[Range(0, int.MaxValue)]
 	public int? DistrictId { get; set; }
 
 	/// <inheritdoc />
 	[Display(Name = "المدينة")]
 	[Required]
+	[Range(1, int.MaxValue)]
 	public int CityId { get; set; }
 
 	/// <inheritdoc />
@@ -83,6 +87,7 @@ public class BuildingToUpdate : IBuilding
 	public string Description { get; set; }
 
 	[Display(Name = "النوع")]
+	[Required]
 	public BuildingAdType AdType { get; set; }
 	public string AdTypeName => AdType.GetDisplayName();
 
@@ -121,6 +126,6 @@ public class BuildingToUpdate : IBuilding
 	[Display(Name = "السعر")]
 	[DisplayFormat(DataFormatString = "{0:#,#.##}")]
 	[Required]
-	[Range(0, 1000000000)]
+	[Range(1, long.MaxValue)]
 	public long Price { get; set; }
 }

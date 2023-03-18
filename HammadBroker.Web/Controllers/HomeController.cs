@@ -41,8 +41,9 @@ public class HomeController : MvcController
 		if (pagination.OrderBy == null || pagination.OrderBy.Count == 0)
 		{
 			pagination.OrderBy ??= new List<SortField>();
-			if (pagination.CityId < 1) pagination.OrderBy.Add(new SortField(nameof(Building.CityId)));
 			if (!pagination.Date.HasValue) pagination.OrderBy.Add(new SortField(nameof(Building.Date), SortType.Descending));
+			if (pagination.CityId < 1) pagination.OrderBy.Add(new SortField(nameof(Building.CityId)));
+			if (pagination.DistrictId < 1) pagination.OrderBy.Add(new SortField(nameof(Building.DistrictId)));
 			if (!pagination.AdType.HasValue) pagination.OrderBy.Add(new SortField(nameof(Building.AdType)));
 			if (!pagination.BuildingType.HasValue) pagination.OrderBy.Add(new SortField(nameof(Building.BuildingType)));
 			if (!pagination.FinishingType.HasValue) pagination.OrderBy.Add(new SortField(nameof(Building.FinishingType)));
@@ -70,9 +71,31 @@ public class HomeController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpGet("[action]")]
-	public async Task<IActionResult> Cities([FromQuery(Name = "")] CitiesList pagination, CancellationToken token)
+	public async Task<IActionResult> Districts([FromQuery(Name = "")] DistrictList pagination, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
+		pagination ??= new DistrictList();
+		if (!string.IsNullOrEmpty(pagination.Search)) pagination.Search = WebUtility.UrlDecode(pagination.Search);
+
+		if (pagination.OrderBy == null || pagination.OrderBy.Count == 0)
+		{
+			pagination.OrderBy ??= new List<SortField>(1);
+			pagination.OrderBy.Add(new SortField(nameof(City.Name)));
+		}
+
+		pagination.PageSize = 0;
+		IList<CityForList> result = await _lookupService.ListCitiesAsync(pagination, token);
+		token.ThrowIfCancellationRequested();
+		return Ok(result);
+	}
+
+	[NotNull]
+	[ItemNotNull]
+	[HttpGet("[action]")]
+	public async Task<IActionResult> Cities([FromQuery(Name = "")] SearchList pagination, CancellationToken token)
+	{
+		token.ThrowIfCancellationRequested();
+		pagination ??= new SearchList();
 		if (!string.IsNullOrEmpty(pagination.Search)) pagination.Search = WebUtility.UrlDecode(pagination.Search);
 
 		if (pagination.OrderBy == null || pagination.OrderBy.Count == 0)

@@ -8,9 +8,11 @@
 	<div class="card card-body mt-3">
 		<div asp-validation-summary="ModelOnly"></div>
 		<div class="row g-0 mb-1">
-			<label asp-for="Name" class="form-label"></label>
-			<input class="form-control" asp-for="Name" />
-			<span asp-validation-for="Name" class="text-danger"></span>
+			<div class="col-12">
+				<label asp-for="Name" class="form-label"></label> *
+				<input class="form-control" asp-for="Name" />
+				<span asp-validation-for="Name" class="text-danger"></span>
+			</div>
 		</div>
 		<div class="row g-0 px-2 my-1">
 			<button type="submit" class="btn btn-primary border-0 me-1">إضافة</button>

@@ -76,6 +76,10 @@ a {
 	text-decoration: none;
 }
 
+code, kbd, pre, samp {
+	font-family: inherit !important;
+}
+
 .fs-s1 {
 	font-size: 0.75rem !important;
 }
@@ -367,7 +371,8 @@ a {
 	white-space: nowrap !important;
 }
 
-.row > .btn {
+.row > .btn,
+.row > .btn-contact {
 	width: auto;
 }
 
@@ -784,9 +789,18 @@ span.oi {
 
 .p-galleria-thumbnail-item .p-galleria-thumbnail-item-content {
 	position: relative;
+	display: flex;
+	flex-direction: column;
+	-ms-align-items: center;
+	-o-align-items: center;
+	-webkit-align-items: center;
+	align-items: center;
+	-o-justify-content: center;
+	-webkit-justify-content: center;
+	justify-content: center;
 }
 
-	.p-galleria-thumbnail-item .p-galleria-thumbnail-item-content .actions {
+.p-galleria-thumbnail-item .p-galleria-thumbnail-item-content .actions {
 		position: relative;
 		margin: 0;
 		display: flex;

@@ -21,7 +21,7 @@ public class CityRepository : Repository<DataContext, City, int>, ICityRepositor
 	/// <inheritdoc />
 	protected override IQueryable<City> PrepareCountQuery(IQueryable<City> query, IPagination settings)
 	{
-		if (settings is not CitiesList citiesList) return base.PrepareCountQuery(query, settings);
+		if (settings is not SearchList citiesList) return base.PrepareCountQuery(query, settings);
 		if (!string.IsNullOrEmpty(citiesList.Search)) query = query.Where(e => e.Name.Contains(citiesList.Search));
 		return base.PrepareCountQuery(query, settings);
 	}
@@ -29,7 +29,7 @@ public class CityRepository : Repository<DataContext, City, int>, ICityRepositor
 	/// <inheritdoc />
 	protected override IQueryable<City> PrepareListQuery(IQueryable<City> query, IPagination settings)
 	{
-		if (settings is not CitiesList citiesList) return base.PrepareListQuery(query, settings);
+		if (settings is not SearchList citiesList) return base.PrepareListQuery(query, settings);
 		if (!string.IsNullOrEmpty(citiesList.Search)) query = query.Where(e => e.Name.Contains(citiesList.Search));
 		return base.PrepareListQuery(query, settings);
 	}

@@ -21,11 +21,13 @@ namespace HammadBroker.Data.Services;
 
 public class LookupService : ServiceBase<DataContext>, ILookupService
 {
+	private readonly IDistrictRepository _districtRepository;
 	private readonly ICityRepository _cityRepository;
 
-	public LookupService([NotNull] DataContext context, [NotNull] ICityRepository cityRepository, [NotNull] IMapper mapper, [NotNull] ILogger<LookupService> logger)
+	public LookupService([NotNull] DataContext context, [NotNull] IDistrictRepository districtRepository, [NotNull] ICityRepository cityRepository, [NotNull] IMapper mapper, [NotNull] ILogger<LookupService> logger)
 		: base(context, mapper, logger)
 	{
+		_districtRepository = districtRepository;
 		_cityRepository = cityRepository;
 	}
 
@@ -43,7 +45,7 @@ public class LookupService : ServiceBase<DataContext>, ILookupService
 	}
 
 	/// <inheritdoc />
-	public Task<IList<CityForList>> ListCitiesAsync(CitiesList settings, CancellationToken token = default(CancellationToken))
+	public Task<IList<CityForList>> ListCitiesAsync(SearchList settings, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
@@ -51,6 +53,17 @@ public class LookupService : ServiceBase<DataContext>, ILookupService
 							.ProjectTo<CityForList>(Mapper.ConfigurationProvider)
 							.ToListAsync(token)
 							.As<List<CityForList>, IList<CityForList>>(token);
+	}
+
+	/// <inheritdoc />
+	public Task<IList<DistrictForList>> ListDistrictsAsync(DistrictList settings, CancellationToken token = default(CancellationToken))
+	{
+		ThrowIfDisposed();
+		token.ThrowIfCancellationRequested();
+		return _districtRepository.List(settings)
+							.ProjectTo<DistrictForList>(Mapper.ConfigurationProvider)
+							.ToListAsync(token)
+							.As<List<DistrictForList>, IList<DistrictForList>>(token);
 	}
 
 	/// <inheritdoc />
@@ -76,10 +89,28 @@ public class LookupService : ServiceBase<DataContext>, ILookupService
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
+		lookup.DistrictName = null;
 		lookup.CityName = null;
-		if (lookup.CityId < 1) return;
+
+		int cityId = lookup.CityId;
+
+		if (lookup.DistrictId > 0)
+		{
+			District district = await Context.Districts
+											.FirstOrDefaultAsync(e => e.Id == lookup.DistrictId, token)
+											.ConfigureAwait();
+			token.ThrowIfCancellationRequested();
+
+			if (district != null)
+			{
+				lookup.DistrictName = district.Name;
+				cityId = district.CityId;
+			}
+		}
+
+		if (cityId < 1) return;
 		City city = await Context.Cities
-								.FirstOrDefaultAsync(e => e.Id == lookup.CityId, token)
+								.FirstOrDefaultAsync(e => e.Id == cityId, token)
 								.ConfigureAwait();
 		token.ThrowIfCancellationRequested();
 		if (city == null) return;

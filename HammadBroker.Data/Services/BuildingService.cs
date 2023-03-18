@@ -53,10 +53,54 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 		if (result.Count == 0) return new BuildingsPaginated<T>(result, settings);
 
 		Type type = typeof(T);
-		if (!type.IsClass || !typeof(IBuildingImageLookup).IsAssignableFrom(type)) return new BuildingsPaginated<T>(result, settings);
+		if (!type.IsClass) return new BuildingsPaginated<T>(result, settings);
+
+		if (typeof(IAddressLookup).IsAssignableFrom(type))
+		{
+			IList<int> districtIds = result.Cast<IAddressLookup>()
+											.Where(e => e.DistrictId > 0)
+											.Select(e => e.DistrictId.Value)
+											.Distinct()
+											.ToList();
+
+			if (districtIds.Count > 0)
+			{
+				IDictionary<int, string> districts = Context.Districts
+															.Where(e => districtIds.Contains(e.Id))
+															.ToDictionary(k => k.Id, v => v.Name);
+
+				foreach (IAddressLookup building in result.Cast<IAddressLookup>())
+				{
+					if (!building.DistrictId.HasValue || !districts.TryGetValue(building.DistrictId.Value, out string districtName)) continue;
+					building.DistrictName = districtName;
+				}
+			}
+
+			IList<int> cityIds = result.Cast<IAddressLookup>()
+										.Where(e => e.CityId > 0)
+										.Select(e => e.CityId)
+										.Distinct()
+										.ToList();
+
+			if (cityIds.Count > 0)
+			{
+				IDictionary<int, string> cities = Context.Cities
+														.Where(e => cityIds.Contains(e.Id))
+														.ToDictionary(k => k.Id, v => v.Name);
+
+				foreach (IAddressLookup building in result.Cast<IAddressLookup>())
+				{
+					if (!cities.TryGetValue(building.CityId, out string cityName)) continue;
+					building.CityName = cityName;
+				}
+			}
+		}
+
+		if (!typeof(IBuildingImageLookup).IsAssignableFrom(type)) return new BuildingsPaginated<T>(result, settings);
 
 		ICollection<int> ids = result.Cast<IBuildingImageLookup>()
 									.Select(e => e.Id)
+									.Distinct()
 									.ToList();
 		IDictionary<int, string> images = Repository.GetMainImages(ids);
 		if (images == null) return new BuildingsPaginated<T>(result, settings);
@@ -88,14 +132,63 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 
 		IList<T> result = await queryable.ProjectTo<T>(Mapper.ConfigurationProvider)
 									.ToListAsync(token);
+		token.ThrowIfCancellationRequested();
 		if (result.Count == 0) return new BuildingsPaginated<T>(result, settings);
 
 		Type type = typeof(T);
-		if (!type.IsClass || !typeof(IBuildingImageLookup).IsAssignableFrom(type)) return new BuildingsPaginated<T>(result, settings);
+		if (!type.IsClass) return new BuildingsPaginated<T>(result, settings);
+
+		if (typeof(IAddressLookup).IsAssignableFrom(type))
+		{
+			IList<int> districtIds = result.Cast<IAddressLookup>()
+									.Where(e => e.DistrictId > 0)
+									.Select(e => e.DistrictId.Value)
+									.Distinct()
+									.ToList();
+
+			if (districtIds.Count > 0)
+			{
+				IDictionary<int, string> districts = await Context.Districts
+																.Where(e => districtIds.Contains(e.Id))
+																.ToDictionaryAsync(k => k.Id, v => v.Name, token);
+				token.ThrowIfCancellationRequested();
+
+				foreach (IAddressLookup building in result.Cast<IAddressLookup>())
+				{
+					if (!building.DistrictId.HasValue || !districts.TryGetValue(building.DistrictId.Value, out string districtName)) continue;
+					building.DistrictName = districtName;
+				}
+			}
+
+			IList<int> cityIds = result.Cast<IAddressLookup>()
+										.Where(e => e.CityId > 0)
+										.Select(e => e.CityId)
+										.Distinct()
+										.ToList();
+
+			if (cityIds.Count > 0)
+			{
+				IDictionary<int, string> cities = await Context.Cities
+																.Where(e => cityIds.Contains(e.Id))
+																.ToDictionaryAsync(k => k.Id, v => v.Name, token);
+				token.ThrowIfCancellationRequested();
+
+				foreach (IAddressLookup building in result.Cast<IAddressLookup>())
+				{
+					if (!cities.TryGetValue(building.CityId, out string cityName)) continue;
+					building.CityName = cityName;
+				}
+			}
+		}
+
+		if (!typeof(IBuildingImageLookup).IsAssignableFrom(type)) return new BuildingsPaginated<T>(result, settings);
 
 		ICollection<int> ids = result.Cast<IBuildingImageLookup>()
 									.Select(e => e.Id)
+									.Distinct()
 									.ToList();
+		if (ids.Count == 0) return new BuildingsPaginated<T>(result, settings);
+
 		IDictionary<int, string> images = await Repository.GetMainImagesAsync(ids, token);
 		token.ThrowIfCancellationRequested();
 		if (images == null) return new BuildingsPaginated<T>(result, settings);
@@ -135,6 +228,22 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	public override T Get<T>(int key)
 	{
 		T entity = base.Get<T>(key);
+
+		if (entity is IAddressLookup addressLookup)
+		{
+			if (addressLookup.DistrictId > 0)
+			{
+				District district = Context.Districts.Find(addressLookup.DistrictId.Value);
+				addressLookup.DistrictName = district?.Name;
+			}
+
+			if (addressLookup.CityId > 0)
+			{
+				City city = Context.Cities.Find(addressLookup.CityId);
+				addressLookup.CityName = city?.Name;
+			}
+		}
+
 		if (entity is IBuildingImageLookup buildingImageLookup) buildingImageLookup.ImageUrl = Repository.GetMainImage(key)?.ImageUrl;
 		return entity;
 	}
@@ -143,6 +252,22 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	public override T Get<T>(int key, IGetSettings settings)
 	{
 		T entity = base.Get<T>(key, settings);
+
+		if (entity is IAddressLookup addressLookup)
+		{
+			if (addressLookup.DistrictId > 0)
+			{
+				District district = Context.Districts.Find(addressLookup.DistrictId.Value);
+				addressLookup.DistrictName = district?.Name;
+			}
+
+			if (addressLookup.CityId > 0)
+			{
+				City city = Context.Cities.Find(addressLookup.CityId);
+				addressLookup.CityName = city?.Name;
+			}
+		}
+
 		if (entity is IBuildingImageLookup buildingImageLookup) buildingImageLookup.ImageUrl = Repository.GetMainImage(key)?.ImageUrl;
 		return entity;
 	}
@@ -151,6 +276,22 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	public override async Task<T> GetAsync<T>(int key, CancellationToken token = default(CancellationToken))
 	{
 		T entity = await base.GetAsync<T>(key, token);
+
+		if (entity is IAddressLookup addressLookup)
+		{
+			if (addressLookup.DistrictId > 0)
+			{
+				District district = await Context.Districts.FindAsync(new object[] { addressLookup.DistrictId.Value }, token);
+				addressLookup.DistrictName = district?.Name;
+			}
+
+			if (addressLookup.CityId > 0)
+			{
+				City city = await Context.Cities.FindAsync(new object[] { addressLookup.CityId }, token);
+				addressLookup.CityName = city?.Name;
+			}
+		}
+
 		if (entity is IBuildingImageLookup buildingImageLookup) buildingImageLookup.ImageUrl = (await Repository.GetMainImageAsync(key, token))?.ImageUrl;
 		return entity;
 	}
@@ -159,6 +300,22 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	public override async Task<T> GetAsync<T>(int key, IGetSettings settings, CancellationToken token = new CancellationToken())
 	{
 		T entity = await base.GetAsync<T>(key, settings, token);
+
+		if (entity is IAddressLookup addressLookup)
+		{
+			if (addressLookup.DistrictId > 0)
+			{
+				District district = await Context.Districts.FindAsync(new object[] { addressLookup.DistrictId.Value }, token);
+				addressLookup.DistrictName = district?.Name;
+			}
+
+			if (addressLookup.CityId > 0)
+			{
+				City city = await Context.Cities.FindAsync(new object[] { addressLookup.CityId }, token);
+				addressLookup.CityName = city?.Name;
+			}
+		}
+
 		if (entity is IBuildingImageLookup buildingImageLookup) buildingImageLookup.ImageUrl = (await Repository.GetMainImageAsync(key, token))?.ImageUrl;
 		return entity;
 	}

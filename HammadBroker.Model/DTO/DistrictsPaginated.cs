@@ -5,9 +5,9 @@ using JetBrains.Annotations;
 
 namespace HammadBroker.Model.DTO;
 
-public class CitiesPaginated : Paginated<CityForList, SearchList>
+public class DistrictsPaginated : Paginated<DistrictForList, DistrictList>
 {
-	public CitiesPaginated([NotNull] IEnumerable<CityForList> result, [NotNull] SearchList pagination)
+	public DistrictsPaginated([NotNull] IEnumerable<DistrictForList> result, [NotNull] DistrictList pagination)
 		: base(result, pagination)
 	{
 	}

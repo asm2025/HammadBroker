@@ -264,12 +264,14 @@ public class Program
 			.AddScoped(typeof(RoleManager<Role>), typeof(RoleManager))
 			.AddScoped(typeof(SignInManager<User>), typeof(SignInManager))
 			// Repositories
+			.AddTransient<IDistrictRepository, DistrictRepository>()
 			.AddTransient<ICityRepository, CityRepository>()
 			.AddTransient<IIdentityRepository, IdentityRepository>()
 			.AddTransient<IBuildingRepository, BuildingRepository>()
 			// Services
 			.AddTransient<IUploaderService, UploaderService>()
 			.AddTransient<ILookupService, LookupService>()
+			.AddTransient<IDistrictService, DistrictService>()
 			.AddTransient<ICityService, CityService>()
 			.AddTransient<IIdentityService, IdentityService>()
 			.AddTransient<IBuildingService, BuildingService>()

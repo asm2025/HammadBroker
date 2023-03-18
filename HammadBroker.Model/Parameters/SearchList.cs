@@ -3,10 +3,10 @@ using essentialMix.Patterns.Pagination;
 
 namespace HammadBroker.Model.Parameters;
 
-public class CitiesList : SortablePagination
+public class SearchList : SortablePagination
 {
-	[Display(Name = "الإسم")]
+	[Display(Name = "البحث")]
 	public string Search { get; set; }
 
-	public bool HasSearch => !string.IsNullOrEmpty(Search);
+	public virtual bool HasSearch => !string.IsNullOrEmpty(Search);
 }

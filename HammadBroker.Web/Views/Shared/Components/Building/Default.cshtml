@@ -28,6 +28,7 @@
 	}
 
 	bool isNew = Model.Id == 0;
+	int firstImageIndex = string.IsNullOrEmpty(Model.Building.VideoId) ? 1 : 2;
 	string action = Model.CanEdit
 						? isNew
 						? Url.Action("Add", "Buildings", new
@@ -69,9 +70,9 @@
 		@if (Model.CanEdit)
 		{
 			<galleria v-show="!uploading" ref="galleria" :container-class="['galleria', {'no-thumbs': fullScreen}]" :value="images" :show-thumbnails="!fullScreen"
-				circular :full-screen="fullScreen" v-model:visible="galVisible" :num-visible="5" show-item-navigators show-item-navigators-on-hover>
+				circular :full-screen="fullScreen" v-model:visible="galleriaVisible" v-model:active-index="activeImage" :num-visible="5" show-item-navigators show-item-navigators-on-hover>
 				<template #item="{ item }">
-					<img :src="item.imageUrl" alt="" class="img-fluid img-mh-100p img-h-512" v-on:click="fullScreen = false" />
+					<img :src="item.imageUrl" alt="" class="img-fluid img-mh-100p img-h-512" v-on:click="fullScreen = !fullScreen" />
 					<span v-if="item.priority" class="position-absolute top-0 end-0 m-1 badge rounded-pill bg-danger">
 						{{ item.priority }}
 						<span class="visually-hidden">priority</span>
@@ -85,6 +86,7 @@
 					</span>
 					<div class="actions gap-1" dir="rtl">
 						<input class="form-check-input" type="checkbox" :value="item.id" v-on:change="onThumbSelection" />
+						<button type="button" class="btn btn-outline-secondary btn-sm border-0 mb-1" v-on:click="setImagePriority(item.id, @byte.MaxValue)" title="تعيين صورة الغلاف"><i class="fa fa-house"></i></button>
 						<button type="button" class="btn btn-outline-secondary btn-sm border-0 mb-1" v-on:click="setImagePriorityValue($event, item.id, item.priority)" title="تعيين أولوية الصورة"><i class="fa fa-sort"></i></button>
 						<button type="button" class="btn btn-outline-danger btn-sm border-0 mb-1" v-on:click="deleteImage(item.id)" title="حذف الصورة"><i class="fa fa-xmark"></i></button>
 					</div>
@@ -96,7 +98,7 @@
 					<input type="number" class="form-control col-sm-8 col-md-12" v-model="imagePriority.priority" />
 				</div>
 				<div class="row g-0 px-1">
-					<button type="button" class="btn btn-primary" v-on:click="setImagePriority">
+					<button type="button" class="btn btn-primary" v-on:click="setImagePriorityFromEvent">
 						تعيين
 					</button>
 				</div>
@@ -105,7 +107,7 @@
 		else
 		{
 			<galleria ref="galleria" :container-class="'galleria no-thumbs'" :value="images" :show-thumbnails="false" circular full-screen
-					v-model:visible="fullScreen" show-item-navigators show-item-navigators-on-hover change-item-on-indicator-hover>
+					v-model:visible="fullScreen" v-model:active-index="activeImage" show-item-navigators show-item-navigators-on-hover change-item-on-indicator-hover>
 				<template #item="{ item }">
 					<img :src="item.imageUrl" alt="" class="img-fluid img-mh-100p" v-on:click="fullScreen = false" />
 				</template>
@@ -114,11 +116,17 @@
 		<div class="card-deck2 align-items-stretch mb-2">
 			@if (!Model.CanEdit)
 			{
-				<div class="card card-body">
-					@if (string.IsNullOrEmpty(Model.Building.VideoId))
-					{
-						<img class="img-fluid img-wh-100" :src="`@Context.Request.Scheme://@Context.Request.Host${(images && images.length && images[0].imageUrl ? images[0].imageUrl : '@placeholderImage')}`" alt=""
-							v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host@placeholderImage'`"/>
+				@if (!string.IsNullOrEmpty(Model.Building.VideoId))
+				{
+					<div class="card card-body">
+						<vid-asset VideoId="@Model.Building.VideoId" Class="ratio ratio-16x9"/>
+					</div>
+				}
+				else
+				{
+					<div v-if="images && images.length" class="card card-body">
+						<img class="img-fluid img-wh-100" :src="`@Context.Request.Scheme://@Context.Request.Host${images[0].imageUrl}`" alt=""
+							v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host@placeholderImage'`" v-on:click="fullScreen = true" />
 						<div v-if="!fullScreen && !uploading" class="position-absolute bottom-0 mb-3 mx-3 d-flex align-items-center z-3">
 							@if (Model.CanUpload)
 							{
@@ -127,17 +135,13 @@
 									إضافة صور
 								</button>
 							}
-							<button v-if="images && images.length" type="button" class="btn btn-light me-1" v-on:click="fullScreen = true">
+							<button type="button" class="btn btn-light me-1" v-on:click="fullScreen = true">
 								<i class="fa fa-camera"></i>
 								تصفح ال {{ images.length }} صورة
 							</button>
 						</div>
-					}
-					else
-					{
-						<vid-asset VideoId="@Model.Building.VideoId" Class="ratio ratio-16x9"/>
-					}
-				</div>
+					</div>
+				}
 			}
 			else if (isNew)
 			{
@@ -153,14 +157,10 @@
 				<div :class="'drop-zone'">
 					@if (!Model.CanEdit)
 					{
-						<div v-if="images && images.length > 1" :class="['zone-item flex-column', { active: !uploading }]">
+						<div v-if="images && images.length > @firstImageIndex" :class="['zone-item flex-column', { active: !uploading }]">
 							<div class="tile">
-								<img class="img-fluid img-wh-100" :src="`@Context.Request.Scheme://@Context.Request.Host${images[1].imageUrl}`" alt=""
-									v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host@placeholderImage'`"/>
-							</div>
-							<div v-if="images && images.length > 2" class="tile">
-								<img class="img-fluid img-wh-100" :src="`@Context.Request.Scheme://@Context.Request.Host${images[2].imageUrl}`" alt=""
-									v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host@placeholderImage'`"/>
+								<img class="img-fluid img-wh-100" :src="`@Context.Request.Scheme://@Context.Request.Host${images[@firstImageIndex].imageUrl}`" alt=""
+									v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host@placeholderImage'`" v-on:click="fullScreen = true"/>
 							</div>
 						</div>
 					}
@@ -239,23 +239,23 @@
 		</div>
 		@if (Model.CanEdit)
 		{
-			<div class="d-flex gap-1 align-items-center py-1">
-				<button type="button" v-if="!uploading && images && images.length" class="btn btn-light mb-1" v-on:click="fullScreen = true">
+			<div v-if="!fullScreen && !uploading" class="d-flex gap-1 align-items-center py-1">
+				<button type="button" v-if="images && images.length" class="btn btn-light mb-1" v-on:click="fullScreen = true">
 					<i :class="['fa', fullScreen ? 'fa-minimize' : 'fa-maximize']"></i>
 					تكبير الشاشة
 				</button>
 				@if (Model.CanUpload)
 				{
-					<button type="button" v-if="!fullScreen && !uploading" class="btn btn-light mb-1" v-on:click="uploading = true">
+					<button type="button" class="btn btn-light mb-1" v-on:click="uploading = true">
 						<i :class="['fa', uploading ? 'fa-image' : 'fa-cloud-arrow-up']"></i>
 						تحميل
 					</button>
-					<button type="button" v-if="!fullScreen && uploading && images && images.length" class="btn btn-light mb-1" v-on:click="uploading = false">
+					<button type="button" v-if="uploading && images && images.length" class="btn btn-light mb-1" v-on:click="uploading = false">
 						<i :class="['fa', uploading ? 'fa-image' : 'fa-cloud-arrow-up']"></i>
 						الصور
 					</button>
 				}
-				<a v-if="!fullScreen && !uploading && selectedImages && selectedImages.length" class="btn btn-danger mb-1" v-on:click="deleteImages()" title="حذف الصور" :disabled="!selectedImages || !selectedImages.length">
+				<a v-if="images && images.length" class="btn btn-danger mb-1" v-on:click="deleteImages()" title="حذف الصور" :disabled="!selectedImages || !selectedImages.length">
 					<i class="fa fa-xmark"></i>
 					حذف
 				</a>
@@ -271,7 +271,7 @@
 		{
 			<div class="row g-0 px-2">
 				<div class="col-sm-12 col-md-6">
-					<label asp-for="Building.Date" class="form-label"></label>
+					<label asp-for="Building.Date" class="form-label"></label> *
 					<input type="hidden" name="@($"{nameof(Model.Building)}.{nameof(Model.Building.Date)}")" :value="date"/>
 					<calendar class="w-100" v-model="date" selection-mode="single" date-format="yy/mm/dd">
 					</calendar>
@@ -287,7 +287,7 @@
 			</div>
 			<div class="row g-0 px-2">
 				<div class="col-sm-12 col-md-6">
-					<label asp-for="Building.Reference" class="form-label"></label>
+					<label asp-for="Building.Reference" class="form-label"></label> *
 					<input class="form-control" asp-for="Building.Reference" />
 					<span asp-validation-for="Building.Reference" class="text-danger"></span>
 				</div>
@@ -299,7 +299,7 @@
 			</div>
 			<div class="row g-0 px-2">
 				<div class="col-sm-12 col-md-3">
-					<label asp-for="Building.BuildingType" class="form-label"></label>
+					<label asp-for="Building.BuildingType" class="form-label"></label> *
 					<select asp-for="Building.BuildingType" class="form-select" asp-items="Html.GetEnumSelectList<BuildingType>()">
 						<option value="">@Html.DisplayNameFor(e => e.Building.BuildingType)</option>
 					</select>
@@ -313,7 +313,7 @@
 					<span asp-validation-for="Building.FinishingType" class="text-danger"></span>
 				</div>
 				<div class="col-sm-12 col-md-3">
-					<label asp-for="Building.AdType" class="form-label"></label>
+					<label asp-for="Building.AdType" class="form-label"></label> *
 					<select asp-for="Building.AdType" class="form-select" asp-items="Html.GetEnumSelectList<BuildingAdType>()">
 						<option value="">@Html.DisplayNameFor(e => e.Building.AdType)</option>
 					</select>
@@ -326,27 +326,34 @@
 				</div>
 			</div>
 			<div class="row g-0 px-2">
-				<div class="col-sm-12 col-md-3">
+				<div class="col-sm-12 col-md-4">
 					<label asp-for="Building.Rooms" class="form-label"></label>
 					<input class="form-control" asp-for="Building.Rooms" />
 					<span asp-validation-for="Building.Rooms" class="text-danger"></span>
 				</div>
-				<div class="col-sm-12 col-md-3">
+				<div class="col-sm-12 col-md-4">
 					<label asp-for="Building.Bathrooms" class="form-label"></label>
 					<input class="form-control" asp-for="Building.Bathrooms" />
 					<span asp-validation-for="Building.Bathrooms" class="text-danger"></span>
 				</div>
-				<div class="col-sm-12 col-md-3">
-					<label asp-for="Building.Area" class="form-label"></label>
-					<input class="form-control" asp-for="Building.Area" />
-					<span asp-validation-for="Building.Area" class="text-danger"></span>
-				</div>
-				<div class="col-sm-12 col-md-3">
+				<div class="col-sm-12 col-md-4">
 					<label asp-for="Building.Floor" class="form-label"></label>
 					<select class="form-select" asp-for="Building.Floor" asp-items="Html.GetEnumSelectList<Floors>()">
 						<option value="">@Html.DisplayNameFor(e => e.Building.Floor)</option>
 					</select>
 					<span asp-validation-for="Building.Floor" class="text-danger"></span>
+				</div>
+			</div>
+			<div class="row g-0 px-2">
+				<div class="col-sm-12 col-md-6">
+					<label asp-for="Building.BuildingArea" class="form-label"></label>
+					<input class="form-control" asp-for="Building.BuildingArea" />
+					<span asp-validation-for="Building.BuildingArea" class="text-danger"></span>
+				</div>
+				<div class="col-sm-12 col-md-6">
+					<label asp-for="Building.Area" class="form-label"></label>
+					<input class="form-control" asp-for="Building.Area" />
+					<span asp-validation-for="Building.Area" class="text-danger"></span>
 				</div>
 			</div>
 		}
@@ -382,6 +389,14 @@
 						@Html.DisplayFor(e => e.Building.Bathrooms)
 					</div>
 				}
+				@if (Model.Building.BuildingArea > 0)
+				{
+					<div class="col mt-2">
+						<i class="fa fa-square"></i>&nbsp;
+						<label asp-for="Building.BuildingArea" class="form-label"></label>&nbsp;
+						@Html.DisplayFor(e => e.Building.BuildingArea) م
+					</div>
+				}
 				@if (Model.Building.Area > 0)
 				{
 					<div class="col mt-2">
@@ -399,17 +414,17 @@
 		{
 			<div class="row g-0 px-2">
 				<div class="col-sm-12 col-md-4">
-					<label asp-for="Building.Price" class="form-label"></label>
+					<label asp-for="Building.Price" class="form-label"></label> *
 					<input class="form-control" asp-for="Building.Price" />
 					<span asp-validation-for="Building.Price" class="text-danger"></span>
 				</div>
 				<div class="col-sm-12 col-md-4">
-					<label asp-for="Building.Phone" class="form-label"></label>
+					<label asp-for="Building.Phone" class="form-label"></label> *
 					<input class="form-control" asp-for="Building.Phone" dir="ltr" />
 					<span asp-validation-for="Building.Phone" class="text-danger"></span>
 				</div>
 				<div class="col-sm-12 col-md-4">
-					<label asp-for="Building.Mobile" class="form-label"></label>
+					<label asp-for="Building.Mobile" class="form-label"></label> *
 					<input class="form-control" asp-for="Building.Mobile" dir="ltr" />
 					<span asp-validation-for="Building.Mobile" class="text-danger"></span>
 				</div>
@@ -470,12 +485,7 @@
 			</div>
 			<div class="row g-0 px-2">
 				<div class="col-sm-12 col-md-6">
-					<label asp-for="Building.Address2" class="form-label"></label>
-					<input class="form-control" asp-for="Building.Address2" />
-					<span asp-validation-for="Building.Address2" class="text-danger"></span>
-				</div>
-				<div class="col-sm-12 col-md-6">
-					<label asp-for="Building.CityId" class="form-label"></label>
+					<label asp-for="Building.CityId" class="form-label"></label> *
 					<input type="hidden" asp-for="Building.CityId" :value="cityId" />
 					<autocomplete class="w-100" input-class="w-100" :suggestions="cities" option-label="name"
 								:min-length="0" v-model="selectedCity" data-key="id" dropdown 
@@ -483,8 +493,16 @@
 					</autocomplete>
 					<span asp-validation-for="Building.CityId" class="text-danger"></span>
 				</div>
+				<div class="col-sm-12 col-md-6">
+					<label asp-for="Building.DistrictId" class="form-label"></label>
+					<input type="hidden" asp-for="Building.DistrictId" :value="districtId" />
+					<autocomplete class="w-100" input-class="w-100" :suggestions="districts" option-label="name"
+								:min-length="0" v-model="selectedDistrict" data-key="id" dropdown 
+								v-on:complete="fetchDistricts(cityId, $event.query)">
+					</autocomplete>
+					<span asp-validation-for="Building.DistrictId" class="text-danger"></span>
+				</div>
 			</div>
-			
 		}
 		else
 		{
@@ -492,12 +510,19 @@
 				<div class="col-12">
 					<i class="fa fa-location-dot"></i>
 					@Html.DisplayFor(e => e.Building.Address)
-					&nbsp;
-					@Html.DisplayFor(e => e.Building.Address2)
-					&nbsp;
-					@if (Model.Building is IAddressLookup cityNameLookup && !string.IsNullOrEmpty(cityNameLookup.CityName))
+					@if (Model.Building is IAddressLookup addressLookup)
 					{
-						@Html.DisplayFor(e => cityNameLookup.CityName)
+						if (!string.IsNullOrEmpty(addressLookup.DistrictName))
+						{
+							@:&nbsp;
+							@Html.DisplayFor(e => addressLookup.DistrictName)
+						}
+
+						if (!string.IsNullOrEmpty(addressLookup.CityName))
+						{
+							@:&nbsp;
+							@Html.DisplayFor(e => addressLookup.CityName)
+						}
 					}
 				</div>
 			</div>
@@ -518,7 +543,7 @@
 			</div>
 			<div class="row g-0 px-2">
 				<div class="col-12">
-					<label asp-for="Building.Description" class="form-label"></label>
+					<label asp-for="Building.Description" class="form-label"></label> *
 					<textarea class="form-control" asp-for="Building.Description" rows="10">
 					</textarea>
 					<span asp-validation-for="Building.Description" class="text-danger"></span>
@@ -549,12 +574,7 @@
 			@if (!string.IsNullOrEmpty(Model.Building.Description))
 			{
 				<div class="row g-0 px-2 mt-2">
-					<a type="button" class="btn btn-light collapsible collapsed" data-bs-toggle="collapse" 
-						href="#buildingDescription" role="button" aria-expanded="false" 
-						aria-controls="buildingDescription">
-						إقرأ المزيد
-					</a>
-					<div id="buildingDescription" class="col-12 linebreaks collapse">
+					<div class="col-12 linebreaks">
 						<pre>@Model.Building.Description</pre>
 					</div>
 				</div>
@@ -592,9 +612,41 @@
 	{
 		<div class="row g-0 px-2 mt-3">
 			<a asp-area="Admin" asp-controller="Buildings" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary border-0 me-1">تعديل</a>
+			<button type="button" class="btn btn-danger border-0 me-1" onclick="JavaScript:deleteBuilding(event, @Model.Id, '@Model.Building.Reference');">حذف</button>
 		</div>
 	}
 </div>
+
+<script type="text/javascript">
+	async function deleteBuilding(evt, id, reference) {
+		evt.stopPropagation();
+		if (!confirm(`هل تريد حذف الاعلان '${reference}'؟`)) return;
+
+		try
+		{
+			const url = '@Url.Action("Delete", "Buildings", new
+			             {
+				             area = "Admin"
+			             })';
+			const data = new FormData();
+			data.append("id", id);
+			await fetch(url, {
+				method: "post",
+				body: data,
+				headers: {
+					RequestVerificationToken: "@Antiforgery.GetAndStoreTokens(Context).RequestToken"
+				},
+				credentials: "same-origin"
+			});
+
+			window.location = "@Url.Action("Index", "Buildings")";
+		}
+		catch (ex)
+		{
+			alert(ex.message || ex);
+		}
+	}
+</script>
 
 <script type="text/javascript" defer>
 	const { createApp, nextTick, ref } = Vue;
@@ -611,6 +663,42 @@
 
 		return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + _FILE_SIZES[i];
 	};
+	const _fetchDistricts = _.debounce(async (self, cityId, search) => {
+		if (!cityId) {
+			self.selectedDistrict = null;
+			self.districts = [];
+			return;
+		}
+
+		self.loading = true;
+		search = search && search.trim();
+
+		try {
+			const params = new URLSearchParams({
+				cityId,
+				search: search ? encodeURIComponent(search) : ""
+			});
+			const url = `@Url.Action("ListDistricts", "Cities", new
+			             {
+				             area = "Admin"
+			             })?${params}`;
+			const response = await window.fetch(url);
+
+			if (!response.ok) {
+				const error = await getResponseError(response);
+				throw error;
+			}
+
+			self.districts = await response.json();
+			if (self.districtId) self.selectedDistrict = self.districts.find(e => e.id === self.districtId);
+		} catch (e) {
+			self.selectedDistrict = null;
+			self.districts = [];
+			alert(e.message || e);
+		} finally {
+			self.loading = false;
+		}
+		}, DELAY, { leading: true });
 	const _fetchCities = _.debounce(async (self, search) => {
 		self.loading = true;
 		search = search && search.trim();
@@ -647,6 +735,7 @@
 
 		if (!id) {
 			self.images = [];
+			self.activeImage = 0;
 			self.uploading = true;
 			return;
 		}
@@ -674,6 +763,7 @@
 			alert(e.message || e);
 		} finally {
 			self.loading = false;
+			self.activeImage = 0;
 		}
 
 		self.uploading = Boolean(!self.images || !self.images.length);
@@ -685,11 +775,15 @@
 					loading: false,
 					date: '@Model.Building.Date.ToString("yyyy/MM/dd")',
 					expires: '@Model.Building.Expires?.ToString("yyyy/MM/dd")',
+					selectedDistrict: null,
+					districtId: @(Model.Building.DistrictId ?? 0),
+					districts: [],
 					selectedCity: null,
 					cityId: @Model.Building.CityId,
 					cities: [],
 					fullScreen: false,
-					galVisible: true,
+					galleriaVisible: true,
+					activeImage: 0,
 					images: [],
 					selectedImages: [],
 					imagePriority: null,
@@ -704,16 +798,30 @@
 				}
 			},
 			watch: {
+				selectedDistrict(newValue) {
+					if (newValue && newValue.id)
+					{
+						this.districtId = newValue.id;
+						if (this.cityId === newValue.cityId) return;
+						this.selectedCity = this.cities.find(e => e.id === newValue.cityId);
+					}
+					else
+					{
+						this.districtId = 0;
+					}
+				},
 				selectedCity(newValue) {
 					if (newValue)
 						this.cityId = newValue.id;
 					else
 						this.cityId = 0;
+					
+					this.selectedDistrict = null;
 				},
-				galVisible(newValue) {
+				galleriaVisible(newValue) {
 					if (newValue) return;
 					this.fullScreen = false;
-					this.galVisible = true;
+					this.galleriaVisible = true;
 				}
 			},
 			methods: {
@@ -722,16 +830,20 @@
 					@if(Model.CanEdit)
 					{
 						@:this.fetchCities();
+						@:this.fetchDistricts(this.cityId);
 					}
-
 					this.fetchImages();
 				},
 				fetchCities(search) {
 					_fetchCities(this, search);
 				},
+				fetchDistricts(cityId, search) {
+					_fetchDistricts(this, cityId, search);
+				},
 				fetchImages() {
 					_fetchImages(this);
 				},
+
 				setImagePriorityValue(event, id, priority) {
 					if (!id) return;
 
@@ -748,13 +860,16 @@
 					};
 					this.$refs.op.toggle(event);
 				},
-				async setImagePriority(event) {
-					this.errors.length = 0;
+				async setImagePriorityFromEvent(event) {
 					this.$refs.op.toggle(event);
 					if (!this.imagePriority || !this.imagePriority.id) return;
-
+					
 					const { id, priority } = this.imagePriority;
 					this.imagePriority = null;
+					await this.setImagePriority(id, priority);
+				},
+				async setImagePriority(id, priority) {
+					this.errors.length = 0;
 					this.loading = true;
 
 					try {
@@ -803,7 +918,7 @@
 				},
 				async deleteImage(id) {
 					this.errors.length = 0;
-					if (!id) return;
+					if (!id || !confirm("هل تريد حذف الصورة؟")) return;
 					this.loading = true;
 
 					try {
@@ -838,18 +953,33 @@
 				},
 				async deleteImages() {
 					this.errors.length = 0;
-					if (!this.selectedImages || !this.selectedImages.length) return;
+					if (!confirm("هل تريد حذف الصور؟")) return;
+					
+					const ids = [...this.selectedImages];
+					if (this.selectedImages) this.selectedImages.length = 0;
 					this.loading = true;
 
 					try {
-						const url = "@Url.Action("DeleteImages", "Buildings", new
-						             {
-							             area = "Admin"
-						             })";
 						const formData = new FormData();
+						let url;
+						
+						if (ids.length) {
+							url = "@Url.Action("DeleteImages", "Buildings", new
+							       {
+								       area = "Admin"
+							       })";
 
-						for (let i = 0; i < this.selectedImages.length; i++) {
-							formData.append(`id[${i}]`, this.selectedImages[i]);
+							for (let i = 0; i < ids.length; i++) {
+								formData.append(`id[${i}]`, this.ids[i]);
+							}
+						}
+						else
+						{
+							url = "@Url.Action("DeleteAllImages", "Buildings", new
+							       {
+								       area = "Admin"
+							       })";
+							formData.append('id', @Model.Id);
 						}
 
 						const response = await window.fetch(url,
@@ -867,7 +997,6 @@
 							throw error;
 						}
 
-						this.selectedImages.length = 0;
 						this.fetchImages();
 					} catch (e) {
 						alert(e.message || e);
@@ -997,10 +1126,15 @@
 			area = string.Empty,
 			id = Model.Id
 		}, Context.Request.Scheme);
-		string cityName = building is IAddressLookup cityNameLookup ? cityNameLookup.CityName : null;
-		string location = string.Join(" - ", building.Address, building.Address2, cityName).Trim('-', ' ');
-		string message = $@"مرحبًا، أود الحصول على المزيد من المعلومات حول هذا العقار للبيع، المنشور على موقع {Context.Request.Host}
-المرجع: {building.Reference} نوع العقار: {building.BuildingTypeName} السعر: {building.Price} جنيه الموقع: {location}
+		IAddressLookup addressLookup = building as IAddressLookup;
+		string districtName = addressLookup?.DistrictName;
+		string cityName = addressLookup?.CityName;
+		string location = string.Join(" - ", building.Address, districtName, cityName).Trim('-', ' ');
+		string message = $@"مرحبًا، أود الحصول على المزيد من المعلومات حول هذا العقار للبيع، المنشور على موقع {Context.Request.Host}%0a
+المرجع: {building.Reference}%0a
+نوع العقار: {building.BuildingTypeName}%0a
+السعر: {building.Price} جنيه%0a
+الموقع: {location}%0a
 الرابط: {targetUrl}";
 		return $"https://wa.me/{CompanyInfo.WhatsAppNumber}?text={WebUtility.UrlEncode(message)}";
 	}

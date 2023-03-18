@@ -27,7 +27,7 @@ public class CompanyInfo
 	[Display(Name = "العنوان")]
 	public string Address { get; set; }
 	[Display(Name = "الحي")]
-	public string Address2 { get; set; }
+	public string District { get; set; }
 	[Display(Name = "المدينة")]
 	public string City { get; set; }
 	[Display(Name = "الموقع الالكتروني")]

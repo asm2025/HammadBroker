@@ -13,9 +13,10 @@ public interface ILookupService : IServiceBase<DataContext>
 {
 	[NotNull]
 	Task<IList<string>> ListBuildingImagesAsync(int id, int count, CancellationToken token = default(CancellationToken));
-
 	[NotNull]
-	Task<IList<CityForList>> ListCitiesAsync([NotNull] CitiesList settings, CancellationToken token = default(CancellationToken));
+	Task<IList<CityForList>> ListCitiesAsync([NotNull] SearchList settings, CancellationToken token = default(CancellationToken));
+	[NotNull]
+	Task<IList<DistrictForList>> ListDistrictsAsync([NotNull] DistrictList settings, CancellationToken token = default(CancellationToken));
 	[NotNull]
 	[ItemNotNull]
 	IList<string> ListBuildingTypes();

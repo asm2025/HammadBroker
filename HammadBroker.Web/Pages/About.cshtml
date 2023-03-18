@@ -38,11 +38,18 @@
 			<label asp-for="CompanyInfo.Address" class="form-label border-0"></label>
 		</div>
 	}
-	@if (!string.IsNullOrEmpty(Model.CompanyInfo.Address2))
+	@if (!string.IsNullOrEmpty(Model.CompanyInfo.District))
 	{
 		<div class="form-floating">
-			<input asp-for="CompanyInfo.Address2" class="form-control border-0" disabled />
-			<label asp-for="CompanyInfo.Address2" class="form-label border-0"></label>
+			<input asp-for="CompanyInfo.District" class="form-control border-0" disabled />
+			<label asp-for="CompanyInfo.District" class="form-label border-0"></label>
+		</div>
+	}
+	@if (!string.IsNullOrEmpty(Model.CompanyInfo.City))
+	{
+		<div class="form-floating">
+			<input asp-for="CompanyInfo.City" class="form-control border-0" disabled />
+			<label asp-for="CompanyInfo.City" class="form-label border-0"></label>
 		</div>
 	}
 </div>

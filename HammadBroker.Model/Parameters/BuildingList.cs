@@ -24,12 +24,18 @@ public class BuildingList : SortablePagination
 	public byte? Bathrooms { get; set; }
 	[Display(Name = "بحد أقصى")]
 	public byte? MaxBathrooms { get; set; }
+	[Display(Name = "مساحة المبنى")]
+	public long? BuildingArea { get; set; }
+	[Display(Name = "بحد أقصى")]
+	public long? MaxBuildingArea { get; set; }
 	[Display(Name = "المساحة")]
 	public long? Area { get; set; }
 	[Display(Name = "بحد أقصى")]
 	public long? MaxArea { get; set; }
 	[Display(Name = "العنوان")]
 	public string Address { get; set; }
+	[Display(Name = "الحي")]
+	public int DistrictId { get; set; }
 	[Display(Name = "المدينة")]
 	public int CityId { get; set; }
 	[Display(Name = "نوع الاعلان")]
@@ -52,9 +58,12 @@ public class BuildingList : SortablePagination
 							|| MaxRooms.HasValue
 							|| Bathrooms.HasValue
 							|| MaxBathrooms.HasValue
+							|| BuildingArea.HasValue
+							|| MaxBuildingArea.HasValue
 							|| Area.HasValue
 							|| MaxArea.HasValue
 							|| !string.IsNullOrEmpty(Address)
+							|| DistrictId > 0
 							|| CityId > 0
 							|| AdType.HasValue
 							|| Date.HasValue

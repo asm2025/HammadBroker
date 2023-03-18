@@ -1,0 +1,181 @@
+﻿@using HammadBroker.Model.DTO
+@using Microsoft.AspNetCore.Antiforgery
+@inject IAntiforgery Antiforgery
+@model DistrictsPaginated
+
+@{
+	ViewData["Title"] = "الاحياء";
+	bool hasSearch = Model.Pagination.HasSearch;
+}
+
+<div class="card mb-1">
+	<h5 class="card-header @(hasSearch ? null : "collapsed")" data-bs-toggle="collapse" data-bs-target="#searchForm" 
+		aria-expanded="@(hasSearch ? "true" : "false")" aria-controls="searchForm">البحث</h5>
+	<div id="searchForm" v-scope class="card-body @(hasSearch ? null : "collapse")">
+		<form method="get" asp-area="Admin" asp-controller="Cities" asp-action="Districts">
+			<div v-if="errors && errors.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="error of errors">
+				{{ error }}
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			</div>
+
+			<div class="row g-0 mb-1">
+				<div class="col-sm-12 col-md-6">
+					<label asp-for="Pagination.Search" class="form-label"></label>
+					<input class="form-control" asp-for="Pagination.Search" />
+				</div>
+				<div class="col-sm-12 col-md-6">
+					<label asp-for="Pagination.CityId" class="form-label"></label>
+					<input type="hidden" name="@nameof(Model.Pagination.CityId)" asp-for="Pagination.CityId" :value="cityId" />
+					<autocomplete class="w-100" input-class="w-100" :suggestions="cities" option-label="name"
+								v-model="selectedCity" data-key="id" dropdown v-on:complete="fetchCities($event.query)">
+					</autocomplete>
+				</div>
+			</div>
+			<div class="row g-0 px-2 my-1">
+				<button type="submit" class="btn btn-outline-secondary btn-sm me-1"><span class="fa fa-magnifying-glass"></span></button>
+				<button type="reset" class="btn btn-outline-secondary btn-sm border-0" v-on:click="onReset"><span class="fa fa-times"></span></button>
+			</div>
+		</form>
+	</div>
+</div>
+
+<div class="row mb-1">
+	<div class="col-12">
+		<a asp-area="Admin" asp-controller="Cities" asp-action="AddDistrict" asp-route-cityId="@Model.Pagination.CityId" class="btn btn-outline-primary border-0"><i class="fa fa-plus"></i> إضافة حي</a>
+	</div>
+</div>
+
+<div class="table-responsive">
+	<table class="table table-borderless table-hover">
+		<thead>
+			<tr>
+				<th scope="col" class="auto-cell"></th>
+				@if (Model.Pagination.CityId < 1)
+				{
+					<th scope="col" class="auto-cell">@Html.DisplayNameForInnerType((DistrictForList e) => e.CityName)</th>
+				}
+				<th scope="col">@Html.DisplayNameForInnerType((DistrictForList e) => e.Name)</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (DistrictForList district in Model.Result)
+			{
+				<tr>
+					<th scope="row" class="text-nowrap">
+						<a class="btn btn-outline-secondary btn-sm border-0 mb-1" asp-area="Admin" asp-controller="Cities" asp-action="EditDistrict" asp-route-id="@district.Id"><i class="fa fa-pen"></i></a>
+						<a class="btn btn-outline-danger btn-sm border-0 mb-1" onclick="JavaScript:deleteDistrict(@district.Id, '@district.Name');"><i class="fa fa-xmark"></i></a>
+					</th>
+					@if (Model.Pagination.CityId < 1)
+					{
+						<td class="text-nowrap">@Html.DisplayFor(e => district.CityName)</td>
+					}
+					<td>@Html.DisplayFor(e => district.Name)</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</div>
+<partial name="_PaginationPartial" model="Model.Pagination" />
+
+@section scripts
+{
+	<script type="text/javascript">
+		async function deleteCity(id, name) {
+			if (!confirm(`هل تريد حذف الحي '${name}'?`)) return;
+
+			try {
+				const url = '@Url.Action("DeleteDistrict", "Cities", new
+			             {
+							 area = "Admin"
+			             })';
+				const formData = new FormData();
+				formData.append("id", id);
+				await fetch(url,
+					{
+						method: "post",
+						body: formData,
+						headers: {
+							RequestVerificationToken: "@Antiforgery.GetAndStoreTokens(Context).RequestToken"
+						},
+						credentials: "same-origin"
+					});
+				window.location.reload();
+			} catch (e) {
+				alert(ex.message || ex);
+			} 
+		}
+	</script>
+	<script type="text/javascript" defer>
+		const { createApp } = Vue;
+
+		const DELAY = 300;
+		const _fetchCities = _.debounce(async (self, search) => {
+			self.loading = true;
+			search = search && search.trim();
+
+			try {
+				const params = new URLSearchParams({
+					search: search ? encodeURIComponent(search) : ""
+				});
+				const url = `@Url.Action("List", "Cities", new
+				             {
+					             area = "Admin"
+				             })?${params}`;
+				const response = await window.fetch(url);
+
+				if (!response.ok) {
+					const error = await getResponseError(response);
+					throw error;
+				}
+
+				self.cities = await response.json();
+				if (self.cityId) self.selectedCity = self.cities.find(e => e.id === self.cityId);
+			} catch (e) {
+				self.selectedCity = null;
+				self.cities = [];
+				alert(e.message || e);
+			} finally {
+				self.loading = false;
+			}
+		}, DELAY, { leading: true });
+		
+		createApp({
+			data() {
+				return {
+					loading: false,
+					selectedCity: null,
+					cityId: @Model.Pagination.CityId,
+					cities: [],
+					errors: []
+				}
+			},
+			watch: {
+				selectedCity(newValue) {
+					if (newValue && newValue.id)
+						this.cityId = newValue.id;
+					else
+						this.cityId = 0;
+				}
+			},
+			methods: {
+				fetchData() {
+					this.errors.length = 0;
+					this.fetchCities();
+				},
+				fetchCities(search) {
+					_fetchCities(this, search);
+				},
+				onReset() {
+					this.errors.length = 0;
+					this.selectedCity = null;
+				}
+			},
+			mounted() {
+				this.fetchData();
+			}
+		})
+		.use(primevue.config.default)
+		.component("autocomplete", primevue.autocomplete)
+		.mount("#searchForm");
+	</script>
+}

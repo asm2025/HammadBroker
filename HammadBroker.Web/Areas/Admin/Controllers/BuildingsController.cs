@@ -13,6 +13,7 @@ using essentialMix.Drawing.Helpers;
 using essentialMix.Extensions;
 using essentialMix.Helpers;
 using essentialMix.Patterns.Sorting;
+using HammadBroker.Data.Context;
 using HammadBroker.Data.Services;
 using HammadBroker.Model;
 using HammadBroker.Model.Configuration;
@@ -25,6 +26,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NToastNotify;
@@ -373,10 +375,31 @@ public class BuildingsController : MvcController
 
 		try
 		{
+			DataContext context = _buildingService.Context;
 			BuildingImage image = await _buildingService.GetImageAsync(id, token);
 			if (image == null) return BadRequest();
 			image.Priority = priority;
-			if (await _buildingService.UpdateImageAsync(image, token) == null) return BadRequest();
+			context.Entry(image).State = EntityState.Modified;
+
+			if (priority == byte.MaxValue)
+			{
+				IList<BuildingImage> images = await context.BuildingImages
+															.Where(e => e.BuildingId == image.BuildingId && e.Id != image.Id && e.Priority > 0)
+															.OrderBy(e => e.Priority)
+															.ToListAsync(token);
+
+				if (images.Count > 0)
+				{
+					for (int i = 0; i < images.Count; i++)
+					{
+						BuildingImage buildingImage = images[i];
+						buildingImage.Priority = (byte)(i + 1);
+						context.Entry(buildingImage).State = EntityState.Modified;
+					}
+				}
+			}
+
+			await context.SaveChangesAsync(token);
 		}
 		catch (Exception ex)
 		{
@@ -398,9 +421,14 @@ public class BuildingsController : MvcController
 		{
 			stream = formFile.OpenReadStream();
 			image = Image.FromStream(stream);
-			thumb = image.Width > Constants.Images.DimensionXMax || image.Height > Constants.Images.DimensionYMax
-						? ImageHelper.Resize(image, Constants.Images.DimensionXMax, Constants.Images.DimensionYMax)
-						: image;
+			thumb = image;
+
+			if (image.Width > Constants.Images.DimensionXMax || image.Height > Constants.Images.DimensionYMax)
+			{
+				Size size = ImageHelper.GetThumbnailSize(image.Width, image.Height, Constants.Images.DimensionXMax, Constants.Images.DimensionYMax);
+				thumb = ImageHelper.Resize(image, size.Width, size.Height);
+			}
+
 			if (SysFile.Exists(fileName)) FileHelper.Delete(fileName);
 			fileName = ImageHelper.Save(thumb, fileName);
 			return fileName;

@@ -37,6 +37,7 @@ public class DataContext : IdentityDbContext<User, Role, string,
 	{
 	}
 
+	public DbSet<District> Districts { get; set; }
 	public DbSet<City> Cities { get; set; }
 	public DbSet<Building> Buildings { get; set; }
 	public DbSet<BuildingImage> BuildingImages { get; set; }
@@ -119,6 +120,13 @@ public class DataContext : IdentityDbContext<User, Role, string,
 		{
 			city.HasIndex(e => e.Name)
 				.IsUnique();
+		});
+		builder.Entity<District>(district =>
+		{
+			district.HasOne<City>()
+					.WithMany()
+					.HasForeignKey(e => e.CityId);
+			district.HasIndex(e => e.Name);
 		});
 		builder.Entity<Building>(building =>
 		{

@@ -36,7 +36,7 @@
 		}
 		<div class="py-3">
 			<label class="form-label">المكتب الرئيسي:</label>
-			@CompanyInfo.Address @string.Join(" - ", CompanyInfo.Address2, CompanyInfo.City)
+			@CompanyInfo.Address @string.Join(" - ", CompanyInfo.District, CompanyInfo.City)
 		</div>
 	</div>
 </div>
@@ -71,122 +71,136 @@
 <div class="card px-4 mb-1 pane-active">
 	<h5 class="card-title text-center py-3">عقاراتي (@Model.Pagination.Count)</h5>
 
-	@if (Model.Pagination.Count > Model.Pagination.PageSize || hasSearch)
-	{
-		<h5 class="card-header @(hasSearch ? null : "collapsed")" data-bs-toggle="collapse" data-bs-target="#searchForm"
-			aria-expanded="@(hasSearch ? "true" : "false")" aria-controls="searchForm">
-			البحث
-		</h5>
-		<div id="searchForm" v-scope class="@(hasSearch ? null : "collapse")">
-			<form method="get" asp-area="" asp-controller="Home" asp-action="Index">
-				<div v-if="errors && errors.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="error of errors">
-					{{ error }}
-					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-				</div>
+	<h5 class="card-header mb-2 @(hasSearch ? null : "collapsed")" data-bs-toggle="collapse" data-bs-target="#searchForm"
+		aria-expanded="@(hasSearch ? "true" : "false")" aria-controls="searchForm">
+		البحث
+	</h5>
+	<div id="searchForm" v-scope class="@(hasSearch ? null : "collapse")">
+		<form method="get" asp-area="" asp-controller="Home" asp-action="Index">
+			<div v-if="errors && errors.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="error of errors">
+				{{ error }}
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			</div>
 
-				<div class="row g-0 mb-1">
-					<div class="col-sm-12 col-md-4">
-						<label asp-for="Pagination.Reference" class="form-label"></label>
-						<input class="form-control" name="@nameof(Model.Pagination.Reference)" asp-for="Pagination.Reference" />
-					</div>
-					<div class="col-sm-12 col-md-4">
-						<label asp-for="Pagination.BuildingType" class="form-label"></label>
-						<select class="form-select" name="@nameof(Model.Pagination.BuildingType)" asp-for="Pagination.BuildingType" asp-items="Html.GetEnumSelectList<BuildingType>()">
-							<option value="">@Html.DisplayNameFor(e => e.Pagination.BuildingType)</option>
-						</select>
-					</div>
-					<div class="col-sm-12 col-md-4">
-						<label asp-for="Pagination.FinishingType" class="form-label"></label>
-						<select class="form-select" name="@nameof(Model.Pagination.FinishingType)" asp-for="Pagination.FinishingType" asp-items="Html.GetEnumSelectList<FinishingType>()">
-							<option value="">@Html.DisplayNameFor(e => e.Pagination.FinishingType)</option>
-						</select>
-					</div>
+			<div class="row g-0 mb-1">
+				<div class="col-sm-12 col-md-4">
+					<label asp-for="Pagination.Reference" class="form-label"></label>
+					<input class="form-control" name="@nameof(Model.Pagination.Reference)" asp-for="Pagination.Reference" />
 				</div>
-				<div class="row g-0 mb-1">
-					<div class="col-sm-12 col-md-6">
-						<label asp-for="Pagination.AdType" class="form-label"></label>
-						<select class="form-select" name="@nameof(Model.Pagination.AdType)" asp-for="Pagination.AdType" asp-items="Html.GetEnumSelectList<BuildingAdType>()">
-							<option value="">@Html.DisplayNameFor(e => e.Pagination.AdType)</option>
-						</select>
-					</div>
-					<div class="col-sm-12 col-md-6">
-						<label asp-for="Pagination.Date" class="form-label"></label>
-						<input type="hidden" name="@nameof(Model.Pagination.Date)" :value="date"/>
-						<input type="hidden" name="@nameof(Model.Pagination.MaxDate)" :value="maxDate"/>
-						<calendar class="w-100" v-model="dateRange" selection-mode="range" date-format="yy/mm/dd">
-						</calendar>
-					</div>
+				<div class="col-sm-12 col-md-4">
+					<label asp-for="Pagination.BuildingType" class="form-label"></label>
+					<select class="form-select" name="@nameof(Model.Pagination.BuildingType)" asp-for="Pagination.BuildingType" asp-items="Html.GetEnumSelectList<BuildingType>()">
+						<option value="">@Html.DisplayNameFor(e => e.Pagination.BuildingType)</option>
+					</select>
 				</div>
-				<div class="row g-0 mb-1">
-					<div class="col-sm-12 col-md-8">
-						<label asp-for="Pagination.Address" class="form-label"></label>
-						<input class="form-control" name="@nameof(Model.Pagination.Address)" asp-for="Pagination.Address" />
-					</div>
-					<div class="col-sm-12 col-md-4">
-						<label asp-for="Pagination.CityId" class="form-label"></label>
-						<input type="hidden" name="@nameof(Model.Pagination.CityId)" asp-for="Pagination.CityId" :value="cityId" />
-						<autocomplete class="w-100" input-class="w-100" :suggestions="cities" option-label="name"
+				<div class="col-sm-12 col-md-4">
+					<label asp-for="Pagination.FinishingType" class="form-label"></label>
+					<select class="form-select" name="@nameof(Model.Pagination.FinishingType)" asp-for="Pagination.FinishingType" asp-items="Html.GetEnumSelectList<FinishingType>()">
+						<option value="">@Html.DisplayNameFor(e => e.Pagination.FinishingType)</option>
+					</select>
+				</div>
+			</div>
+			<div class="row g-0 mb-1">
+				<div class="col-sm-12 col-md-6">
+					<label asp-for="Pagination.AdType" class="form-label"></label>
+					<select class="form-select" name="@nameof(Model.Pagination.AdType)" asp-for="Pagination.AdType" asp-items="Html.GetEnumSelectList<BuildingAdType>()">
+						<option value="">@Html.DisplayNameFor(e => e.Pagination.AdType)</option>
+					</select>
+				</div>
+				<div class="col-sm-12 col-md-6">
+					<label asp-for="Pagination.Date" class="form-label"></label>
+					<input type="hidden" name="@nameof(Model.Pagination.Date)" :value="date"/>
+					<input type="hidden" name="@nameof(Model.Pagination.MaxDate)" :value="maxDate"/>
+					<calendar class="w-100" v-model="dateRange" selection-mode="range" date-format="yy/mm/dd">
+					</calendar>
+				</div>
+			</div>
+			<div class="row g-0 mb-1">
+				<div class="col-12">
+					<label asp-for="Pagination.Address" class="form-label"></label>
+					<input class="form-control" name="@nameof(Model.Pagination.Address)" asp-for="Pagination.Address" />
+				</div>
+			</div>
+			<div class="row g-0 mb-1">
+				<div class="col-sm-12 col-md-6">
+					<label asp-for="Pagination.CityId" class="form-label"></label>
+					<input type="hidden" name="@nameof(Model.Pagination.CityId)" asp-for="Pagination.CityId" :value="cityId" />
+					<autocomplete class="w-100" input-class="w-100" :suggestions="cities" option-label="name"
 						v-model="selectedCity" data-key="id" dropdown v-on:complete="fetchCities($event.query)">
-						</autocomplete>
-					</div>
+					</autocomplete>
 				</div>
-				<div class="row g-0 mb-1">
-					<div class="col-sm-12 col-md-3">
-						<label asp-for="Pagination.Rooms" class="form-label"></label>
-						<input class="form-control" name="@nameof(Model.Pagination.Rooms)" asp-for="Pagination.Rooms" />
-					</div>
-					<div class="col-sm-12 col-md-3">
-						<label asp-for="Pagination.MaxRooms" class="form-label"></label>
-						<input class="form-control" name="@nameof(Model.Pagination.MaxRooms)" asp-for="Pagination.MaxRooms" />
-					</div>
-					<div class="col-sm-12 col-md-3">
-						<label asp-for="Pagination.Bathrooms" class="form-label"></label>
-						<input class="form-control" name="@nameof(Model.Pagination.Bathrooms)" asp-for="Pagination.Bathrooms" />
-					</div>
-					<div class="col-sm-12 col-md-3">
-						<label asp-for="Pagination.MaxBathrooms" class="form-label"></label>
-						<input class="form-control" name="@nameof(Model.Pagination.MaxBathrooms)" asp-for="Pagination.MaxBathrooms" />
-					</div>
+				<div class="col-sm-12 col-md-6">
+					<label asp-for="Pagination.DistrictId" class="form-label"></label>
+					<input type="hidden" name="@nameof(Model.Pagination.DistrictId)" asp-for="Pagination.DistrictId" :value="districtId" />
+					<autocomplete class="w-100" input-class="w-100" :suggestions="districts" option-label="name"
+						v-model="selectedDistrict" data-key="id" dropdown v-on:complete="fetchDistricts(cityId, $event.query)">
+					</autocomplete>
 				</div>
-				<div class="row g-0 mb-1">
-					<div class="col-sm-12 col-md-3">
-						<label asp-for="Pagination.Floor" class="form-label"></label>
-						<select class="form-select" name="@nameof(Model.Pagination.Floor)" asp-for="Pagination.Floor" asp-items="Html.GetEnumSelectList<Floors>()">
-							<option value="">@Html.DisplayNameFor(e => e.Pagination.Floor)</option>
-						</select>
-					</div>
-					<div class="col-sm-12 col-md-3">
-						<label asp-for="Pagination.MaxFloor" class="form-label"></label>
-						<select class="form-select" name="@nameof(Model.Pagination.MaxFloor)" asp-for="Pagination.MaxFloor" asp-items="Html.GetEnumSelectList<Floors>()">
-							<option value="">@Html.DisplayNameFor(e => e.Pagination.Floor)</option>
-						</select>
-					</div>
-					<div class="col-sm-12 col-md-3">
-						<label asp-for="Pagination.Area" class="form-label"></label>
-						<input class="form-control" name="@nameof(Model.Pagination.Area)" asp-for="Pagination.Area" />
-					</div>
-					<div class="col-sm-12 col-md-3">
-						<label asp-for="Pagination.MaxArea" class="form-label"></label>
-						<input class="form-control" name="@nameof(Model.Pagination.MaxArea)" asp-for="Pagination.MaxArea" />
-					</div>
+			</div>
+			<div class="row g-0 mb-1">
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Pagination.Rooms" class="form-label"></label>
+					<input class="form-control" name="@nameof(Model.Pagination.Rooms)" asp-for="Pagination.Rooms" />
 				</div>
-				<div class="row g-0 mb-1">
-					<div class="col-sm-12 col-md-6">
-						<label asp-for="Pagination.Price" class="form-label"></label>
-						<input class="form-control" name="@nameof(Model.Pagination.Price)" asp-for="Pagination.Price" />
-					</div>
-					<div class="col-sm-12 col-md-6">
-						<label asp-for="Pagination.MaxPrice" class="form-label"></label>
-						<input class="form-control" name="@nameof(Model.Pagination.MaxPrice)" asp-for="Pagination.MaxPrice" />
-					</div>
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Pagination.MaxRooms" class="form-label"></label>
+					<input class="form-control" name="@nameof(Model.Pagination.MaxRooms)" asp-for="Pagination.MaxRooms" />
 				</div>
-				<div class="row g-0 px-2 my-1">
-					<button type="submit" class="btn btn-outline-secondary btn-sm me-1"><span class="fa fa-magnifying-glass"></span></button>
-					<button type="reset" class="btn btn-outline-secondary btn-sm border-0" v-on:click="onReset"><span class="fa fa-times"></span></button>
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Pagination.Bathrooms" class="form-label"></label>
+					<input class="form-control" name="@nameof(Model.Pagination.Bathrooms)" asp-for="Pagination.Bathrooms" />
 				</div>
-			</form>
-		</div>
-	}
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Pagination.MaxBathrooms" class="form-label"></label>
+					<input class="form-control" name="@nameof(Model.Pagination.MaxBathrooms)" asp-for="Pagination.MaxBathrooms" />
+				</div>
+			</div>
+			<div class="row g-0 mb-1">
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Pagination.Floor" class="form-label"></label>
+					<select class="form-select" name="@nameof(Model.Pagination.Floor)" asp-for="Pagination.Floor" asp-items="Html.GetEnumSelectList<Floors>()">
+						<option value="">@Html.DisplayNameFor(e => e.Pagination.Floor)</option>
+					</select>
+				</div>
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Pagination.MaxFloor" class="form-label"></label>
+					<select class="form-select" name="@nameof(Model.Pagination.MaxFloor)" asp-for="Pagination.MaxFloor" asp-items="Html.GetEnumSelectList<Floors>()">
+						<option value="">@Html.DisplayNameFor(e => e.Pagination.Floor)</option>
+					</select>
+				</div>
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Pagination.Price" class="form-label"></label>
+					<input class="form-control" name="@nameof(Model.Pagination.Price)" asp-for="Pagination.Price" />
+				</div>
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Pagination.MaxPrice" class="form-label"></label>
+					<input class="form-control" name="@nameof(Model.Pagination.MaxPrice)" asp-for="Pagination.MaxPrice" />
+				</div>
+			</div>
+			<div class="row g-0 mb-1">
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Pagination.BuildingArea" class="form-label"></label>
+					<input class="form-control" name="@nameof(Model.Pagination.BuildingArea)" asp-for="Pagination.BuildingArea" />
+				</div>
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Pagination.MaxBuildingArea" class="form-label"></label>
+					<input class="form-control" name="@nameof(Model.Pagination.MaxBuildingArea)" asp-for="Pagination.MaxBuildingArea" />
+				</div>
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Pagination.Area" class="form-label"></label>
+					<input class="form-control" name="@nameof(Model.Pagination.Area)" asp-for="Pagination.Area" />
+				</div>
+				<div class="col-sm-12 col-md-3">
+					<label asp-for="Pagination.MaxArea" class="form-label"></label>
+					<input class="form-control" name="@nameof(Model.Pagination.MaxArea)" asp-for="Pagination.MaxArea" />
+				</div>
+			</div>
+			<div class="row g-0 px-2 my-1">
+				<button type="submit" class="btn btn-outline-secondary btn-sm me-1"><span class="fa fa-magnifying-glass"></span></button>
+				<button type="reset" class="btn btn-outline-secondary btn-sm border-0" v-on:click="onReset"><span class="fa fa-times"></span></button>
+			</div>
+		</form>
+	</div>
 
 	@foreach (BuildingForDisplay building in Model.Result)
 	{
@@ -207,18 +221,8 @@
 							</div>
 							<div class="row g-0">
 								<div class="col-12">
-									<p>
-										<i class="fa fa-location-dot"></i>
-										@Html.DisplayFor(e => building.Address)
-									</p>
-									<p>
-										@if (!string.IsNullOrEmpty(building.Address2))
-										{
-											@Html.DisplayFor(e => building.Address2)
-											@:&nbsp;
-										}
-										@Html.DisplayFor(e => building.CityName)
-									</p>
+									<i class="fa fa-location-dot"></i>
+									@string.Join(" - ", building.Address, building.DistrictName, building.CityName).Trim('-', ' ')
 								</div>
 							</div>
 							<div class="row g-0">
@@ -246,6 +250,14 @@
 										<label for="@nameof(building.Bathrooms)">@Html.DisplayNameFor(e => building.Bathrooms) </label>
 									</div>
 								}
+								@if (building.BuildingArea > 0)
+								{
+									<div class="col">
+										<i class="fa fa-square"></i>&nbsp;
+										@Html.DisplayFor(e => building.BuildingArea)
+										<label for="@nameof(building.BuildingArea)">@Html.DisplayNameFor(e => building.BuildingArea) </label>
+									</div>
+								}
 								@if (building.Area > 0)
 								{
 									<div class="col">
@@ -259,46 +271,50 @@
 					</div>
 				</div>
 			</div>
-			<div class="card-footer d-flex align-items-center">
-				<div class="flex-grow-1">
-					<small class="text-muted">
-						@Html.DisplayNameForInnerType((IBuildingLookup e) => e.CreatedOn) @building.CreatedOn.Humanize(culture: ciar)<br />
+			<div class="card-footer">
+				<div class="row g-0">
+					<small class="text-muted mb-1">
+						@Html.DisplayNameForInnerType((IBuildingLookup e) => e.CreatedOn) @building.CreatedOn.Humanize(culture: ciar)، 
 						@Html.DisplayNameForInnerType((IBuildingLookup e) => e.UpdatedOn) @building.UpdatedOn.Humanize(culture: ciar)
 					</small>
 				</div>
-				<div class="d-inline-flex">
+				<div class="row g-0 justify-content-end">
 					@if (!string.IsNullOrEmpty(building.Phone))
 					{
-						<div class="btn-contact" dir="ltr" onclick="this.firstChild.textContent = '@building.Phone'">
-							تليفون
-							<i class="fa fa-phone"></i>
+						<div class="btn-contact" dir="ltr">
+							<a class="d-block text-nowrap" href="tel:@building.Phone" onclick="this.childNodes[1].innerText = '@building.Phone'">
+								<i class="fa fa-phone"></i>
+								تليفون
+							</a>
 						</div>
 					}
 					@if (!string.IsNullOrEmpty(building.Mobile))
 					{
-						<div class="btn-contact" dir="ltr" onclick="this.firstChild.textContent = '@building.Mobile'">
-							جوال
-							<i class="fa fa-mobile-screen"></i>
+						<div class="btn-contact" dir="ltr">
+							<a class="d-block text-nowrap" href="tel:@building.Mobile" onclick="this.childNodes[1].innerText = '@building.Mobile'">
+								<i class="fa fa-mobile-screen"></i>
+								جوال
+							</a>
 						</div>
 					}
 					@if (!string.IsNullOrEmpty(CompanyInfo.Email))
 					{
 						<div class="btn-contact" dir="ltr">
-							<a href="mailto:@CompanyInfo.Email?subject=@WebUtility.UrlEncode($"معلومات حول العقار {building.Id}")">
-								إيميل
+							<a class="d-block text-nowrap" href="mailto:@CompanyInfo.Email?subject=@WebUtility.UrlEncode($"معلومات حول العقار {building.Id}")">
 								<i class="fa fa-envelope"></i>
+								إيميل
 							</a>
 						</div>
 					}
 					@if (!string.IsNullOrEmpty(CompanyInfo.WhatsAppNumber))
 					{
 						<div class="btn-contact btn-whatsApp" dir="ltr">
-							<a href="@GetWhatsAppLink(building)" target="_blank" class="text-white">
-								واتس آب
+							<a class="d-block text-nowrap text-white" href="@GetWhatsAppLink(building)" target="_blank">
 								<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
 									viewBox="0 0 32 32" class="whatsApp-svg-icon">
 									<path d=" M19.11 17.205c-.372 0-1.088 1.39-1.518 1.39a.63.63 0 0 1-.315-.1c-.802-.402-1.504-.817-2.163-1.447-.545-.516-1.146-1.29-1.46-1.963a.426.426 0 0 1-.073-.215c0-.33.99-.945.99-1.49 0-.143-.73-2.09-.832-2.335-.143-.372-.214-.487-.6-.487-.187 0-.36-.043-.53-.043-.302 0-.53.115-.746.315-.688.645-1.032 1.318-1.06 2.264v.114c-.015.99.472 1.977 1.017 2.78 1.23 1.82 2.506 3.41 4.554 4.34.616.287 2.035.888 2.722.888.817 0 2.15-.515 2.478-1.318.13-.33.244-.73.244-1.088 0-.058 0-.144-.03-.215-.1-.172-2.434-1.39-2.678-1.39zm-2.908 7.593c-1.747 0-3.48-.53-4.942-1.49L7.793 24.41l1.132-3.337a8.955 8.955 0 0 1-1.72-5.272c0-4.955 4.04-8.995 8.997-8.995S25.2 10.845 25.2 15.8c0 4.958-4.04 8.998-8.998 8.998zm0-19.798c-5.96 0-10.8 4.842-10.8 10.8 0 1.964.53 3.898 1.546 5.574L5 27.176l5.974-1.92a10.807 10.807 0 0 0 16.03-9.455c0-5.958-4.842-10.8-10.802-10.8z" fill-rule="evenodd"></path>
 								</svg>
+								واتس آب
 							</a>
 						</div>
 					}
@@ -319,6 +335,71 @@
 		const DATE = "@Model.Pagination.Date?.ToString("yyyy/MM/dd")";
 		const MAX_DATE = "@Model.Pagination.MaxDate?.ToString("yyyy/MM/dd")";
 		const DATE_RANGE = "@string.Join(" - ", Model.Pagination.Date?.ToString("yyyy/MM/dd"), Model.Pagination.MaxDate?.ToString("yyyy/MM/dd")).Trim('-', ' ')";
+		const _fetchDistrict = _.debounce(async (self, cityId, search) => {
+			if (!cityId) {
+				self.selectedDistrict = null;
+				self.districts = [];
+				return;
+			}
+
+			self.loading = true;
+			search = search && search.trim();
+
+			try {
+				const params = new URLSearchParams({
+					cityId,
+					search: search ? encodeURIComponent(search) : ""
+				});
+				const url = `@Url.Action("Districts", "Home", new
+				             {
+					             area = string.Empty
+				             })?${params}`;
+				const response = await window.fetch(url);
+
+				if (!response.ok) {
+					const error = await getResponseError(response);
+					throw error;
+				}
+
+				self.districts = await response.json();
+				if (self.districtId) self.selectedDistrict = self.districts.find(e => e.id === self.districtId);
+			} catch (e) {
+				self.selectedDistrict = null;
+				self.districts = [];
+				alert(e.message || e);
+			} finally {
+				self.loading = false;
+			}
+			}, DELAY, { leading: true });
+		const _fetchCities = _.debounce(async (self, search) => {
+			self.loading = true;
+			search = search && search.trim();
+
+			try {
+				const params = new URLSearchParams({
+					search: search ? encodeURIComponent(search) : ""
+				});
+				const url = `@Url.Action("Cities", "Home", new
+				             {
+					             area = string.Empty
+				             })?${params}`;
+				const response = await window.fetch(url);
+
+				if (!response.ok) {
+					const error = await getResponseError(response);
+					throw error;
+				}
+
+				self.cities = await response.json();
+				if (self.cityId) self.selectedCity = self.cities.find(e => e.id === self.cityId);
+			} catch (e) {
+				self.selectedCity = null;
+				self.cities = [];
+				alert(e.message || e);
+			} finally {
+				self.loading = false;
+			}
+			}, DELAY, { leading: true });
 		
 		createApp({
 			data() {
@@ -327,6 +408,9 @@
 					date: DATE,
 					maxDate: MAX_DATE,
 					dateRange: DATE_RANGE,
+					selectedDistrict: null,
+					districtId: @Model.Pagination.DistrictId,
+					districts: [],
 					selectedCity: null,
 					cityId: @Model.Pagination.CityId,
 					cities: [],
@@ -334,6 +418,12 @@
 				}
 			},
 			watch: {
+				selectedDistrict(newValue) {
+					if (newValue && newValue.id)
+						this.districtId = newValue.id;
+					else
+						this.districtId = 0;
+				},
 				selectedCity(newValue) {
 					if (newValue && newValue.id)
 						this.cityId = newValue.id;
@@ -358,44 +448,22 @@
 				}
 			},
 			methods: {
-				async fetchData() {
+				fetchData() {
 					this.errors.length = 0;
-					await this.fetchCities();
+					this.fetchCities();
+					this.fetchDistricts(this.cityId);
 				},
-				async fetchCities(search) {
-					this.loading = true;
-					search = search && search.trim();
-
-					try {
-						const params = new URLSearchParams({
-							countryCode: this.countryCode,
-							search: search ? encodeURIComponent(search) : ""
-						});
-						const url = `@Url.Action("Cities", "Home", new
-									 {
-										 area = ""
-									 })?${params}`;
-						const response = await window.fetch(url);
-
-						if (!response.ok) {
-							const error = await getResponseError(response);
-							throw error;
-						}
-
-						this.cities = await response.json();
-						this.selectedCity = this.cities.find(e => e.id === this.cityId);
-					} catch (e) {
-						this.selectedCity = null;
-						alert(e.message || e);
-					} finally {
-						this.loading = false;
-					}
+				fetchCities(search) {
+					_fetchCities(this, search);
+				},
+				fetchDistricts(cityId, search) {
+					_fetchDistricts(this, cityId, search);
 				},
 				onReset() {
 					this.errors.length = 0;
 					this.dateRange = null;
-					this.selectedCountry = null;
 					this.selectedCity = null;
+					this.selectedDistrict = null;
 				}
 			},
 			mounted() {
@@ -418,9 +486,12 @@
 				area = string.Empty,
 				id = building.Id
 			}, Context.Request.Scheme);
-			string location = string.Join(" - ", building.Address, building.Address2, building.CityName).Trim('-', ' ');
-			string message = $@"مرحبًا، أود الحصول على المزيد من المعلومات حول هذا العقار للبيع، المنشور على موقع {Context.Request.Host}
-المرجع: {building.Reference} نوع العقار: {building.BuildingTypeName} السعر: {building.Price} جنيه الموقع: {location}
+			string location = string.Join(" - ", building.Address, building.DistrictName, building.CityName).Trim('-', ' ');
+			string message = $@"مرحبًا، أود الحصول على المزيد من المعلومات حول هذا العقار للبيع، المنشور على موقع {Context.Request.Host}%0a
+المرجع: {building.Reference}%0a
+نوع العقار: {building.BuildingTypeName}%0a
+السعر: {building.Price} جنيه%0a
+الموقع: {location}%0a
 الرابط: {targetUrl}";
 			return $"https://wa.me/{CompanyInfo.WhatsAppNumber}?text={WebUtility.UrlEncode(message)}";
 	}

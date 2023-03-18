@@ -17,11 +17,11 @@
 	<link rel="icon" type="image/x-icon" href="@Url.Content("~/favicon.ico")" />
 	<link rel="shortcut icon" type="image/x-icon" href="@Url.Content("~/favicon.ico")" />
 	<title>@title</title>
-	<meta name="description" content="@CompanyInfo.Description" />
+	<meta name="description" content="@string.Join("-", CompanyInfo.Address, CompanyInfo.Description)" />
 
 	<!--Social media-->
 	<meta property="og:title" content="@title" />
-	<meta property="og:description" content="@CompanyInfo.Description" />
+	<meta property="og:description" content="@string.Join("%0a", CompanyInfo.Address, CompanyInfo.Description)" />
 	<meta property="og:url" content="@Context.Request.GetDisplayUrl()" />
 	
 	@if (!string.IsNullOrEmpty(image))
@@ -100,6 +100,13 @@
 								<ul class="dropdown-menu">
 									<li><a class="dropdown-item" asp-area="Admin" asp-controller="Cities" asp-action="Index">عرض</a></li>
 									<li><a class="dropdown-item" asp-area="Admin" asp-controller="Cities" asp-action="Add">اضافة مدينة</a></li>
+								</ul>
+							</li>
+							<li class="nav-item dropdown" policy="@Constants.Authorization.AdministrationPolicy">
+								<a class="nav-link btn border-0 rounded-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">الأحياء</a>
+								<ul class="dropdown-menu">
+									<li><a class="dropdown-item" asp-area="Admin" asp-controller="Cities" asp-action="Districts">عرض</a></li>
+									<li><a class="dropdown-item" asp-area="Admin" asp-controller="Cities" asp-action="AddDistrict">اضافة حي</a></li>
 								</ul>
 							</li>
 						</ul>

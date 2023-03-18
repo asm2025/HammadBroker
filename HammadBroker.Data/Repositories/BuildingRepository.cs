@@ -429,8 +429,9 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 			queryable = queryable.Where(e => e.Date <= buildingList.MaxDate.Value);
 		}
 
+		if (buildingList.DistrictId > 0) queryable = queryable.Where(e => e.DistrictId == buildingList.DistrictId);
 		if (buildingList.CityId > 0) queryable = queryable.Where(e => e.CityId == buildingList.CityId);
-		if (!string.IsNullOrEmpty(buildingList.Address)) queryable = queryable.Where(e => e.Address.Contains(buildingList.Address) || e.Address2.Contains(buildingList.Address));
+		if (!string.IsNullOrEmpty(buildingList.Address)) queryable = queryable.Where(e => e.Address.Contains(buildingList.Address));
 		return queryable;
 	}
 }
