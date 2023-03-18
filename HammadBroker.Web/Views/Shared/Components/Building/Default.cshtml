@@ -1130,12 +1130,12 @@
 		string districtName = addressLookup?.DistrictName;
 		string cityName = addressLookup?.CityName;
 		string location = string.Join(" - ", building.Address, districtName, cityName).Trim('-', ' ');
-		string message = $@"مرحبًا، أود الحصول على المزيد من المعلومات حول هذا العقار للبيع، المنشور على موقع {Context.Request.Host}%0a
+		string message = $@"مرحبًا، أود الحصول على المزيد من المعلومات حول هذا العقار للبيع، المنشور على موقع {WebUtility.UrlEncode(Context.Request.Host.Host)}%0a
 المرجع: {building.Reference}%0a
 نوع العقار: {building.BuildingTypeName}%0a
 السعر: {building.Price} جنيه%0a
 الموقع: {location}%0a
-الرابط: {targetUrl}";
-		return $"https://wa.me/{CompanyInfo.WhatsAppNumber}?text={WebUtility.UrlEncode(message)}";
+الرابط: {WebUtility.UrlEncode(targetUrl)}".Replace(Environment.NewLine, string.Empty);
+		return $"https://wa.me/{CompanyInfo.WhatsAppNumber}?text={message}";
 	}
 }

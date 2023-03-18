@@ -13,10 +13,10 @@ public interface IBuildingForDisplay : IBuildingLookup
 	byte? Rooms { get; set; }
 	[Display(Name = "الحمامات")]
 	byte? Bathrooms { get; set; }
-	[Display(Name = "مساحة المبنى")]
+	[Display(Name = "مساحة المبانى")]
 	[DisplayFormat(DataFormatString = "{0:#,#.##}")]
 	long? BuildingArea { get; set; }
-	[Display(Name = "المساحة")]
+	[Display(Name = "مساحة الأرض")]
 	[DisplayFormat(DataFormatString = "{0:#,#.##}")]
 	long? Area { get; set; }
 	[Display(Name = "تليفون")]
