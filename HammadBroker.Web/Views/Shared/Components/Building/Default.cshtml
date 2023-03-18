@@ -367,7 +367,7 @@
 			<div class="row g-0 px-2">
 				@if (Model.Building.Floor.HasValue)
 				{
-					<div class="col mt-2">
+					<div class="col text-nowrap mt-2">
 						<i class="fa fa-building"></i>&nbsp;
 						<label asp-for="Building.Floor" class="form-label"></label>&nbsp;
 						@Html.DisplayFor(e => e.Building.FloorName)
@@ -375,7 +375,7 @@
 				}
 				@if (Model.Building.Rooms > 0)
 				{
-					<div class="col mt-2">
+					<div class="col text-nowrap mt-2">
 						<i class="fa fa-person-shelter"></i>&nbsp;
 						<label asp-for="Building.Rooms" class="form-label"></label>&nbsp;
 						@Html.DisplayFor(e => e.Building.Rooms)
@@ -383,7 +383,7 @@
 				}
 				@if (Model.Building.Bathrooms > 0)
 				{
-					<div class="col mt-2">
+					<div class="col text-nowrap mt-2">
 						<i class="fa fa-restroom"></i>&nbsp;
 						<label asp-for="Building.Bathrooms" class="form-label"></label>&nbsp;
 						@Html.DisplayFor(e => e.Building.Bathrooms)
@@ -391,7 +391,7 @@
 				}
 				@if (Model.Building.BuildingArea > 0)
 				{
-					<div class="col mt-2">
+					<div class="col text-nowrap mt-2">
 						<i class="fa fa-square"></i>&nbsp;
 						<label asp-for="Building.BuildingArea" class="form-label"></label>&nbsp;
 						@Html.DisplayFor(e => e.Building.BuildingArea) م

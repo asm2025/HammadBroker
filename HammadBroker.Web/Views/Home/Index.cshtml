@@ -228,7 +228,7 @@
 							<div class="row g-0">
 								@if (building.Floor.HasValue)
 								{
-									<div class="col">
+									<div class="col text-nowrap">
 										<i class="fa fa-building"></i>&nbsp;
 										<label for="@nameof(building.Floor)">@Html.DisplayNameFor(e => building.Floor) </label>
 										@Html.DisplayFor(e => building.FloorName)
@@ -236,7 +236,7 @@
 								}
 								@if (building.Rooms > 0)
 								{
-									<div class="col">
+									<div class="col text-nowrap">
 										<i class="fa fa-person-shelter"></i>&nbsp;
 										@Html.DisplayFor(e => building.Rooms)
 										<label for="@nameof(building.Rooms)">@Html.DisplayNameFor(e => building.Rooms) </label>
@@ -244,7 +244,7 @@
 								}
 								@if (building.Bathrooms > 0)
 								{
-									<div class="col">
+									<div class="col text-nowrap">
 										<i class="fa fa-restroom"></i>&nbsp;
 										@Html.DisplayFor(e => building.Bathrooms)
 										<label for="@nameof(building.Bathrooms)">@Html.DisplayNameFor(e => building.Bathrooms) </label>
@@ -252,7 +252,7 @@
 								}
 								@if (building.BuildingArea > 0)
 								{
-									<div class="col">
+									<div class="col text-nowrap">
 										<i class="fa fa-square"></i>&nbsp;
 										@Html.DisplayFor(e => building.BuildingArea)
 										<label for="@nameof(building.BuildingArea)">@Html.DisplayNameFor(e => building.BuildingArea) </label>
@@ -260,7 +260,7 @@
 								}
 								@if (building.Area > 0)
 								{
-									<div class="col">
+									<div class="col text-nowrap">
 										<i class="fa fa-square"></i>&nbsp;
 										@Html.DisplayFor(e => building.Area)
 										<label for="@nameof(building.Area)">@Html.DisplayNameFor(e => building.Area) </label>
