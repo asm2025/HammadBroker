@@ -413,20 +413,29 @@
 		@if (Model.CanEdit)
 		{
 			<div class="row g-0 px-2">
-				<div class="col-sm-12 col-md-4">
+				<div class="col-sm-12 col-md-6">
+					<label asp-for="Building.Phone" class="form-label"></label> (*)
+					<input class="form-control" asp-for="Building.Phone" dir="ltr" />
+					<span asp-validation-for="Building.Phone" class="text-danger"></span>
+				</div>
+				<div class="col-sm-12 col-md-6">
+					<label asp-for="Building.Mobile" class="form-label"></label> (*)
+					<input class="form-control" asp-for="Building.Mobile" dir="ltr" />
+					<span asp-validation-for="Building.Mobile" class="text-danger"></span>
+				</div>
+			</div>
+			<div class="row g-0 px-2">
+				<div class="col-sm-12 col-md-6">
 					<label asp-for="Building.Price" class="form-label"></label> *
 					<input class="form-control" asp-for="Building.Price" />
 					<span asp-validation-for="Building.Price" class="text-danger"></span>
 				</div>
-				<div class="col-sm-12 col-md-4">
-					<label asp-for="Building.Phone" class="form-label"></label> *
-					<input class="form-control" asp-for="Building.Phone" dir="ltr" />
-					<span asp-validation-for="Building.Phone" class="text-danger"></span>
-				</div>
-				<div class="col-sm-12 col-md-4">
-					<label asp-for="Building.Mobile" class="form-label"></label> *
-					<input class="form-control" asp-for="Building.Mobile" dir="ltr" />
-					<span asp-validation-for="Building.Mobile" class="text-danger"></span>
+				<div class="col-sm-12 col-md-6">
+					<label asp-for="Building.Enabled" class="form-label form-check-label"></label> *
+					<div class="form-control form-check form-switch border-0 px-2">
+						<input class="form-check-input" asp-for="Building.Enabled" role="switch" />
+					</div>
+					<span asp-validation-for="Building.Enabled" class="text-danger"></span>
 				</div>
 			</div>
 		}
@@ -441,22 +450,22 @@
 					@if (!string.IsNullOrEmpty(Model.Building.Phone))
 					{
 						<a class="btn btn-danger mb-1 text-nowrap" href="tel:@Model.Building.Phone" onclick="this.childNodes[1].innerText = '@Model.Building.Phone'" dir="ltr">
-							<i class="fa fa-phone"></i>
 							تليفون
+							<i class="fa fa-phone"></i>
 						</a>
 					}
 					@if (!string.IsNullOrEmpty(Model.Building.Mobile))
 					{
 						<a class="btn btn-danger mb-1 text-nowrap" href="tel:@Model.Building.Mobile" onclick="this.childNodes[1].innerText = '@Model.Building.Mobile'" dir="ltr">
-							<i class="fa fa-mobile-screen"></i>
 							جوال
+							<i class="fa fa-mobile-screen"></i>
 						</a>
 					}
 					@if (!string.IsNullOrEmpty(CompanyInfo.Email))
 					{
 						<a class="btn btn-danger mb-1 text-nowrap" href="mailto:@CompanyInfo.Email?subject=@WebUtility.UrlEncode($"معلومات حول العقار {Model.Building.Reference}")" dir="ltr">
-							<i class="fa fa-envelope"></i>
 							إيميل
+							<i class="fa fa-envelope"></i>
 						</a>
 					}
 					<a href="@GetWhatsAppLink()" class="btn btn-success mb-1 text-nowrap" target="_blank" dir="ltr">
@@ -611,13 +620,60 @@
 	else if (!Model.ReadOnly)
 	{
 		<div class="row g-0 px-2 mt-3">
-			<a asp-area="Admin" asp-controller="Buildings" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary border-0 me-1">تعديل</a>
-			<button type="button" class="btn btn-danger border-0 me-1" onclick="JavaScript:deleteBuilding(event, @Model.Id, '@Model.Building.Reference');">حذف</button>
+			<a asp-area="Admin" asp-controller="Buildings" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-secondary me-1">
+				<i class="fa fa-pen"></i>
+				تعديل
+			</a>
+			<button type="button" class="btn btn-secondary me-1" onclick="enableBuilding(event, @Model.Id, '@Model.Building.Reference', @(Model.Building.Enabled ? 0 : 1));">
+				@if (Model.Building.Enabled)
+				{
+					<i class="fa fa-eye-slash"></i>
+					@:إخفاء
+				}
+				else
+				{
+					<i class="fa fa-eye"></i>
+					@:إظهار
+				}
+			</button>
+			<button type="button" class="btn btn-danger me-1" onclick="JavaScript:deleteBuilding(event, @Model.Id, '@Model.Building.Reference');">
+				<i class="fa fa-xmark"></i>
+				حذف
+			</button>
 		</div>
 	}
 </div>
 
 <script type="text/javascript">
+	async function enableBuilding(evt, id, reference, enable) {
+		evt.stopPropagation();
+		if (!confirm(`هل تريد ${(enable ? "إظهار" : "إخفاء")} الاعلان '${reference}'؟`)) return;
+
+		try
+		{
+			const url = '@Url.Action("Enable", "Buildings", new
+			             {
+				             area = "Admin"
+			             })';
+			const data = new FormData();
+			data.append("id", id);
+			data.append("enable", Boolean(enable));
+			await fetch(url, {
+				method: "post",
+				body: data,
+				headers: {
+					RequestVerificationToken: "@Antiforgery.GetAndStoreTokens(Context).RequestToken"
+				},
+				credentials: "same-origin"
+			});
+
+			window.location = "@Url.Action("Index", "Buildings")";
+		}
+		catch (ex)
+		{
+			alert(ex.message || ex);
+		}
+	}
 	async function deleteBuilding(evt, id, reference) {
 		evt.stopPropagation();
 		if (!confirm(`هل تريد حذف الاعلان '${reference}'؟`)) return;

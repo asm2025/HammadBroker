@@ -221,6 +221,38 @@ public class BuildingsController : MvcController
 
 	[NotNull]
 	[ItemNotNull]
+	[HttpPost("[action]")]
+	public async Task<IActionResult> Enable([Required] int id, bool? enable, CancellationToken token)
+	{
+		token.ThrowIfCancellationRequested();
+		if (!ModelState.IsValid) return BadRequest(ModelState);
+
+		Building building = await _buildingService.GetAsync(id, token);
+		token.ThrowIfCancellationRequested();
+
+		if (building == null)
+		{
+			_toastNotification.AddErrorToastMessage("الاعلان غير موجود.");
+			return Problem("الاعلان غير موجود.");
+		}
+
+		enable ??= true;
+		if (building.Enabled == enable.Value) return Ok();
+		building.Enabled = enable.Value;
+		building = await _buildingService.UpdateAsync(building, token);
+
+		if (building == null)
+		{
+			_toastNotification.AddErrorToastMessage("تعذر تعديل الاعلان.");
+			return Problem("تعذر تعديل الاعلان.");
+		}
+
+		_toastNotification.AddSuccessToastMessage($"تم {(building.Enabled ? "تفعيل" : "تعطيل")} الاعلان '{building.Reference}' بنجاح.");
+		return Ok();
+	}
+
+	[NotNull]
+	[ItemNotNull]
 	[AllowAnonymous]
 	[Authorize(Policy = Constants.Authorization.MemberPolicy)]
 	[HttpGet("[action]")]

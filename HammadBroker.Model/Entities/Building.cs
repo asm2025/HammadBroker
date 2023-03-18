@@ -66,4 +66,6 @@ public class Building : IEntity<int>
 	public string Mobile { get; set; }
 
 	public long Price { get; set; }
+
+	public bool Enabled { get; set; } = true;
 }

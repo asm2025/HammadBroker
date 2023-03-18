@@ -49,4 +49,6 @@ public class BuildingForList : IBuildingLookup, IBuildingImageLookup
 	[Display(Name = "السعر")]
 	[DisplayFormat(DataFormatString = "{0:#,#.##}", ApplyFormatInEditMode = true)]
 	public long Price { get; set; }
+	[Display(Name = "مفعل")]
+	public bool Enabled { get; set; }
 }

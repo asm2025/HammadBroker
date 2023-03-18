@@ -128,4 +128,7 @@ public class BuildingToUpdate : IBuilding
 	[Required]
 	[Range(1, long.MaxValue)]
 	public long Price { get; set; }
+
+	[Display(Name = "مفعل")]
+	public bool Enabled { get; set; } = true;
 }

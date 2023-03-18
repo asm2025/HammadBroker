@@ -118,7 +118,6 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	protected override IQueryable<Building> PrepareCountQuery(IQueryable<Building> query, IPagination settings)
 	{
 		if (settings is not BuildingList buildingList) return base.PrepareCountQuery(query, settings);
-		if (!string.IsNullOrEmpty(buildingList.Reference)) return query.Where(e => e.Reference.Contains(buildingList.Reference));
 		query = PrepareTypes(query, buildingList);
 		query = PrepareNumbers(query, buildingList);
 		query = PrepareDateAndLocation(query, buildingList);
@@ -129,7 +128,6 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	protected override IQueryable<Building> PrepareListQuery(IQueryable<Building> query, IPagination settings)
 	{
 		if (settings is not BuildingList buildingList) return base.PrepareListQuery(query, settings);
-		if (!string.IsNullOrEmpty(buildingList.Reference)) return query.Where(e => e.Reference.Contains(buildingList.Reference));
 		query = PrepareTypes(query, buildingList);
 		query = PrepareNumbers(query, buildingList);
 		query = PrepareDateAndLocation(query, buildingList);
@@ -348,6 +346,9 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	[NotNull]
 	private static IQueryable<Building> PrepareTypes([NotNull] IQueryable<Building> queryable, [NotNull] BuildingList buildingList)
 	{
+		bool enabled = buildingList.Enabled ?? true;
+		queryable = queryable.Where(e => e.Enabled == enabled);
+		if (!string.IsNullOrEmpty(buildingList.Reference)) queryable = queryable.Where(e => e.Reference.Contains(buildingList.Reference));
 		if (buildingList.AdType.HasValue) queryable = queryable.Where(e => e.AdType == buildingList.AdType.Value);
 		if (buildingList.BuildingType.HasValue) queryable = queryable.Where(e => e.BuildingType == buildingList.BuildingType.Value);
 		if (buildingList.FinishingType.HasValue) queryable = queryable.Where(e => e.FinishingType == buildingList.FinishingType.Value);

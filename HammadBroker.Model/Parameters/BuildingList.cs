@@ -8,6 +8,8 @@ public class BuildingList : SortablePagination
 {
 	[Display(Name = "مرجع")]
 	public string Reference { get; set; }
+	[Display(Name = "الحالة")]
+	public bool? Enabled { get; set; }
 	[Display(Name = "نوع العقار")]
 	public BuildingType? BuildingType { get; set; }
 	[Display(Name = "نوع التشطيب")]
@@ -24,11 +26,11 @@ public class BuildingList : SortablePagination
 	public byte? Bathrooms { get; set; }
 	[Display(Name = "بحد أقصى")]
 	public byte? MaxBathrooms { get; set; }
-	[Display(Name = "مساحة المبنى")]
+	[Display(Name = "مساحة المبانى")]
 	public long? BuildingArea { get; set; }
 	[Display(Name = "بحد أقصى")]
 	public long? MaxBuildingArea { get; set; }
-	[Display(Name = "المساحة")]
+	[Display(Name = "مساحة الأرض")]
 	public long? Area { get; set; }
 	[Display(Name = "بحد أقصى")]
 	public long? MaxArea { get; set; }
@@ -50,6 +52,7 @@ public class BuildingList : SortablePagination
 	public long? MaxPrice { get; set; }
 
 	public virtual bool HasSearch => !string.IsNullOrEmpty(Reference)
+							|| Enabled.HasValue
 							|| BuildingType.HasValue
 							|| FinishingType.HasValue
 							|| Floor.HasValue

@@ -13,7 +13,7 @@
 
 <div class="card mb-1">
 	<h5 class="card-header @(hasSearch ? null : "collapsed")" data-bs-toggle="collapse" data-bs-target="#searchForm" 
-		aria-expanded="@(hasSearch ? "true" : "false")" aria-controls="searchForm">البحث</h5>
+		aria-expanded="@(hasSearch ? "true" : "false")" aria-controls="searchForm" role="button">البحث</h5>
 	<div id="searchForm" v-scope class="card-body @(hasSearch ? null : "collapse")">
 		<form method="get" asp-area="Admin" asp-controller="Buildings" asp-action="Index">
 			<div v-if="errors && errors.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="error of errors">
@@ -22,17 +22,27 @@
 			</div>
 
 			<div class="row g-0 mb-1">
-				<div class="col-sm-12 col-md-4">
+				<div class="col-sm-12 col-md-6">
 					<label asp-for="Pagination.Reference" class="form-label"></label>
 					<input class="form-control" name="@nameof(Model.Pagination.Reference)" asp-for="Pagination.Reference" />
 				</div>
-				<div class="col-sm-12 col-md-4">
+				<div class="col-sm-12 col-md-6">
+					<label asp-for="Pagination.Enabled" class="form-label"></label>
+					<select class="form-select" name="@nameof(Model.Pagination.Enabled)" asp-for="Pagination.Enabled">
+						<option value="">@Html.DisplayNameFor(e => e.Pagination.Enabled)</option>
+						<option value="false">غير مفعل</option>
+						<option value="true">مفعل</option>
+					</select>
+				</div>
+			</div>
+			<div class="row g-0 mb-1">
+				<div class="col-sm-12 col-md-6">
 					<label asp-for="Pagination.BuildingType" class="form-label"></label>
 					<select class="form-select" name="@nameof(Model.Pagination.BuildingType)" asp-for="Pagination.BuildingType" asp-items="Html.GetEnumSelectList<BuildingType>()">
 						<option value="">@Html.DisplayNameFor(e => e.Pagination.BuildingType)</option>
 					</select>
 				</div>
-				<div class="col-sm-12 col-md-4">
+				<div class="col-sm-12 col-md-6">
 					<label asp-for="Pagination.FinishingType" class="form-label"></label>
 					<select class="form-select" name="@nameof(Model.Pagination.FinishingType)" asp-for="Pagination.FinishingType" asp-items="Html.GetEnumSelectList<FinishingType>()">
 						<option value="">@Html.DisplayNameFor(e => e.Pagination.FinishingType)</option>
@@ -174,6 +184,10 @@
 					{
 						<th scope="row" class="text-nowrap">
 							<a class="btn btn-outline-secondary btn-sm border-0 mb-1" asp-area="Admin" asp-controller="Buildings" asp-action="Edit" asp-route-id="@building.Id" title="تعديل"><i class="fa fa-pen"></i></a>
+							<button type="button" class="btn btn-outline-secondary btn-sm border-0 mb-1" title="@(building.Enabled ? "اخفاء" : "اظهار")"
+								onclick="enableBuilding(event, @building.Id, '@building.Reference', @(building.Enabled ? 0 : 1));">
+								<i class="fa fa-eye@(building.Enabled ? "-slash" : string.Empty)"></i>
+							</button>
 							<a class="btn btn-outline-danger btn-sm border-0 mb-1" onclick="JavaScript:deleteBuilding(event, @building.Id, '@building.Reference');" title="حذف الاعلان"><i class="fa fa-xmark"></i></a>
 						</th>
 					}
@@ -197,6 +211,34 @@
 @section scripts
 {
 	<script type="text/javascript">
+		async function enableBuilding(evt, id, reference, enable) {
+			evt.stopPropagation();
+			if (!confirm(`هل تريد ${(enable ? "إظهار" : "إخفاء")} الاعلان '${reference}'؟`)) return;
+
+			try
+			{
+				const url = '@Url.Action("Enable", "Buildings", new
+				             {
+					             area = "Admin"
+				             })';
+				const data = new FormData();
+				data.append("id", id);
+				data.append("enable", Boolean(enable));
+				await fetch(url, {
+					method: "post",
+					body: data,
+					headers: {
+						RequestVerificationToken: "@Antiforgery.GetAndStoreTokens(Context).RequestToken"
+					},
+					credentials: "same-origin"
+				});
+				window.location.reload();
+			}
+			catch (ex)
+			{
+				alert(ex.message || ex);
+			}
+		}
 		async function deleteBuilding(evt, id, reference) {
 			evt.stopPropagation();
 			if (!confirm(`هل تريد حذف الاعلان '${reference}'؟`)) return;

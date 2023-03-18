@@ -6,7 +6,7 @@ namespace HammadBroker.Model.DTO;
 public interface IBuildingLookup
 {
 	[Display(Name = "مرجع")]
-	public string Reference { get; set; }
+	string Reference { get; set; }
 	[Display(Name = "نوع العقار")]
 	BuildingType BuildingType { get; set; }
 	string BuildingTypeName { get; }
@@ -14,24 +14,27 @@ public interface IBuildingLookup
 	FinishingType? FinishingType { get; set; }
 	string FinishingTypeName { get; }
 	[Display(Name = "الحي")]
-	public int? DistrictId { get; set; }
+	int? DistrictId { get; set; }
 	[Display(Name = "المدينة")]
 	int CityId { get; set; }
 	[Display(Name = "نوع الاعلان")]
-	public BuildingAdType AdType { get; set; }
-	public string AdTypeName { get; }
+	BuildingAdType AdType { get; set; }
+	string AdTypeName { get; }
 	[Display(Name = "الاولوية")]
-	public byte? Priority { get; set; }
+	byte? Priority { get; set; }
 	[Display(Name = "نشر")]
 	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}", ApplyFormatInEditMode = true)]
-	public DateTime CreatedOn { get; set; }
+	DateTime CreatedOn { get; set; }
 	[Display(Name = "حدث")]
 	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}", ApplyFormatInEditMode = true)]
-	public DateTime UpdatedOn { get; set; }
+	DateTime UpdatedOn { get; set; }
 	[Display(Name = "التاريخ")]
 	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}")]
-	public DateTime Date { get; set; }
+	DateTime Date { get; set; }
 	[Display(Name = "ينتهي في")]
 	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}")]
-	public DateTime? Expires { get; set; }
+	DateTime? Expires { get; set; }
+
+	[Display(Name = "مفعل")]
+	bool Enabled { get; set; }
 }

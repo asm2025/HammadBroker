@@ -10,7 +10,7 @@
 
 <div class="card mb-1">
 	<h5 class="card-header @(hasSearch ? null : "collapsed")" data-bs-toggle="collapse" data-bs-target="#searchForm" 
-		aria-expanded="@(hasSearch ? "true" : "false")" aria-controls="searchForm">البحث</h5>
+		aria-expanded="@(hasSearch ? "true" : "false")" aria-controls="searchForm" role="button">البحث</h5>
 	<div id="searchForm" v-scope class="card-body @(hasSearch ? null : "collapse")">
 		<form method="get" asp-area="Admin" asp-controller="Cities" asp-action="Index">
 			<div class="row g-0 mb-1">
