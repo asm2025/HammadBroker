@@ -169,14 +169,14 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	}
 
 	/// <inheritdoc />
-	public BuildingImage GetImage(int id)
+	public BuildingImage GetImage(long id)
 	{
 		ThrowIfDisposed();
 		return Images.Find(id);
 	}
 
 	/// <inheritdoc />
-	public ValueTask<BuildingImage> GetImageAsync(int id, CancellationToken token = default(CancellationToken))
+	public ValueTask<BuildingImage> GetImageAsync(long id, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
@@ -224,7 +224,7 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	}
 
 	/// <inheritdoc />
-	public BuildingImage DeleteImage(int id)
+	public BuildingImage DeleteImage(long id)
 	{
 		ThrowIfDisposed();
 		BuildingImage image = Images.Find(id);
@@ -234,7 +234,7 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	}
 
 	/// <inheritdoc />
-	public async Task<BuildingImage> DeleteImageAsync(int id, CancellationToken token = default(CancellationToken))
+	public async Task<BuildingImage> DeleteImageAsync(long id, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
@@ -261,7 +261,7 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	}
 
 	/// <inheritdoc />
-	public IList<BuildingImage> DeleteImages(int[] id)
+	public IList<BuildingImage> DeleteImages(long[] id)
 	{
 		ThrowIfDisposed();
 		if (id.Length == 0) throw new ArgumentException("Image id is required.", nameof(id));
@@ -273,7 +273,7 @@ public class BuildingRepository : Repository<DataContext, Building, int>, IBuild
 	}
 
 	/// <inheritdoc />
-	public async Task<IList<BuildingImage>> DeleteImagesAsync(int[] id, CancellationToken token = default(CancellationToken))
+	public async Task<IList<BuildingImage>> DeleteImagesAsync(long[] id, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();

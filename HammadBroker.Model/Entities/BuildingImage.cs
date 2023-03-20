@@ -3,10 +3,10 @@ using essentialMix.Data.Model;
 
 namespace HammadBroker.Model.Entities;
 
-public class BuildingImage : IEntity<int>
+public class BuildingImage : IEntity<long>
 {
 	[Key]
-	public int Id { get; set; }
+	public long Id { get; set; }
 	[Required]
 	public int BuildingId { get; set; }
 	[Required]

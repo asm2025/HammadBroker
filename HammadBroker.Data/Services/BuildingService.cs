@@ -408,14 +408,14 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	}
 
 	/// <inheritdoc />
-	public BuildingImage GetImage(int id)
+	public BuildingImage GetImage(long id)
 	{
 		ThrowIfDisposed();
 		return Repository.GetImage(id);
 	}
 
 	/// <inheritdoc />
-	public ValueTask<BuildingImage> GetImageAsync(int id, CancellationToken token = default(CancellationToken))
+	public ValueTask<BuildingImage> GetImageAsync(long id, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
@@ -469,7 +469,7 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	}
 
 	/// <inheritdoc />
-	public BuildingImage DeleteImage(int id)
+	public BuildingImage DeleteImage(long id)
 	{
 		ThrowIfDisposed();
 		BuildingImage entity = Repository.DeleteImage(id);
@@ -480,7 +480,7 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	}
 
 	/// <inheritdoc />
-	public async Task<BuildingImage> DeleteImageAsync(int id, CancellationToken token = default(CancellationToken))
+	public async Task<BuildingImage> DeleteImageAsync(long id, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();
@@ -554,7 +554,7 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	}
 
 	/// <inheritdoc />
-	public IList<BuildingImage> DeleteImages(int[] id)
+	public IList<BuildingImage> DeleteImages(long[] id)
 	{
 		ThrowIfDisposed();
 		IList<BuildingImage> images = Repository.DeleteImages(id);
@@ -570,7 +570,7 @@ public class BuildingService : Service<DataContext, IBuildingRepository, Buildin
 	}
 
 	/// <inheritdoc />
-	public async Task<IList<BuildingImage>> DeleteImagesAsync(int[] id, CancellationToken token = default(CancellationToken))
+	public async Task<IList<BuildingImage>> DeleteImagesAsync(long[] id, CancellationToken token = default(CancellationToken))
 	{
 		ThrowIfDisposed();
 		token.ThrowIfCancellationRequested();

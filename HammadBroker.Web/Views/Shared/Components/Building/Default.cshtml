@@ -505,11 +505,13 @@
 				<div class="col-sm-12 col-md-6">
 					<label asp-for="Building.DistrictId" class="form-label"></label>
 					<input type="hidden" asp-for="Building.DistrictId" :value="districtId" />
+					<input type="hidden" asp-for="Building.DistrictName" :value="districtName" />
 					<autocomplete class="w-100" input-class="w-100" :suggestions="districts" option-label="name"
 								:min-length="0" v-model="selectedDistrict" data-key="id" dropdown 
 								v-on:complete="fetchDistricts(cityId, $event.query)">
 					</autocomplete>
 					<span asp-validation-for="Building.DistrictId" class="text-danger"></span>
+					<span asp-validation-for="Building.DistrictName" class="text-danger"></span>
 				</div>
 			</div>
 		}
@@ -833,6 +835,7 @@
 					expires: '@Model.Building.Expires?.ToString("yyyy/MM/dd")',
 					selectedDistrict: null,
 					districtId: @(Model.Building.DistrictId ?? 0),
+					districtName: "@Model.Building.DistrictName",
 					districts: [],
 					selectedCity: null,
 					cityId: @Model.Building.CityId,
@@ -858,12 +861,14 @@
 					if (newValue && newValue.id)
 					{
 						this.districtId = newValue.id;
+						this.districtName = undefined;
 						if (this.cityId === newValue.cityId) return;
 						this.selectedCity = this.cities.find(e => e.id === newValue.cityId);
 					}
 					else
 					{
 						this.districtId = 0;
+						this.districtName = newValue;
 					}
 				},
 				selectedCity(newValue) {

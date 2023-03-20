@@ -335,7 +335,7 @@
 		const DATE = "@Model.Pagination.Date?.ToString("yyyy/MM/dd")";
 		const MAX_DATE = "@Model.Pagination.MaxDate?.ToString("yyyy/MM/dd")";
 		const DATE_RANGE = "@string.Join(" - ", Model.Pagination.Date?.ToString("yyyy/MM/dd"), Model.Pagination.MaxDate?.ToString("yyyy/MM/dd")).Trim('-', ' ')";
-		const _fetchDistrict = _.debounce(async (self, cityId, search) => {
+		const _fetchDistricts = _.debounce(async (self, cityId, search) => {
 			if (!cityId) {
 				self.selectedDistrict = null;
 				self.districts = [];

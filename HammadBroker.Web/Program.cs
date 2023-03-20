@@ -206,16 +206,16 @@ public class Program
 			// Cookies
 			.Configure<CookiePolicyOptions>(options =>
 			{
-				options.MinimumSameSitePolicy = SameSiteMode.Lax;
-				options.HttpOnly = HttpOnlyPolicy.None;
+				options.HttpOnly = HttpOnlyPolicy.Always;
 				options.Secure = CookieSecurePolicy.SameAsRequest;
+				options.MinimumSameSitePolicy = SameSiteMode.Lax;
 			})
 			.AddDistributedMemoryCache()
 			.AddSession(options =>
 			{
 				options.IdleTimeout = TimeSpan.FromMinutes(sessionTimeout);
-				options.Cookie.HttpOnly = true;
 				options.Cookie.IsEssential = true;
+				options.Cookie.HttpOnly = true;
 				options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
 				options.Cookie.SameSite = SameSiteMode.Lax;
 			})
@@ -227,11 +227,12 @@ public class Program
 				options.LoginPath = "/Identity/Account/Login";
 				options.LogoutPath = "/Identity/Account/Logout";
 				options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+				options.Cookie.IsEssential = true;
+				options.Cookie.HttpOnly = true;
+				options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+				options.Cookie.SameSite = SameSiteMode.Lax;
 				options.SlidingExpiration = true;
 				options.ExpireTimeSpan = TimeSpan.FromMinutes(sessionTimeout);
-				options.Cookie.IsEssential = true;
-				options.Cookie.SameSite = SameSiteMode.Lax;
-				options.Cookie.HttpOnly = true;
 			});
 		services
 			// Mapper

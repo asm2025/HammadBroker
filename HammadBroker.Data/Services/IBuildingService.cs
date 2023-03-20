@@ -37,8 +37,8 @@ public interface IBuildingService : IService<DataContext, IBuildingRepository, B
 	BuildingImage GetMainImage(int buildingId);
 	[NotNull]
 	Task<BuildingImage> GetMainImageAsync(int buildingId, CancellationToken token = default(CancellationToken));
-	BuildingImage GetImage(int id);
-	ValueTask<BuildingImage> GetImageAsync(int id, CancellationToken token = default(CancellationToken));
+	BuildingImage GetImage(long id);
+	ValueTask<BuildingImage> GetImageAsync(long id, CancellationToken token = default(CancellationToken));
 	[NotNull]
 	BuildingImage AddImage([NotNull] BuildingImage image);
 	[ItemNotNull]
@@ -46,9 +46,9 @@ public interface IBuildingService : IService<DataContext, IBuildingRepository, B
 	BuildingImage UpdateImage([NotNull] BuildingImage image);
 	[NotNull]
 	Task<BuildingImage> UpdateImageAsync([NotNull] BuildingImage image, CancellationToken token = default(CancellationToken));
-	BuildingImage DeleteImage(int id);
+	BuildingImage DeleteImage(long id);
 	[NotNull]
-	Task<BuildingImage> DeleteImageAsync(int id, CancellationToken token = default(CancellationToken));
+	Task<BuildingImage> DeleteImageAsync(long id, CancellationToken token = default(CancellationToken));
 	[NotNull]
 	BuildingImage DeleteImage([NotNull] BuildingImage image);
 	[NotNull]
@@ -60,8 +60,8 @@ public interface IBuildingService : IService<DataContext, IBuildingRepository, B
 	[ItemNotNull]
 	Task<IList<string>> DeleteImagesAsync(int buildingId, CancellationToken token = default(CancellationToken));
 	[NotNull]
-	IList<BuildingImage> DeleteImages([NotNull] int[] id);
+	IList<BuildingImage> DeleteImages([NotNull] long[] id);
 	[NotNull]
 	[ItemNotNull]
-	Task<IList<BuildingImage>> DeleteImagesAsync([NotNull] int[] id, CancellationToken token = default(CancellationToken));
+	Task<IList<BuildingImage>> DeleteImagesAsync([NotNull] long[] id, CancellationToken token = default(CancellationToken));
 }

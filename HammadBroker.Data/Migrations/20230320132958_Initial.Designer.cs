@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HammadBroker.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230317193929_initial")]
-    partial class initial
+    [Migration("20230320132958_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -67,6 +67,9 @@ namespace HammadBroker.Data.Migrations
 
                     b.Property<int?>("DistrictId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("Expires")
                         .HasColumnType("datetime2");
@@ -136,11 +139,11 @@ namespace HammadBroker.Data.Migrations
 
             modelBuilder.Entity("HammadBroker.Model.Entities.BuildingImage", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
                     b.Property<int>("BuildingId")
                         .HasColumnType("int");

@@ -68,6 +68,9 @@ public class BuildingToUpdate : IBuilding
 	[Range(0, int.MaxValue)]
 	public int? DistrictId { get; set; }
 
+	[StringLength(256)]
+	public string DistrictName { get; set; }
+
 	/// <inheritdoc />
 	[Display(Name = "المدينة")]
 	[Required]

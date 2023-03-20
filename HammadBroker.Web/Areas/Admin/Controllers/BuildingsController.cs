@@ -9,12 +9,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using essentialMix.Core.Web.Controllers;
-using essentialMix.Drawing.Helpers;
 using essentialMix.Extensions;
 using essentialMix.Helpers;
 using essentialMix.Patterns.Sorting;
 using HammadBroker.Data.Context;
 using HammadBroker.Data.Services;
+using HammadBroker.Infrastructure.Helpers;
 using HammadBroker.Model;
 using HammadBroker.Model.Configuration;
 using HammadBroker.Model.DTO;
@@ -30,7 +30,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NToastNotify;
-using SysFile = System.IO.File;
+using emImageHelper = essentialMix.Drawing.Helpers.ImageHelper;
 
 namespace HammadBroker.Web.Areas.Admin.Controllers;
 
@@ -132,7 +132,8 @@ public class BuildingsController : MvcController
 	{
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return View(buildingToUpdate);
-
+		await AddDistrictIfNotExist(buildingToUpdate, token);
+		token.ThrowIfCancellationRequested();
 		Building building = await _buildingService.AddAsync(_mapper.Map<Building>(buildingToUpdate), token);
 		token.ThrowIfCancellationRequested();
 
@@ -179,6 +180,7 @@ public class BuildingsController : MvcController
 			return BadRequest();
 		}
 
+		await AddDistrictIfNotExist(buildingToUpdate, token);
 		DateTime createdOn = building.CreatedOn;
 		_mapper.Map(buildingToUpdate, building);
 		building.CreatedOn = createdOn;
@@ -326,7 +328,7 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	public async Task<IActionResult> DeleteImage([Required] int id, CancellationToken token)
+	public async Task<IActionResult> DeleteImage([Required] long id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -358,7 +360,7 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	public async Task<IActionResult> DeleteImages([Required] int[] id, CancellationToken token)
+	public async Task<IActionResult> DeleteImages([Required] long[] id, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -400,7 +402,7 @@ public class BuildingsController : MvcController
 	[NotNull]
 	[ItemNotNull]
 	[HttpPost("[action]")]
-	public async Task<IActionResult> SetImagePriority([Required] int id, byte? priority, CancellationToken token)
+	public async Task<IActionResult> SetImagePriority([Required] long id, byte? priority, CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
 		if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -442,6 +444,30 @@ public class BuildingsController : MvcController
 		return Ok();
 	}
 
+	private async Task AddDistrictIfNotExist([NotNull] BuildingToUpdate buildingToUpdate, CancellationToken token)
+	{
+		token.ThrowIfCancellationRequested();
+		if (buildingToUpdate.DistrictId is null or > 0 || buildingToUpdate.CityId < 1 || string.IsNullOrEmpty(buildingToUpdate.DistrictName)) return;
+
+		DataContext context = _buildingService.Context;
+		District district = await context.Districts.FirstOrDefaultAsync(e => e.CityId == buildingToUpdate.CityId && e.Name == buildingToUpdate.DistrictName, token);
+		token.ThrowIfCancellationRequested();
+
+		if (district == null)
+		{
+			district = new District
+			{
+				CityId = buildingToUpdate.CityId,
+				Name = buildingToUpdate.DistrictName,
+			};
+			context.Districts.Add(district);
+			await context.SaveChangesAsync(token);
+		}
+
+		buildingToUpdate.DistrictName = null;
+		buildingToUpdate.DistrictId = district.Id;
+	}
+
 	private static string UploadBuildingImage([NotNull] string path, int id, [NotNull] IFormFile formFile)
 	{
 		Stream stream = null;
@@ -453,16 +479,8 @@ public class BuildingsController : MvcController
 		{
 			stream = formFile.OpenReadStream();
 			image = Image.FromStream(stream);
-			thumb = image;
-
-			if (image.Width > Constants.Images.DimensionXMax || image.Height > Constants.Images.DimensionYMax)
-			{
-				Size size = ImageHelper.GetThumbnailSize(image.Width, image.Height, Constants.Images.DimensionXMax, Constants.Images.DimensionYMax);
-				thumb = ImageHelper.Resize(image, size.Width, size.Height);
-			}
-
-			if (SysFile.Exists(fileName)) FileHelper.Delete(fileName);
-			fileName = ImageHelper.Save(thumb, fileName);
+			thumb = ImageHelper.FixImageSize(image, Constants.Images.DimensionXMax, Constants.Images.DimensionYMax);
+			fileName = emImageHelper.Save(thumb, fileName);
 			return fileName;
 		}
 		finally
