@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
 using essentialMix.Helpers;
 using JetBrains.Annotations;
-using emImageHelper = essentialMix.Drawing.Helpers.ImageHelper;
 
 namespace HammadBroker.Infrastructure.Helpers;
 
@@ -19,13 +19,52 @@ public static class ImageHelper
 		if (size.IsEmpty || (image.Width == size.Width && image.Height == size.Height)) return image;
 
 		// resize the image to the new width and height keeping aspect ratio
-		Image newImage = emImageHelper.Resize(image, size.Width, size.Height);
+		Image newImage = Resize(image, size.Width, size.Height);
 		if (newImage.Width <= newWidth || newImage.Height <= newHeight) return newImage;
 
 		// if the image width and height is larger, we'll need to crop it
 		Image croppedImage = Crop(newImage, newWidth, newHeight);
 		if (newImage != croppedImage) ObjectHelper.Dispose(ref newImage);
 		return croppedImage;
+	}
+
+	[NotNull]
+	public static Image Resize([NotNull] Image image, int width, int height)
+	{
+		if (width <= 0) throw new ArgumentOutOfRangeException(nameof(width));
+		if (height <= 0) throw new ArgumentOutOfRangeException(nameof(height));
+
+		Rectangle rect = new Rectangle(0, 0, width, height);
+		Bitmap bitmap = null;
+		Graphics graphics = null;
+		ImageAttributes imageAttributes = null;
+
+		try
+		{
+			bitmap = new Bitmap(width, height);
+			bitmap.SetResolution(72, 72);
+			graphics = Graphics.FromImage(bitmap);
+			graphics.CompositingMode = CompositingMode.SourceCopy;
+			graphics.CompositingQuality = CompositingQuality.HighQuality;
+			graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+			graphics.SmoothingMode = SmoothingMode.HighQuality;
+			graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+			imageAttributes = new ImageAttributes();
+			imageAttributes.SetWrapMode(WrapMode.TileFlipXY, Color.Transparent);
+			graphics.DrawImage(image, rect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, imageAttributes);
+			return bitmap;
+		}
+		catch
+		{
+			ObjectHelper.Dispose(ref bitmap);
+			throw;
+		}
+		finally
+		{
+			ObjectHelper.Dispose(ref graphics);
+			ObjectHelper.Dispose(ref imageAttributes);
+		}
 	}
 
 	[NotNull]
@@ -45,7 +84,7 @@ public static class ImageHelper
 		try
 		{
 			bitmap = new Bitmap(rcDestination.Width, rcDestination.Height);
-			bitmap.SetResolution(image.HorizontalResolution, image.VerticalResolution);
+			bitmap.SetResolution(72, 72);
 
 			graphics = Graphics.FromImage(bitmap);
 			graphics.CompositingMode = CompositingMode.SourceCopy;
