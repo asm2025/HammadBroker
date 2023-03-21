@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Configuration;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -473,14 +474,14 @@ public class BuildingsController : MvcController
 		Stream stream = null;
 		Image image = null;
 		Image thumb = null;
-		string fileName = Path.Combine(path, $"{id}.{Guid.NewGuid():N}{Path.GetExtension(formFile.FileName).Prefix('.')}");
+		string fileName = Path.Combine(path, $"{id}.{Guid.NewGuid():N}.jpg");
 
 		try
 		{
 			stream = formFile.OpenReadStream();
 			image = Image.FromStream(stream);
 			thumb = ImageHelper.FixImageSize(image, Constants.Images.DimensionXMax, Constants.Images.DimensionYMax);
-			fileName = emImageHelper.Save(thumb, fileName);
+			fileName = emImageHelper.Save(thumb, fileName, false, ImageFormat.Jpeg);
 			return fileName;
 		}
 		finally

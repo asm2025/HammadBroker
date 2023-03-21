@@ -1,5 +1,5 @@
 ﻿function previewImage(input, imgElement, placeholder) {
-	if (typeof(FileReader) === "undefined") {
+	if (typeof (FileReader) === "undefined") {
 		console.error("This browser does not support HTML FileReader.");
 		return;
 	}
@@ -15,8 +15,16 @@
 	const reader = new FileReader();
 	reader.onload = e => {
 		imgElement.src = e.target.result;
-	}
+	};
 	reader.readAsDataURL(file);
+}
+
+function preloadImages(images) {
+	if (!images || !images.length) return;
+	Object.keys(images).map((key) => {
+		const img = new Image();
+		img.src = images[key];
+	});
 }
 
 async function getResponseError(response) {
@@ -55,12 +63,12 @@ function parseFunction(str) {
 		ndx = str.indexOf("{"),
 		fn_body = str.substring(ndx + 1, str.lastIndexOf("}")),
 		fn_declare = str.substring(0, ndx),
-		fn_params = fn_declare.substring(fn_declare.indexOf("(")+1, fn_declare.lastIndexOf(")")),
+		fn_params = fn_declare.substring(fn_declare.indexOf("(") + 1, fn_declare.lastIndexOf(")")),
 		args = fn_params.split(",");
 	args.push(fn_body);
 
 	if (is_async) {
-		const AsyncFunction = Object.getPrototypeOf(async function() {}).constructor;
+		const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
 
 		function fn() {
 			return AsyncFunction.apply(this, args);
@@ -84,7 +92,7 @@ function rgxFormat(str) {
 	return str;
 }
 
-function *range(start, end, step = 1) {
+function* range(start, end, step = 1) {
 	for (let i = start; i <= end; i += step) {
 		yield i;
 	}
@@ -97,11 +105,11 @@ function getTotalPages(pageSize, totalCount) {
 function isActivePage(currentPage, currentIteration) {
 	return currentPage === currentIteration;
 }
-		
+
 function getMaxPage(maxPages, currentPage) {
 	return ~~Math.ceil(currentPage / maxPages.toFixed(2)) * maxPages;
 }
-		
+
 function getMinPageToRender(maxPages, totalPages, currentPage) {
 	let minPageToRender = getMaxPageToRender(maxPages, totalPages, currentPage);
 	if (minPageToRender === 1) return minPageToRender;

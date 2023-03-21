@@ -34,6 +34,7 @@ public static class Constants
 		public const int DimensionYMax = 480;
 		public const string AssetImagesPath = "data/assets/";
 		public const int MaxImagesUpload = 30;
+		public const int JPEGQuality = 65;
 	}
 
 	public static class Buildings

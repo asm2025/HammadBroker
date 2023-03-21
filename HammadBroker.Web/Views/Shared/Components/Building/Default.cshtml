@@ -125,8 +125,8 @@
 				else
 				{
 					<div v-if="images && images.length" class="card card-body">
-						<img class="img-fluid img-wh-100" :src="`@Context.Request.Scheme://@Context.Request.Host${images[0].imageUrl}`" alt=""
-							v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host@placeholderImage'`" v-on:click="fullScreen = true" />
+						<img class="img-fluid img-wh-100" :src="images[0].imageUrl" alt=""
+							v-on:error="`this.onerror=null;this.src='@placeholderImage'`" v-on:click="fullScreen = true" />
 						<div v-if="!fullScreen && !uploading" class="position-absolute bottom-0 mb-3 mx-3 d-flex align-items-center z-3">
 							@if (Model.CanUpload)
 							{
@@ -148,7 +148,7 @@
 				<div class="card card-body">
 					<div class="zone-item flex-column mx-auto active" style="width: 50%;">
 						<div class="tile">
-							<img class="img-fluid img-wh-100" src="@Context.Request.Scheme://@Context.Request.Host@placeholderImage" alt="" />
+							<img class="img-fluid img-wh-100" src="@placeholderImage" alt="" />
 						</div>
 					</div>
 				</div>
@@ -159,8 +159,8 @@
 					{
 						<div v-if="images && images.length > @firstImageIndex" :class="['zone-item flex-column', { active: !uploading }]">
 							<div class="tile">
-								<img class="img-fluid img-wh-100" :src="`@Context.Request.Scheme://@Context.Request.Host${images[@firstImageIndex].imageUrl}`" alt=""
-									v-on:error="`this.onerror=null;this.src='@Context.Request.Scheme://@Context.Request.Host@placeholderImage'`" v-on:click="fullScreen = true"/>
+								<img class="img-fluid img-wh-100" :src="images[@firstImageIndex].imageUrl" alt=""
+									v-on:error="`this.onerror=null;this.src='@placeholderImage'`" v-on:click="fullScreen = true"/>
 							</div>
 						</div>
 					}
@@ -816,6 +816,12 @@
 			}
 
 			self.images = await response.json();
+
+			// preload images
+			if (self.images.length) {
+				const urls = self.images.map(e => e.imageUrl);
+				preloadImages(urls);
+			}
 		} catch (e) {
 			self.images = [];
 			alert(e.message || e);

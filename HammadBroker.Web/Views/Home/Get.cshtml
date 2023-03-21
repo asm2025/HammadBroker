@@ -1,15 +1,19 @@
 ﻿@using HammadBroker.Model.DTO
+@using Microsoft.AspNetCore.Authorization
+@using HammadBroker.Model
+@inject IAuthorizationService AuthorizationService
 @model BuildingForDetails
 
 @{
 	ViewData["Title"] = $"{Model.BuildingTypeName} {Model.AdTypeName} {Model.FinishingTypeName} #{Model.Reference}".Replace("  ", " ").Trim();
 	int id = Context.Request.Query["id"].To(0);
+	bool isAdmin = (await AuthorizationService.AuthorizeAsync(User, Constants.Authorization.AdministrationPolicy)).Succeeded;
 }
 
 @await Component.InvokeAsync(typeof(BuildingViewComponent), new BuildingModel(Model)
 	   {
 		   Id = id,
-		   ReadOnly = true,
+		   ReadOnly = !isAdmin,
 		   CanEdit = false,
-		   CanUpload = false
+		   CanUpload = isAdmin
 	   })
