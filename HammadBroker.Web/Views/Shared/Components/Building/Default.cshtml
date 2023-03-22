@@ -28,7 +28,7 @@
 	}
 
 	bool isNew = Model.Id == 0;
-	int firstImageIndex = string.IsNullOrEmpty(Model.Building.VideoId) ? 1 : 2;
+	int firstImageIndex = string.IsNullOrEmpty(Model.Building.VideoId) ? 1 : 0;
 	string action = Model.CanEdit
 						? isNew
 						? Url.Action("Add", "Buildings", new

@@ -231,8 +231,6 @@ public class Program
 				options.Cookie.HttpOnly = true;
 				options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
 				options.Cookie.SameSite = SameSiteMode.Lax;
-				options.SlidingExpiration = true;
-				options.ExpireTimeSpan = TimeSpan.FromMinutes(sessionTimeout);
 			});
 		services
 			// Mapper
