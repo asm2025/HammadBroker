@@ -186,7 +186,7 @@
 										<div class="position-absolute">اسحب الملفات الى هنا للتحميل.</div>
 									</div>
 								</template>
-								<template #content="{ files, uploadedFiles, messages, onUploadedFileRemove, onFileRemove }">
+								<template #content="{ files, uploadedFiles, messages, removeUploadedFileCallback, removeFileCallback }">
 									<div v-if="messages && messages.length" :class="['alert', 'alert-danger', 'alert-dismissible', 'fade', 'show']" role="alert" v-for="message of messages">
 										{{ message }}
 										<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -200,7 +200,7 @@
 												<div class="card-title text-truncate">{{ file.name }}</div>
 												<div class="d-flex align-items-center">
 													<div class="card-text flex-grow-1">{{ formatSize(file.size) }}</div>
-													<button type="button" class="btn btn-outline-danger btn-sm" v-on:click="onRemoveFile(file, onFileRemove, index)"><i class="fa fa-times"></i></button>
+													<button type="button" class="btn btn-outline-danger btn-sm" v-on:click="onRemoveFile(file, removeFileCallback, index)"><i class="fa fa-times"></i></button>
 												</div>
 											</div>
 										</div>
@@ -214,7 +214,7 @@
 												<div class="card-title text-truncate">{{ file.name }}</div>
 												<div class="d-flex align-items-center">
 													<div class="card-text flex-grow-1">{{ formatSize(file.size) }}</div>
-													<button type="button" class="btn btn-outline-danger btn-sm" v-on:click="onUploadedFileRemove(index)"><i class="fa fa-times"></i></button>
+													<button type="button" class="btn btn-outline-danger btn-sm" v-on:click="removeUploadedFileCallback(index)"><i class="fa fa-times"></i></button>
 												</div>
 											</div>
 										</div>
