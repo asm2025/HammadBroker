@@ -669,7 +669,9 @@
 				credentials: "same-origin"
 			});
 
-			window.location = "@Url.Action("Index", "Buildings")";
+			window.location = "@Url.Action("Index", "Buildings", new {
+				area = "Admin"
+			})";
 		}
 		catch (ex)
 		{
@@ -697,7 +699,9 @@
 				credentials: "same-origin"
 			});
 
-			window.location = "@Url.Action("Index", "Buildings")";
+			window.location = "@Url.Action("Index", "Buildings", new {
+				                   area = "Admin"
+			                   })";
 		}
 		catch (ex)
 		{
