@@ -11,6 +11,7 @@ using HammadBroker.Helpers;
 using HammadBroker.Model.DTO;
 using HammadBroker.Model.Entities;
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -23,9 +24,7 @@ using Microsoft.Extensions.Logging;
 
 namespace HammadBroker.Data.Context;
 
-public class DataContext : IdentityDbContext<User, Role, string,
-	IdentityUserClaim<string>, IdentityUserRole<string>, IdentityUserLogin<string>,
-	IdentityRoleClaim<string>, IdentityUserToken<string>>
+public class DataContext : IdentityDbContext<User, Role, string, IdentityUserClaim<string>, IdentityUserRole<string>, IdentityUserLogin<string>, IdentityRoleClaim<string>, IdentityUserToken<string>>, IDataProtectionKeyContext
 {
 	/// <inheritdoc />
 	public DataContext()
@@ -36,6 +35,9 @@ public class DataContext : IdentityDbContext<User, Role, string,
 		: base(options)
 	{
 	}
+
+	/// <inheritdoc />
+	public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
 
 	public DbSet<District> Districts { get; set; }
 	public DbSet<City> Cities { get; set; }

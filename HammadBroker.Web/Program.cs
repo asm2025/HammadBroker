@@ -28,6 +28,7 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.CookiePolicy;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -203,6 +204,7 @@ public class Program
 								(configuration.GetValue<string>("AllowedHosts").ToNullIfEmpty() ?? "*").Split(',',
 																											StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
 			.AddForwardedHeaders()
+			.AddSingleton<IExceptionHandler, ExceptionHandler>()
 			// Cookies
 			.Configure<CookiePolicyOptions>(options =>
 			{
@@ -219,7 +221,6 @@ public class Program
 				options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
 				options.Cookie.SameSite = SameSiteMode.Lax;
 			})
-			.AddSingleton<IExceptionHandler, ExceptionHandler>()
 			// Authentication
 			.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 			.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
@@ -232,6 +233,11 @@ public class Program
 				options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
 				options.Cookie.SameSite = SameSiteMode.Lax;
 			});
+		// Data protection
+		services
+			.AddDataProtection()
+			.PersistKeysToDbContext<DataContext>()
+			.SetDefaultKeyLifetime(TimeSpan.FromDays(90));
 		services
 			// Mapper
 			.AddAutoMapper((_, options) =>
