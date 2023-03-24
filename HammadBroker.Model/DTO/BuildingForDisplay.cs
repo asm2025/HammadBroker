@@ -16,10 +16,10 @@ public class BuildingForDisplay : BuildingForList, IBuildingForDisplay, IAddress
 	[Display(Name = "حمام")]
 	public byte? Bathrooms { get; set; }
 	/// <inheritdoc />
-	[Display(Name = "م")]
+	[Display(Name = "مباني")]
 	public long? BuildingArea { get; set; }
 	/// <inheritdoc />
-	[Display(Name = "م")]
+	[Display(Name = "أرض")]
 	public long? Area { get; set; }
 	/// <inheritdoc />
 	[Display(Name = "العنوان")]
