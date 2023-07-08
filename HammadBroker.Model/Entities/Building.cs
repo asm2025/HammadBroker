@@ -68,4 +68,7 @@ public class Building : IEntity<int>
 	public long Price { get; set; }
 
 	public bool Enabled { get; set; } = true;
+
+	public long Views { get; set; }
+	public long PageViews { get; set; }
 }

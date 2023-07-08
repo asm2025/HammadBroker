@@ -1,8 +1,8 @@
-import { ref, toRefs, computed } from 'composition-api'
+import { ref, toRefs, computed, nextTick } from 'vue'
 
 export default function useMultiselect (props, context, dep)
 {
-  const { searchable, disabled } = toRefs(props)
+  const { searchable, disabled, clearOnBlur } = toRefs(props)
 
   // ============ DEPENDENCIES ============
 
@@ -10,12 +10,19 @@ export default function useMultiselect (props, context, dep)
   const open = dep.open
   const close = dep.close
   const clearSearch = dep.clearSearch
+  const isOpen = dep.isOpen
 
   // ================ DATA ================
 
   const multiselect = ref(null)
+  
+  const wrapper = ref(null)
+
+  const tags = ref(null)
 
   const isActive = ref(false)
+
+  const mouseClicked = ref(false)
 
   // ============== COMPUTED ==============
 
@@ -30,7 +37,7 @@ export default function useMultiselect (props, context, dep)
       input.value.blur()
     }
 
-    multiselect.value.blur()
+    wrapper.value.blur()
   }
 
   const focus = () => {
@@ -39,18 +46,16 @@ export default function useMultiselect (props, context, dep)
     }
   }
 
-  const handleFocus = () => {
-    focus()
-  }
-
-  const activate = () => {
+  const activate = (shouldOpen = true) => {
     if (disabled.value) {
       return
     }
 
     isActive.value = true
 
-    open()
+    if (shouldOpen) {
+      open()
+    }
   }
 
   const deactivate = () => {
@@ -59,9 +64,24 @@ export default function useMultiselect (props, context, dep)
     setTimeout(() => {
       if (!isActive.value) {
         close()
-        clearSearch()
+
+        if (clearOnBlur.value) {
+          clearSearch()
+        }
       }
     }, 1)
+  }
+
+  const handleFocusIn = (e) => {
+    if ((e.target.closest('[data-tags]') && e.target.nodeName !== 'INPUT') || e.target.closest('[data-clear]')) {
+      return
+    }
+
+    activate(mouseClicked.value)
+  }
+
+  const handleFocusOut = () => {
+    deactivate()
   }
 
   const handleCaretClick = () => {
@@ -69,15 +89,37 @@ export default function useMultiselect (props, context, dep)
     blur()
   }
 
+  /* istanbul ignore next */
+  const handleMousedown = (e) => {
+    mouseClicked.value = true
+
+    if (isOpen.value && (e.target.isEqualNode(wrapper.value) || e.target.isEqualNode(tags.value))) {
+      setTimeout(() => {
+        deactivate()
+      }, 0)
+    } else if (document.activeElement.isEqualNode(wrapper.value) && !isOpen.value) {
+      activate()    
+    }
+
+    setTimeout(() => {
+      mouseClicked.value = false
+    }, 0)
+  }
+
   return {
     multiselect,
+    wrapper,
+    tags,
     tabindex,
     isActive,
+    mouseClicked,
     blur,
     focus,
-    handleFocus,
     activate,
     deactivate,
+    handleFocusIn,
+    handleFocusOut,
     handleCaretClick,
+    handleMousedown,
   }
 }

@@ -21,6 +21,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Logging;
+using EnvironmentHelper = essentialMix.Helpers.EnvironmentHelper;
 
 namespace HammadBroker.Data.Context;
 

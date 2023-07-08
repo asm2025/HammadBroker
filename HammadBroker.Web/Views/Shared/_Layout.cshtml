@@ -2,6 +2,7 @@
 @using HammadBroker.Model
 @using Microsoft.AspNetCore.Http.Extensions
 @inject CompanyInfo CompanyInfo
+@inject MarketingLinks MarketingLinks
 @{
 	bool hideMenu = Convert.ToBoolean(ViewBag.HideMenu ?? false);
 	string title = string.Join(" - ", ViewData["Title"], CompanyInfo.Name).Trim(' ', '-');
@@ -123,7 +124,22 @@
 	</div>
 
 	<footer class="container-fluid py-3 mt-2 border-top footer text-muted">
-		<small class="d-inline-block mb-1 text-muted">@CompanyInfo.Name &copy;@DateTime.Today.Year</small>
+		<div class="d-flex flex-row align-items-center">
+			<div class="flex-grow-1">
+				<small class="d-inline-block mb-1 text-muted">@CompanyInfo.Name &copy;@DateTime.Today.Year</small>
+			</div>
+			@if (MarketingLinks.HasLinks)
+			{
+				<ul class="marketing-links flex-shrink-1">
+					@foreach (MarketingLink link in MarketingLinks.Links)
+					{
+						<li class="marketing-link @link.CssClass">
+							<a href="@link.Url" title="@link.Title" target="_blank"></a>
+						</li>
+					}
+				</ul>
+			}
+		</div>
 	</footer>
 
 	<script src="~/lib/jquery/jquery.min.js"></script>

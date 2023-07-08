@@ -109,8 +109,8 @@
 				</div>
 				<div class="col-sm-12 col-md-6">
 					<label asp-for="Pagination.Date" class="form-label"></label>
-					<input type="hidden" name="@nameof(Model.Pagination.Date)" :value="date"/>
-					<input type="hidden" name="@nameof(Model.Pagination.MaxDate)" :value="maxDate"/>
+					<input type="hidden" asp-for="Pagination.Date" name="@nameof(Model.Pagination.Date)" :value="date"/>
+					<input type="hidden" asp-for="Pagination.MaxDate" name="@nameof(Model.Pagination.MaxDate)" :value="maxDate"/>
 					<calendar class="w-100" v-model="dateRange" selection-mode="range" date-format="yy/mm/dd">
 					</calendar>
 				</div>

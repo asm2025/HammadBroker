@@ -3,7 +3,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using essentialMix.Core.Web.Middleware;
 using essentialMix.Core.Web.Services;
+using essentialMix.Core.Web.VirtualPath;
 using essentialMix.Extensions;
 using essentialMix.Helpers;
 using essentialMix.Newtonsoft.Helpers;
@@ -12,18 +14,12 @@ using HammadBroker.Data.Context;
 using HammadBroker.Data.Identity;
 using HammadBroker.Data.Repositories;
 using HammadBroker.Data.Services;
-using HammadBroker.Extensions;
 using HammadBroker.Helpers;
-using HammadBroker.Infrastructure.Middleware;
-using HammadBroker.Infrastructure.Services;
 using HammadBroker.Model;
 using HammadBroker.Model.Configuration;
 using HammadBroker.Model.Entities;
-using HammadBroker.Model.Mail;
 using HammadBroker.Model.Mapper;
-using HammadBroker.Model.VirtualPath;
 using HammadBroker.Web.Filters;
-using HammadBroker.Web.Middleware;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -43,8 +39,10 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using NToastNotify;
 using Serilog;
-using ILogger = Microsoft.Extensions.Logging.ILogger;
-using SLogger = Serilog.ILogger;
+using EnvironmentHelper = HammadBroker.Helpers.EnvironmentHelper;
+using ExceptionHandler = HammadBroker.Web.Middleware.ExceptionHandler;
+using ILogger = Serilog.ILogger;
+using MSLogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace HammadBroker.Web;
 
@@ -85,32 +83,38 @@ public class Program
 	{
 		Console.OutputEncoding = Encoding.UTF8;
 
-		// Configuration
-		WebApplicationBuilder builder = CreateHostBuilder(args);
-		IConfiguration configuration = builder.Configuration;
-		AppName = configuration.GetValue("AppName", AppName);
-		AppTitle = configuration.GetValue("Name", AppTitle);
-
-		// Logging
-		LoggerConfiguration loggerConfiguration = new LoggerConfiguration();
-
-		if (configuration.GetValue("LoggingEnabled", true))
-		{
-			loggerConfiguration.ReadFrom.Configuration(configuration)
-								.Enrich.WithProperty("ApplicationName", AppName!);
-		}
-
-		Log.Logger = loggerConfiguration.CreateLogger();
-		SLogger logger = Log.Logger;
-
-		ConfigureServices(builder);
-
-		// application
-		WebApplication app = builder.Build();
-		Configure(app);
+		MSLogger startupLog = LogHelper.CreateStartLogger<Program>(Path.Combine($@"_logs\{EnvironmentHelper.GetName()}", Constants.StartupLOGFileName), typeof(Program).Namespace);
+		ILogger logger = null;
 
 		try
 		{
+			startupLog.LogInformation($"Starting {AppName} ...");
+
+			// Configuration
+			WebApplicationBuilder builder = CreateHostBuilder(args);
+			IConfiguration configuration = builder.Configuration;
+			LogHelper.SetPath(configuration, 1, EnvironmentHelper.GetName());
+			AppName = configuration.GetValue("AppName", AppName);
+			AppTitle = configuration.GetValue("Name", AppTitle);
+
+			// Logging
+			LoggerConfiguration loggerConfiguration = new LoggerConfiguration();
+
+			if (configuration.GetValue("LoggingEnabled", true))
+			{
+				loggerConfiguration.ReadFrom.Configuration(configuration)
+									.Enrich.WithProperty("ApplicationName", AppName!);
+			}
+
+			Log.Logger = loggerConfiguration.CreateLogger();
+			logger = Log.Logger;
+
+			ConfigureServices(builder);
+
+			// application
+			WebApplication app = builder.Build();
+			Configure(app);
+
 			// Start
 			logger.Information($"{AppName} is starting...");
 
@@ -128,15 +132,16 @@ public class Program
 		}
 		catch (Exception ex)
 		{
-			logger.Error(ex.CollectMessages());
+			string errors = ex.CollectMessages();
+			startupLog.LogError(errors);
+			logger?.Error(errors);
 			Environment.ExitCode = ex.HResult;
 		}
 		finally
 		{
-			logger.Information($"{AppName} finished.");
+			logger?.Information($"{AppName} finished.");
+			await Log.CloseAndFlushAsync();
 		}
-
-		await Log.CloseAndFlushAsync();
 	}
 
 	[NotNull]
@@ -173,14 +178,15 @@ public class Program
 		IServiceCollection services = builder.Services;
 		IConfiguration configuration = builder.Configuration;
 		IWebHostEnvironment environment = builder.Environment;
-		SmtpConfiguration smtpConfiguration = configuration.GetSection(nameof(SmtpConfiguration)).Get<SmtpConfiguration>();
 		CompanyInfo companyInfo = configuration.Get<CompanyInfo>() ?? new CompanyInfo();
+		MarketingLinks marketingLinks = configuration.GetSection(nameof(MarketingLinks)).Get<MarketingLinks>() ?? new MarketingLinks();
 		int sessionTimeout = configuration.GetValue("OAuth:timeout", 20).NotBelow(5);
 		services
 			// config
 			.AddSingleton(configuration)
 			.AddSingleton(environment)
 			.AddSingleton(companyInfo)
+			.AddSingleton(marketingLinks)
 			.AddVirtualPathSettings(environment.WebRootPath, opt => configuration.GetSection(nameof(VirtualPathSettings)).Bind(opt))
 			// logging
 			.AddLogging(config =>
@@ -280,6 +286,7 @@ public class Program
 			.AddTransient<ICityService, CityService>()
 			.AddTransient<IIdentityService, IdentityService>()
 			.AddTransient<IBuildingService, BuildingService>()
+			.AddEmailClient(configuration)
 			// Authorization
 			.AddAuthorization(options =>
 			{
@@ -316,14 +323,6 @@ public class Program
 			})
 			.AddSessionStateTempDataProvider()
 			.AddNToastNotifyToastr(configuration.GetSection(nameof(ToastrOptions)).Get<ToastrOptions>());
-
-		if (smtpConfiguration != null && !string.IsNullOrWhiteSpace(smtpConfiguration.Host))
-		{
-			// Add email senders which is currently setup for SMTP
-			services
-				.AddSingleton(smtpConfiguration)
-				.AddTransient<IEmailService, SmtpEmailService>();
-		}
 	}
 
 	private static void Configure([NotNull] WebApplication app)
@@ -379,7 +378,7 @@ public class Program
 			});
 	}
 
-	private static async Task<(bool, bool)> ApplyMigrationsAsync([NotNull] IHost host, [NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, string[] args, SLogger logger)
+	private static async Task<(bool, bool)> ApplyMigrationsAsync([NotNull] IHost host, [NotNull] IConfiguration configuration, [NotNull] IWebHostEnvironment environment, string[] args, ILogger logger)
 	{
 		bool applyMigrations = configuration.GetValue("Migrations:ApplyMigrations", true);
 		bool applySeed = configuration.GetValue("Migrations:ApplySeed", true);
@@ -424,7 +423,7 @@ public class Program
 												.SetBasePath(AppPath)
 												.AddConfigurationFile(AppPath, "seed.json", false, environment.EnvironmentName)
 												.Build();
-			ILogger xLogger = services.GetService<ILogger<DataContext>>();
+			MSLogger xLogger = services.GetService<ILogger<DataContext>>();
 
 			if (!await dataContext.ApplyMigrationsAsync(host, seedConfiguration, applySeed, xLogger))
 			{

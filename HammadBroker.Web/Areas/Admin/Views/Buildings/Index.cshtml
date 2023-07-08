@@ -1,5 +1,6 @@
 ﻿@using HammadBroker.Model.DTO
 @using HammadBroker.Model
+@using HammadBroker.Web.TagHelpers
 @using Microsoft.AspNetCore.Antiforgery
 @using Microsoft.AspNetCore.Authorization
 @inject IAntiforgery Antiforgery
@@ -174,6 +175,8 @@
 				<th scope="col" class="text-nowrap">@Html.DisplayNameForInnerType((BuildingForList e) => e.AdType)</th>
 				<th scope="col" class="text-nowrap auto-cell">@Html.DisplayNameForInnerType((BuildingForList e) => e.FinishingType)</th>
 				<th scope="col" class="text-center auto-cell">@Html.DisplayNameForInnerType((BuildingForList e) => e.Price)</th>
+				<th scope="col" class="text-center auto-cell">@Html.DisplayNameForInnerType((BuildingForList e) => e.Views)</th>
+				<th scope="col" class="text-center auto-cell">@Html.DisplayNameForInnerType((BuildingForList e) => e.PageViews)</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -201,6 +204,8 @@
 					<td class="text-nowrap">@Html.DisplayFor(e => building.AdTypeName)</td>
 					<td class="text-nowrap">@Html.DisplayFor(e => building.FinishingTypeName)</td>
 					<td class="text-nowrap">@Html.DisplayFor(e => building.Price)</td>
+					<td class="text-nowrap">@Html.DisplayFor(e => building.Views)</td>
+					<td class="text-nowrap">@Html.DisplayFor(e => building.PageViews)</td>
 				</tr>
 			}
 		</tbody>

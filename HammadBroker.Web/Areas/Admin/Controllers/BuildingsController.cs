@@ -10,18 +10,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using essentialMix.Core.Web.Controllers;
+using essentialMix.Core.Web.VirtualPath;
+using essentialMix.Drawing.Helpers;
 using essentialMix.Extensions;
 using essentialMix.Helpers;
 using essentialMix.Patterns.Sorting;
 using HammadBroker.Data.Context;
 using HammadBroker.Data.Services;
-using HammadBroker.Infrastructure.Helpers;
 using HammadBroker.Model;
 using HammadBroker.Model.Configuration;
 using HammadBroker.Model.DTO;
 using HammadBroker.Model.Entities;
 using HammadBroker.Model.Parameters;
-using HammadBroker.Model.VirtualPath;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -31,7 +31,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NToastNotify;
-using emImageHelper = essentialMix.Drawing.Helpers.ImageHelper;
 
 namespace HammadBroker.Web.Areas.Admin.Controllers;
 
@@ -70,12 +69,13 @@ public class BuildingsController : MvcController
 		token.ThrowIfCancellationRequested();
 		pagination ??= new BuildingList();
 
-		if (pagination.OrderBy == null || pagination.OrderBy.Count == 0)
+		if (pagination.OrderBy is not { Count: > 0 })
 		{
 			pagination.OrderBy ??= new List<SortField>();
-			if (pagination.CityId < 1) pagination.OrderBy.Add(new SortField(nameof(Building.CityId)));
-			if (!pagination.Date.HasValue) pagination.OrderBy.Add(new SortField(nameof(Building.Date), SortType.Descending));
 			if (!pagination.AdType.HasValue) pagination.OrderBy.Add(new SortField(nameof(Building.AdType)));
+			if (!pagination.Date.HasValue) pagination.OrderBy.Add(new SortField(nameof(Building.Date), SortType.Descending));
+			if (pagination.CityId < 1) pagination.OrderBy.Add(new SortField(nameof(Building.CityId)));
+			if (pagination.DistrictId < 1) pagination.OrderBy.Add(new SortField(nameof(Building.DistrictId)));
 			if (!pagination.BuildingType.HasValue) pagination.OrderBy.Add(new SortField(nameof(Building.BuildingType)));
 			if (!pagination.FinishingType.HasValue) pagination.OrderBy.Add(new SortField(nameof(Building.FinishingType)));
 		}
@@ -480,8 +480,8 @@ public class BuildingsController : MvcController
 		{
 			stream = formFile.OpenReadStream();
 			image = Image.FromStream(stream);
-			thumb = ImageHelper.FixImageSize(image, Constants.Images.DimensionXMax, Constants.Images.DimensionYMax);
-			fileName = emImageHelper.Save(thumb, fileName, false, ImageFormat.Jpeg);
+			thumb = ImageHelper.ResizeWithRatio(image, Constants.Images.DimensionXMax, Constants.Images.DimensionYMax);
+			fileName = ImageHelper.Save(thumb, fileName, false, ImageFormat.Jpeg);
 			return fileName;
 		}
 		finally

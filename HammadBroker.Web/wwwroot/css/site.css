@@ -800,7 +800,7 @@ span.oi {
 	justify-content: center;
 }
 
-.p-galleria-thumbnail-item .p-galleria-thumbnail-item-content .actions {
+	.p-galleria-thumbnail-item .p-galleria-thumbnail-item-content .actions {
 		position: relative;
 		margin: 0;
 		display: flex;
@@ -847,19 +847,19 @@ span.oi {
 		height: 100%;
 	}
 
-	.p-fileupload .p-fileupload-empty .content {
-		display: flex;
-		flex-direction: column;
-		-ms-align-items: center;
-		-o-align-items: center;
-		-webkit-align-items: center;
-		align-items: center;
-		-o-justify-content: center;
-		-webkit-justify-content: center;
-		justify-content: center;
-		width: 100%;
-		height: 100%;
-	}
+		.p-fileupload .p-fileupload-empty .content {
+			display: flex;
+			flex-direction: column;
+			-ms-align-items: center;
+			-o-align-items: center;
+			-webkit-align-items: center;
+			align-items: center;
+			-o-justify-content: center;
+			-webkit-justify-content: center;
+			justify-content: center;
+			width: 100%;
+			height: 100%;
+		}
 
 .p-fileupload-buttonbar {
 	background: none !important;
@@ -964,4 +964,67 @@ span.oi {
 
 .pane-active {
 	border-top: 0.3rem solid #ef5e4e;
+}
+
+.marketing-links {
+	display: flex !important;
+	flex-direction: row !important;
+	padding: 0;
+	margin: 0;
+	list-style: none !important;
+}
+
+.marketing-link {
+	position: relative;
+	display: inline-flex !important;
+	-webkit-flex: 1;
+	-ms-flex: 1;
+	-o-flex: 1;
+	flex: 1;
+	min-width: 30px;
+	min-height: 30px;
+	max-height: 30px;
+	overflow: hidden;
+	-ms-align-items: center;
+	-o-align-items: center;
+	-webkit-align-items: center;
+	align-items: center;
+	-o-justify-content: center;
+	-webkit-justify-content: center;
+	justify-content: center;
+	margin: 0.25rem;
+	-ms-border-radius: 50% !important;
+	border-radius: 50% !important;
+	text-decoration: none !important;
+	background-color: transparent !important;
+	-ms-background-position: center !important;
+	background-position: center !important;
+	-ms-background-size: contain !important;
+	background-size: contain !important;
+	-ms-background-repeat: no-repeat !important;
+	background-repeat: no-repeat !important;
+}
+
+	.marketing-link a {
+		display: block;
+		width: 100%;
+		height: 100%;
+		text-decoration: none !important;
+	}
+
+	.marketing-link img,
+	.marketing-link svg, {
+		vertical-align: middle;
+	}
+
+.lnk-facebook {
+	background: url('../images/brand/facebook.png');
+}
+
+.lnk-whatsApp {
+	background: url('../images/brand/whatsapp.png');
+}
+
+.lnk-youtube {
+	background: url('../images/brand/youtube.png');
 }

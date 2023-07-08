@@ -4,16 +4,16 @@
 	"libraries": [
 		{
 			"provider": "cdnjs",
-			"library": "popper.js@2.11.6",
+			"library": "popper.js@2.11.8",
 			"destination": "wwwroot/lib/popper.js/"
 		},
 		{
 			"provider": "cdnjs",
-			"library": "bootstrap@5.2.3",
+			"library": "bootstrap@5.3.0",
 			"destination": "wwwroot/lib/bootstrap/"
 		},
 		{
-			"library": "font-awesome@6.2.1",
+			"library": "font-awesome@6.4.0",
 			"destination": "wwwroot/lib/font-awesome/"
 		},
 		{
@@ -25,7 +25,7 @@
 			"destination": "wwwroot/lib/jquery-validation-unobtrusive/"
 		},
 		{
-			"library": "jquery@3.6.1",
+			"library": "jquery@3.7.0",
 			"destination": "wwwroot/lib/jquery/"
 		},
 		{
@@ -42,12 +42,12 @@
 		},
 		{
 		  "provider": "unpkg",
-		  "library": "@vueform/multiselect@2.3.4",
+		  "library": "@vueform/multiselect@2.6.2",
 		  "destination": "wwwroot/lib/vueform/multiselect/"
 		},
 		{
 		  "provider": "unpkg",
-		  "library": "primeflex@3.3.0",
+		  "library": "primeflex@3.3.1",
 		  "destination": "wwwroot/lib/primeflex/"
 		},
 		{

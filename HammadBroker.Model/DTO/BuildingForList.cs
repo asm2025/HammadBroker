@@ -37,7 +37,7 @@ public class BuildingForList : IBuildingLookup, IBuildingImageLookup
 	[Display(Name = "نشر")]
 	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}", ApplyFormatInEditMode = true)]
 	public DateTime CreatedOn { get; set; }
-	[Display(Name = "حدث")]
+	[Display(Name = "آخر تحديث")]
 	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}", ApplyFormatInEditMode = true)]
 	public DateTime UpdatedOn { get; set; }
 	[Display(Name = "التاريخ")]
@@ -51,4 +51,8 @@ public class BuildingForList : IBuildingLookup, IBuildingImageLookup
 	public long Price { get; set; }
 	[Display(Name = "مفعل")]
 	public bool Enabled { get; set; }
+	[Display(Name = "المشاهدات")]
+	public long Views { get; set; }
+	[Display(Name = "مشاهدات الصفحة")]
+	public long PageViews { get; set; }
 }

@@ -1,4 +1,4 @@
-import { computed, toRefs } from 'composition-api'
+import { computed, toRefs } from 'vue'
 
 export default function useClasses (props, context, dependencies)
 {const { 
@@ -22,6 +22,7 @@ export default function useClasses (props, context, dependencies)
     containerOpen: 'is-open',
     containerOpenTop: 'is-open-top',
     containerActive: 'is-active',
+    wrapper: 'multiselect-wrapper',
     singleLabel: 'multiselect-single-label',
     singleLabelText: 'multiselect-single-label-text',
     multipleLabel: 'multiselect-multiple-label',
@@ -40,6 +41,8 @@ export default function useClasses (props, context, dependencies)
     clear: 'multiselect-clear',
     clearIcon: 'multiselect-clear-icon',
     spinner: 'multiselect-spinner',
+    inifinite: 'multiselect-inifite',
+    inifiniteSpinner: 'multiselect-inifite-spinner',
     dropdown: 'multiselect-dropdown',
     dropdownTop: 'is-top',
     dropdownHidden: 'is-hidden',
@@ -63,6 +66,7 @@ export default function useClasses (props, context, dependencies)
     noOptions: 'multiselect-no-options',
     noResults: 'multiselect-no-results',
     fakeInput: 'multiselect-fake-input',
+    assist: 'multiselect-assistive-text',
     spacer: 'multiselect-spacer',
     ...classes_.value,
   }))
@@ -82,6 +86,7 @@ export default function useClasses (props, context, dependencies)
         .concat(showDropdown.value && openDirection.value === 'top'  ? c.containerOpenTop : [])
         .concat(showDropdown.value && openDirection.value !== 'top' ? c.containerOpen : [])
         .concat(isActive.value ? c.containerActive : []),
+      wrapper: c.wrapper,
       spacer: c.spacer,
       singleLabel: c.singleLabel,
       singleLabelText: c.singleLabelText,
@@ -90,6 +95,7 @@ export default function useClasses (props, context, dependencies)
       tags: c.tags,
       tag: [c.tag]
         .concat(disabled.value ? c.tagDisabled : []),
+      tagDisabled: c.tagDisabled,
       tagRemove: c.tagRemove,
       tagRemoveIcon: c.tagRemoveIcon,
       tagsSearchWrapper: c.tagsSearchWrapper,
@@ -101,6 +107,8 @@ export default function useClasses (props, context, dependencies)
       clear: c.clear,
       clearIcon: c.clearIcon,
       spinner: c.spinner,
+      inifinite: c.inifinite,
+      inifiniteSpinner: c.inifiniteSpinner,
       dropdown: [c.dropdown]
         .concat(openDirection.value === 'top' ? c.dropdownTop : [])
         .concat(!isOpen.value || !showOptions.value || !showDropdown.value ? c.dropdownHidden : []),
@@ -140,6 +148,7 @@ export default function useClasses (props, context, dependencies)
       },
       noOptions: c.noOptions,
       noResults: c.noResults,
+      assist: c.assist,
       fakeInput: c.fakeInput,
     }
   })

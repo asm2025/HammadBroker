@@ -1,10 +1,10 @@
 ﻿@using Microsoft.AspNetCore.Antiforgery
 @using HammadBroker.Model
 @using HammadBroker.Model.DTO
-@using HammadBroker.Model.VirtualPath
 @using System.Configuration
 @using System.Globalization
 @using System.Net
+@using essentialMix.Core.Web.VirtualPath
 @using HammadBroker.Model.Configuration
 @using Humanizer
 @using JetBrains.Annotations
@@ -119,7 +119,7 @@
 				@if (!string.IsNullOrEmpty(Model.Building.VideoId))
 				{
 					<div class="card card-body">
-						<vid-asset VideoId="@Model.Building.VideoId" Class="ratio ratio-16x9"/>
+						<AssetVideoTagHelper VideoId="@Model.Building.VideoId" Class="ratio ratio-16x9"/>
 					</div>
 				}
 				else
@@ -271,14 +271,14 @@
 		{
 			<div class="row g-0 px-2">
 				<div class="col-sm-12 col-md-6">
-					<label asp-for="Building.Date" class="form-label"></label> *
+					<label asp-for="Building.Date" for="@($"{nameof(Model.Building)}.{nameof(Model.Building.Date)}")" class="form-label"></label> *
 					<input type="hidden" name="@($"{nameof(Model.Building)}.{nameof(Model.Building.Date)}")" :value="date"/>
 					<calendar class="w-100" v-model="date" selection-mode="single" date-format="yy/mm/dd">
 					</calendar>
 					<span asp-validation-for="Building.Date" class="text-danger"></span>
 				</div>
 				<div class="col-sm-12 col-md-6">
-					<label asp-for="Building.Expires" class="form-label"></label>
+					<label asp-for="Building.Expires" for="@($"{nameof(Model.Building)}.{nameof(Model.Building.Expires)}")" class="form-label"></label>
 					<input type="hidden" name="@($"{nameof(Model.Building)}.{nameof(Model.Building.Expires)}")" :value="expires"/>
 					<calendar class="w-100" v-model="expires" selection-mode="single" date-format="yy/mm/dd">
 					</calendar>

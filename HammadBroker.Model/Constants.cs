@@ -4,6 +4,7 @@ namespace HammadBroker.Model;
 
 public static class Constants
 {
+	public const string StartupLOGFileName = "__startup_.log";
 	public const string ApplicationName = "AqaratHammad";
 
 	public static readonly TimeSpan MigrationTimeout = TimeSpan.FromMinutes(2);

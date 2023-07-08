@@ -1,4 +1,4 @@
-import { ref, toRefs, computed, watch, nextTick, getCurrentInstance } from 'composition-api'
+import { ref, toRefs, computed, watch, getCurrentInstance } from 'vue'
 import normalize from './../utils/normalize'
 import isObject from './../utils/isObject'
 import isNullish from './../utils/isNullish'
@@ -9,9 +9,9 @@ export default function useOptions (props, context, dep)
   const { 
     options, mode, trackBy: trackBy_, limit, hideSelected, createTag, createOption: createOption_, label,
     appendNewTag, appendNewOption: appendNewOption_, multipleLabel, object, loading, delay, resolveOnLoad,
-    minChars, filterResults, clearOnSearch, clearOnSelect, valueProp,
-    canDeselect, max, strict, closeOnSelect, groups: groupped, groupLabel,
-    groupOptions, groupHideEmpty, groupSelect, 
+    minChars, filterResults, clearOnSearch, clearOnSelect, valueProp, allowAbsent, groupLabel,
+    canDeselect, max, strict, closeOnSelect, closeOnDeselect, groups: groupped, reverse, infinite,
+    groupOptions, groupHideEmpty, groupSelect, onCreate, disabledProp, searchStart, searchFilter,
   } = toRefs(props)
 
   const $this = getCurrentInstance().proxy
@@ -25,9 +25,10 @@ export default function useOptions (props, context, dep)
   const update = dep.update
   const pointer = dep.pointer
   const clearPointer = dep.clearPointer
-  const blur = dep.blur
   const focus = dep.focus
   const deactivate = dep.deactivate
+  const close = dep.close
+  const localize = dep.localize
 
   // ================ DATA ================
 
@@ -43,6 +44,8 @@ export default function useOptions (props, context, dep)
 
   // no export
   const searchWatcher = ref(null)
+
+  const offset = ref(infinite.value && limit.value === -1 ? 10 : limit.value)
 
   // ============== COMPUTED ==============
 
@@ -66,13 +69,13 @@ export default function useOptions (props, context, dep)
   // extendedOptions
   const eo = computed(() => {
     if (groupped.value) {
-      let groups = ro.value || /* istanbul ignore next */ []
+      let groups = eg.value || /* istanbul ignore next */ []
 
       let eo = []
 
       groups.forEach((group) => {
         optionsToArray(group[groupOptions.value]).forEach((option) => {
-          eo.push(Object.assign({}, option, group.disabled ? { disabled: true } : {}))
+          eo.push(Object.assign({}, option, group[disabledProp.value] ? { [disabledProp.value]: true } : {}))
         })
       })
 
@@ -88,39 +91,92 @@ export default function useOptions (props, context, dep)
     }
   })
 
-  const fg = computed(() => {
-    if (!groupped.value) {
-      return []
-    }
-
-    return filterGroups((ro.value || /* istanbul ignore next */ []).map((group) => {
-      const arrayOptions = optionsToArray(group[groupOptions.value])
-
-      return {
-        ...group,
-        group: true,
-        [groupOptions.value]: filterOptions(arrayOptions, false).map(o => Object.assign({}, o, group.disabled ? { disabled: true } : {})),
-        __VISIBLE__: filterOptions(arrayOptions).map(o => Object.assign({}, o, group.disabled ? { disabled: true } : {})),
-      }
-      // Difference between __VISIBLE__ and {groupOptions}: visible does not contain selected options when hideSelected=true
-    }))
-  })
-
-  // filteredOptions
-  const fo = computed(() => {
+  // preFilteredOptions
+  const pfo = computed(() => {
     let options = eo.value
+
+    if (reverse.value) {
+      options = options.reverse()
+    }
 
     if (createdOption.value.length) {
       options = createdOption.value.concat(options)
     }
 
-    options = filterOptions(options)
+    return filterOptions(options)
+  })
 
-    if (limit.value > 0) {
-      options = options.slice(0, limit.value)
+  // filteredOptions
+  const fo = computed(() => {
+    let options = pfo.value
+
+    if (offset.value > 0) {
+      options = options.slice(0, offset.value)
     }
 
     return options
+  })
+
+  // no export
+  // extendedGroups
+  const eg = computed(() => {
+    if (!groupped.value) {
+      return []
+    }
+
+    let eg = []
+    let groups = ro.value || /* istanbul ignore next */ []
+
+    if (ap.value.length) {
+      eg.push({
+        [groupLabel.value]: ' ',
+        [groupOptions.value]: [...ap.value],
+        __CREATE__: true
+      })
+    }
+
+    return eg.concat(groups)
+  })
+
+  // preFilteredGroups
+  const pfg = computed(() => {
+    let groups = [...eg.value].map(g => ({...g}))
+
+    if (createdOption.value.length) {
+      if (groups[0] && groups[0].__CREATE__) {
+        groups[0][groupOptions.value] = [...createdOption.value, ...groups[0][groupOptions.value]]
+      } else {
+        groups = [{
+          [groupLabel.value]: ' ',
+          [groupOptions.value]: [...createdOption.value],
+          __CREATE__: true
+        }].concat(groups)
+      }
+    }
+
+    return groups
+  })
+
+  // filteredGroups
+  const fg = computed(() => {
+    if (!groupped.value) {
+      return []
+    }
+
+    let options = pfg.value
+
+    return filterGroups((options || /* istanbul ignore next */ []).map((group, index) => {
+      const arrayOptions = optionsToArray(group[groupOptions.value])
+
+      return {
+        ...group,
+        index,
+        group: true,
+        [groupOptions.value]: filterOptions(arrayOptions, false).map(o => Object.assign({}, o, group[disabledProp.value] ? { [disabledProp.value]: true } : {})),
+        __VISIBLE__: filterOptions(arrayOptions).map(o => Object.assign({}, o, group[disabledProp.value] ? { [disabledProp.value]: true } : {})),
+      }
+      // Difference between __VISIBLE__ and {groupOptions}: visible does not contain selected options when hideSelected=true
+    }))
   })
 
   const hasSelected = computed(() => {
@@ -155,10 +211,15 @@ export default function useOptions (props, context, dep)
       return []
     }
 
-    return getOptionByTrackBy(search.value) !== -1 ? [] : [{
+    if (getOptionByTrackBy(search.value) !== -1) {
+      return []
+    }
+
+    return [{
       [valueProp.value]: search.value,
-      [label.value]: search.value,
       [trackBy.value]: search.value,
+      [label.value]: search.value,
+      __CREATE__: true,
     }]
   })
 
@@ -203,7 +264,7 @@ export default function useOptions (props, context, dep)
         break
     }
 
-    context.emit('select', finalValue(option), option)
+    context.emit('select', finalValue(option), option, $this)
   }
 
   const deselect = (option) => {
@@ -224,7 +285,7 @@ export default function useOptions (props, context, dep)
         break
     }
 
-    context.emit('deselect', finalValue(option), option)
+    context.emit('deselect', finalValue(option), option, $this)
   }
 
   // no export
@@ -246,7 +307,7 @@ export default function useOptions (props, context, dep)
   }
 
   const clear = () => {
-    context.emit('clear')
+    context.emit('clear', $this)
     update(nullValue.value)
   }
 
@@ -266,7 +327,7 @@ export default function useOptions (props, context, dep)
   }
 
   const isDisabled = (option) => {
-    return option.disabled === true
+    return option[disabledProp.value] === true
   }
 
   const isMax = () => {
@@ -282,34 +343,85 @@ export default function useOptions (props, context, dep)
       return
     }
 
+    if (onCreate && onCreate.value && !isSelected(option) && option.__CREATE__) {
+      option = { ...option }
+      delete option.__CREATE__
+
+      option = onCreate.value(option, $this)
+      
+      if (option instanceof Promise) {
+        resolving.value = true
+        option.then((result) => {
+          resolving.value = false
+          handleOptionSelect(result)
+        })
+
+        return
+      } 
+    }
+
+    handleOptionSelect(option)
+  }
+
+  const handleOptionSelect = (option) => {
+    if (option.__CREATE__) {
+      option = { ...option }
+      delete option.__CREATE__
+    }
+    
     switch (mode.value) {
       case 'single':
-        if (isSelected(option)) {
+        if (option && isSelected(option)) {
           if (canDeselect.value) {
             deselect(option)
+          }
+
+          if (closeOnDeselect.value) {
+            clearPointer()
+            close()
           }
           return
         }
 
-        handleOptionAppend(option)
+        if (option) {
+          handleOptionAppend(option)
+        }
 
-        blur()
-        select(option)
+        /* istanbul ignore else */
+        if (clearOnSelect.value) {
+          clearSearch()
+        }
+
+        if (closeOnSelect.value) {
+          clearPointer()
+          close()
+        }
+
+        if (option) {
+          select(option)
+        }
         break
 
       case 'multiple':
-        if (isSelected(option)) {
+        if (option && isSelected(option)) {
           deselect(option)
+
+          if (closeOnDeselect.value) {
+            clearPointer()
+            close()
+          }
           return
         }
 
         if (isMax()) {
+          context.emit('max', $this)
           return
         }
 
-        handleOptionAppend(option)
-
-        select(option)
+        if (option) {
+          handleOptionAppend(option)
+          select(option)
+        }
 
         if (clearOnSelect.value) {
           clearSearch()
@@ -319,48 +431,50 @@ export default function useOptions (props, context, dep)
           clearPointer()
         }
 
-        // If we need to close the dropdown on select we also need
-        // to blur the input, otherwise further searches will not
-        // display any options
         if (closeOnSelect.value) {
-          blur()
+          close()
         }
         break
 
       case 'tags':
-        if (isSelected(option)) {
+        if (option && isSelected(option)) {
           deselect(option)
+
+          if (closeOnDeselect.value) {
+            clearPointer()
+            close()
+          }
           return
         }
 
         if (isMax()) {
+          context.emit('max', $this)
           return
         }
 
-        handleOptionAppend(option)
+        if (option) {
+          handleOptionAppend(option)
+        }
 
         if (clearOnSelect.value) {
           clearSearch()
         }
 
-        select(option)
+        if (option) {
+          select(option)
+        }
 
         if (hideSelected.value) {
           clearPointer()
         }
 
-        // If we need to close the dropdown on select we also need
-        // to blur the input, otherwise further searches will not
-        // display any options
         if (closeOnSelect.value) {
-          blur()
+          close()
         }
         break
     }
 
-    if (closeOnSelect.value) {
-      deactivate()
-    } else {
+    if (!closeOnSelect.value) {
       focus()
     }
   }
@@ -378,7 +492,7 @@ export default function useOptions (props, context, dep)
         } else {
           select(group[groupOptions.value]
             .filter(o => iv.value.map(v => v[valueProp.value]).indexOf(o[valueProp.value]) === -1)
-            .filter(o => !o.disabled)
+            .filter(o => !o[disabledProp.value])
             .filter((o, k) => iv.value.length + 1 + k <= max.value || max.value === -1)
           )
         }
@@ -392,8 +506,9 @@ export default function useOptions (props, context, dep)
 
   const handleOptionAppend = (option) => {
     if (getOption(option[valueProp.value]) === undefined && createOption.value) {
-      context.emit('tag', option[valueProp.value])
-      context.emit('option', option[valueProp.value])
+      context.emit('tag', option[valueProp.value], $this)
+      context.emit('option', option[valueProp.value], $this)
+      context.emit('create', option[valueProp.value], $this)
 
       if (appendNewOption.value) {
         appendOption(option)
@@ -408,12 +523,12 @@ export default function useOptions (props, context, dep)
       return
     }
 
-    select(fo.value)
+    select(fo.value.filter(o => !o.disabled && !isSelected(o)))
   }
 
   // no export
   const areAllEnabledSelected = (options) => {
-    return options.find(o => !isSelected(o) && !o.disabled) === undefined
+    return options.find(o => !isSelected(o) && !o[disabledProp.value]) === undefined
   }
 
   // no export
@@ -427,7 +542,9 @@ export default function useOptions (props, context, dep)
 
   // no export
   const getOptionByTrackBy = (val, norm = true) => {
-    return eo.value.map(o => o[trackBy.value]).indexOf(val)
+    return eo.value.map(o => parseInt(o[trackBy.value]) == o[trackBy.value] ? parseInt(o[trackBy.value]) : o[trackBy.value]).indexOf(
+      parseInt(val) == val ? parseInt(val) : val
+    )
   }
 
   // no export
@@ -443,7 +560,7 @@ export default function useOptions (props, context, dep)
   // no export
   const filterGroups = (groups) => {
     // If the search has value we need to filter among 
-    // he ones that are visible to the user to avoid
+    // the ones that are visible to the user to avoid
     // displaying groups which technically have options
     // based on search but that option is already selected.
     return groupHideEmpty.value
@@ -459,9 +576,19 @@ export default function useOptions (props, context, dep)
     let fo = options
     
     if (search.value && filterResults.value) {
-      fo = fo.filter((option) => {
-        return normalize(option[trackBy.value], strict.value).indexOf(normalize(search.value, strict.value)) !== -1
-      })
+      let filter = searchFilter.value
+
+      if (!filter) {
+        filter = (option, $this) => {
+          let target = normalize(localize(option[trackBy.value]), strict.value)
+
+          return searchStart.value
+            ? target.startsWith(normalize(search.value, strict.value))
+            : target.indexOf(normalize(search.value, strict.value)) !== -1
+        }
+      }
+
+      fo = fo.filter(filter)
     }
 
     if (hideSelected.value && excludeHideSelected) {
@@ -574,15 +701,22 @@ export default function useOptions (props, context, dep)
       return val
     }
 
-    // If external should be plain transform
-    // value object to plain values
-    return mode.value === 'single' ? getOption(val) || {} : val.filter(v => !! getOption(v)).map(v => getOption(v))
+    // If external should be plain transform value object to plain values
+    return mode.value === 'single' ? getOption(val) || (allowAbsent.value ? {
+      [label.value]: val,
+      [valueProp.value]: val,
+      [trackBy.value]: val,
+    } : {}) : val.filter(v => !!getOption(v) || allowAbsent.value).map(v => getOption(v) || {
+      [label.value]: v,
+      [valueProp.value]: v,
+      [trackBy.value]: v,
+    })
   }
 
   // no export
   const initSearchWatcher = () => {
     searchWatcher.value = watch(search, (query) => {
-      if (query.length < minChars.value || !query) {
+      if (query.length < minChars.value || (!query && minChars.value !== 0)) {
         return
       }
 
@@ -599,7 +733,7 @@ export default function useOptions (props, context, dep)
         options.value(search.value, $this).then((response) => {
           if (query == search.value || !search.value) {
             ro.value = response
-            pointer.value = fo.value.filter(o => o.disabled !== true)[0] || null
+            pointer.value = fo.value.filter(o => o[disabledProp.value] !== true)[0] || null
             resolving.value = false
           }
         }).catch( /* istanbul ignore next */ (e) => {
@@ -648,21 +782,21 @@ export default function useOptions (props, context, dep)
 
   watch(ev, (newValue) => {
     if (isNullish(newValue)) {
-      iv.value = makeInternal(newValue)
+      update(makeInternal(newValue), false)
       return
     }
 
     switch (mode.value) {
       case 'single':
         if (object.value ? newValue[valueProp.value] != iv.value[valueProp.value] : newValue != iv.value[valueProp.value]) {
-          iv.value = makeInternal(newValue)
+          update(makeInternal(newValue), false)
         }
         break
 
       case 'multiple':
       case 'tags':
         if (!arraysEqual(object.value ? newValue.map(o => o[valueProp.value]) : newValue, iv.value.map(o => o[valueProp.value]))) {
-          iv.value = makeInternal(newValue)
+          update(makeInternal(newValue), false)
         }
         break
     }
@@ -670,12 +804,8 @@ export default function useOptions (props, context, dep)
 
   watch(options, (n, o) => {
     if (typeof props.options === 'function') {
-      if (resolveOnLoad.value) {
-        resolveOptions(() => {
-          if (Object.keys(iv.value).length) {
-            initInternalValue()
-          }
-        })
+      if (resolveOnLoad.value && (!o || (n && n.toString() !== o.toString()))) {
+        resolveOptions()
       }
     } else {
       ro.value = props.options
@@ -691,18 +821,22 @@ export default function useOptions (props, context, dep)
   watch(label, refreshLabels)
 
   return {
+    pfo,
     fo,
     filteredOptions: fo,
     hasSelected,
     multipleLabelText,
     eo,
     extendedOptions: eo,
+    eg,
+    extendedGroups: eg,
     fg,
     filteredGroups: fg,
     noOptions,
     noResults,
     resolving,
     busy,
+    offset,
     select,
     deselect,
     remove,

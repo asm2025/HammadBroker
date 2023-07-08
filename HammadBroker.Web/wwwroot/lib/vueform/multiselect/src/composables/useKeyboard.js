@@ -1,12 +1,15 @@
-import { toRefs, computed } from 'composition-api'
+import { toRefs, computed, getCurrentInstance } from 'vue'
 
 export default function useKeyboard (props, context, dep)
 {
   const {
-      mode, addTagOn, openDirection, searchable,
-      showOptions, valueProp, groups: groupped,
-      addOptionOn: addOptionOn_, createTag, createOption: createOption_,
-    } = toRefs(props)
+    mode, addTagOn, openDirection, searchable,
+    showOptions, valueProp, groups: groupped,
+    addOptionOn: addOptionOn_, createTag, createOption: createOption_,
+    reverse,
+  } = toRefs(props)
+
+  const $this = getCurrentInstance().proxy
 
   // ============ DEPENDENCIES ============
 
@@ -17,6 +20,11 @@ export default function useKeyboard (props, context, dep)
   const selectPointer = dep.selectPointer
   const backwardPointer = dep.backwardPointer
   const forwardPointer = dep.forwardPointer
+  const multiselect = dep.multiselect
+  const wrapper = dep.wrapper
+  const tags = dep.tags
+  const isOpen = dep.isOpen
+  const open = dep.open
   const blur = dep.blur
   const fo = dep.fo
 
@@ -53,7 +61,34 @@ export default function useKeyboard (props, context, dep)
     }
   }
 
+  const removeLastRemovable = (arr) => {
+    // Find the index of the last object in the array that doesn't have a "remove" property set to false
+    let indexToRemove = arr.length - 1
+    while (indexToRemove >= 0 && (arr[indexToRemove].remove === false || arr[indexToRemove].disabled)) {
+      indexToRemove--
+    }
+
+    // If all objects have a "remove" property set to false, don't remove anything and return the original array
+    if (indexToRemove < 0) {
+      return arr
+    }
+
+    // Remove the object at the found index and return the updated array
+    arr.splice(indexToRemove, 1);
+    return arr
+  }
+
   const handleKeydown = (e) => {
+    context.emit('keydown', e, $this)
+
+    let tagList
+    let activeIndex
+
+    if (['ArrowLeft', 'ArrowRight', 'Enter'].indexOf(e.key) !== -1 && mode.value === 'tags') {
+      tagList = [...(multiselect.value.querySelectorAll(`[data-tags] > *`))].filter(e => e !== tags.value)
+      activeIndex = tagList.findIndex(e => e === document.activeElement)
+    }
+
     switch (e.key) {
       case 'Backspace':
         if (mode.value === 'single') {
@@ -67,12 +102,32 @@ export default function useKeyboard (props, context, dep)
         if (iv.value.length === 0) {
           return
         }
-        
-        update([...iv.value].slice(0,-1))
+
+        update(removeLastRemovable([...iv.value]))
         break
 
       case 'Enter':
         e.preventDefault()
+
+        if (e.keyCode === 229) {
+          // ignore IME confirmation
+          return
+        }
+
+        if (activeIndex !== -1 && activeIndex !== undefined) {
+          update([...iv.value].filter((v, k) => k !== activeIndex))
+
+          if (activeIndex === tagList.length - 1) {
+            if (tagList.length - 1) {
+              tagList[tagList.length - 2].focus()
+            } else if (searchable.value) {
+              tags.value.querySelector('input').focus()
+            } else {
+              wrapper.value.focus()
+            }
+          }
+          return
+        }
 
         if (addOptionOn.value.indexOf('enter') === -1 && createOption.value) {
           return
@@ -128,7 +183,12 @@ export default function useKeyboard (props, context, dep)
           return
         }
 
-        openDirection.value === 'top' ? forwardPointer() : backwardPointer()
+        /* istanbul ignore else */
+        if (!isOpen.value) {
+          open()
+        }
+        
+        backwardPointer()
         break
 
       case 'ArrowDown':
@@ -138,13 +198,61 @@ export default function useKeyboard (props, context, dep)
           return
         }
 
-        openDirection.value === 'top' ? backwardPointer() : forwardPointer()
+        /* istanbul ignore else */
+        if (!isOpen.value) {
+          open()
+        }
+
+        forwardPointer()
+        break
+
+      case 'ArrowLeft':
+        if (
+          (searchable.value && tags.value && tags.value.querySelector('input').selectionStart)
+          || e.shiftKey || mode.value !== 'tags' || !iv.value || !iv.value.length
+        ) {
+          return
+        }
+
+        e.preventDefault()
+
+        if (activeIndex === -1) {
+          tagList[tagList.length-1].focus()
+        }
+        else if (activeIndex > 0) {
+          tagList[activeIndex-1].focus()
+        }
+        break
+
+      case 'ArrowRight':
+        if (activeIndex === -1 || e.shiftKey || mode.value !== 'tags' || !iv.value || !iv.value.length) {
+          return
+        }
+
+        e.preventDefault()
+        
+        /* istanbul ignore else */
+        if (tagList.length > activeIndex + 1) {
+          tagList[activeIndex+1].focus()
+        }
+        else if (searchable.value) {
+          tags.value.querySelector('input').focus()
+        }
+        else if (!searchable.value) {
+          wrapper.value.focus()
+        }
+        
         break
     }
   }
 
+  const handleKeyup = (e) => {
+    context.emit('keyup', e, $this)
+  }
+
   return {
     handleKeydown,
+    handleKeyup,
     preparePointer,
   }
 }

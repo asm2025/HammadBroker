@@ -3,7 +3,9 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using essentialMix.Core.Web.Controllers;
+using essentialMix.Data.Model;
 using essentialMix.Patterns.Sorting;
+using HammadBroker.Data.Repositories;
 using HammadBroker.Data.Services;
 using HammadBroker.Model.DTO;
 using HammadBroker.Model.Entities;
@@ -38,19 +40,21 @@ public class HomeController : MvcController
 		token.ThrowIfCancellationRequested();
 		pagination ??= new BuildingList();
 
-		if (pagination.OrderBy == null || pagination.OrderBy.Count == 0)
+		if (pagination.OrderBy is not { Count: > 0 })
 		{
 			pagination.OrderBy ??= new List<SortField>();
+			pagination.OrderBy.Add(new SortField(nameof(Building.Priority), SortType.Descending));
+			if (!pagination.AdType.HasValue) pagination.OrderBy.Add(new SortField(nameof(Building.AdType)));
 			if (!pagination.Date.HasValue) pagination.OrderBy.Add(new SortField(nameof(Building.Date), SortType.Descending));
 			if (pagination.CityId < 1) pagination.OrderBy.Add(new SortField(nameof(Building.CityId)));
 			if (pagination.DistrictId < 1) pagination.OrderBy.Add(new SortField(nameof(Building.DistrictId)));
-			if (!pagination.AdType.HasValue) pagination.OrderBy.Add(new SortField(nameof(Building.AdType)));
 			if (!pagination.BuildingType.HasValue) pagination.OrderBy.Add(new SortField(nameof(Building.BuildingType)));
 			if (!pagination.FinishingType.HasValue) pagination.OrderBy.Add(new SortField(nameof(Building.FinishingType)));
 		}
 
 		BuildingsPaginated<BuildingForDisplay> result = await _buildingService.ListAsync<BuildingForDisplay>(pagination, token);
 		token.ThrowIfCancellationRequested();
+		await UpdateViews(result.Result);
 		return View(result);
 	}
 
@@ -65,6 +69,7 @@ public class HomeController : MvcController
 		if (building == null) return Problem("الاعلان غير موجود.");
 		await _lookupService.FillAddressLookupAsync(building, token);
 		token.ThrowIfCancellationRequested();
+		await UpdateView(building);
 		return View(building);
 	}
 
@@ -108,5 +113,32 @@ public class HomeController : MvcController
 		IList<CityForList> result = await _lookupService.ListCitiesAsync(pagination, token);
 		token.ThrowIfCancellationRequested();
 		return Ok(result);
+	}
+
+	private async Task UpdateViews<T>([NotNull] IEnumerable<T> result)
+		where T : IEntity<int>, IBuildingLookup
+	{
+		IBuildingRepository repository = _buildingService.Repository;
+
+		foreach (T buildingLookup in result)
+		{
+			Building building = await repository.GetAsync(buildingLookup.Id);
+			if (building == null) continue;
+			building.Views++;
+			await repository.UpdateAsync(building);
+		}
+
+		await repository.Context.SaveChangesAsync();
+	}
+
+	private async Task UpdateView<T>([NotNull] T result)
+		where T : IEntity<int>, IBuildingLookup
+	{
+		IBuildingRepository repository = _buildingService.Repository;
+		Building building = await repository.GetAsync(result.Id);
+		if (building == null) return;
+		building.PageViews++;
+		await repository.UpdateAsync(building);
+		await repository.Context.SaveChangesAsync();
 	}
 }

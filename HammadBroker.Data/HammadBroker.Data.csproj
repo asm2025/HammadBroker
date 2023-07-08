@@ -7,7 +7,7 @@
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<LangVersion>11.0</LangVersion>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-		<Configurations>Debug;Release;Staging</Configurations>
+		<Configurations>Debug;Release</Configurations>
 		<Platforms>AnyCPU;x64;x86</Platforms>
 		<OutputPath>..\bin\$(Configuration)\$(Platform)\$(TargetFramework)\</OutputPath>
 	</PropertyGroup>
@@ -47,24 +47,24 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="essentialMix" Version="14.0.4" />
-		<PackageReference Include="essentialMix.Core.Data.Entity" Version="14.0.4" />
-		<PackageReference Include="essentialMix.Core.Data.Entity.AutoMapper" Version="14.0.4" />
-		<PackageReference Include="essentialMix.Newtonsoft" Version="14.0.4" />
-		<PackageReference Include="IdentityModel" Version="6.0.0" />
-		<PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
-		<PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="6.0.15" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.15" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.15">
+		<PackageReference Include="essentialMix" Version="14.0.7" />
+		<PackageReference Include="essentialMix.Core.Data.Entity" Version="14.0.7" />
+		<PackageReference Include="essentialMix.Core.Data.Entity.AutoMapper" Version="14.0.7" />
+		<PackageReference Include="essentialMix.Newtonsoft" Version="14.0.7" />
+		<PackageReference Include="IdentityModel" Version="6.1.0" />
+		<PackageReference Include="JetBrains.Annotations" Version="2023.2.0" />
+		<PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="6.0.16" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.16" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.16">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.15" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.15">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.16" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.16">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.3.1" />
+		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.3.3" />
 	</ItemGroup>
 
 	<ItemGroup>

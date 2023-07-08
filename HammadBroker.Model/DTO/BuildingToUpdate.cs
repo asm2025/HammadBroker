@@ -101,7 +101,7 @@ public class BuildingToUpdate : IBuilding
 	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}", ApplyFormatInEditMode = true)]
 	public DateTime CreatedOn { get; set; }
 
-	[Display(Name = "حدث")]
+	[Display(Name = "آخر تحديث")]
 	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}", ApplyFormatInEditMode = true)]
 	public DateTime UpdatedOn { get; set; }
 
@@ -134,4 +134,8 @@ public class BuildingToUpdate : IBuilding
 
 	[Display(Name = "مفعل")]
 	public bool Enabled { get; set; } = true;
+	[Display(Name = "المشاهدات")]
+	public long Views { get; set; }
+	[Display(Name = "مشاهدات الصفحة")]
+	public long PageViews { get; set; }
 }

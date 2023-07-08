@@ -1,9 +1,11 @@
-import { toRefs } from 'composition-api'
+import { toRefs, getCurrentInstance } from 'vue'
 import isNullish from './../utils/isNullish'
 
 export default function useData (props, context, dep)
 {
   const { object, valueProp, mode } = toRefs(props)
+
+  const $this = getCurrentInstance().proxy
 
   // ============ DEPENDENCIES ============
 
@@ -11,7 +13,7 @@ export default function useData (props, context, dep)
 
   // =============== METHODS ==============
 
-  const update = (val) => {
+  const update = (val, triggerInput = true) => {
     // Setting object(s) as internal value
     iv.value = makeInternal(val)
 
@@ -19,9 +21,12 @@ export default function useData (props, context, dep)
     // value based on `option` setting
     const externalVal = makeExternal(val)
 
-    context.emit('change', externalVal)
-    context.emit('input', externalVal)
-    context.emit('update:modelValue', externalVal)
+    context.emit('change', externalVal, $this)
+
+    if (triggerInput) {
+      context.emit('input', externalVal)
+      context.emit('update:modelValue', externalVal)
+    }
   } 
 
   // no export

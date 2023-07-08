@@ -25,7 +25,7 @@ public interface IBuildingLookup
 	[Display(Name = "نشر")]
 	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}", ApplyFormatInEditMode = true)]
 	DateTime CreatedOn { get; set; }
-	[Display(Name = "حدث")]
+	[Display(Name = "آخر تحديث")]
 	[DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}", ApplyFormatInEditMode = true)]
 	DateTime UpdatedOn { get; set; }
 	[Display(Name = "التاريخ")]
@@ -37,4 +37,9 @@ public interface IBuildingLookup
 
 	[Display(Name = "مفعل")]
 	bool Enabled { get; set; }
+
+	[Display(Name = "المشاهدات")]
+	public long Views { get; set; }
+	[Display(Name = "مشاهدات الصفحة")]
+	public long PageViews { get; set; }
 }

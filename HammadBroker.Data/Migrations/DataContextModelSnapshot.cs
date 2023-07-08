@@ -17,7 +17,7 @@ namespace HammadBroker.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.15")
+                .HasAnnotation("ProductVersion", "6.0.16")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
@@ -81,6 +81,9 @@ namespace HammadBroker.Data.Migrations
                     b.Property<string>("Mobile")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long>("PageViews")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Phone")
                         .HasColumnType("nvarchar(max)");
 
@@ -108,6 +111,9 @@ namespace HammadBroker.Data.Migrations
                     b.Property<string>("VideoId")
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
+
+                    b.Property<long>("Views")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 

@@ -1,6 +1,167 @@
+## v2.6.2
+
+> `2023-04-17`
+
+### 🐞 Bug Fixes
+  - Removed `sideEffects: false` from `package.json`.
+
+## v2.6.1
+
+> `2023-03-14`
+
+### 🐞 Bug Fixes
+  - Use `.mjs` for `import`.
+
+## v2.6.0
+
+> `2023-03-11`
+
+### 🎉 Feature
+  - All texts including, option & group labels can now be provided in multiple languages. Added `locale` and `fallbackLocale` props.
+  - Added `searchFilter` prop that allow to provide a custom search algorithm #313.
+  - Added `allowAbsent` option to allow adding values that are not among the options.
+  - Added `closeOnDeselect` prop.
+  - Deprecated `option` event, added `create` instead (`option` still works).
+  - Tags that added can also be disabled, which will prevent their removal.
+
+### 🐞 Bug Fixes
+  - Fix for new option display when using `groups`, `createOption` and `tags` #254 #291.
+  - String pointer equality #316.
+  - Disabled tags will not be removed on backspace #318.
+  - Added `.mjs` extension build and referenced `module` to that #290 #258.
+  - The `selectAll()` now does not select disabled options and does not duplicate already selected options.
+
+## v2.5.8
+
+> `2022-12-21`
+
+### 🎉 Feature
+  - Added `--ms-border-width-active` and `--ms-border-color-active` CSS vars #213.
+  - Added `@max` event #269.
+  - Added `clearOnBlur` option #251.
+
+### 🐞 Bug Fixes
+  - Removed `max-height` duplicate from default theme #240.
+  - Norwegian chars fix #243.
+  - Trigger `@change` event on updating external value #259.
+  - Docs fix for 2.7 installation instructions #294.
+  - Docs fix fiddle url.
+  - Tags dropdown focus fix #286 #300.
+  - Stop propagation on tag remove click #295.
+
+## v2.5.7
+
+> `2022-11-21`
+
+### 🎉 Feature
+  - **BREAKING**: added a wrapper `div` and related classes inside the main container next to the dropdown container.
+  - Accessibility improvements.
+
+### 🐞 Bug Fixes
+  - Don't select new tag on IME enter #226.
+  - Removed `v-html` from option & single label for XSS security #278.
+  - Arrow left should not throw error when not using tags #271.
+
+## v2.5.6
+
+> `2022-09-28`
+
+### 🐞 Bug Fixes
+  - Async options resolve fix [#266](https://github.com/vueform/multiselect/issues/266).
+
+## v2.5.5
+
+> `2022-09-26`
+
+### 🎉 Feature
+  - Unnecessary ES6 feature removed.
+
+## v2.5.4
+
+> `2022-09-26`
+
+### 🎉 Feature
+  - A11y improvements.
+
+## v2.5.3
+
+> `2022-09-22`
+
+### 🎉 Feature
+  - A11y improvements.
+
+## v2.5.2
+
+> `2022-07-22`
+
+### 🐞 Bug Fixes
+  - Fix for `tailwind.css`.
+
+## v2.5.1
+
+> `2022-07-11`
+
+### 🎉 Feature
+  - Vue `2.7` compatibility.
+
+## v2.5.0
+
+> `2022-07-11`
+
+### 🎉 Feature
+  - Vue `2.7` compatibility.
+
+## v2.4.2
+
+> `2022-05-31`
+
+### 🐞 Bug Fixes
+  - Hotfix for ES6 [#235](https://github.com/vueform/multiselect/issues/235)
+  - 
+## v2.4.1
+
+> `2022-05-31`
+
+### 🐞 Bug Fixes
+  - Hotfix for SSR [#235](https://github.com/vueform/multiselect/issues/235)
+
+## v2.4.0
+
+> `2022-05-30`
+
+### 🎉 Feature
+  - 🎉 Added accessibility (a11y) support [#22](https://github.com/vueform/multiselect/issues/22), [#179](https://github.com/vueform/multiselect/issues/179).
+  - 🎉 Added infinite scroll [#76](https://github.com/vueform/multiselect/issues/76), [#165](https://github.com/vueform/multiselect/issues/165), [#198](https://github.com/vueform/multiselect/issues/198).
+  - 🎉 Added RTL support [#206](https://github.com/vueform/multiselect/issues/206).
+  - 🎉 Close on click if opened [#162](https://github.com/vueform/multiselect/issues/162).
+  - Added `id` to input when searchable.
+  - Re-open input on arrows & search type if closed.
+  - Close dropdown instead of blur on select.
+  - Added `regex` option [#138](https://github.com/vueform/multiselect/issues/138).
+  - Scroll to first selected on open [#168](https://github.com/vueform/multiselect/issues/168).
+  - Options are not reversed when `openPosition: true`.
+  - Added `reverse` option.
+  - Added `searchStart` option [#169](https://github.com/vueform/multiselect/issues/169).
+  - Added `disabledProp` option [#202](https://github.com/vueform/multiselect/issues/202).
+  - Added `onCreate` option [#204](https://github.com/vueform/multiselect/issues/204).
+  - Added `select$` as second param to events and async options.
+  - Added `isSelected` & `isPointed` to `option` slot scope [#195](https://github.com/vueform/multiselect/issues/195).
+
+### 🐞 Bug Fixes
+  - Headless UI conflict resolved [#182](https://github.com/vueform/multiselect/issues/182).
+  - Keep selected options when async [#228](https://github.com/vueform/multiselect/issues/228).
+  - Show spinner even when not active [#223](https://github.com/vueform/multiselect/issues/223).
+  - Allow `false` value [#222](https://github.com/vueform/multiselect/issues/222).
+  - Resolve options on `minChars: 0` too [#230](https://github.com/vueform/multiselect/issues/230).
+  - Added `keyup`, `keydown` events.
+  - Resolved number tag creation duplicate bug.
+  - Input height fix when `searchable` for FF.
+  - CSS: moved max height to dropdown container from wrapper.
+  - Vite & Nuxt 3 build warn fixes.).
+
 ## v2.3.4
 
-> `2021-05-11`
+> `2022-05-11`
 
 ### 🎉 Feature
   - Async options change detectiion.
@@ -9,14 +170,14 @@
 
 ## v2.3.3
 
-> `2021-02-26`
+> `2022-02-26`
 
 ### 🎉 Feature
   - Added `attrs` prop.
 
 ## v2.3.2
 
-> `2021-02-06`
+> `2022-02-06`
 
 ### 🐞 Bug Fixes
   - Removed `@apply` from default theme.

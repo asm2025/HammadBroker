@@ -1,112 +1,171 @@
 <template>
   <div
     ref="multiselect"
-    :tabindex="tabindex"
     :class="classList.container"
-    :id="id"
-    @focusin="activate"
-    @focusout="deactivate"
+    :id="searchable ? undefined : id"
+    :dir="rtl ? 'rtl' : undefined"
+    @focusin="handleFocusIn"
+    @focusout="handleFocusOut"
+    @keyup="handleKeyup"
     @keydown="handleKeydown"
-    @focus="handleFocus"
   >
-    <!-- Search -->
-    <template v-if="mode !== 'tags' && searchable && !disabled">
-      <input
-        :type="inputType"
-        :modelValue="search"
-        :value="search"
-        :class="classList.search"
-        :autocomplete="autocomplete"
-        v-bind="attrs"
-        @input="handleSearchInput"
-        @paste.stop="handlePaste"
-        ref="input"
-      />
-    </template>
+    <div
+      :class="classList.wrapper"
+      @mousedown="handleMousedown"
+      ref="wrapper"
 
-    <!-- Tags (with search) -->
-    <template v-if="mode == 'tags'">
-      <div :class="classList.tags">
+      :tabindex="tabindex"
+      :aria-controls="!searchable ? ariaControls : undefined"
+      :aria-placeholder="!searchable ? ariaPlaceholder : undefined"
+      :aria-expanded="!searchable ? isOpen : undefined"
+      :aria-activedescendant="!searchable ? ariaActiveDescendant : undefined"
+      :aria-multiselectable="!searchable ? ariaMultiselectable : undefined"
+      :role="!searchable ? 'combobox' : undefined"
+      v-bind="!searchable ? arias : {}"
+    >
+      <!-- Search -->
+      <template v-if="mode !== 'tags' && searchable && !disabled">
+        <input
+          :type="inputType"
+          :modelValue="search"
+          :value="search"
+          :class="classList.search"
+          :autocomplete="autocomplete"
+          :id="searchable ? id : undefined"
+          @input="handleSearchInput"
+          @keypress="handleKeypress"
+          @paste.stop="handlePaste"
+          ref="input"
 
-        <slot
-          v-for="(option, i, key) in iv"
-          name="tag"
-          :option="option"
-          :handleTagRemove="handleTagRemove"
-          :disabled="disabled"
-        >
-          <span :class="classList.tag" :key="key">
-            {{ option[label] }}
+          :aria-controls="ariaControls"
+          :aria-placeholder="ariaPlaceholder"
+          :aria-expanded="isOpen"
+          :aria-activedescendant="ariaActiveDescendant"
+          :aria-multiselectable="ariaMultiselectable"
+          role="combobox"
+
+          v-bind="{
+            ...attrs,
+            ...arias,
+          }"
+        />
+      </template>
+
+      <!-- Tags (with search) -->
+      <template v-if="mode == 'tags'">
+        <div :class="classList.tags" data-tags>
+          <slot
+            v-for="(option, i, key) in iv"
+            name="tag"
+            :option="option"
+            :handleTagRemove="handleTagRemove"
+            :disabled="disabled"
+          >
             <span
-              v-if="!disabled"
-              :class="classList.tagRemove"
-              @click="handleTagRemove(option, $event)"
+              :class="[
+                classList.tag,
+                option.disabled ? classList.tagDisabled : null,
+              ]"
+              tabindex="-1"
+              @keyup.enter="handleTagRemove(option, $event)"
+              :key="key"
+
+              :aria-label="ariaTagLabel(localize(option[label]))"
             >
-              <span :class="classList.tagRemoveIcon"></span>
+              {{ localize(option[label]) }}
+              <span
+                v-if="!disabled && !option.disabled"
+                :class="classList.tagRemove"
+                @click.stop="handleTagRemove(option, $event)"
+              >
+                <span :class="classList.tagRemoveIcon"></span>
+              </span>
             </span>
-          </span>
+          </slot>
+      
+          <div :class="classList.tagsSearchWrapper" ref="tags">
+            <!-- Used for measuring search width -->
+            <span :class="classList.tagsSearchCopy">{{ search }}</span>
+
+            <!-- Actual search input -->
+            <input    
+              v-if="searchable && !disabled"
+              :type="inputType"
+              :modelValue="search"
+              :value="search"
+              :class="classList.tagsSearch"
+              :id="searchable ? id : undefined"
+              :autocomplete="autocomplete"
+              @input="handleSearchInput"
+              @keypress="handleKeypress"
+              @paste.stop="handlePaste"
+              ref="input"
+              
+              :aria-controls="ariaControls"
+              :aria-placeholder="ariaPlaceholder"
+              :aria-expanded="isOpen"
+              :aria-activedescendant="ariaActiveDescendant"
+              :aria-multiselectable="ariaMultiselectable"
+              role="combobox"
+
+              v-bind="{
+                ...attrs,
+                ...arias,
+              }"
+            />
+          </div>
+        </div>
+      </template>
+
+      <!-- Single label -->
+      <template v-if="mode == 'single' && hasSelected && !search && iv">
+        <slot name="singlelabel" :value="iv">
+          <div :class="classList.singleLabel">
+            <span :class="classList.singleLabelText">{{ localize(iv[label]) }}</span>
+          </div>
         </slot>
-    
-        <div :class="classList.tagsSearchWrapper">
-          <!-- Used for measuring search width -->
-          <span :class="classList.tagsSearchCopy">{{ search }}</span>
+      </template>
 
-          <!-- Actual search input -->
-          <input    
-            v-if="searchable && !disabled"
-            :type="inputType"
-            :modelValue="search"
-            :value="search"
-            :class="classList.tagsSearch"
-            :autocomplete="autocomplete"
-            v-bind="attrs"
-            @input="handleSearchInput"
-            @paste.stop="handlePaste"
-            ref="input"
-          />
-        </div>
-      </div>
-    </template>
+      <!-- Multiple label -->
+      <template v-if="mode == 'multiple' && hasSelected && !search">
+        <slot name="multiplelabel" :values="iv">
+          <div :class="classList.multipleLabel" v-html="multipleLabelText"></div>
+        </slot>
+      </template>
 
-    <!-- Single label -->
-    <template v-if="mode == 'single' && hasSelected && !search && iv">
-      <slot name="singlelabel" :value="iv">
-        <div :class="classList.singleLabel">
-          <span :class="classList.singleLabelText" v-html="iv[label]"></span>
-        </div>
+      <!-- Placeholder -->
+      <template v-if="placeholder && !hasSelected && !search">
+        <slot name="placeholder">
+          <div :class="classList.placeholder" aria-hidden="true">
+            {{ placeholder }}
+          </div>
+        </slot>
+      </template>
+
+      <!-- Spinner -->
+      <slot v-if="loading || resolving" name="spinner">
+        <span :class="classList.spinner" aria-hidden="true"></span>
       </slot>
-    </template>
 
-    <!-- Multiple label -->
-    <template v-if="mode == 'multiple' && hasSelected && !search">
-      <slot name="multiplelabel" :values="iv">
-        <div :class="classList.multipleLabel" v-html="multipleLabelText"></div>
+      <!-- Clear -->
+      <slot v-if="hasSelected && !disabled && canClear && !busy" name="clear" :clear="clear">
+        <span
+          aria-hidden="true"
+          tabindex="0"
+          role="button"
+          data-clear
+          aria-roledescription="❎"
+          :class="classList.clear"
+          @click="clear"
+          @keyup.enter="clear"
+        ><span :class="classList.clearIcon"></span></span>
       </slot>
-    </template>
 
-    <!-- Placeholder -->
-    <template v-if="placeholder && !hasSelected && !search">
-      <slot name="placeholder">
-        <div :class="classList.placeholder">
-          {{ placeholder }}
-        </div>
+      <!-- Caret -->
+      <slot v-if="caret && showOptions" name="caret">
+        <span :class="classList.caret" @click="handleCaretClick" aria-hidden="true"></span>
       </slot>
-    </template>
-
-    <!-- Spinner -->
-    <slot v-if="busy && isActive" name="spinner">
-      <span :class="classList.spinner"></span>
-    </slot>
-
-    <!-- Clear -->
-    <slot v-if="hasSelected && !disabled && canClear && !busy" name="clear" :clear="clear">
-      <span :class="classList.clear" @mousedown="clear"><span :class="classList.clearIcon"></span></span>
-    </slot>
-
-    <!-- Caret -->
-    <slot v-if="caret && showOptions" name="caret">
-      <span :class="classList.caret" @click="handleCaretClick"></span>
-    </slot>
+    </div>
 
     <!-- Options -->
     <div
@@ -115,35 +174,52 @@
     >
       <slot name="beforelist" :options="fo"></slot>
 
-      <ul :class="classList.options">
+      <ul :class="classList.options" :id="ariaControls" role="listbox">
         <template v-if="groups">
           <li
             v-for="(group, i, key) in fg"
             :class="classList.group"
             :key="key"
+
+            :id="ariaGroupId(group)"
+            :aria-label="ariaGroupLabel(localize(group[groupLabel]))"
+            :aria-selected="isSelected(group)"
+            role="option"
           >
             <div
+              v-if="!group.__CREATE__"
               :class="classList.groupLabel(group)"
               :data-pointed="isPointed(group)"
-              @mouseenter="setPointer(group)"
+              @mouseenter="setPointer(group, i)"
               @click="handleGroupClick(group)"
             >
-              <slot name="grouplabel" :group="group">
-                <span v-html="group[groupLabel]"></span>
+              <slot name="grouplabel" :group="group" :is-selected="isSelected" :is-pointed="isPointed">
+                <span v-html="localize(group[groupLabel])"></span>
               </slot>
             </div>
 
-            <ul :class="classList.groupOptions">
+            <ul
+              :class="classList.groupOptions"
+              
+              :aria-label="ariaGroupLabel(localize(group[groupLabel]))"
+              role="group"
+            >
               <li
                 v-for="(option, i, key) in group.__VISIBLE__"
                 :class="classList.option(option, group)"
-                :key="key"
                 :data-pointed="isPointed(option)"
+                :data-selected="isSelected(option) || undefined"
+                :key="key"
                 @mouseenter="setPointer(option)"
                 @click="handleOptionClick(option)"
+
+                :id="ariaOptionId(option)"
+                :aria-selected="isSelected(option)"
+                :aria-label="ariaOptionLabel(localize(option[label]))"
+                role="option"
               >
-                <slot name="option" :option="option" :search="search">
-                  <span v-html="option[label]"></span>
+                <slot name="option" :option="option" :is-selected="isSelected" :is-pointed="isPointed" :search="search">
+                  <span>{{ localize(option[label]) }}</span>
                 </slot>
               </li>
             </ul>
@@ -153,25 +229,37 @@
           <li
             v-for="(option, i, key) in fo"
             :class="classList.option(option)"
-            :key="key"
             :data-pointed="isPointed(option)"
+            :data-selected="isSelected(option) || undefined"
+            :key="key"
             @mouseenter="setPointer(option)"
             @click="handleOptionClick(option)"
+
+            :id="ariaOptionId(option)"
+            :aria-selected="isSelected(option)"
+            :aria-label="ariaOptionLabel(localize(option[label]))"
+            role="option"
           >
-            <slot name="option" :option="option" :search="search">
-              <span v-html="option[label]"></span>
+            <slot name="option" :option="option" :isSelected="isSelected" :is-pointed="isPointed" :search="search">
+              <span>{{ localize(option[label]) }}</span>
             </slot>
           </li>
         </template>
       </ul>
 
       <slot v-if="noOptions" name="nooptions">
-        <div :class="classList.noOptions" v-html="noOptionsText"></div>
+        <div :class="classList.noOptions" v-html="localize(noOptionsText)"></div>
       </slot>
 
       <slot v-if="noResults" name="noresults">
-        <div :class="classList.noResults" v-html="noResultsText"></div>
+        <div :class="classList.noResults" v-html="localize(noResultsText)"></div>
       </slot>
+
+      <div v-if="infinite && hasMore" :class="classList.inifinite" ref="infiniteLoader">
+        <slot name="infinite">
+          <span :class="classList.inifiniteSpinner"></span>
+        </slot>
+      </div>
 
       <slot name="afterlist" :options="fo"></slot>
     </div>
@@ -187,6 +275,11 @@
       </template>
     </template>
 
+    <!-- Screen reader assistive text -->
+    <div v-if="searchable && hasSelected" :class="classList.assist" :id="ariaAssist" aria-hidden="true">
+      {{ ariaLabel }}
+    </div>
+
     <!-- Create height for empty input -->
     <div :class="classList.spacer"></div>
 
@@ -194,6 +287,8 @@
 </template>
 
 <script>
+  /* istanbul ignore file */
+
   import useData from './composables/useData'
   import useValue from './composables/useValue'
   import useSearch from './composables/useSearch'
@@ -204,13 +299,18 @@
   import useMultiselect from './composables/useMultiselect'
   import useKeyboard from './composables/useKeyboard' 
   import useClasses from './composables/useClasses' 
+  import useScroll from './composables/useScroll' 
+  import useA11y from './composables/useA11y' 
+  import useI18n from './composables/useI18n'
+
+  import resolveDeps from './utils/resolveDeps'
 
   export default {
     name: 'Multiselect',
     emits: [
-      'open', 'close', 'select', 'deselect', 
+      'paste', 'open', 'close', 'select', 'deselect', 
       'input', 'search-change', 'tag', 'option', 'update:modelValue',
-      'change', 'clear'
+      'change', 'clear', 'keydown', 'keyup', 'max', 'create',
     ],
     props: {
       value: {
@@ -319,12 +419,12 @@
         default: false,
       },
       noOptionsText: {
-        type: String,
+        type: [String, Object],
         required: false,
         default: 'The list is empty',
       },
       noResultsText: {
-        type: String,
+        type: [String, Object],
         required: false,
         default: 'No results found',
       },
@@ -417,6 +517,11 @@
         required: false,
         default: true,
       },
+      closeOnDeselect: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
       autocomplete: {
         type: String,
         required: false,
@@ -453,88 +558,91 @@
       },
       attrs: {
         required: false,
-        type: [Object],
+        type: Object,
         default: () => ({}),
+      },
+      onCreate: {
+        required: false,
+        type: Function,
+      },
+      disabledProp: {
+        type: String,
+        required: false,
+        default: 'disabled',
+      },
+      searchStart: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+      reverse: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+      regex: {
+        type: [Object, String, RegExp],
+        required: false,
+        default: undefined,
+      },
+      rtl: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+      infinite: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+      aria: {
+        required: false,
+        type: Object,
+        default: () => ({}),
+      },
+      clearOnBlur: {
+        required: false,
+        type: Boolean,
+        default: true,
+      },
+      locale: {
+        required: false,
+        type: String,
+        default: null,
+      },
+      fallbackLocale: {
+        required: false,
+        type: String,
+        default: 'en',
+      },
+      searchFilter: {
+        required: false,
+        type: Function,
+        default: null,
+      },
+      allowAbsent: {
+        required: false,
+        type: Boolean,
+        default: false,
       },
     },
     setup(props, context)
     { 
-      const value = useValue(props, context)
-      const pointer = usePointer(props, context)
-      const dropdown = useDropdown(props, context)
-      const search = useSearch(props, context)
-
-      const data = useData(props, context, {
-        iv: value.iv,
-      })
-
-      const multiselect = useMultiselect(props, context, {
-        input: search.input,
-        open: dropdown.open,
-        close: dropdown.close,
-        clearSearch: search.clearSearch,
-      })
-
-      const options = useOptions(props, context, {
-        ev: value.ev,
-        iv: value.iv,
-        search: search.search,
-        clearSearch: search.clearSearch,
-        update: data.update,
-        pointer: pointer.pointer,
-        clearPointer: pointer.clearPointer,
-        blur: multiselect.blur,
-        focus: multiselect.focus,
-        deactivate: multiselect.deactivate,
-      })
-
-      const pointerAction = usePointerAction(props, context, {
-        fo: options.fo,
-        fg: options.fg,
-        handleOptionClick: options.handleOptionClick,
-        handleGroupClick: options.handleGroupClick,
-        search: search.search,
-        pointer: pointer.pointer,
-        setPointer: pointer.setPointer,
-        clearPointer: pointer.clearPointer,
-        multiselect: multiselect.multiselect,
-      })
-
-      const keyboard = useKeyboard(props, context, {
-        iv: value.iv,
-        update: data.update,
-        search: search.search,
-        setPointer: pointer.setPointer,
-        selectPointer: pointerAction.selectPointer,
-        backwardPointer: pointerAction.backwardPointer,
-        forwardPointer: pointerAction.forwardPointer,
-        blur: multiselect.blur,
-        fo: options.fo,
-      })
-
-      const classes = useClasses(props, context, {
-        isOpen: dropdown.isOpen,
-        isPointed: pointerAction.isPointed,
-        canPointGroups: pointerAction.canPointGroups,
-        isSelected: options.isSelected,
-        isDisabled: options.isDisabled,
-        isActive: multiselect.isActive,
-        resolving: options.resolving,
-        fo: options.fo,
-      })
-
-      return {
-        ...value,
-        ...dropdown,
-        ...multiselect,
-        ...pointer,
-        ...data,
-        ...search,
-        ...options,
-        ...pointerAction,
-        ...keyboard,
-        ...classes,
-      }
+      return resolveDeps(props, context, [
+        useI18n,
+        useValue,
+        usePointer,
+        useDropdown,
+        useSearch,
+        useData,
+        useMultiselect,
+        useOptions,
+        useScroll,
+        usePointerAction,
+        useKeyboard,
+        useClasses,
+        useA11y,
+      ])
     }
   }
 </script>

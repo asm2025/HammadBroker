@@ -28,8 +28,22 @@
   }
 
   &.is-active {
+    border: var(--ms-border-width-active, var(--ms-border-width, 1px)) solid var(--ms-border-color-active, var(--ms-border-color, #D1D5DB));
     box-shadow: 0 0 0 var(--ms-ring-width, 3px) var(--ms-ring-color, #10B98130);
   }
+}
+
+.multiselect-wrapper {
+  position: relative;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  box-sizing: border-box;
+  cursor: pointer;
+  outline: none;
+  min-height: calc(2 * var(--ms-border-width, 1px) + var(--ms-font-size, 1rem) * var(--ms-line-height, 1.375) + 2 * var(--ms-py, 0.5rem));
 }
 
 .multiselect-multiple-label,
@@ -64,6 +78,7 @@
 
 .multiselect-search {
   width: 100%;
+  height: 100%; // for FF
   position: absolute;
   top: 0px;
   bottom: 0px;
@@ -188,7 +203,16 @@
   }
 }
 
-.multiselect-spinner {
+.multiselect-inifite {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(2 * var(--ms-border-width, 1px) + var(--ms-font-size, 1rem) * var(--ms-line-height, 1.375) + 2 * var(--ms-py, 0.5rem));
+}
+
+.multiselect-spinner,
+.multiselect-inifite-spinner {
   -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' fill='currentColor' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M456.433 371.72l-27.79-16.045c-7.192-4.152-10.052-13.136-6.487-20.636 25.82-54.328 23.566-118.602-6.768-171.03-30.265-52.529-84.802-86.621-144.76-91.424C262.35 71.922 256 64.953 256 56.649V24.56c0-9.31 7.916-16.609 17.204-15.96 81.795 5.717 156.412 51.902 197.611 123.408 41.301 71.385 43.99 159.096 8.042 232.792-4.082 8.369-14.361 11.575-22.424 6.92z'%3E%3C/path%3E%3C/svg%3E");
           mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' fill='currentColor' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M456.433 371.72l-27.79-16.045c-7.192-4.152-10.052-13.136-6.487-20.636 25.82-54.328 23.566-118.602-6.768-171.03-30.265-52.529-84.802-86.621-144.76-91.424C262.35 71.922 256 64.953 256 56.649V24.56c0-9.31 7.916-16.609 17.204-15.96 81.795 5.717 156.412 51.902 197.611 123.408 41.301 71.385 43.99 159.096 8.042 232.792-4.082 8.369-14.361 11.575-22.424 6.92z'%3E%3C/path%3E%3C/svg%3E");
   -webkit-mask-position: center;
@@ -201,10 +225,13 @@
   width: 1rem;
   height: 1rem;
   z-index: 10;
-  margin: 0 var(--ms-px, 0.875rem) 0 0;
   animation: multiselect-spin 1s linear infinite;
   flex-shrink: 0;
   flex-grow: 0;
+}
+
+.multiselect-spinner {
+  margin: 0 var(--ms-px, 0.875rem) 0 0;
 }
 
 .multiselect-clear {
@@ -273,7 +300,6 @@
   transform: translateY(100%);
   border: var(--ms-dropdown-border-width, 1px) solid var(--ms-dropdown-border-color, #D1D5DB);
   margin-top: calc(var(--ms-border-width, 1px) * -1);
-  max-height: 15rem;
   overflow-y: scroll;
   -webkit-overflow-scrolling: touch;
   z-index: 100;
@@ -282,12 +308,12 @@
   flex-direction: column;
   border-radius: 0 0 var(--ms-dropdown-radius, 4px) var(--ms-dropdown-radius, 4px);
   outline: none;
+  max-height: var(--ms-max-height, 10rem);
 
   &.is-top {
     transform: translateY(-100%);
     top: var(--ms-border-width, 1px);
     bottom: auto;
-    flex-direction: column-reverse;
     border-radius: var(--ms-dropdown-radius, 4px) var(--ms-dropdown-radius, 4px) 0 0;
   }
 
@@ -302,11 +328,6 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  max-height: var(--ms-max-height, 10rem);
-
-  &.is-top {
-    flex-direction: column-reverse;
-  }
 }
 
 .multiselect-group {
@@ -428,8 +449,57 @@
   }
 }
 
+.multiselect-assistive-text {
+  position: absolute;
+  margin: -1px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
 .multiselect-spacer {
   display: none;
+}
+
+[dir="rtl"] {
+  .multiselect-multiple-label,
+  .multiselect-single-label,
+  .multiselect-placeholder {
+    padding-right: var(--ms-px, 0.875rem);
+    padding-left: calc(1.25rem + var(--ms-px, 0.875rem) * 3);
+    left: auto;
+    right: 0;
+  }
+
+  .multiselect-search {
+    padding-left: 0;
+    padding-right: var(--ms-px, 0.875rem);
+  }
+
+  .multiselect-tags {
+    padding-left: 0;
+    padding-right: var(--ms-py, 0.5rem);
+  }
+
+  .multiselect-tag {
+    padding: var(--ms-tag-py, 0.125rem) var(--ms-tag-px, 0.5rem) var(--ms-tag-py, 0.125rem) 0;
+    margin-right: 0;
+    margin-left: var(--ms-tag-mx, 0.25rem);
+
+    &.is-disabled {
+      padding-left: var(--ms-tag-px, 0.5rem);
+    }
+  }
+
+  .multiselect-spinner,
+  .multiselect-caret {
+    margin: 0 0 0 var(--ms-px, 0.875rem);
+  }
+
+  .multiselect-clear {
+    padding: 0 0 0 var(--ms-px, 0.875rem);
+  }
 }
 
 @keyframes multiselect-spin {
