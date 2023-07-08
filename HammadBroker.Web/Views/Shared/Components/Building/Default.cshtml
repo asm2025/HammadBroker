@@ -356,6 +356,18 @@
 					<span asp-validation-for="Building.Area" class="text-danger"></span>
 				</div>
 			</div>
+			<div class="row g-0 px-2">
+				<div class="col-sm-12 col-md-6">
+					<label asp-for="Building.Views" class="form-label"></label>
+					<input class="form-control" asp-for="Building.Views" />
+					<span asp-validation-for="Building.Views" class="text-danger"></span>
+				</div>
+				<div class="col-sm-12 col-md-6">
+					<label asp-for="Building.PageViews" class="form-label"></label>
+					<input class="form-control" asp-for="Building.PageViews" />
+					<span asp-validation-for="Building.PageViews" class="text-danger"></span>
+				</div>
+			</div>
 		}
 		else
 		{
@@ -403,6 +415,24 @@
 						<i class="fa fa-square"></i>&nbsp;
 						<label asp-for="Building.Area" class="form-label"></label>&nbsp;
 						@Html.DisplayFor(e => e.Building.Area)م
+					</div>
+				}
+			</div>
+			<div class="row g-0 px-2">
+				@if (Model.Building.Views > 0)
+				{
+					<div class="col text-nowrap mt-2">
+						<i class="fa fa-eye"></i>&nbsp;
+						<label asp-for="Building.Views" class="form-label"></label>&nbsp;
+						@Html.DisplayFor(e => e.Building.Views)
+					</div>
+				}
+				@if (Model.Building.PageViews > 0)
+				{
+					<div class="col text-nowrap mt-2">
+						<i class="fa fa-binoculars"></i>&nbsp;
+						<label asp-for="Building.PageViews" class="form-label"></label>&nbsp;
+						@Html.DisplayFor(e => e.Building.PageViews)
 					</div>
 				}
 			</div>
