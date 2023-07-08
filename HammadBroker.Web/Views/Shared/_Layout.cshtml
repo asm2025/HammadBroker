@@ -85,7 +85,7 @@
 						<span class="navbar-toggler-icon"></span>
 					</button>
 					<div id="navbarSupportedContent" class="navbar-collapse collapse d-sm-inline-flex align-items-center">
-						<ul class="navbar-nav flex-grow-1 p-0">
+						<ul class="navbar-nav flex-grow-1 p-0 my-auto">
 							<li class="nav-item">
 								<a class="nav-link btn border-0 rounded-0" menu-route asp-area="" asp-page="/About">من نحن</a>
 							</li>
@@ -111,7 +111,18 @@
 								</ul>
 							</li>
 						</ul>
-						<partial name="_LoginPartial"/>
+						@if (MarketingLinks.HasLinks)
+						{
+							<ul class="navbar-nav flex-shrink-1 p-0 my-auto align-self-end marketing-links marketing-links-small">
+								@foreach (MarketingLink link in MarketingLinks.Links)
+								{
+									<li class="nav-item marketing-link @link.CssClass">
+										<a href="@link.Url" title="@link.Title" target="_blank"></a>
+									</li>
+								}
+							</ul>
+						}
+						<partial name="_LoginPartial" />
 					</div>
 				}
 			</div>
@@ -123,7 +134,7 @@
 		</main>
 	</div>
 
-	<footer class="container-fluid py-3 mt-2 border-top footer text-muted">
+	<footer class="container py-3 mt-2 border-top footer text-muted">
 		<div class="d-flex flex-row align-items-center">
 			<div class="flex-grow-1">
 				<small class="d-inline-block mb-1 text-muted">@CompanyInfo.Name &copy;@DateTime.Today.Year</small>

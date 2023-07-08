@@ -974,57 +974,61 @@ span.oi {
 	list-style: none !important;
 }
 
-.marketing-link {
-	position: relative;
-	display: inline-flex !important;
-	-webkit-flex: 1;
-	-ms-flex: 1;
-	-o-flex: 1;
-	flex: 1;
-	min-width: 30px;
-	min-height: 30px;
-	max-height: 30px;
-	overflow: hidden;
-	-ms-align-items: center;
-	-o-align-items: center;
-	-webkit-align-items: center;
-	align-items: center;
-	-o-justify-content: center;
-	-webkit-justify-content: center;
-	justify-content: center;
-	margin: 0.25rem;
-	-ms-border-radius: 50% !important;
-	border-radius: 50% !important;
-	text-decoration: none !important;
-	background-color: transparent !important;
-	-ms-background-position: center !important;
-	background-position: center !important;
-	-ms-background-size: contain !important;
-	background-size: contain !important;
-	-ms-background-repeat: no-repeat !important;
-	background-repeat: no-repeat !important;
-}
-
-	.marketing-link a {
-		display: block;
-		width: 100%;
-		height: 100%;
+	.marketing-links .marketing-link {
+		position: relative;
+		display: inline-flex !important;
+		-webkit-flex: 1;
+		-ms-flex: 1;
+		-o-flex: 1;
+		flex: 1;
+		min-width: 24px;
+		min-height: 24px;
+		overflow: hidden;
+		-ms-align-items: center;
+		-o-align-items: center;
+		-webkit-align-items: center;
+		align-items: center;
+		-o-justify-content: center;
+		-webkit-justify-content: center;
+		justify-content: center;
+		margin: 0.25rem;
+		-ms-border-radius: 50% !important;
+		border-radius: 50% !important;
 		text-decoration: none !important;
+		background-color: transparent !important;
+		-ms-background-position: center !important;
+		background-position: center !important;
+		-ms-background-size: contain !important;
+		background-size: contain !important;
+		-ms-background-repeat: no-repeat !important;
+		background-repeat: no-repeat !important;
 	}
 
-	.marketing-link img,
-	.marketing-link svg, {
-		vertical-align: middle;
+		.marketing-links .marketing-link a {
+			display: block;
+			width: 100%;
+			height: 100%;
+			text-decoration: none !important;
+		}
+
+		.marketing-links .marketing-link img,
+		.marketing-links .marketing-link svg, {
+			vertical-align: middle;
+		}
+
+	.marketing-links-small .marketing-link {
+		min-width: 16px;
+		min-height: 16px;
 	}
 
-.lnk-facebook {
-	background: url('../images/brand/facebook.png');
-}
+	.marketing-links .lnk-facebook {
+		background: url('../images/brand/facebook.png');
+	}
 
-.lnk-whatsApp {
-	background: url('../images/brand/whatsapp.png');
-}
+	.marketing-links .lnk-whatsApp {
+		background: url('../images/brand/whatsapp.png');
+	}
 
-.lnk-youtube {
-	background: url('../images/brand/youtube.png');
-}
+	.marketing-links .lnk-youtube {
+		background: url('../images/brand/youtube.png');
+	}

@@ -1,7 +1,7 @@
 ﻿@using HammadBroker.Data.Identity
 @inject SignInManager SignInManager
 
-<ul class="navbar-nav p-0 align-self-end">
+<ul class="navbar-nav flex-shrink-1 p-0 my-auto align-self-end">
 	@if (SignInManager.IsSignedIn(User))
 	{
 		bool hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
