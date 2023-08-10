@@ -14,6 +14,7 @@ using HammadBroker.Data.Context;
 using HammadBroker.Data.Identity;
 using HammadBroker.Data.Repositories;
 using HammadBroker.Data.Services;
+using HammadBroker.Extensions;
 using HammadBroker.Helpers;
 using HammadBroker.Model;
 using HammadBroker.Model.Configuration;
@@ -360,7 +361,8 @@ public class Program
 			.UseVirtualPathSettings(environment.WebRootPath, environment.WebRootFileProvider)
 			.UseRouting()
 			// Add custom security headers
-			//.UseSecurityHeaders(configuration)
+			.UseSecurityHeaders(configuration)
+			.UseCustomHeaders()
 			.UseAuthentication()
 			.UseAuthorization()
 			.UseSession()
