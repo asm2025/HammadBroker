@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.IO;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 
@@ -7,7 +8,6 @@ namespace HammadBroker.Extensions;
 
 public static class IApplicationBuilderExtension
 {
-
 	[NotNull]
 	public static IApplicationBuilder UseCustomHeaders([NotNull] this IApplicationBuilder thisValue)
 	{
@@ -18,8 +18,6 @@ public static class IApplicationBuilderExtension
 			headers["X-XSS-Protection"] = "1; mode=block";
 			headers["X-Content-Type-Options"] = "nosniff";
 			headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload";
-			headers["Allow"] = "*";
-			headers["Access-Control-Allow-Methods"] = "*";
 
 			headers.Remove("X-Powered-By");
 			headers.Remove("X-Powered-By-Plesk");
@@ -29,6 +27,26 @@ public static class IApplicationBuilderExtension
 			// Some headers won't remove
 			headers.Remove("Server");
 			return next();
+		});
+	}
+
+	[NotNull]
+	public static IApplicationBuilder UseHeadMethod([NotNull] this IApplicationBuilder thisValue)
+	{
+		return thisValue.Use(async (ctx, next) =>
+		{
+			bool methodSwitched = false;
+
+			if (HttpMethods.IsHead(ctx.Request.Method))
+			{
+				methodSwitched = true;
+				ctx.Request.Method = HttpMethods.Get;
+				ctx.Response.Body = Stream.Null;
+			}
+
+			await next(ctx);
+			if (!methodSwitched) return;
+			ctx.Request.Method = HttpMethods.Head;
 		});
 	}
 }

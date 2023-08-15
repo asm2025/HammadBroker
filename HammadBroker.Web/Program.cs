@@ -370,6 +370,7 @@ public class Program
 			.UseNToastNotify()
 			// last
 			.UseVirtualPathEndpoints(environment.WebRootPath)
+			.UseHeadMethod()
 			.UseEndpoints(endpoint =>
 			{
 				endpoint.MapAreaControllerRoute(nameof(Areas.Admin), nameof(Areas.Admin), $"{nameof(Areas.Admin)}/{{controller=Home}}/{{action=Index}}/{{id?}}")
