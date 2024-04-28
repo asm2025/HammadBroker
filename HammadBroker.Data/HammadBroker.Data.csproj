@@ -47,24 +47,24 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="essentialMix" Version="14.0.7" />
-		<PackageReference Include="essentialMix.Core.Data.Entity" Version="14.0.7" />
-		<PackageReference Include="essentialMix.Core.Data.Entity.AutoMapper" Version="14.0.7" />
-		<PackageReference Include="essentialMix.Newtonsoft" Version="14.0.7" />
-		<PackageReference Include="IdentityModel" Version="6.1.0" />
-		<PackageReference Include="JetBrains.Annotations" Version="2023.2.0" />
-		<PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="6.0.16" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.16" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.16">
+		<PackageReference Include="essentialMix" Version="14.0.11" />
+		<PackageReference Include="essentialMix.Core.Data.Entity" Version="14.0.11" />
+		<PackageReference Include="essentialMix.Core.Data.Entity.AutoMapper" Version="14.0.11" />
+		<PackageReference Include="essentialMix.Newtonsoft" Version="14.0.11" />
+		<PackageReference Include="IdentityModel" Version="7.0.0" />
+		<PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
+		<PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="6.0.29" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.29" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.29">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.16" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.16">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.29" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.29">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.3.3" />
+		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.3.13" />
 	</ItemGroup>
 
 	<ItemGroup>
