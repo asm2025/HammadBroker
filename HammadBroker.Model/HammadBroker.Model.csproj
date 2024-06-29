@@ -48,15 +48,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AutoMapper" Version="12.0.1" />
+		<PackageReference Include="AutoMapper" Version="13.0.1" />
 		<PackageReference Include="essentialMix" Version="14.0.11" />
-		<PackageReference Include="essentialMix.Core.Data.Entity" Version="14.0.11" />
-		<PackageReference Include="essentialMix.Core.Data.Entity.AutoMapper" Version="14.0.11" />
-		<PackageReference Include="essentialMix.Core.Web" Version="14.0.11" />
+		<PackageReference Include="essentialMix.Core.Data.Entity" Version="14.0.12" />
+		<PackageReference Include="essentialMix.Core.Data.Entity.AutoMapper" Version="14.0.12" />
+		<PackageReference Include="essentialMix.Core.Web" Version="14.0.12" />
 		<PackageReference Include="essentialMix.Logging" Version="14.0.11" />
 		<PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.29" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.29" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.31" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.31" />
 	</ItemGroup>
 
 </Project>
